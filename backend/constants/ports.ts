@@ -1,0 +1,3 @@
+export const GATEWAY_SERVICE_PORT = 3000;
+export const USER_SERVICE_PORT = 3001;
+export const AUTHENTICATION_SERVICE_PORT = 3002;
