@@ -9,14 +9,14 @@ import { MikroUsersQueryRepository } from './infrastructure/repositories/mikro-u
 import { USERS_QUERY_REPOSITORY } from './domain/repositories/users-query.repository';
 import { UuidModule } from 'nestjs-uuid';
 import { CREATE_USER_ID_PORT } from './application/ports/create-user-id.port';
-import { PASSWORD_HASHER } from './domain/services/password-hasher.service';
-import { CHECK_USER_EXISTS } from './domain/services/check-user-exists.service';
-import { CreateUserUuidAdapter } from './infrastructure/adapters/create-user-uuid.adapter';
-import { BcryptPasswordHasher } from './infrastructure/adapters/bcrypt-password-hasher.adapter';
-import { MikroCheckUserExistsAdapter } from './infrastructure/adapters/mikro-check-user-exists.adapter';
+import { PASSWORD_HASHER_PORT } from './application/ports/password-hasher.port';
+import { CreateUserUuidService } from './infrastructure/adapters/create-user-uuid.service';
+import { BcryptPasswordHasherService } from './infrastructure/adapters/bcrypt-password-hasher.service';
 import { CreateUserUseCase } from './application/use-cases/create-user/create-user.use-case';
 import { USERS_COMMAND_REPOSITORY } from './domain/repositories/users-command.repository';
 import { MikroUsersCommandRepository } from './infrastructure/repositories/mikro-users-command.repository';
+import { UserUniquenessService } from './domain/services/user-uniqueness.service';
+import { FindUsersUseCase } from './application/use-cases/find-users/find-users.use-case';
 
 @Module({
   imports: [
@@ -42,7 +42,9 @@ import { MikroUsersCommandRepository } from './infrastructure/repositories/mikro
   controllers: [UsersController],
   providers: [
     FindUserByIdUseCase,
+    FindUsersUseCase,
     CreateUserUseCase,
+    UserUniquenessService,
     {
       provide: USERS_QUERY_REPOSITORY,
       useClass: MikroUsersQueryRepository,
@@ -53,15 +55,11 @@ import { MikroUsersCommandRepository } from './infrastructure/repositories/mikro
     },
     {
       provide: CREATE_USER_ID_PORT,
-      useClass: CreateUserUuidAdapter,
+      useClass: CreateUserUuidService,
     },
     {
-      provide: PASSWORD_HASHER,
-      useClass: BcryptPasswordHasher,
-    },
-    {
-      provide: CHECK_USER_EXISTS,
-      useClass: MikroCheckUserExistsAdapter,
+      provide: PASSWORD_HASHER_PORT,
+      useClass: BcryptPasswordHasherService,
     },
   ],
 })

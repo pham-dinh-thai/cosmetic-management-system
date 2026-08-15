@@ -3,13 +3,22 @@ import { FindUserByIdUseCase } from '../../application/use-cases/find-user-by-id
 import { UserReadModel } from '../../domain/read-models/user.read-model';
 import { CreateUserUseCase } from '../../application/use-cases/create-user/create-user.use-case';
 import { CreateUserRequest } from './requests/create-user.request';
+import { FindUsersUseCase } from '../../application/use-cases/find-users/find-users.use-case';
 
 @Controller('users')
 export class UsersController {
   public constructor(
+    private readonly findUsersUseCase: FindUsersUseCase,
     private readonly findUserByIdUseCase: FindUserByIdUseCase,
     private readonly createUserUseCase: CreateUserUseCase,
   ) {}
+
+  @Get()
+  public async findAll(): Promise<UserReadModel[]> {
+    const users = await this.findUsersUseCase.execute();
+
+    return users;
+  }
 
   @Get(':id')
   public async findById(

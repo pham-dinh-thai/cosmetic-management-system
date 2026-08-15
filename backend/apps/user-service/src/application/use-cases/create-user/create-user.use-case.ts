@@ -1,4 +1,4 @@
-import { ConflictException, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import {
   type IUsersCommandRepository,
   USERS_COMMAND_REPOSITORY,
@@ -10,13 +10,10 @@ import {
   type CreateUserIdPort,
 } from '../../ports/create-user-id.port';
 import {
-  PASSWORD_HASHER,
-  type PasswordHasher,
-} from '../../../domain/services/password-hasher.service';
-import {
-  CHECK_USER_EXISTS,
-  type CheckUserExistsPort,
-} from '../../../domain/services/check-user-exists.service';
+  PASSWORD_HASHER_PORT,
+  type PasswordHasherPort,
+} from '../../ports/password-hasher.port';
+import { UserUniquenessService } from '../../../domain/services/user-uniqueness.service';
 
 @Injectable()
 export class CreateUserUseCase {
@@ -27,20 +24,17 @@ export class CreateUserUseCase {
     @Inject(CREATE_USER_ID_PORT)
     private readonly createUserIdPort: CreateUserIdPort,
 
-    @Inject(PASSWORD_HASHER)
-    private readonly passwordHasher: PasswordHasher,
+    @Inject(PASSWORD_HASHER_PORT)
+    private readonly passwordHasherPort: PasswordHasherPort,
 
-    @Inject(CHECK_USER_EXISTS)
-    private readonly checkUserExists: CheckUserExistsPort,
+    private readonly userUniquenessService: UserUniquenessService,
   ) {}
 
   public async execute(request: ICreateUserRequest): Promise<void> {
-    if (await this.checkUserExists.isEmailTaken(request.email)) {
-      throw new ConflictException('Email already in use');
-    }
+    await this.userUniquenessService.ensureEmailIsUnique(request.email);
 
     const id = this.createUserIdPort.generate();
-    const password = await this.passwordHasher.hash(request.password);
+    const password = await this.passwordHasherPort.hash(request.password);
 
     const user = User.create({
       id,
