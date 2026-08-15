@@ -10,8 +10,8 @@ import { USERS_QUERY_REPOSITORY } from './domain/repositories/users-query.reposi
 import { UuidModule } from 'nestjs-uuid';
 import { CREATE_USER_ID_PORT } from './application/ports/create-user-id.port';
 import { PASSWORD_HASHER_PORT } from './application/ports/password-hasher.port';
-import { CreateUserUuidService } from './infrastructure/adapters/create-user-uuid.service';
-import { BcryptPasswordHasherService } from './infrastructure/adapters/bcrypt-password-hasher.service';
+import { CreateUserUuidAdapter } from './infrastructure/adapters/create-user-uuid.adapter';
+import { BcryptPasswordHasherAdapter } from './infrastructure/adapters/bcrypt-password-hasher.adapter';
 import { CreateUserUseCase } from './application/use-cases/create-user/create-user.use-case';
 import { USERS_COMMAND_REPOSITORY } from './domain/repositories/users-command.repository';
 import { MikroUsersCommandRepository } from './infrastructure/repositories/mikro-users-command.repository';
@@ -55,11 +55,11 @@ import { FindUsersUseCase } from './application/use-cases/find-users/find-users.
     },
     {
       provide: CREATE_USER_ID_PORT,
-      useClass: CreateUserUuidService,
+      useClass: CreateUserUuidAdapter,
     },
     {
       provide: PASSWORD_HASHER_PORT,
-      useClass: BcryptPasswordHasherService,
+      useClass: BcryptPasswordHasherAdapter,
     },
   ],
 })

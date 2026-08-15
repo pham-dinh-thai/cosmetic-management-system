@@ -3,7 +3,7 @@ import { ICreateUserIdPort } from '../../application/ports/create-user-id.port';
 import { UuidService } from 'nestjs-uuid';
 
 @Injectable()
-export class CreateUserUuidService implements ICreateUserIdPort {
+export class CreateUserUuidAdapter implements ICreateUserIdPort {
   public constructor(private readonly uuidService: UuidService) {}
 
   public generate(): string {

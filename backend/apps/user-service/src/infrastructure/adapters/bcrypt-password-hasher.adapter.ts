@@ -3,7 +3,7 @@ import { IPasswordHasherPort } from '../../application/ports/password-hasher.por
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
-export class BcryptPasswordHasherService implements IPasswordHasherPort {
+export class BcryptPasswordHasherAdapter implements IPasswordHasherPort {
   public async hash(password: string): Promise<string> {
     return bcrypt.hash(password, 10);
   }
