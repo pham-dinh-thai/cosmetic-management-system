@@ -17,6 +17,7 @@ import { USERS_COMMAND_REPOSITORY } from './domain/repositories/users-command.re
 import { MikroUsersCommandRepository } from './infrastructure/repositories/mikro-users-command.repository';
 import { UserUniquenessService } from './domain/services/user-uniqueness.service';
 import { FindUsersUseCase } from './application/use-cases/find-users/find-users.use-case';
+import { DeleteUserUseCase } from './application/use-cases/delete-user/delete-user.use-case';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { FindUsersUseCase } from './application/use-cases/find-users/find-users.
     FindUserByIdUseCase,
     FindUsersUseCase,
     CreateUserUseCase,
+    DeleteUserUseCase,
     UserUniquenessService,
     {
       provide: USERS_QUERY_REPOSITORY,

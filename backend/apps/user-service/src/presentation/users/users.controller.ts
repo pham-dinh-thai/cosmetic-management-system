@@ -1,9 +1,19 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+} from '@nestjs/common';
 import { FindUserByIdUseCase } from '../../application/use-cases/find-user-by-id/find-user-by-id.use-case';
 import { UserReadModel } from '../../domain/read-models/user.read-model';
 import { CreateUserUseCase } from '../../application/use-cases/create-user/create-user.use-case';
 import { CreateUserRequest } from './requests/create-user.request';
 import { FindUsersUseCase } from '../../application/use-cases/find-users/find-users.use-case';
+import { DeleteUserUseCase } from '../../application/use-cases/delete-user/delete-user.use-case';
 
 @Controller('users')
 export class UsersController {
@@ -11,6 +21,7 @@ export class UsersController {
     private readonly findUsersUseCase: FindUsersUseCase,
     private readonly findUserByIdUseCase: FindUserByIdUseCase,
     private readonly createUserUseCase: CreateUserUseCase,
+    private readonly deleteUserUseCase: DeleteUserUseCase,
   ) {}
 
   @Get()
@@ -32,5 +43,11 @@ export class UsersController {
   @Post()
   public async create(@Body() request: CreateUserRequest): Promise<void> {
     await this.createUserUseCase.execute(request);
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete(':id')
+  public async delete(@Param('id') id: string): Promise<void> {
+    await this.deleteUserUseCase.execute(id);
   }
 }
