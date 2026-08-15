@@ -3,7 +3,9 @@ import { AuthenticationServiceService } from './authentication-service.service';
 
 @Controller()
 export class AuthenticationServiceController {
-  constructor(private readonly authenticationServiceService: AuthenticationServiceService) {}
+  constructor(
+    private readonly authenticationServiceService: AuthenticationServiceService,
+  ) {}
 
   @Get()
   getHello(): string {
