@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UsersController } from './users.controller';
 import { FindUserByIdUseCase } from '../../application/use-cases/find-user-by-id/find-user-by-id.use-case';
 import { CreateUserUseCase } from '../../application/use-cases/create-user/create-user.use-case';
+import { FindUsersUseCase } from '../../application/use-cases/find-users/find-users.use-case';
 
 jest.mock(
   '../../application/use-cases/find-user-by-id/find-user-by-id.use-case',
@@ -15,6 +16,9 @@ jest.mock(
     CreateUserUseCase: class CreateUserUseCaseMock {},
   }),
 );
+jest.mock('../../application/use-cases/find-users/find-users.use-case', () => ({
+  FindUsersUseCase: class FindUsersUseCaseMock {},
+}));
 
 describe('UsersController', () => {
   let controller: UsersController;
@@ -23,6 +27,7 @@ describe('UsersController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UsersController],
       providers: [
+        { provide: FindUsersUseCase, useValue: {} },
         { provide: FindUserByIdUseCase, useValue: {} },
         { provide: CreateUserUseCase, useValue: {} },
       ],

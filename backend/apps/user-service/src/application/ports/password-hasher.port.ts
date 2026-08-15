@@ -1,5 +1,5 @@
-export interface PasswordHasherPort {
+export interface IPasswordHasherPort {
   hash(password: string): Promise<string>;
 }
 
-export const PASSWORD_HASHER_PORT = 'PasswordHasherPort';
+export const PASSWORD_HASHER_PORT = 'IPasswordHasherPort';

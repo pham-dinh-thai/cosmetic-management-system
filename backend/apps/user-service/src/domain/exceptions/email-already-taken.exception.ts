@@ -1,6 +1,7 @@
-export class EmailAlreadyTakenException extends Error {
+import { ConflictException } from '@nestjs/common';
+
+export class EmailAlreadyTakenException extends ConflictException {
   public constructor(email: string) {
     super(`Email already in use: ${email}`);
-    this.name = 'EmailAlreadyTakenException';
   }
 }

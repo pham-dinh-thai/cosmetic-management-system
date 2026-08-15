@@ -7,11 +7,11 @@ import { ICreateUserRequest } from './create-user.request';
 import { User } from '../../../domain/user.aggregate';
 import {
   CREATE_USER_ID_PORT,
-  type CreateUserIdPort,
+  type ICreateUserIdPort,
 } from '../../ports/create-user-id.port';
 import {
   PASSWORD_HASHER_PORT,
-  type PasswordHasherPort,
+  type IPasswordHasherPort,
 } from '../../ports/password-hasher.port';
 import { UserUniquenessService } from '../../../domain/services/user-uniqueness.service';
 
@@ -22,10 +22,10 @@ export class CreateUserUseCase {
     private readonly usersCommandRepository: IUsersCommandRepository,
 
     @Inject(CREATE_USER_ID_PORT)
-    private readonly createUserIdPort: CreateUserIdPort,
+    private readonly createUserIdPort: ICreateUserIdPort,
 
     @Inject(PASSWORD_HASHER_PORT)
-    private readonly passwordHasherPort: PasswordHasherPort,
+    private readonly passwordHasherPort: IPasswordHasherPort,
 
     private readonly userUniquenessService: UserUniquenessService,
   ) {}
