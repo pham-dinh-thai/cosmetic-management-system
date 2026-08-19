@@ -10,6 +10,87 @@ services:
       - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
+      - ./docker/postgres/init-dbs.sh:/docker-entrypoint-initdb.d/init-dbs.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cosmetic -d cosmetic_user_service"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  migration-user:
+    build: ./backend
+    command: sh -c "npx mikro-orm migration:up"
+    environment:
+      NODE_OPTIONS: "-r ts-node/register"
+      MIKRO_ORM_CLI_CONFIG: "./apps/user-service/mikro-orm.config.ts"
+      USER_DB_HOST: postgres
+      USER_DB_PORT: "5432"
+      USER_DB_USER: cosmetic
+      USER_DB_PASSWORD: cosmetic
+      USER_DB_NAME: cosmetic_user_service
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  user-service:
+    build: ./backend
+    command: ["node", "dist/apps/user-service/main.js"]
+    environment:
+      USER_DB_HOST: postgres
+      USER_DB_PORT: "5432"
+      USER_DB_USER: cosmetic
+      USER_DB_PASSWORD: cosmetic
+      USER_DB_NAME: cosmetic_user_service
+    ports:
+      - "3001:3001"
+    depends_on:
+      migration-user:
+        condition: service_completed_successfully
+
+  migration-auth:
+    build: ./backend
+    command: sh -c "npx mikro-orm migration:up"
+    environment:
+      NODE_OPTIONS: "-r ts-node/register"
+      MIKRO_ORM_CLI_CONFIG: "./apps/authentication-service/mikro-orm.config.ts"
+      AUTH_DB_HOST: postgres
+      AUTH_DB_PORT: "5432"
+      AUTH_DB_USER: cosmetic
+      AUTH_DB_PASSWORD: cosmetic
+      AUTH_DB_NAME: cosmetic_authentication_service
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  authentication-service:
+    build: ./backend
+    command: ["node", "dist/apps/authentication-service/main.js"]
+    environment:
+      AUTH_DB_HOST: postgres
+      AUTH_DB_PORT: "5432"
+      AUTH_DB_USER: cosmetic
+      AUTH_DB_PASSWORD: cosmetic
+      AUTH_DB_NAME: cosmetic_authentication_service
+      JWT_SECRET: dev-only-change-me
+      JWT_ACCESS_EXPIRES_IN: "15m"
+      JWT_REFRESH_EXPIRES_IN: "7d"
+    ports:
+      - "3002:3002"
+    depends_on:
+      migration-auth:
+        condition: service_completed_successfully
+
+  gateway-service:
+    build: ./backend
+    command: ["node", "dist/apps/gateway-service/main.js"]
+    environment:
+      USER_SERVICE_URL: http://user-service:3001
+      AUTH_SERVICE_URL: http://authentication-service:3002
+    ports:
+      - "3000:3000"
+    depends_on:
+      user-service:
+        condition: service_started
 
 volumes:
   postgres-data:

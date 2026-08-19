@@ -1,35 +1,48 @@
-export type CreateUserProps = {
-  id: string;
-  email: string;
-  name: string;
-  password: string;
-};
+import { Gender } from './enums/gender.enum';
+import { CreateUserProps } from './types';
 
 export class User {
   public constructor(
     private readonly id: string,
+    private firstName: string,
+    private lastName: string,
+    private gender: Gender,
+    private phone: string,
     private email: string,
-    private name: string,
-    private password: string,
   ) {}
 
   public static create(props: CreateUserProps): User {
-    return new User(props.id, props.email, props.name, props.password);
+    return new User(
+      props.id,
+      props.firstName,
+      props.lastName,
+      props.gender,
+      props.phone,
+      props.email,
+    );
   }
 
   public getId(): string {
     return this.id;
   }
 
+  public getFirstName(): string {
+    return this.firstName;
+  }
+
+  public getLastName(): string {
+    return this.lastName;
+  }
+
+  public getGender(): Gender {
+    return this.gender;
+  }
+
+  public getPhone(): string {
+    return this.phone;
+  }
+
   public getEmail(): string {
     return this.email;
-  }
-
-  public getName(): string {
-    return this.name;
-  }
-
-  public getPassword(): string {
-    return this.password;
   }
 }

@@ -7,14 +7,23 @@ export class UsersMapper {
     const userMikro = new UserMikro();
 
     userMikro.id = user.getId();
+    userMikro.firstName = user.getFirstName();
+    userMikro.lastName = user.getLastName();
+    userMikro.gender = user.getGender();
+    userMikro.phone = user.getPhone();
     userMikro.email = user.getEmail();
-    userMikro.name = user.getName();
-    userMikro.password = user.getPassword();
 
     return userMikro;
   }
 
   public static toReadModel(userMikro: UserMikro): UserReadModel {
-    return new UserReadModel(userMikro.id, userMikro.email, userMikro.name);
+    return new UserReadModel(
+      userMikro.id,
+      userMikro.firstName,
+      userMikro.lastName,
+      userMikro.gender,
+      userMikro.phone,
+      userMikro.email,
+    );
   }
 }

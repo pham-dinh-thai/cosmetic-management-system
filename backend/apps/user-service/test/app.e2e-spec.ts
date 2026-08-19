@@ -24,7 +24,7 @@ describe('UserService (e2e)', () => {
   it('POST /users then GET /users/:id', async () => {
     const email = `e2e-${Date.now()}@test.vn`;
     await request(app.getHttpServer())
-      .post('/users')
+      .post('/api/users')
       .send({ email, name: 'E2E', password: '123' })
       .expect(201);
 
@@ -34,7 +34,7 @@ describe('UserService (e2e)', () => {
     expect(user?.name).toBe('E2E');
 
     const found = await request(app.getHttpServer())
-      .get(`/users/${user?.id}`)
+      .get(`/api/users/${user?.id}`)
       .expect(200);
 
     expect(found.body.email).toBe(email);
@@ -43,11 +43,11 @@ describe('UserService (e2e)', () => {
   it('POST /users rejects duplicate email', async () => {
     const email = `dup-${Date.now()}@test.vn`;
     await request(app.getHttpServer())
-      .post('/users')
+      .post('/api/users')
       .send({ email, name: 'A', password: '1' })
       .expect(201);
     await request(app.getHttpServer())
-      .post('/users')
+      .post('/api/users')
       .send({ email, name: 'B', password: '2' })
       .expect(409);
   });

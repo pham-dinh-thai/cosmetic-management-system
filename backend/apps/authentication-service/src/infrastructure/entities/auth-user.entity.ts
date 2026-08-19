@@ -1,17 +1,14 @@
 import { OptionalProps } from '@mikro-orm/core';
 import { defineEntity, p } from '@mikro-orm/postgresql';
-import { Gender } from '../../domain/enums/gender.enum';
 
-const UserSchema = defineEntity({
-  name: 'User',
+const AuthUserSchema = defineEntity({
+  name: 'AuthUser',
   tableName: 'users',
   properties: {
     id: p.uuid().primary().defaultRaw('gen_random_uuid()'),
-    firstName: p.string(),
-    lastName: p.string(),
-    gender: p.enum(() => Gender),
-    phone: p.string(),
     email: p.string().unique(),
+    password: p.string().hidden(),
+    emailVerifiedAt: p.datetime().nullable(),
     createdAt: p.datetime().onCreate(() => new Date()),
     updatedAt: p
       .datetime()
@@ -20,8 +17,8 @@ const UserSchema = defineEntity({
   },
 });
 
-export class User extends UserSchema.class {
+export class AuthUser extends AuthUserSchema.class {
   [OptionalProps]?: 'createdAt' | 'updatedAt';
 }
 
-UserSchema.setClass(User);
+AuthUserSchema.setClass(AuthUser);

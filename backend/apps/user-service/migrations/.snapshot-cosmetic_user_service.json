@@ -42,6 +42,44 @@
           "enumItems": [],
           "mappedType": "string"
         },
+        "first_name": {
+          "name": "first_name",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": 255,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "collation": null,
+          "enumItems": [],
+          "mappedType": "string"
+        },
+        "gender": {
+          "name": "gender",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "collation": null,
+          "enumItems": [
+            "male",
+            "female",
+            "other"
+          ],
+          "mappedType": "enum"
+        },
         "id": {
           "name": "id",
           "type": "uuid",
@@ -59,8 +97,8 @@
           "enumItems": [],
           "mappedType": "uuid"
         },
-        "name": {
-          "name": "name",
+        "last_name": {
+          "name": "last_name",
           "type": "varchar(255)",
           "unsigned": false,
           "autoincrement": false,
@@ -76,8 +114,8 @@
           "enumItems": [],
           "mappedType": "string"
         },
-        "password": {
-          "name": "password",
+        "phone": {
+          "name": "phone",
           "type": "varchar(255)",
           "unsigned": false,
           "autoincrement": false,
@@ -118,7 +156,7 @@
           ],
           "composite": false,
           "constraint": true,
-          "keyName": "user_email_unique",
+          "keyName": "users_email_unique",
           "primary": false,
           "unique": true
         },
@@ -128,12 +166,19 @@
           ],
           "composite": false,
           "constraint": true,
-          "keyName": "user_pkey",
+          "keyName": "users_pkey",
           "primary": true,
           "unique": true
         }
       ],
-      "checks": [],
+      "checks": [
+        {
+          "name": "users_gender_check",
+          "expression": "\"gender\" in ('male', 'female', 'other')",
+          "definition": "check (\"gender\" in ('male', 'female', 'other'))",
+          "columnName": "gender"
+        }
+      ],
       "triggers": [],
       "foreignKeys": {},
       "comment": null
