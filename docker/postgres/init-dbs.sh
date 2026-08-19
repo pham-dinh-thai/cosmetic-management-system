@@ -2,8 +2,8 @@
 set -e
 
 psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" <<-SQL
-  CREATE USER cosmetic_user WITH PASSWORD 'cmst_usr_2026_s3cure';
-  CREATE USER cosmetic_auth  WITH PASSWORD 'cmst_auth_2026_s3cure';
+  CREATE USER cosmetic_user WITH PASSWORD '${USER_DB_PASSWORD}';
+  CREATE USER cosmetic_auth  WITH PASSWORD '${AUTH_DB_PASSWORD}';
 
   GRANT ALL PRIVILEGES ON DATABASE cosmetic_user_service TO cosmetic_user;
   GRANT ALL PRIVILEGES ON SCHEMA public TO cosmetic_user;
