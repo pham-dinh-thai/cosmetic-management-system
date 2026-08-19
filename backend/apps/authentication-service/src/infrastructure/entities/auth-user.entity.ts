@@ -2,11 +2,11 @@ import { OptionalProps } from '@mikro-orm/core';
 import { defineEntity, p } from '@mikro-orm/postgresql';
 
 const AuthUserSchema = defineEntity({
-  name: 'AuthUser',
-  tableName: 'users',
+  name: 'Authentication',
+  tableName: 'auth_users',
   properties: {
     id: p.uuid().primary().defaultRaw('gen_random_uuid()'),
-    email: p.string().unique(),
+    userId: p.uuid().unique(),
     password: p.string().hidden(),
     emailVerifiedAt: p.datetime().nullable(),
     createdAt: p.datetime().onCreate(() => new Date()),

@@ -20,17 +20,17 @@ import { DeleteUserUseCase } from './application/use-cases/delete-user/delete-us
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: 'apps/user-service/.env',
+      envFilePath: '../.env',
       isGlobal: true,
     }),
     MikroOrmModule.forRootAsync({
       driver: PostgreSqlDriver,
       useFactory: (config: ConfigService) => ({
-        host: config.get<string>('USER_DB_HOST', 'localhost'),
-        port: config.get<number>('USER_DB_PORT', 5432),
-        user: config.get<string>('USER_DB_USER', 'cosmetic'),
-        password: config.get<string>('USER_DB_PASSWORD', 'cosmetic'),
-        dbName: config.get<string>('USER_DB_NAME', 'cosmetic_user_service'),
+        host: config.get<string>('USER_DB_HOST'),
+        port: config.get<number>('USER_DB_PORT'),
+        user: config.get<string>('USER_DB_USER'),
+        password: config.get<string>('USER_DB_PASSWORD'),
+        dbName: config.get<string>('USER_DB_NAME'),
         entities: [User],
       }),
       inject: [ConfigService],

@@ -1,3 +1,27 @@
 #!/bin/sh
 set -e
-psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -c "CREATE DATABASE cosmetic_authentication_service;"
+
+psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" <<-SQL
+  CREATE USER cosmetic_user WITH PASSWORD 'cmst_usr_2026_s3cure';
+  CREATE USER cosmetic_auth  WITH PASSWORD 'cmst_auth_2026_s3cure';
+
+  GRANT ALL PRIVILEGES ON DATABASE cosmetic_user_service TO cosmetic_user;
+  GRANT ALL PRIVILEGES ON SCHEMA public TO cosmetic_user;
+
+  CREATE DATABASE cosmetic_authentication_service OWNER cosmetic_auth;
+  GRANT ALL PRIVILEGES ON DATABASE cosmetic_authentication_service TO cosmetic_auth;
+SQL
+
+psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d cosmetic_user_service <<-SQL
+  GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO cosmetic_user;
+  GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO cosmetic_user;
+  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO cosmetic_user;
+  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO cosmetic_user;
+SQL
+
+psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d cosmetic_authentication_service <<-SQL
+  GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO cosmetic_auth;
+  GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO cosmetic_auth;
+  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO cosmetic_auth;
+  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO cosmetic_auth;
+SQL

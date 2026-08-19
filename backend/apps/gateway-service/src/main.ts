@@ -9,10 +9,8 @@ async function bootstrap() {
   app.enableCors();
   app.use(helmet());
 
-  const userServiceUrl =
-    process.env.USER_SERVICE_URL ?? 'http://localhost:3001';
-  const authServiceUrl =
-    process.env.AUTH_SERVICE_URL ?? 'http://localhost:3002';
+  const userServiceUrl = process.env.USER_SERVICE_URL;
+  const authServiceUrl = process.env.AUTH_SERVICE_URL;
 
   app.use(
     createProxyMiddleware({
