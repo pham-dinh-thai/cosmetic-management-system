@@ -14,6 +14,7 @@ import { CreateUserUseCase } from '../../application/use-cases/create-user/creat
 import { CreateUserRequest } from './requests/create-user.request';
 import { FindUsersUseCase } from '../../application/use-cases/find-users/find-users.use-case';
 import { DeleteUserUseCase } from '../../application/use-cases/delete-user/delete-user.use-case';
+import { CreateUserResponse } from '../../application/use-cases/create-user/create-user.response';
 
 @Controller('users')
 export class UsersController {
@@ -43,10 +44,8 @@ export class UsersController {
   @Post()
   public async create(
     @Body() request: CreateUserRequest,
-  ): Promise<{ id: string }> {
-    const id = await this.createUserUseCase.execute(request);
-
-    return { id };
+  ): Promise<CreateUserResponse> {
+    return await this.createUserUseCase.execute(request);
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)

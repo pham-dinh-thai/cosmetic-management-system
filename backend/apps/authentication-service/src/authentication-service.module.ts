@@ -14,6 +14,9 @@ import { BcryptPasswordHasherAdapter } from './infrastructure/adapters/bcrypt-pa
 import { AuthUsersController } from './presentation/auth-users/auth-users.controller';
 import { AUTH_USERS_COMMAND_REPOSITORY } from './domain/repositories/auth-users-command.repository';
 import { MikroAuthUsersCommandRepository } from './infrastructure/repositories/mikro-auth-users-command.repository';
+import { USER_READER_PORT } from './domain/ports/user-reader.port';
+import { UserReaderAdapter } from './infrastructure/adapters/user-reader.adapter';
+import { AuthUserValidationService } from './domain/services/auth-user-validation.service';
 
 @Module({
   imports: [
@@ -52,6 +55,11 @@ import { MikroAuthUsersCommandRepository } from './infrastructure/repositories/m
       provide: AUTH_USERS_COMMAND_REPOSITORY,
       useClass: MikroAuthUsersCommandRepository,
     },
+    {
+      provide: USER_READER_PORT,
+      useClass: UserReaderAdapter,
+    },
+    AuthUserValidationService,
   ],
 })
 export class AuthenticationServiceModule {}

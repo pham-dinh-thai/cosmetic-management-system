@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { IAuthUsersCommandRepository } from '../../domain/repositories/auth-users-command.repository';
 import { EntityManager } from '@mikro-orm/postgresql';
-import { AuthUser as AuthUserMikro } from '../entities/auth-user.entity';
 import { AuthUser } from '../../domain/auth-user.aggregate';
+import { AuthUser as AuthUserMikro } from '../entities/auth-user.entity';
 import { AuthUsersMapper } from '../mappers/auth-users.mapper';
 
 @Injectable()
@@ -13,5 +13,11 @@ export class MikroAuthUsersCommandRepository implements IAuthUsersCommandReposit
     this.entityManager.persist(AuthUsersMapper.toMikro(authUser));
 
     await this.entityManager.flush();
+  }
+
+  public async existsByUserId(userId: string): Promise<boolean> {
+    const count = await this.entityManager.count(AuthUserMikro, { userId });
+
+    return count > 0;
   }
 }
