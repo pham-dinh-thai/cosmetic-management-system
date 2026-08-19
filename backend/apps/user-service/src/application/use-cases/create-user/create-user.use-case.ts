@@ -23,7 +23,7 @@ export class CreateUserUseCase {
     private readonly userUniquenessService: UserUniquenessService,
   ) {}
 
-  public async execute(request: ICreateUserRequest): Promise<void> {
+  public async execute(request: ICreateUserRequest): Promise<string> {
     await this.userUniquenessService.ensureEmailIsUnique(request.email);
 
     const id = this.createUserIdPort.generate();
@@ -38,5 +38,7 @@ export class CreateUserUseCase {
     });
 
     await this.usersCommandRepository.create(user);
+
+    return user.getId();
   }
 }

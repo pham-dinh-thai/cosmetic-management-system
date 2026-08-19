@@ -41,8 +41,12 @@ export class UsersController {
   }
 
   @Post()
-  public async create(@Body() request: CreateUserRequest): Promise<void> {
-    await this.createUserUseCase.execute(request);
+  public async create(
+    @Body() request: CreateUserRequest,
+  ): Promise<{ id: string }> {
+    const id = await this.createUserUseCase.execute(request);
+
+    return { id };
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
