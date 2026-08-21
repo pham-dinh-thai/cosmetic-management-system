@@ -112,5 +112,12 @@ services:
       - user-service
       - authentication-service
 
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - gateway-service
+
 volumes:
   postgres-data:
