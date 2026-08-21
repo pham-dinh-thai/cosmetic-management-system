@@ -114,9 +114,17 @@ services:
 
   frontend:
     build: ./frontend
+    depends_on:
+      - gateway-service
+
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
     ports:
       - "80:80"
     depends_on:
+      - frontend
       - gateway-service
 
 volumes:
