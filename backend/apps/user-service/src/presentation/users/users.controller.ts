@@ -15,30 +15,36 @@ import { CreateUserRequest } from './requests/create-user.request';
 import { FindUsersUseCase } from '../../application/use-cases/find-users/find-users.use-case';
 import { DeleteUserUseCase } from '../../application/use-cases/delete-user/delete-user.use-case';
 import { CreateUserResponse } from '../../application/use-cases/create-user/create-user.response';
+import { FindUserIdByEmailUseCase } from '../../application/use-cases/find-user-id-by-email/find-user-id-by-email.use-case';
+import { FindUserIdByEmailResponse } from '../../application/use-cases/find-user-id-by-email/find-user-id-by-email.response';
 
 @Controller('users')
 export class UsersController {
   public constructor(
     private readonly findUsersUseCase: FindUsersUseCase,
     private readonly findUserByIdUseCase: FindUserByIdUseCase,
+    private readonly findUserIdByEmailUseCase: FindUserIdByEmailUseCase,
     private readonly createUserUseCase: CreateUserUseCase,
     private readonly deleteUserUseCase: DeleteUserUseCase,
   ) {}
 
   @Get()
   public async findAll(): Promise<UserReadModel[]> {
-    const users = await this.findUsersUseCase.execute();
+    return await this.findUsersUseCase.execute();
+  }
 
-    return users;
+  @Get('by-email/:email')
+  public async findByEmail(
+    @Param('email') email: string,
+  ): Promise<FindUserIdByEmailResponse> {
+    return await this.findUserIdByEmailUseCase.execute(email);
   }
 
   @Get(':id')
   public async findById(
     @Param('id') id: string,
   ): Promise<UserReadModel | null> {
-    const user = await this.findUserByIdUseCase.execute(id);
-
-    return user;
+    return await this.findUserByIdUseCase.execute(id);
   }
 
   @Post()

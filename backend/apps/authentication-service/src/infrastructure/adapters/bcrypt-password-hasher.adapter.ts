@@ -10,4 +10,8 @@ export class BcryptPasswordHasherAdapter implements IPasswordHasherPort {
   ): Promise<string> {
     return await bcrypt.hash(plainText, saltOrRounds);
   }
+
+  public async compare(plainText: string, hash: string): Promise<boolean> {
+    return await bcrypt.compare(plainText, hash);
+  }
 }

@@ -16,7 +16,14 @@ import { AUTH_USERS_COMMAND_REPOSITORY } from './domain/repositories/auth-users-
 import { MikroAuthUsersCommandRepository } from './infrastructure/repositories/mikro-auth-users-command.repository';
 import { USER_READER_PORT } from './domain/ports/user-reader.port';
 import { UserReaderAdapter } from './infrastructure/adapters/user-reader.adapter';
-import { AuthUserValidationService } from './domain/services/auth-user-validation.service';
+import { AUTH_USERS_QUERY_REPOSITORY } from './domain/repositories/auth-users-query.repository';
+import { MikroAuthUsersQueryRepository } from './infrastructure/repositories/mikro-auth-users-query.repository';
+import { JwtModule } from '@nestjs/jwt';
+import { SIGN_TOKEN_PORT } from './application/ports/sign-token.port';
+import { SignTokenAdapter } from './infrastructure/adapters/sign-token.adapter';
+import { LoginUseCase } from './application/use-cases/login/login.use-case';
+import { EnsureUserExistsService } from './domain/services/ensure-user-exists.service';
+import { EnsureAuthUserDoesNotExistService } from './domain/services/ensure-auth-user-does-not-exist.service';
 
 @Module({
   imports: [
@@ -38,11 +45,13 @@ import { AuthUserValidationService } from './domain/services/auth-user-validatio
     }),
     MikroOrmModule.forFeature([AuthUser]),
     UuidModule,
+    JwtModule.register({}),
   ],
   controllers: [AuthenticationServiceController, AuthUsersController],
   providers: [
     AuthenticationServiceService,
     CreateAuthUserUseCase,
+    LoginUseCase,
     {
       provide: CREATE_AUTH_USER_ID_PORT,
       useClass: CreateAuthUserUuidAdapter,
@@ -59,7 +68,16 @@ import { AuthUserValidationService } from './domain/services/auth-user-validatio
       provide: USER_READER_PORT,
       useClass: UserReaderAdapter,
     },
-    AuthUserValidationService,
+    {
+      provide: AUTH_USERS_QUERY_REPOSITORY,
+      useClass: MikroAuthUsersQueryRepository,
+    },
+    {
+      provide: SIGN_TOKEN_PORT,
+      useClass: SignTokenAdapter,
+    },
+    EnsureUserExistsService,
+    EnsureAuthUserDoesNotExistService,
   ],
 })
 export class AuthenticationServiceModule {}

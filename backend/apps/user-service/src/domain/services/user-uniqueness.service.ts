@@ -1,9 +1,8 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import {
   type IUsersQueryRepository,
   USERS_QUERY_REPOSITORY,
 } from '../repositories/users-query.repository';
-import { EmailAlreadyTakenException } from '../exceptions/email-already-taken.exception';
 
 @Injectable()
 export class UserUniquenessService {
@@ -14,7 +13,7 @@ export class UserUniquenessService {
 
   public async ensureEmailIsUnique(email: string): Promise<void> {
     if (await this.usersQueryRepository.findByEmail(email)) {
-      throw new EmailAlreadyTakenException(email);
+      throw new ConflictException(`Email already in use: ${email}`);
     }
   }
 }

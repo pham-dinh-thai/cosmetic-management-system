@@ -27,4 +27,22 @@ export class UserReaderAdapter implements IUserReaderPort {
 
     return text ? JSON.parse(text) : null;
   }
+
+  public async findByEmail(email: string): Promise<{ id: string } | null> {
+    const response = await fetch(`${this.baseUrl}/api/users/by-email/${email}`);
+
+    if (response.status === 404) {
+      return null;
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        `User service returned ${response.status}: ${response.statusText}`,
+      );
+    }
+
+    const text = await response.text();
+
+    return text ? JSON.parse(text) : null;
+  }
 }
