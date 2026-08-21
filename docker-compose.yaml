@@ -114,8 +114,6 @@ services:
 
   frontend:
     build: ./frontend
-    depends_on:
-      - gateway-service
 
   nginx:
     build:
