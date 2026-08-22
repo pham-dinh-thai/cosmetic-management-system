@@ -3,7 +3,7 @@ import { config as loadEnv } from 'dotenv';
 import { defineConfig } from '@mikro-orm/postgresql';
 import { User } from './src/infrastructure/entities/user.entity';
 
-loadEnv({ path: join(__dirname, '../../.env') });
+loadEnv({ path: join(__dirname, '../../../.env') });
 
 export default defineConfig({
   host: process.env.USER_DB_HOST,

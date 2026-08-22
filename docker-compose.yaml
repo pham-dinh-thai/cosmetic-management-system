@@ -8,6 +8,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       USER_DB_PASSWORD: ${USER_DB_PASSWORD}
       AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD}
+      AUTHORIZATION_DB_PASSWORD: ${AUTHORIZATION_DB_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -29,6 +30,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       USER_DB_PASSWORD: ${USER_DB_PASSWORD}
       AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD}
+      AUTHORIZATION_DB_PASSWORD: ${AUTHORIZATION_DB_PASSWORD}
     volumes:
       - ./docker/postgres/sync-users.sh:/scripts/sync-users.sh:ro
     depends_on:
@@ -98,6 +100,36 @@ services:
       - "3002:3002"
     depends_on:
       migration-auth:
+        condition: service_completed_successfully
+
+  migration-authorization:
+    build: ./backend
+    command: sh -c "npx mikro-orm migration:up"
+    environment:
+      NODE_OPTIONS: "-r ts-node/register"
+      MIKRO_ORM_CLI_CONFIG: "./apps/authorization-service/mikro-orm.config.ts"
+      AUTHORIZATION_DB_HOST: ${AUTHORIZATION_DB_HOST}
+      AUTHORIZATION_DB_PORT: "${AUTHORIZATION_DB_PORT}"
+      AUTHORIZATION_DB_USER: ${AUTHORIZATION_DB_USER}
+      AUTHORIZATION_DB_PASSWORD: ${AUTHORIZATION_DB_PASSWORD}
+      AUTHORIZATION_DB_NAME: ${AUTHORIZATION_DB_NAME}
+    depends_on:
+      sync-users:
+        condition: service_completed_successfully
+
+  authorization-service:
+    build: ./backend
+    command: ["node", "dist/apps/authorization-service/main.js"]
+    environment:
+      AUTHORIZATION_DB_HOST: ${AUTHORIZATION_DB_HOST}
+      AUTHORIZATION_DB_PORT: "${AUTHORIZATION_DB_PORT}"
+      AUTHORIZATION_DB_USER: ${AUTHORIZATION_DB_USER}
+      AUTHORIZATION_DB_PASSWORD: ${AUTHORIZATION_DB_PASSWORD}
+      AUTHORIZATION_DB_NAME: ${AUTHORIZATION_DB_NAME}
+    ports:
+      - "3003:3003"
+    depends_on:
+      migration-authorization:
         condition: service_completed_successfully
 
   gateway-service:

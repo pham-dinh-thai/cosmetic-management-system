@@ -3,7 +3,7 @@ import { config as loadEnv } from 'dotenv';
 import { defineConfig } from '@mikro-orm/postgresql';
 import { AuthUser } from './src/infrastructure/entities/auth-user.entity';
 
-loadEnv({ path: join(__dirname, '../../.env') });
+loadEnv({ path: join(__dirname, '../../../.env') });
 
 export default defineConfig({
   host: process.env.AUTH_DB_HOST,

@@ -3,7 +3,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
-RUN npx nest build user-service && npx nest build gateway-service && npx nest build authentication-service
+RUN npx nest build user-service && npx nest build gateway-service && npx nest build authentication-service && npx nest build authorization-service
 
 FROM node:26-slim
 WORKDIR /app
