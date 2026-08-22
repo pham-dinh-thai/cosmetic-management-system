@@ -18,6 +18,15 @@
         "tsConfigPath": "apps/authentication-service/tsconfig.app.json"
       }
     },
+    "authorization-service": {
+      "type": "application",
+      "root": "apps/authorization-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/authorization-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/authorization-service/tsconfig.app.json"
+      }
+    },
     "gateway-service": {
       "type": "application",
       "root": "apps/gateway-service",

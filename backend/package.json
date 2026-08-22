@@ -14,7 +14,7 @@
     "start:dev:user": "nest start user-service --watch",
     "start:dev:auth": "nest start authentication-service --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
+    "start:prod": "node dist/apps/backend/main",
     "db:up": "docker compose -f ../docker-compose.yaml up -d postgres",
     "migration:create:user": "NODE_OPTIONS=\"-r ts-node/register\" MIKRO_ORM_CLI_CONFIG=./apps/user-service/mikro-orm.config.ts mikro-orm migration:create",
     "migration:up:user": "NODE_OPTIONS=\"-r ts-node/register\" MIKRO_ORM_CLI_CONFIG=./apps/user-service/mikro-orm.config.ts mikro-orm migration:up",
