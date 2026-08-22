@@ -2,13 +2,15 @@ import { Module } from '@nestjs/common';
 import { AuthorizationServiceController } from './authorization-service.controller';
 import { AuthorizationServiceService } from './authorization-service.service';
 import { RolesController } from './presentation/roles/roles.controller';
-import { ROLES_REPOSITORY } from './domain/roles.repository';
+import { ROLES_REPOSITORY } from './domain/repositories/roles.repository';
 import { MikroRolesRepository } from './infrastructure/repositories/mikro-roles.repository';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { PostgreSqlDriver } from '@mikro-orm/postgresql';
 import { Role } from './infrastructure/entities/role.entity';
 import { CreateRoleUseCase } from './application/use-cases/create-role/create-role.use-case';
+import { FindRolesUseCase } from './application/use-cases/find-roles/find-roles.use-case';
+import { DeleteRoleUseCase } from './application/use-cases/delete-role/delete-role.use-case';
 
 @Module({
   imports: [
@@ -38,6 +40,8 @@ import { CreateRoleUseCase } from './application/use-cases/create-role/create-ro
       useClass: MikroRolesRepository,
     },
     CreateRoleUseCase,
+    FindRolesUseCase,
+    DeleteRoleUseCase,
   ],
 })
 export class AuthorizationServiceModule {}
