@@ -11,6 +11,7 @@ import { Role } from './infrastructure/entities/role.entity';
 import { CreateRoleUseCase } from './application/use-cases/create-role/create-role.use-case';
 import { FindRolesUseCase } from './application/use-cases/find-roles/find-roles.use-case';
 import { DeleteRoleUseCase } from './application/use-cases/delete-role/delete-role.use-case';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -31,6 +32,12 @@ import { DeleteRoleUseCase } from './application/use-cases/delete-role/delete-ro
       inject: [ConfigService],
     }),
     MikroOrmModule.forFeature([Role]),
+    JwtModule.registerAsync({
+      useFactory: (config: ConfigService) => ({
+        secret: config.get<string>('JWT_ACCESS_SECRET'),
+      }),
+      inject: [ConfigService],
+    }),
   ],
   controllers: [AuthorizationServiceController, RolesController],
   providers: [

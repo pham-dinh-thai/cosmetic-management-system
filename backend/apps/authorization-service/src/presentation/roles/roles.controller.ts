@@ -7,13 +7,16 @@ import {
   HttpStatus,
   Param,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateRoleUseCase } from '../../application/use-cases/create-role/create-role.use-case';
 import { CreateRoleRequest } from './requests/create-role.request';
 import { FindRolesUseCase } from '../../application/use-cases/find-roles/find-roles.use-case';
 import { RoleReadModel } from '../../domain/read-models/role.read-model';
 import { DeleteRoleUseCase } from '../../application/use-cases/delete-role/delete-role.use-case';
+import { AuthGuard } from '../../infrastructure/security/auth.guard';
 
+@UseGuards(AuthGuard)
 @Controller('roles')
 export class RolesController {
   public constructor(
