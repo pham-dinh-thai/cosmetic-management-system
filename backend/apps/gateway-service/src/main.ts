@@ -11,19 +11,27 @@ async function bootstrap() {
 
   const userServiceUrl = process.env.USER_SERVICE_URL;
   const authServiceUrl = process.env.AUTH_SERVICE_URL;
+  const authorizationServiceUrl = process.env.AUTHORIZATION_SERVICE_URL;
 
   app.use(
     createProxyMiddleware({
       target: userServiceUrl,
       changeOrigin: true,
-      pathFilter: '/api/users',
+      pathFilter: (pathname) => /^\/api\/users(\/|$)/.test(pathname),
     }),
   );
   app.use(
     createProxyMiddleware({
       target: authServiceUrl,
       changeOrigin: true,
-      pathFilter: '/api/auth',
+      pathFilter: (pathname) => /^\/api\/auth-users(\/|$)/.test(pathname),
+    }),
+  );
+  app.use(
+    createProxyMiddleware({
+      target: authorizationServiceUrl,
+      changeOrigin: true,
+      pathFilter: (pathname) => /^\/api\/roles(\/|$)/.test(pathname),
     }),
   );
 

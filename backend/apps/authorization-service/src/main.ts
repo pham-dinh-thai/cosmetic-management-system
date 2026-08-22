@@ -4,7 +4,7 @@ import { AUTHORIZATION_SERVICE_PORT } from '../../../constants/ports';
 
 async function bootstrap() {
   const app = await NestFactory.create(AuthorizationServiceModule);
-
+  app.setGlobalPrefix('api');
   await app.listen(AUTHORIZATION_SERVICE_PORT);
 }
 bootstrap();
