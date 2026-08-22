@@ -17,7 +17,9 @@ async function bootstrap() {
     createProxyMiddleware({
       target: userServiceUrl,
       changeOrigin: true,
-      pathFilter: (pathname) => /^\/api\/users(\/|$)/.test(pathname),
+      pathFilter: (pathname) =>
+        /^\/api\/users(\/|$)/.test(pathname) &&
+        !pathname.startsWith('/api/users/by-email'),
     }),
   );
   app.use(

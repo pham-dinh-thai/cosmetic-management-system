@@ -17,6 +17,7 @@ import { UserUniquenessService } from './domain/services/user-uniqueness.service
 import { FindUsersUseCase } from './application/use-cases/find-users/find-users.use-case';
 import { DeleteUserUseCase } from './application/use-cases/delete-user/delete-user.use-case';
 import { FindUserIdByEmailUseCase } from './application/use-cases/find-user-id-by-email/find-user-id-by-email.use-case';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -38,6 +39,12 @@ import { FindUserIdByEmailUseCase } from './application/use-cases/find-user-id-b
     }),
     MikroOrmModule.forFeature([User]),
     UuidModule,
+    JwtModule.registerAsync({
+      useFactory: (config: ConfigService) => ({
+        secret: config.get<string>('JWT_ACCESS_SECRET'),
+      }),
+      inject: [ConfigService],
+    }),
   ],
   controllers: [UsersController],
   providers: [

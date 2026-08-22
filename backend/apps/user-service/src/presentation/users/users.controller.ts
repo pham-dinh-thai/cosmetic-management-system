@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { FindUserByIdUseCase } from '../../application/use-cases/find-user-by-id/find-user-by-id.use-case';
 import { UserReadModel } from '../../domain/read-models/user.read-model';
@@ -17,6 +18,7 @@ import { DeleteUserUseCase } from '../../application/use-cases/delete-user/delet
 import { CreateUserResponse } from '../../application/use-cases/create-user/create-user.response';
 import { FindUserIdByEmailUseCase } from '../../application/use-cases/find-user-id-by-email/find-user-id-by-email.use-case';
 import { FindUserIdByEmailResponse } from '../../application/use-cases/find-user-id-by-email/find-user-id-by-email.response';
+import { AuthGuard } from '../../infrastructure/security/auth.guard';
 
 @Controller('users')
 export class UsersController {
@@ -28,6 +30,7 @@ export class UsersController {
     private readonly deleteUserUseCase: DeleteUserUseCase,
   ) {}
 
+  @UseGuards(AuthGuard)
   @Get()
   public async findAll(): Promise<UserReadModel[]> {
     return await this.findUsersUseCase.execute();
@@ -40,6 +43,7 @@ export class UsersController {
     return await this.findUserIdByEmailUseCase.execute(email);
   }
 
+  @UseGuards(AuthGuard)
   @Get(':id')
   public async findById(
     @Param('id') id: string,
@@ -47,6 +51,7 @@ export class UsersController {
     return await this.findUserByIdUseCase.execute(id);
   }
 
+  @UseGuards(AuthGuard)
   @Post()
   public async create(
     @Body() request: CreateUserRequest,
@@ -54,6 +59,7 @@ export class UsersController {
     return await this.createUserUseCase.execute(request);
   }
 
+  @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   public async delete(@Param('id') id: string): Promise<void> {
