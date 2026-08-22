@@ -34,7 +34,7 @@ export class LoginUseCase {
     private readonly signTokenPort: ISignTokenPort,
   ) {}
 
-  public async execute(request: ILoginRequest): Promise<any> {
+  public async execute(request: ILoginRequest): Promise<LoginResponse> {
     const userId = (await this.userReaderPort.findByEmail(request.email))?.id;
 
     if (!userId) {
