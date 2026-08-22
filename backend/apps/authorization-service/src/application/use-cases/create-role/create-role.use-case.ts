@@ -4,7 +4,7 @@ import { Role } from '../../../domain/role.aggregate';
 import {
   type IRolesRepository,
   ROLES_REPOSITORY,
-} from '../../../domain/roles.repository';
+} from '../../../domain/repositories/roles.repository';
 
 @Injectable()
 export class CreateRoleUseCase {
