@@ -3,7 +3,6 @@ import {
   type IUsersQueryRepository,
   USERS_QUERY_REPOSITORY,
 } from '../../../domain/repositories/users-query.repository';
-import { FindUserIdByEmailResponse } from './find-user-id-by-email.response';
 
 @Injectable()
 export class FindUserIdByEmailUseCase {
@@ -12,9 +11,9 @@ export class FindUserIdByEmailUseCase {
     private readonly usersQueryRepository: IUsersQueryRepository,
   ) {}
 
-  public async execute(email: string): Promise<FindUserIdByEmailResponse> {
+  public async execute(email: string): Promise<{ id?: string }> {
     const user = await this.usersQueryRepository.findByEmail(email);
 
-    return new FindUserIdByEmailResponse(user?.id);
+    return { id: user?.id };
   }
 }

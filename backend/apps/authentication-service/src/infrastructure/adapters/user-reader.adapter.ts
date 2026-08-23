@@ -11,7 +11,9 @@ export class UserReaderAdapter implements IUserReaderPort {
   }
 
   public async findById(id: string): Promise<{ id: string } | null> {
-    const response = await fetch(`${this.baseUrl}/api/users/${id}`);
+    const response = await fetch(
+      `${this.baseUrl}/api/users/internal/by-id/${id}`,
+    );
 
     if (response.status === 404) {
       return null;
@@ -29,7 +31,9 @@ export class UserReaderAdapter implements IUserReaderPort {
   }
 
   public async findByEmail(email: string): Promise<{ id: string } | null> {
-    const response = await fetch(`${this.baseUrl}/api/users/by-email/${email}`);
+    const response = await fetch(
+      `${this.baseUrl}/api/users/internal/by-email/${email}`,
+    );
 
     if (response.status === 404) {
       return null;

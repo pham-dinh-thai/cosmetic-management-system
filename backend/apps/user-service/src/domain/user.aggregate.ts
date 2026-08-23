@@ -9,6 +9,7 @@ export class User {
     private gender: Gender,
     private phone: string,
     private email: string,
+    private roleId: string,
   ) {}
 
   public static create(props: CreateUserProps): User {
@@ -19,6 +20,7 @@ export class User {
       props.gender,
       props.phone,
       props.email,
+      props.roleId,
     );
   }
 
@@ -44,5 +46,9 @@ export class User {
 
   public getEmail(): string {
     return this.email;
+  }
+
+  public getRoleId(): string {
+    return this.roleId;
   }
 }

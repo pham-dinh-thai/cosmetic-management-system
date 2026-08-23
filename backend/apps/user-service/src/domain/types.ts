@@ -7,4 +7,5 @@ export type CreateUserProps = {
   gender: Gender;
   phone: string;
   email: string;
+  roleId: string;
 };
