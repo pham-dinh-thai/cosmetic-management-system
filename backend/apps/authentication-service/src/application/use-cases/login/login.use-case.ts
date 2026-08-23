@@ -35,13 +35,13 @@ export class LoginUseCase {
   ) {}
 
   public async execute(request: ILoginRequest): Promise<LoginResponse> {
-    const userId = (await this.userReaderPort.findByEmail(request.email))?.id;
+    const user = await this.userReaderPort.findByEmail(request.email);
 
-    if (!userId) {
+    if (!user?.id) {
       throw new UnauthorizedException('Email or password wrong');
     }
 
-    const authUser = await this.authUsersQueryRepository.findByUserId(userId);
+    const authUser = await this.authUsersQueryRepository.findByUserId(user.id);
     if (!authUser) {
       throw new UnauthorizedException('Email or password wrong');
     }
@@ -56,8 +56,12 @@ export class LoginUseCase {
     }
 
     return new LoginResponse(
-      this.signTokenPort.signAccessToken({ sub: userId, email: request.email }),
-      this.signTokenPort.signRefreshToken({ sub: userId }),
+      this.signTokenPort.signAccessToken({
+        sub: user.id,
+        email: request.email,
+        roleId: user.roleId,
+      }),
+      this.signTokenPort.signRefreshToken({ sub: user.id }),
     );
   }
 }

@@ -25,8 +25,17 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "constants/*": ["./constants/*"]
-    }
+      "@app/security": [
+        "libs/security/src"
+      ],
+      "@app/security/*": [
+        "libs/security/src/*"
+      ],
+      "constants/*": [
+        "./constants/*"
+      ]
+    },
+    "baseUrl": "./"
   },
   "watchOptions": {
     "watchFile": "dynamicPriorityPolling",

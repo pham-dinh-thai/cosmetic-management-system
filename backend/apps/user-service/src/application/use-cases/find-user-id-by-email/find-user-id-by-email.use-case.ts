@@ -11,9 +11,11 @@ export class FindUserIdByEmailUseCase {
     private readonly usersQueryRepository: IUsersQueryRepository,
   ) {}
 
-  public async execute(email: string): Promise<{ id?: string }> {
+  public async execute(
+    email: string,
+  ): Promise<{ id?: string; roleId?: string }> {
     const user = await this.usersQueryRepository.findByEmail(email);
 
-    return { id: user?.id };
+    return { id: user?.id, roleId: user?.roleId };
   }
 }

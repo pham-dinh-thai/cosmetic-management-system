@@ -30,7 +30,9 @@ export class UserReaderAdapter implements IUserReaderPort {
     return text ? JSON.parse(text) : null;
   }
 
-  public async findByEmail(email: string): Promise<{ id: string } | null> {
+  public async findByEmail(
+    email: string,
+  ): Promise<{ id: string; roleId: string } | null> {
     const response = await fetch(
       `${this.baseUrl}/api/users/internal/by-email/${email}`,
     );
