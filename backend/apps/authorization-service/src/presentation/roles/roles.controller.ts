@@ -14,9 +14,10 @@ import { CreateRoleRequest } from './requests/create-role.request';
 import { FindRolesUseCase } from '../../application/use-cases/find-roles/find-roles.use-case';
 import { RoleReadModel } from '../../domain/read-models/role.read-model';
 import { DeleteRoleUseCase } from '../../application/use-cases/delete-role/delete-role.use-case';
-import { AuthGuard } from '@app/security';
+import { AuthGuard, Role, Roles, RolesGuard } from '@app/security';
 
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, RolesGuard)
+@Roles(Role.Admin)
 @Controller('roles')
 export class RolesController {
   public constructor(

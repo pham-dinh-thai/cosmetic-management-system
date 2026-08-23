@@ -24,12 +24,13 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
+    "ignoreDeprecations": "5.0",
     "paths": {
       "@app/security": [
-        "libs/security/src"
+        "./libs/security/src"
       ],
       "@app/security/*": [
-        "libs/security/src/*"
+        "./libs/security/src/*"
       ],
       "constants/*": [
         "./constants/*"
