@@ -12,6 +12,7 @@ export class UsersMapper {
     userMikro.gender = user.getGender();
     userMikro.phone = user.getPhone();
     userMikro.email = user.getEmail();
+    userMikro.roleId = user.getRoleId();
 
     return userMikro;
   }
@@ -24,6 +25,7 @@ export class UsersMapper {
       userMikro.gender,
       userMikro.phone,
       userMikro.email,
+      userMikro.roleId,
     );
   }
 }

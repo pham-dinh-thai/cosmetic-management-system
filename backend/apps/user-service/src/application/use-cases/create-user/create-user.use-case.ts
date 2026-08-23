@@ -38,6 +38,7 @@ export class CreateUserUseCase {
       gender: request.gender,
       phone: request.phone,
       email: request.email,
+      roleId: request.roleId,
     });
 
     await this.usersCommandRepository.create(user);

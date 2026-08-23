@@ -6,8 +6,8 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { ICreateUserRequest } from '../../../application/use-cases/create-user/create-user.request';
-import { Gender } from '../../../domain/enums/gender.enum';
+import { ICreateUserRequest } from '../../../../application/use-cases/create-user/create-user.request';
+import { Gender } from '../../../../domain/enums/gender.enum';
 
 export class CreateUserRequest implements ICreateUserRequest {
   @IsString()
@@ -35,4 +35,9 @@ export class CreateUserRequest implements ICreateUserRequest {
   @IsEmail()
   @MaxLength(255)
   email!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(255)
+  roleId!: string;
 }

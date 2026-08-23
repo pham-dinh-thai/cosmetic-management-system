@@ -3,7 +3,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { PostgreSqlDriver } from '@mikro-orm/postgresql';
 import { User } from './infrastructure/entities/user.entity';
-import { UsersController } from './presentation/users/users.controller';
 import { FindUserByIdUseCase } from './application/use-cases/find-user-by-id/find-user-by-id.use-case';
 import { MikroUsersQueryRepository } from './infrastructure/repositories/mikro-users-query.repository';
 import { USERS_QUERY_REPOSITORY } from './domain/repositories/users-query.repository';
@@ -18,6 +17,8 @@ import { FindUsersUseCase } from './application/use-cases/find-users/find-users.
 import { DeleteUserUseCase } from './application/use-cases/delete-user/delete-user.use-case';
 import { FindUserIdByEmailUseCase } from './application/use-cases/find-user-id-by-email/find-user-id-by-email.use-case';
 import { JwtModule } from '@nestjs/jwt';
+import { UsersController } from './presentation/public/users/users.controller';
+import { InternalUsersController } from './presentation/internal/users/users.controller';
 
 @Module({
   imports: [
@@ -46,7 +47,7 @@ import { JwtModule } from '@nestjs/jwt';
       inject: [ConfigService],
     }),
   ],
-  controllers: [UsersController],
+  controllers: [UsersController, InternalUsersController],
   providers: [
     FindUserByIdUseCase,
     FindUsersUseCase,

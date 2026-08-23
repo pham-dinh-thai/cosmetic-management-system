@@ -8,5 +8,6 @@ export class UserReadModel {
     public readonly gender: Gender,
     public readonly phone: string,
     public readonly email: string,
+    public readonly roleId: string,
   ) {}
 }
