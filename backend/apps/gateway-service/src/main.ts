@@ -26,7 +26,9 @@ async function fetchServiceDocument(source: ServiceDocsSource): Promise<any> {
     const response = await fetch(`${source.url}/api/docs-json`);
     return await response.json();
   } catch {
-    console.warn(`[gateway] cannot load API docs from ${source.name} (${source.url})`);
+    console.warn(
+      `[gateway] cannot load API docs from ${source.name} (${source.url})`,
+    );
     return null;
   }
 }
@@ -49,14 +51,19 @@ async function buildAggregatedDocument(): Promise<any> {
 
     document.tags.push({ name: source.name });
 
-    for (const [path, methods] of Object.entries<any>(serviceDocument.paths ?? {})) {
+    for (const [path, methods] of Object.entries<any>(
+      serviceDocument.paths ?? {},
+    )) {
       document.paths[path] = {};
       for (const [method, operation] of Object.entries<any>(methods)) {
         document.paths[path][method] = { ...operation, tags: [source.name] };
       }
     }
 
-    Object.assign(document.components.schemas, serviceDocument.components?.schemas ?? {});
+    Object.assign(
+      document.components.schemas,
+      serviceDocument.components?.schemas ?? {},
+    );
   }
 
   return document;
@@ -86,6 +93,14 @@ async function bootstrap() {
       target: process.env.AUTHORIZATION_SERVICE_URL,
       changeOrigin: true,
       pathFilter: (pathname) => /^\/api\/roles(\/|$)/.test(pathname),
+    }),
+  );
+
+  app.use(
+    createProxyMiddleware({
+      target: process.env.DEPARTMENT_SERVICE_URL,
+      changeOrigin: true,
+      pathFilter: (pathname) => /^\/api\/departments(\/|$)/.test(pathname),
     }),
   );
 
