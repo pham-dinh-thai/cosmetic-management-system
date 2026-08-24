@@ -13,7 +13,7 @@ export class InternalUsersController {
   @Get('by-email/:email')
   public async findByEmail(
     @Param('email') email: string,
-  ): Promise<{ id?: string }> {
+  ): Promise<{ id?: string; roleId?: string }> {
     return await this.findUserIdByEmailUseCase.execute(email);
   }
 

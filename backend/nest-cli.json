@@ -27,6 +27,15 @@
         "tsConfigPath": "apps/authorization-service/tsconfig.app.json"
       }
     },
+    "department-service": {
+      "type": "application",
+      "root": "apps/department-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/department-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/department-service/tsconfig.app.json"
+      }
+    },
     "gateway-service": {
       "type": "application",
       "root": "apps/gateway-service",
@@ -34,6 +43,15 @@
       "sourceRoot": "apps/gateway-service/src",
       "compilerOptions": {
         "tsConfigPath": "apps/gateway-service/tsconfig.app.json"
+      }
+    },
+    "security": {
+      "type": "library",
+      "root": "libs/security",
+      "entryFile": "index",
+      "sourceRoot": "libs/security/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/security/tsconfig.lib.json"
       }
     },
     "user-service": {

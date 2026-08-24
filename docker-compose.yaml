@@ -134,6 +134,37 @@ services:
       migration-authorization:
         condition: service_completed_successfully
 
+  migration-department:
+    build: ./backend
+    command: sh -c "npx mikro-orm migration:up"
+    environment:
+      NODE_OPTIONS: "-r ts-node/register"
+      MIKRO_ORM_CLI_CONFIG: "./apps/department-service/mikro-orm.config.ts"
+      DEPARTMENT_DB_HOST: ${DEPARTMENT_DB_HOST}
+      DEPARTMENT_DB_PORT: "${DEPARTMENT_DB_PORT}"
+      DEPARTMENT_DB_USER: ${DEPARTMENT_DB_USER}
+      DEPARTMENT_DB_PASSWORD: ${DEPARTMENT_DB_PASSWORD}
+      DEPARTMENT_DB_NAME: ${DEPARTMENT_DB_NAME}
+    depends_on:
+      sync-users:
+        condition: service_completed_successfully
+
+  department-service:
+    build: ./backend
+    command: ["node", "dist/apps/department-service/main.js"]
+    environment:
+      DEPARTMENT_DB_HOST: ${DEPARTMENT_DB_HOST}
+      DEPARTMENT_DB_PORT: "${DEPARTMENT_DB_PORT}"
+      DEPARTMENT_DB_USER: ${DEPARTMENT_DB_USER}
+      DEPARTMENT_DB_PASSWORD: ${DEPARTMENT_DB_PASSWORD}
+      DEPARTMENT_DB_NAME: ${DEPARTMENT_DB_NAME}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+    ports:
+      - "3004:3004"
+    depends_on:
+      migration-department:
+        condition: service_completed_successfully
+
   gateway-service:
     build: ./backend
     command: ["node", "dist/apps/gateway-service/main.js"]
