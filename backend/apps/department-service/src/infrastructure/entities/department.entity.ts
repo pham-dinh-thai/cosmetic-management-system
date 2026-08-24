@@ -6,8 +6,10 @@ const DepartmentSchema = defineEntity({
   tableName: 'departments',
   properties: {
     id: p.uuid().primary().defaultRaw('gen_random_uuid()'),
+    code: p.string().unique(),
     name: p.string().unique(),
-    description: p.string().nullable(),
+    managerId: p.string().nullable(),
+    isActive: p.boolean().default(true),
     createdAt: p.datetime().onCreate(() => new Date()),
     updatedAt: p
       .datetime()
