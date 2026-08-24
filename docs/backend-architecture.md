@@ -28,7 +28,6 @@ backend/
 ├── libs/                    # code dùng chung kiểu NestJS library
 │   └── security/            # AuthGuard, RolesGuard, @Roles(), Role enum
 ├── constants/               # hằng số dùng chung (vd ports.ts)
-├── packages/                # package TS thuần không phụ thuộc Nest (nếu có)
 └── nest-cli.json            # đăng ký project monorepo
 ```
 
@@ -42,12 +41,12 @@ Quy tắc:
 
 Code chia thành 4 nhóm thư mục, mỗi nhóm có trách nhiệm riêng:
 
-| Thư mục | Trách nhiệm | Được phép import gì |
-|---------|-------------|---------------------|
-| `presentation/` | Nhận/trả HTTP: controller + DTO validate | application |
-| `application/` | Xử lý từng hành động (use case) | domain |
-| `domain/` | Kiểu dữ liệu nghiệp vụ + business rule | `@nestjs/common` (xem bên dưới) |
-| `infrastructure/` | Chi tiết kỹ thuật: DB, UUID... | domain, application |
+| Thư mục           | Trách nhiệm                              | Được phép import gì             |
+| ----------------- | ---------------------------------------- | ------------------------------- |
+| `presentation/`   | Nhận/trả HTTP: controller + DTO validate | application                     |
+| `application/`    | Xử lý từng hành động (use case)          | domain                          |
+| `domain/`         | Kiểu dữ liệu nghiệp vụ + business rule   | `@nestjs/common` (xem bên dưới) |
+| `infrastructure/` | Chi tiết kỹ thuật: DB, UUID...           | domain, application             |
 
 Chi tiết cây thư mục:
 
@@ -107,11 +106,10 @@ apps/user-service/src/
 - Class nghiệp vụ (`user.aggregate.ts`): field để `private`, đọc qua getter,
   tạo object mới luôn qua `static create(props)` — nơi đặt validate/ràng buộc
   lúc khởi tạo.
-- Repository tách 2 interface:
-  - `I<Xxx>sCommandRepository` — ghi (`create`, `update`, `delete`), nhận/tra
-    về class nghiệp vụ (vd `User`).
-  - `I<Xxx>sQueryRepository` — đọc, trả về **read-model** (class phẳng chỉ chứa
-    dữ liệu hiển thị), không trả về class nghiệp vụ.
+- Repository: mặc định gộp chung một interface `I<Xxx>sRepository` chứa cả
+  đọc lẫn ghi (xem `authorization-service`). Chỉ tách thành
+  `I<Xxx>sCommandRepository` / `I<Xxx>sQueryRepository` khi nghiệp vụ thực sự
+  phức tạp (vd như `user-service`).
 - Interface đặt trong `domain/repositories/`, kèm token DI:
 
 ```ts
@@ -145,11 +143,13 @@ export class CreateUserUseCase {
     private readonly createUserIdPort: ICreateUserIdPort,
   ) {}
 
-  public async execute(request: ICreateUserRequest): Promise<CreateUserResponse> {
+  public async execute(
+    request: ICreateUserRequest,
+  ): Promise<CreateUserResponse> {
     await this.userUniquenessService.ensureEmailIsUnique(request.email); // rule
     const id = this.createUserIdPort.generate();
-    const user = User.create({ ...request, id });                        // tạo object nghiệp vụ
-    await this.usersCommandRepository.create(user);                      // lưu
+    const user = User.create({ ...request, id }); // tạo object nghiệp vụ
+    await this.usersCommandRepository.create(user); // lưu
     return new CreateUserResponse(user.getId());
   }
 }
@@ -172,7 +172,9 @@ export class CreateUserUseCase {
 
 ```ts
 export class CreateUserRequest implements ICreateUserRequest {
-  @IsString() @IsNotEmpty() @MaxLength(255)
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(255)
   firstName!: string;
 }
 ```
@@ -184,12 +186,15 @@ export class CreateUserRequest implements ICreateUserRequest {
 
 ```ts
 const UserSchema = defineEntity({
-  name: 'User',
-  tableName: 'users',
+  name: "User",
+  tableName: "users",
   properties: {
-    id: p.uuid().primary().defaultRaw('gen_random_uuid()'),
+    id: p.uuid().primary().defaultRaw("gen_random_uuid()"),
     createdAt: p.datetime().onCreate(() => new Date()),
-    updatedAt: p.datetime().onCreate(() => new Date()).onUpdate(() => new Date()),
+    updatedAt: p
+      .datetime()
+      .onCreate(() => new Date())
+      .onUpdate(() => new Date()),
   },
 });
 ```
@@ -237,7 +242,8 @@ POST /api/users
 ← CreateUserResponse { id }
 ```
 
-Request đọc dữ liệu chạy tương tự nhưng qua query repository và trả read-model.
+Request đọc dữ liệu chạy tương tự nhưng qua query repository (nếu service tách
+riêng) và trả read-model.
 
 ## 6. Code dùng chung
 
@@ -247,15 +253,15 @@ Request đọc dữ liệu chạy tương tự nhưng qua query repository và t
 
 ## 7. Quy tắc đặt tên
 
-| Đối tượng | Quy ước | Ví dụ |
-|-----------|---------|-------|
-| Thư mục use case | kebab-case, động từ trước | `create-user/`, `find-users/` |
-| File | kebab-case | `user.aggregate.ts`, `users.mapper.ts` |
-| Class | PascalCase + hậu tố vai trò | `CreateUserUseCase`, `InternalUsersController`, `UsersMapper` |
-| Interface domain/repository | tiền tố `I` | `IUsersQueryRepository` |
-| Token DI | UPPER_SNAKE trùng tên interface | `USERS_QUERY_REPOSITORY` |
-| Bảng DB | snake_case số nhiều | `users`, `departments` |
-| Cổng service | `<SVC>_SERVICE_PORT` | `DEPARTMENT_SERVICE_PORT` |
+| Đối tượng                   | Quy ước                         | Ví dụ                                                         |
+| --------------------------- | ------------------------------- | ------------------------------------------------------------- |
+| Thư mục use case            | kebab-case, động từ trước       | `create-user/`, `find-users/`                                 |
+| File                        | kebab-case                      | `user.aggregate.ts`, `users.mapper.ts`                        |
+| Class                       | PascalCase + hậu tố vai trò     | `CreateUserUseCase`, `InternalUsersController`, `UsersMapper` |
+| Interface domain/repository | tiền tố `I`                     | `IUsersQueryRepository`                                       |
+| Token DI                    | UPPER_SNAKE trùng tên interface | `USERS_QUERY_REPOSITORY`                                      |
+| Bảng DB                     | snake_case số nhiều             | `users`, `departments`                                        |
+| Cổng service                | `<SVC>_SERVICE_PORT`            | `DEPARTMENT_SERVICE_PORT`                                     |
 
 ## 8. Checklist khi thêm tính năng mới
 
