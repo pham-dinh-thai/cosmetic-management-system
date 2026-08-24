@@ -51,12 +51,23 @@ Sau đó thêm cổng của service vào `backend/constants/ports.ts`:
 export const DEPARTMENT_SERVICE_PORT = 3004;
 ```
 
-Và sửa `main.ts` để có global prefix `/api` (gateway proxy theo path `/api/...`):
+Và sửa `main.ts` để có global prefix `/api`, listen đúng cổng và bật Swagger UI
+dùng thử API (mỗi service tự host docs của mình ở `/api/docs`):
 
 ```ts
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+
 async function bootstrap() {
   const app = await NestFactory.create(DepartmentServiceModule);
   app.setGlobalPrefix('api');
+
+  const config = new DocumentBuilder()
+    .setTitle('Department Service API')
+    .setVersion('1.0')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/docs', app, document);
+
   await app.listen(DEPARTMENT_SERVICE_PORT);
 }
 ```
@@ -242,6 +253,10 @@ app.use(
   }),
 );
 ```
+
+Cuối cùng thêm service vào mảng `SERVICE_DOCS_SOURCES` trong cùng file
+`gateway-service/src/main.ts` để API của nó xuất hiện trên trang docs chung
+`localhost:3000/api/docs`.
 
 ---
 
