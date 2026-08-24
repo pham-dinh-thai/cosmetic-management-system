@@ -179,6 +179,15 @@ export class CreateUserRequest implements ICreateUserRequest {
 }
 ```
 
+- Mỗi service tự host Swagger UI tại `/api/docs` (JSON: `/api/docs-json`) — xem
+  danh sách API của service đó qua cổng đã expose, ví dụ
+  `http://localhost:3001/api/docs` (user-service).
+- Gateway gộp docs của tất cả service thành một trang duy nhất tại
+  `http://localhost:3000/api/docs` (qua nginx: `http://localhost/api/docs`),
+  mỗi nhóm API đánh tag theo service. Service mới phải được thêm vào mảng
+  `SERVICE_DOCS_SOURCES` trong `gateway-service/src/main.ts` để hiện lên đây;
+  service offline sẽ bị bỏ qua khỏi trang docs, không làm lỗi trang.
+
 ### 4.4. Infrastructure
 
 - **Entity** (`entities/*.entity.ts`) dùng `defineEntity` + `p.*`; bảng đặt
