@@ -43,4 +43,12 @@ export class MikroDepartmentsRepository implements IDepartmentsRepository {
       },
     );
   }
+
+  public async deactivate(id: string): Promise<void> {
+    await this.entityManager.nativeUpdate(
+      DepartmentMikro,
+      { id },
+      { isActive: false, updatedAt: new Date() },
+    );
+  }
 }
