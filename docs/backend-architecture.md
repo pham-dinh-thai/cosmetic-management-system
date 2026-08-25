@@ -45,7 +45,7 @@ Code chia thành 4 nhóm thư mục, mỗi nhóm có trách nhiệm riêng:
 | ----------------- | ---------------------------------------- | ------------------------------- |
 | `presentation/`   | Nhận/trả HTTP: controller + DTO validate | application                     |
 | `application/`    | Xử lý từng hành động (use case)          | domain                          |
-| `domain/`         | Kiểu dữ liệu nghiệp vụ + business rule   | `@nestjs/common` (xem bên dưới) |
+| `domain/`         | Kiểu dữ liệu nghiệp vụ + business rule   | **không** (pure TypeScript)      |
 | `infrastructure/` | Chi tiết kỹ thuật: DB, UUID...           | domain, application             |
 
 Chi tiết cây thư mục:
@@ -61,13 +61,11 @@ apps/user-service/src/
 │   └── internal/users/              # API cho service khác: /api/users/internal/*
 │       └── users.controller.ts
 ├── application/
-│   ├── use-cases/
-│   │   └── create-user/
-│   │       ├── create-user.use-case.ts    # logic điều phối
-│   │       ├── create-user.request.ts     # input type (interface)
-│   │       └── create-user.response.ts    # output type
-│   └── ports/
-│       └── create-user-id.port.ts         # interface cho việc cần làm ngoài (vd sinh id)
+│   └── use-cases/
+│       └── create-user/
+│           ├── create-user.use-case.ts    # logic điều phối
+│           ├── create-user.request.ts     # input type (interface)
+│           └── create-user.response.ts    # output type
 ├── domain/
 │   ├── user.aggregate.ts            # class User: field private + getter + static create()
 │   ├── repositories/
@@ -75,13 +73,13 @@ apps/user-service/src/
 │   │   └── users-query.repository.ts      # interface đọc dữ liệu
 │   ├── read-models/user.read-model.ts     # dạng dữ liệu trả ra khi query
 │   ├── services/user-uniqueness.service.ts # rule nghiệp vụ dùng chung
+│   ├── exceptions/                        # domain exception (extends Error)
 │   ├── enums/gender.enum.ts
 │   └── types.ts
 └── infrastructure/
     ├── entities/user.entity.ts      # entity MikroORM (map bảng users)
     ├── repositories/mikro-users-{command,query}.repository.ts
-    ├── mappers/users.mapper.ts      # chuyển đổi User (nghiệp vụ) ↔ entity (DB)
-    └── adapters/create-user-uuid.adapter.ts
+    └── mappers/users.mapper.ts      # chuyển đổi User (nghiệp vụ) ↔ entity (DB)
 ```
 
 ### Quy tắc hướng phụ thuộc
@@ -89,15 +87,26 @@ apps/user-service/src/
 - Controller không tự gọi repository — luôn gọi use case.
 - Use case và domain chỉ biết repository qua **interface**, không biết nó dùng
   MikroORM hay thứ gì khác. Implementation nằm ở `infrastructure/`.
-- `domain/` và `application/` được phép import từ `@nestjs/common` — giới hạn
-  trong: decorator DI (`@Injectable`, `@Inject`) và exception
-  (`NotFoundException`, `ConflictException`...). Đây là phụ thuộc chấp nhận được
-  vì Nest là framework nền của cả repo; đổi lại không phải viết lớp custom error
-  riêng.
-- Ngoại lệ trên, `domain/` và `application/` **không import** gì khác của kỹ
-  thuật: cấm `@mikro-orm/*`, driver DB, HTTP client, config... Nếu sau này muốn
-  tách hẳn business logic khỏi Nest thì chỉ cần thay exception bằng error type
-  riêng + exception filter.
+- `domain/` **tuyệt đối không import** từ `@nestjs/common` hay bất kỳ framework
+  nào. Domain là pure TypeScript — business rule, aggregate, domain service,
+  repository interface, domain exception đều không có decorator DI hay exception
+  của Nest. Domain exception kế thừa `Error` thuần.
+- `application/` (use case) được phép dùng `@nestjs/common` cho decorator
+  `@Injectable`, `@Inject` và exception (`NotFoundException`, `ConflictException`...).
+  Khi domain ném custom error, use case có thể catch và translate sang Nest
+  exception nếu muốn.
+- Domain service không có decorator → đăng ký trong module bằng `useFactory`:
+
+```ts
+providers: [
+  {
+    provide: DepartmentUniquenessService,
+    useFactory: (repo: IDepartmentsRepository) =>
+      new DepartmentUniquenessService(repo),
+    inject: [DEPARTMENTS_REPOSITORY],
+  },
+],
+```
 
 ## 4. Quy ước từng phần
 
@@ -139,17 +148,14 @@ export class CreateUserUseCase {
   public constructor(
     @Inject(USERS_COMMAND_REPOSITORY)
     private readonly usersCommandRepository: IUsersCommandRepository,
-    @Inject(CREATE_USER_ID_PORT)
-    private readonly createUserIdPort: ICreateUserIdPort,
   ) {}
 
   public async execute(
     request: ICreateUserRequest,
   ): Promise<CreateUserResponse> {
     await this.userUniquenessService.ensureEmailIsUnique(request.email); // rule
-    const id = this.createUserIdPort.generate();
-    const user = User.create({ ...request, id }); // tạo object nghiệp vụ
-    await this.usersCommandRepository.create(user); // lưu
+    const user = User.create(request); // tạo object nghiệp vụ
+    await this.usersCommandRepository.create(user); // lưu (repo tự sinh UUID)
     return new CreateUserResponse(user.getId());
   }
 }
@@ -157,9 +163,9 @@ export class CreateUserUseCase {
 
 - Rule nghiệp vụ (unique email, ràng buộc dữ liệu...) đặt trong `domain/`
   (method của class hoặc domain service); use case chỉ gọi theo trình tự.
-- Khi vi phạm rule, use case/domain ném thẳng exception của Nest
-  (`NotFoundException`, `ConflictException`...) — framework tự đổi thành HTTP
-  status tương ứng.
+- Domain ném custom error (vd `DepartmentCodeAlreadyExistsException extends Error`).
+  Use case có thể catch và translate sang Nest exception (`ConflictException`,
+  `NotFoundException`...) — framework tự đổi thành HTTP status tương ứng.
 
 ### 4.3. Presentation
 
@@ -209,11 +215,10 @@ const UserSchema = defineEntity({
 ```
 
 - **Repository impl**: đặt tên `mikro-<xxx>s-{command,query}.repository.ts`,
-  inject `EntityManager`, thao tác qua entity + mapper.
+  inject `EntityManager`, thao tác qua entity + mapper. UUID tự sinh qua
+  `defaultRaw('gen_random_uuid()')` trong entity — không cần adapter riêng.
 - **Mapper**: class static `toMikro(classNghiệpVu → entity)` và
   `toReadModel(entity → readModel)` — nơi duy nhất làm việc chuyển đổi này.
-- **Adapter** (`adapters/*.adapter.ts`): implement các port của application,
-  vd adapter sinh UUID.
 
 ### 4.5. Nối DI trong module
 
@@ -232,10 +237,14 @@ Mọi binding khai báo trong `<svc>-service.module.ts`:
   ],
   controllers: [UsersController, InternalUsersController],
   providers: [
-    CreateUserUseCase,                       // use case
-    UserUniquenessService,                   // domain service
+    CreateUserUseCase,                       // use case (uses @Injectable)
+    {                                         // domain service (pure class)
+      provide: UserUniquenessService,
+      useFactory: (repo: IUsersCommandRepository) =>
+        new UserUniquenessService(repo),
+      inject: [USERS_COMMAND_REPOSITORY],
+    },
     { provide: USERS_COMMAND_REPOSITORY, useClass: MikroUsersCommandRepository },
-    { provide: CREATE_USER_ID_PORT, useClass: CreateUuidAdapter },
   ],
 })
 ```
@@ -274,12 +283,12 @@ riêng) và trả read-model.
 
 ## 8. Checklist khi thêm tính năng mới
 
-1. `domain/`: class nghiệp vụ, enum/types nếu cần, interface repository (+token).
-2. `application/`: thư mục use case (`.request.ts`/`.response.ts` chỉ khi cần),
-   thêm port nếu có việc cần làm ngoài hệ thống.
+1. `domain/`: class nghiệp vụ, enum/types nếu cần, interface repository (+token),
+   domain exception (extends `Error`, không import `@nestjs/common`).
+2. `application/`: thư mục use case (`.request.ts`/`.response.ts` chỉ khi cần).
 3. `infrastructure/`: entity (đổi schema thì sinh migration — xem
    [adding-a-new-service.md](./adding-a-new-service.md)), repository impl,
-   mapper, adapter.
+   mapper.
 4. `presentation/`: DTO + controller (public hoặc internal).
 5. Module: đăng ký controller/provider/binding.
 6. Test: file spec cạnh file tương ứng (`*.spec.ts`).

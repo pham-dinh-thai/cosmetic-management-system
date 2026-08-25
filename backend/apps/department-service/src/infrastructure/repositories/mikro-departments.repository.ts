@@ -22,9 +22,21 @@ export class MikroDepartmentsRepository implements IDepartmentsRepository {
     return await this.entityManager.findOne(DepartmentMikro, { code });
   }
 
+  public async findById(id: string): Promise<DepartmentReadModel | null> {
+    return await this.entityManager.findOne(DepartmentMikro, { id });
+  }
+
   public async create(department: Department): Promise<void> {
     this.entityManager.persist(DepartmentsMapper.toMikro(department));
 
     await this.entityManager.flush();
+  }
+
+  public async update(id: string, department: Department): Promise<void> {
+    await this.entityManager.nativeUpdate(
+      DepartmentMikro,
+      { id },
+      { code: department.getCode(), name: department.getName() },
+    );
   }
 }
