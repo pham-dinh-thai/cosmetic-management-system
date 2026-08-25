@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   Put,
   UseGuards,
@@ -14,6 +15,8 @@ import { DepartmentReadModel } from 'apps/department-service/src/domain/read-mod
 import { AuthGuard, Role, Roles, RolesGuard } from '@app/security';
 import { UpdateDepartmentUseCase } from 'apps/department-service/src/application/use-cases/update-department/update-department.use-case';
 import { UpdateDepartmentRequest } from './requests/update-department.request';
+import { DeactivateDepartmentUseCase } from 'apps/department-service/src/application/use-cases/deactivate-department/deactivate-department.use-case';
+import { ActivateDepartmentUseCase } from 'apps/department-service/src/application/use-cases/activate-department/activate-department.use-case';
 
 @Controller('departments')
 @UseGuards(AuthGuard, RolesGuard)
@@ -23,6 +26,8 @@ export class DepartmentsController {
     private readonly findDepartmentsUseCase: FindDepartmentsUseCase,
     private readonly createDepartmentUseCase: CreateDepartmentUseCase,
     private readonly updateDepartmentUseCase: UpdateDepartmentUseCase,
+    private readonly deactivateDepartmentUseCase: DeactivateDepartmentUseCase,
+    private readonly activateDepartmentUseCase: ActivateDepartmentUseCase,
   ) {}
 
   @Get()
@@ -41,5 +46,15 @@ export class DepartmentsController {
     @Body() request: UpdateDepartmentRequest,
   ): Promise<void> {
     await this.updateDepartmentUseCase.execute(id, request);
+  }
+
+  @Patch(':id/deactivate')
+  public async deactivate(@Param('id') id: string): Promise<void> {
+    await this.deactivateDepartmentUseCase.execute(id);
+  }
+
+  @Patch(':id/activate')
+  public async activate(@Param('id') id: string): Promise<void> {
+    await this.activateDepartmentUseCase.execute(id);
   }
 }

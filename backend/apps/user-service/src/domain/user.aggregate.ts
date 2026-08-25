@@ -7,7 +7,6 @@ export class User {
     private firstName: string,
     private lastName: string,
     private gender: Gender,
-    private phone: string,
     private email: string,
     private roleId: string,
   ) {}
@@ -18,7 +17,6 @@ export class User {
       props.firstName,
       props.lastName,
       props.gender,
-      props.phone,
       props.email,
       props.roleId,
     );
@@ -38,10 +36,6 @@ export class User {
 
   public getGender(): Gender {
     return this.gender;
-  }
-
-  public getPhone(): string {
-    return this.phone;
   }
 
   public getEmail(): string {

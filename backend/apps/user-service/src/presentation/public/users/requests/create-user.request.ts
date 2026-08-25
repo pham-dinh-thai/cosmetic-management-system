@@ -4,7 +4,6 @@ import {
   IsNotEmpty,
   IsString,
   MaxLength,
-  MinLength,
 } from 'class-validator';
 import { ICreateUserRequest } from '../../../../application/use-cases/create-user/create-user.request';
 import { Gender } from '../../../../domain/enums/gender.enum';
@@ -23,12 +22,6 @@ export class CreateUserRequest implements ICreateUserRequest {
   @IsEnum(Gender)
   @IsNotEmpty()
   gender!: Gender;
-
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(10)
-  @MaxLength(10)
-  phone!: string;
 
   @IsString()
   @IsNotEmpty()

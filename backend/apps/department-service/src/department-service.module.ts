@@ -14,6 +14,8 @@ import { CreateDepartmentUseCase } from './application/use-cases/create-departme
 import { FindDepartmentsUseCase } from './application/use-cases/find-departments/find-departments.use-case';
 import { DepartmentUniquenessService } from './domain/services/department-uniqueness.service';
 import { UpdateDepartmentUseCase } from './application/use-cases/update-department/update-department.use-case';
+import { DeactivateDepartmentUseCase } from './application/use-cases/deactivate-department/deactivate-department.use-case';
+import { ActivateDepartmentUseCase } from './application/use-cases/activate-department/activate-department.use-case';
 
 @Module({
   imports: [
@@ -53,6 +55,8 @@ import { UpdateDepartmentUseCase } from './application/use-cases/update-departme
       inject: [DEPARTMENTS_REPOSITORY],
     },
     UpdateDepartmentUseCase,
+    DeactivateDepartmentUseCase,
+    ActivateDepartmentUseCase,
   ],
 })
 export class DepartmentServiceModule {}
