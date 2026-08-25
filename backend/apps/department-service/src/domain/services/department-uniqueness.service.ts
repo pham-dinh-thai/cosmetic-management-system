@@ -1,13 +1,8 @@
-import { ConflictException, Inject, Injectable } from '@nestjs/common';
-import {
-  DEPARTMENTS_REPOSITORY,
-  type IDepartmentsRepository,
-} from '../repositories/departments.repository';
+import { type IDepartmentsRepository } from '../repositories/departments.repository';
+import { DepartmentCodeAlreadyExistsException } from '../exceptions/department-code-already-exists.exception';
 
-@Injectable()
 export class DepartmentUniquenessService {
   public constructor(
-    @Inject(DEPARTMENTS_REPOSITORY)
     private readonly departmentsRepository: IDepartmentsRepository,
   ) {}
 
@@ -15,7 +10,7 @@ export class DepartmentUniquenessService {
     const department = await this.departmentsRepository.findByCode(code);
 
     if (department) {
-      throw new ConflictException(`Code already in use: ${code}`);
+      throw new DepartmentCodeAlreadyExistsException(code);
     }
   }
 }

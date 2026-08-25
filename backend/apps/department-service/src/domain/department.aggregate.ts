@@ -1,4 +1,8 @@
-import { CreateDepartmentProps } from './types';
+import {
+  CreateDepartmentProps,
+  FromPersistentDepartmentProps,
+  UpdateDepartmentProps,
+} from './types';
 
 export class Department {
   public constructor(
@@ -10,6 +14,12 @@ export class Department {
   ) {}
 
   public static create(props: CreateDepartmentProps): Department {
+    return new Department('', props.code, props.name, true);
+  }
+
+  public static fromPersistent(
+    props: FromPersistentDepartmentProps,
+  ): Department {
     return new Department(
       props.id,
       props.code,
@@ -17,6 +27,11 @@ export class Department {
       true,
       props.managerId,
     );
+  }
+
+  public update(props: UpdateDepartmentProps): void {
+    this.code = props.code;
+    this.name = props.name;
   }
 
   public getId(): string {

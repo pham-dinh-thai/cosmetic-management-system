@@ -4,15 +4,16 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { PostgreSqlDriver } from '@mikro-orm/postgresql';
 import { Department } from './infrastructure/entities/department.entity';
-import { UuidModule } from 'nestjs-uuid';
 import { JwtModule } from '@nestjs/jwt';
-import { DEPARTMENTS_REPOSITORY } from './domain/repositories/departments.repository';
+import {
+  DEPARTMENTS_REPOSITORY,
+  IDepartmentsRepository,
+} from './domain/repositories/departments.repository';
 import { MikroDepartmentsRepository } from './infrastructure/repositories/mikro-departments.repository';
-import { CREATE_DEPARTMENT_ID_PORT } from './application/ports/create-department-id.port';
-import { CreateDepartmentUuidAdapter } from './infrastructure/adapters/create-department-uuid.adapter';
 import { CreateDepartmentUseCase } from './application/use-cases/create-department/create-department.use-case';
 import { FindDepartmentsUseCase } from './application/use-cases/find-departments/find-departments.use-case';
 import { DepartmentUniquenessService } from './domain/services/department-uniqueness.service';
+import { UpdateDepartmentUseCase } from './application/use-cases/update-department/update-department.use-case';
 
 @Module({
   imports: [
@@ -33,7 +34,6 @@ import { DepartmentUniquenessService } from './domain/services/department-unique
       inject: [ConfigService],
     }),
     MikroOrmModule.forFeature([Department]),
-    UuidModule,
     JwtModule.registerAsync({
       useFactory: (config: ConfigService) => ({
         secret: config.get<string>('JWT_ACCESS_SECRET'),
@@ -44,13 +44,15 @@ import { DepartmentUniquenessService } from './domain/services/department-unique
   controllers: [DepartmentsController],
   providers: [
     { provide: DEPARTMENTS_REPOSITORY, useClass: MikroDepartmentsRepository },
-    {
-      provide: CREATE_DEPARTMENT_ID_PORT,
-      useClass: CreateDepartmentUuidAdapter,
-    },
     CreateDepartmentUseCase,
     FindDepartmentsUseCase,
-    DepartmentUniquenessService,
+    {
+      provide: DepartmentUniquenessService,
+      useFactory: (repo: IDepartmentsRepository) =>
+        new DepartmentUniquenessService(repo),
+      inject: [DEPARTMENTS_REPOSITORY],
+    },
+    UpdateDepartmentUseCase,
   ],
 })
 export class DepartmentServiceModule {}

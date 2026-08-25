@@ -6,7 +6,9 @@ export class DepartmentsMapper {
   public static toMikro(department: Department): DepartmentMikro {
     const departmentMikro = new DepartmentMikro();
 
-    departmentMikro.id = department.getId();
+    if (department.getId()) {
+      departmentMikro.id = department.getId();
+    }
     departmentMikro.code = department.getCode();
     departmentMikro.name = department.getName();
     departmentMikro.isActive = department.getIsActive();

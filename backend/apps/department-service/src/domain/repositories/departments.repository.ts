@@ -6,7 +6,11 @@ export interface IDepartmentsRepository {
 
   findByCode(code: string): Promise<DepartmentReadModel | null>;
 
+  findById(id: string): Promise<DepartmentReadModel | null>;
+
   create(department: Department): Promise<void>;
+
+  update(id: string, department: Department): Promise<void>;
 }
 
 export const DEPARTMENTS_REPOSITORY = 'IDepartmentsRepository';

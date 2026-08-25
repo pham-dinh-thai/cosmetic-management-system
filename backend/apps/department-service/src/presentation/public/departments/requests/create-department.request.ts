@@ -11,8 +11,4 @@ export class CreateDepartmentRequest implements ICreateDepartmentRequest {
   @IsNotEmpty()
   @MaxLength(255)
   name: string;
-
-  @IsString()
-  @MaxLength(255)
-  managerId?: string;
 }
