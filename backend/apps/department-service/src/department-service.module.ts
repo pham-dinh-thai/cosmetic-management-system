@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { DepartmentServiceController } from './department-service.controller';
-import { DepartmentServiceService } from './department-service.service';
 import { DepartmentsController } from './presentation/public/departments/departments.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
@@ -11,8 +9,10 @@ import { JwtModule } from '@nestjs/jwt';
 import { DEPARTMENTS_REPOSITORY } from './domain/repositories/departments.repository';
 import { MikroDepartmentsRepository } from './infrastructure/repositories/mikro-departments.repository';
 import { CREATE_DEPARTMENT_ID_PORT } from './application/ports/create-department-id.port';
-import { CreateDepartmentUuidAdapter } from './infrastructure/adapters/create-user-uuid.adapter';
+import { CreateDepartmentUuidAdapter } from './infrastructure/adapters/create-department-uuid.adapter';
 import { CreateDepartmentUseCase } from './application/use-cases/create-department/create-department.use-case';
+import { FindDepartmentsUseCase } from './application/use-cases/find-departments/find-departments.use-case';
+import { DepartmentUniquenessService } from './domain/services/department-uniqueness.service';
 
 @Module({
   imports: [
@@ -41,15 +41,16 @@ import { CreateDepartmentUseCase } from './application/use-cases/create-departme
       inject: [ConfigService],
     }),
   ],
-  controllers: [DepartmentServiceController, DepartmentsController],
+  controllers: [DepartmentsController],
   providers: [
-    DepartmentServiceService,
     { provide: DEPARTMENTS_REPOSITORY, useClass: MikroDepartmentsRepository },
     {
       provide: CREATE_DEPARTMENT_ID_PORT,
       useClass: CreateDepartmentUuidAdapter,
     },
     CreateDepartmentUseCase,
+    FindDepartmentsUseCase,
+    DepartmentUniquenessService,
   ],
 })
 export class DepartmentServiceModule {}

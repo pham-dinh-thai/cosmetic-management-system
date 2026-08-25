@@ -9,6 +9,7 @@ import {
   type ICreateDepartmentIdPort,
 } from '../../ports/create-department-id.port';
 import { Department } from 'apps/department-service/src/domain/department.aggregate';
+import { DepartmentUniquenessService } from 'apps/department-service/src/domain/services/department-uniqueness.service';
 
 @Injectable()
 export class CreateDepartmentUseCase {
@@ -18,9 +19,13 @@ export class CreateDepartmentUseCase {
 
     @Inject(CREATE_DEPARTMENT_ID_PORT)
     private readonly createDepartmentIdPort: ICreateDepartmentIdPort,
+
+    private readonly departmentUniquenessService: DepartmentUniquenessService,
   ) {}
 
   public async execute(request: ICreateDepartmentRequest): Promise<void> {
+    await this.departmentUniquenessService.ensureCodeIsUnique(request.code);
+
     const id = this.createDepartmentIdPort.generate();
 
     const department = Department.create({
