@@ -13,6 +13,8 @@ export interface IDepartmentsRepository {
   update(id: string, department: Department): Promise<void>;
 
   deactivate(id: string): Promise<void>;
+
+  activate(id: string): Promise<void>;
 }
 
 export const DEPARTMENTS_REPOSITORY = 'IDepartmentsRepository';
