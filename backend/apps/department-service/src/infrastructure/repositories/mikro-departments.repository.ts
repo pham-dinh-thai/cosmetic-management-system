@@ -1,0 +1,30 @@
+import { Injectable } from '@nestjs/common';
+import { IDepartmentsRepository } from '../../domain/repositories/departments.repository';
+import { Department } from '../../domain/department.aggregate';
+import { EntityManager } from '@mikro-orm/postgresql';
+import { DepartmentsMapper } from '../mappers/departments.mapper';
+import { DepartmentReadModel } from '../../domain/read-models/department.read-model';
+import { Department as DepartmentMikro } from '../entities/department.entity';
+
+@Injectable()
+export class MikroDepartmentsRepository implements IDepartmentsRepository {
+  public constructor(private readonly entityManager: EntityManager) {}
+
+  public async findAll(): Promise<DepartmentReadModel[]> {
+    const departmentsMikro = await this.entityManager.findAll(DepartmentMikro);
+
+    return departmentsMikro.map((departmentMikro) =>
+      DepartmentsMapper.toReadModel(departmentMikro),
+    );
+  }
+
+  public async findByCode(code: string): Promise<DepartmentReadModel | null> {
+    return await this.entityManager.findOne(DepartmentMikro, { code });
+  }
+
+  public async create(department: Department): Promise<void> {
+    this.entityManager.persist(DepartmentsMapper.toMikro(department));
+
+    await this.entityManager.flush();
+  }
+}
