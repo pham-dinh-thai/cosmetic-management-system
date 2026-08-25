@@ -4,7 +4,6 @@ export interface ICreateUserRequest {
   firstName: string;
   lastName: string;
   gender: Gender;
-  phone: string;
   email: string;
   roleId: string;
 }

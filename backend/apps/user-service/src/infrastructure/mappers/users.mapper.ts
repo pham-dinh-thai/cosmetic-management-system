@@ -10,7 +10,6 @@ export class UsersMapper {
     userMikro.firstName = user.getFirstName();
     userMikro.lastName = user.getLastName();
     userMikro.gender = user.getGender();
-    userMikro.phone = user.getPhone();
     userMikro.email = user.getEmail();
     userMikro.roleId = user.getRoleId();
 
@@ -23,7 +22,6 @@ export class UsersMapper {
       userMikro.firstName,
       userMikro.lastName,
       userMikro.gender,
-      userMikro.phone,
       userMikro.email,
       userMikro.roleId,
     );

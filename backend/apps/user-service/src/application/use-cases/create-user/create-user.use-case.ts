@@ -36,7 +36,6 @@ export class CreateUserUseCase {
       firstName: request.firstName,
       lastName: request.lastName,
       gender: request.gender,
-      phone: request.phone,
       email: request.email,
       roleId: request.roleId,
     });
