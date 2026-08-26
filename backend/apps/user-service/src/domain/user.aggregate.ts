@@ -13,7 +13,7 @@ export class User {
 
   public static create(props: CreateUserProps): User {
     return new User(
-      props.id,
+      '',
       props.firstName,
       props.lastName,
       props.gender,

@@ -1,5 +1,5 @@
+import { ICreateAuthUserRequest } from 'apps/user-service/src/application/ports/create-auth-user.port';
 import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
-import { ICreateAuthUserRequest } from '../../../application/use-cases/create-auth-user/create-auth-user.request';
 
 export class CreateAuthUserRequest implements ICreateAuthUserRequest {
   @IsString()

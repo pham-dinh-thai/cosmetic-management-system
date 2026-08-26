@@ -1,38 +1,32 @@
 import { Inject, Injectable } from '@nestjs/common';
-import {
-  type IUsersCommandRepository,
-  USERS_COMMAND_REPOSITORY,
-} from '../../../domain/repositories/users-command.repository';
 import { ICreateUserRequest } from './create-user.request';
 import { User } from '../../../domain/user.aggregate';
-import {
-  CREATE_USER_ID_PORT,
-  type ICreateUserIdPort,
-} from '../../ports/create-user-id.port';
 import { UserUniquenessService } from '../../../domain/services/user-uniqueness.service';
-import { CreateUserResponse } from './create-user.response';
+import {
+  type IUsersRepository,
+  USERS_REPOSITORY,
+} from 'apps/user-service/src/domain/repositories/users.repository';
+import {
+  CREATE_AUTH_USER_PORT,
+  type ICreateAuthUserPort,
+} from '../../ports/create-auth-user.port';
 
 @Injectable()
 export class CreateUserUseCase {
   public constructor(
-    @Inject(USERS_COMMAND_REPOSITORY)
-    private readonly usersCommandRepository: IUsersCommandRepository,
+    @Inject(USERS_REPOSITORY)
+    private readonly usersRepository: IUsersRepository,
 
-    @Inject(CREATE_USER_ID_PORT)
-    private readonly createUserIdPort: ICreateUserIdPort,
+    @Inject(CREATE_AUTH_USER_PORT)
+    private readonly createAuthUserPort: ICreateAuthUserPort,
 
     private readonly userUniquenessService: UserUniquenessService,
   ) {}
 
-  public async execute(
-    request: ICreateUserRequest,
-  ): Promise<CreateUserResponse> {
+  public async execute(request: ICreateUserRequest): Promise<{ id: string }> {
     await this.userUniquenessService.ensureEmailIsUnique(request.email);
 
-    const id = this.createUserIdPort.generate();
-
     const user = User.create({
-      id,
       firstName: request.firstName,
       lastName: request.lastName,
       gender: request.gender,
@@ -40,8 +34,13 @@ export class CreateUserUseCase {
       roleId: request.roleId,
     });
 
-    await this.usersCommandRepository.create(user);
+    const created = await this.usersRepository.create(user);
 
-    return new CreateUserResponse(user.getId());
+    await this.createAuthUserPort.execute({
+      userId: created.id,
+      password: request.password,
+    });
+
+    return { id: created.id };
   }
 }

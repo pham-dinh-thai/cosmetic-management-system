@@ -12,7 +12,7 @@ export class UserReaderAdapter implements IUserReaderPort {
 
   public async findById(id: string): Promise<{ id: string } | null> {
     const response = await fetch(
-      `${this.baseUrl}/api/users/internal/by-id/${id}`,
+      `${this.baseUrl}/api/internal/users/by-id/${id}`,
     );
 
     if (response.status === 404) {
@@ -34,7 +34,7 @@ export class UserReaderAdapter implements IUserReaderPort {
     email: string,
   ): Promise<{ id: string; roleId: string } | null> {
     const response = await fetch(
-      `${this.baseUrl}/api/users/internal/by-email/${email}`,
+      `${this.baseUrl}/api/internal/users/by-email/${email}`,
     );
 
     if (response.status === 404) {

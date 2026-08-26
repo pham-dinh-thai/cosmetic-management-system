@@ -5,5 +5,6 @@ export interface ICreateUserRequest {
   lastName: string;
   gender: Gender;
   email: string;
+  password: string;
   roleId: string;
 }

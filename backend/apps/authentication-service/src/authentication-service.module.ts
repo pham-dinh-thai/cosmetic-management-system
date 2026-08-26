@@ -11,7 +11,6 @@ import { CreateAuthUserUuidAdapter } from './infrastructure/adapters/create-user
 import { CreateAuthUserUseCase } from './application/use-cases/create-auth-user/create-auth-user.use-case';
 import { PASSWORD_HASHER_PORT } from './application/ports/password-hasher.port';
 import { BcryptPasswordHasherAdapter } from './infrastructure/adapters/bcrypt-password-hasher.adapter';
-import { AuthUsersController } from './presentation/auth-users/auth-users.controller';
 import { AUTH_USERS_COMMAND_REPOSITORY } from './domain/repositories/auth-users-command.repository';
 import { MikroAuthUsersCommandRepository } from './infrastructure/repositories/mikro-auth-users-command.repository';
 import { USER_READER_PORT } from './domain/ports/user-reader.port';
@@ -24,6 +23,8 @@ import { SignTokenAdapter } from './infrastructure/adapters/sign-token.adapter';
 import { LoginUseCase } from './application/use-cases/login/login.use-case';
 import { EnsureUserExistsService } from './domain/services/ensure-user-exists.service';
 import { EnsureAuthUserDoesNotExistService } from './domain/services/ensure-auth-user-does-not-exist.service';
+import { AuthUsersController } from './presentation/public/auth-users/auth-users.controller';
+import { InternalAuthUsersController } from './presentation/internal/auth-users/auth-users.controller';
 
 @Module({
   imports: [
@@ -47,7 +48,11 @@ import { EnsureAuthUserDoesNotExistService } from './domain/services/ensure-auth
     UuidModule,
     JwtModule.register({}),
   ],
-  controllers: [AuthenticationServiceController, AuthUsersController],
+  controllers: [
+    AuthenticationServiceController,
+    AuthUsersController,
+    InternalAuthUsersController,
+  ],
   providers: [
     AuthenticationServiceService,
     CreateAuthUserUseCase,

@@ -15,6 +15,7 @@ const SERVICE_DOCS_SOURCES: ServiceDocsSource[] = [
   { name: 'auth', url: process.env.AUTH_SERVICE_URL },
   { name: 'roles', url: process.env.AUTHORIZATION_SERVICE_URL },
   { name: 'departments', url: process.env.DEPARTMENT_SERVICE_URL },
+  { name: 'employees', url: process.env.EMPLOYEE_SERVICE_URL },
 ];
 
 async function fetchServiceDocument(source: ServiceDocsSource): Promise<any> {
@@ -95,12 +96,18 @@ async function bootstrap() {
       pathFilter: (pathname) => /^\/api\/roles(\/|$)/.test(pathname),
     }),
   );
-
   app.use(
     createProxyMiddleware({
       target: process.env.DEPARTMENT_SERVICE_URL,
       changeOrigin: true,
       pathFilter: (pathname) => /^\/api\/departments(\/|$)/.test(pathname),
+    }),
+  );
+  app.use(
+    createProxyMiddleware({
+      target: process.env.EMPLOYEE_SERVICE_URL,
+      changeOrigin: true,
+      pathFilter: (pathname) => /^\/api\/employees(\/|$)/.test(pathname),
     }),
   );
 

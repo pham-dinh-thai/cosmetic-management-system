@@ -32,5 +32,10 @@ export class CreateUserRequest implements ICreateUserRequest {
   @IsString()
   @IsNotEmpty()
   @MaxLength(255)
+  password!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(255)
   roleId!: string;
 }

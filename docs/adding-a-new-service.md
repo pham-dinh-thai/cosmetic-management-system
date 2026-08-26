@@ -96,6 +96,10 @@ Script `docker/postgres/init-dbs.sh` được mount vào
 `/docker-entrypoint-initdb.d/` của container postgres — nó **chỉ chạy đúng một
 lần khi volume `postgres-data` còn trống**.
 
+> Superuser của PostgreSQL container lấy từ `POSTGRES_USER` trong `.env`
+> (vd: `cosmetic_admin`), **không phải** `postgres`. Check bằng
+> `grep POSTGRES_USER .env`.
+
 Thêm user + DB cho service mới:
 
 ```sql
@@ -109,19 +113,34 @@ Cùng block grant TABLES/SEQUENCES như các service khác.
 
 ### Nếu volume đã tồn tại (script sẽ KHÔNG chạy lại)
 
-Tạo tay trong container đang chạy:
+Tạo tay trong container đang chạy. Lấy `POSTGRES_USER` và password từ `.env`
+ở thư mục gốc repo:
 
 ```bash
-# nạp biến từ .env rồi tạo user/db
-set -a && . ../.env
-docker exec cosmetic-postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" \
-  -c "CREATE USER $DEPARTMENT_DB_USER WITH PASSWORD '$DEPARTMENT_DB_PASSWORD';" \
-  -c "CREATE DATABASE $DEPARTMENT_DB_NAME OWNER $DEPARTMENT_DB_USER;" \
-  -c "GRANT ALL PRIVILEGES ON DATABASE $DEPARTMENT_DB_NAME TO $DEPARTMENT_DB_USER;"
+# Đọc .env (chạy từ thư mục gốc repo)
+export $(grep -v '^#' .env | xargs)
 
-docker exec cosmetic-postgres psql -U "$POSTGRES_USER" -d "$DEPARTMENT_DB_NAME" \
-  -c "ALTER SCHEMA public OWNER TO $DEPARTMENT_DB_USER;
-      GRANT ALL ON SCHEMA public TO $DEPARTMENT_DB_USER;"
+# Tạo user + database
+docker exec cosmetic-postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" \
+  -c "CREATE USER cosmetic_department WITH PASSWORD '$DEPARTMENT_DB_PASSWORD';" \
+  -c "CREATE DATABASE cosmetic_department_service OWNER cosmetic_department;" \
+  -c "GRANT ALL PRIVILEGES ON DATABASE cosmetic_department_service TO cosmetic_department;"
+
+docker exec cosmetic-postgres psql -U "$POSTGRES_USER" -d cosmetic_department_service \
+  -c "ALTER SCHEMA public OWNER TO cosmetic_department;
+      GRANT ALL ON SCHEMA public TO cosmetic_department;"
+```
+
+> Lưu ý: `POSTGRES_USER` là superuser của PostgreSQL container (vd: `cosmetic_admin`),
+> **không phải** `postgres`. Check giá trị bằng `grep POSTGRES_USER .env`.
+> Nếu lỗi `role "postgres" does not exist` nghĩa là dùng sai tên.
+
+### Verify user/DB đã tồn tại
+
+```bash
+docker exec cosmetic-postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" \
+  -c "\du"          # danh sách users
+  -c "\l"           # danh sách databases
 ```
 
 (Chạy từ thư mục gốc repo. Muốn test script sạch hoàn toàn thì
@@ -282,6 +301,16 @@ Config `mikro-orm.config.ts` có `entities: []`. Phải đăng ký ít nhất m�
 
 DB/user chưa được tạo: xem Bước 3 — nhớ rằng `init-dbs.sh` chỉ chạy khi volume
 postgres còn trống, nếu volume đã có dữ liệu phải tạo tay bằng lệnh `psql`.
+
+### `role "postgres" does not exist`
+
+Superuser của container không phải `postgres`. Dùng đúng tên từ `.env`:
+
+```bash
+grep POSTGRES_USER .env    # xd giá trị, vd: cosmetic_admin
+```
+
+Rồi dùng `-U cosmetic_admin` thay vì `-U postgres`.
 
 ### `service "migration-xxx" didn't complete successfully: exit 1`
 

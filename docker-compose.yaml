@@ -165,6 +165,37 @@ services:
       migration-department:
         condition: service_completed_successfully
 
+  migration-employee:
+    build: ./backend
+    command: sh -c "npx mikro-orm migration:up"
+    environment:
+      NODE_OPTIONS: "-r ts-node/register"
+      MIKRO_ORM_CLI_CONFIG: "./apps/employee-service/mikro-orm.config.ts"
+      EMPLOYEE_DB_HOST: ${EMPLOYEE_DB_HOST}
+      EMPLOYEE_DB_PORT: "${EMPLOYEE_DB_PORT}"
+      EMPLOYEE_DB_USER: ${EMPLOYEE_DB_USER}
+      EMPLOYEE_DB_PASSWORD: ${EMPLOYEE_DB_PASSWORD}
+      EMPLOYEE_DB_NAME: ${EMPLOYEE_DB_NAME}
+    depends_on:
+      sync-users:
+        condition: service_completed_successfully
+
+  employee-service:
+    build: ./backend
+    command: ["node", "dist/apps/employee-service/main.js"]
+    environment:
+      EMPLOYEE_DB_HOST: ${EMPLOYEE_DB_HOST}
+      EMPLOYEE_DB_PORT: "${EMPLOYEE_DB_PORT}"
+      EMPLOYEE_DB_USER: ${EMPLOYEE_DB_USER}
+      EMPLOYEE_DB_PASSWORD: ${EMPLOYEE_DB_PASSWORD}
+      EMPLOYEE_DB_NAME: ${EMPLOYEE_DB_NAME}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+    ports:
+      - "3005:3005"
+    depends_on:
+      migration-employee:
+        condition: service_completed_successfully
+
   gateway-service:
     build: ./backend
     command: ["node", "dist/apps/gateway-service/main.js"]
@@ -173,6 +204,7 @@ services:
       AUTH_SERVICE_URL: ${AUTH_SERVICE_URL}
       AUTHORIZATION_SERVICE_URL: ${AUTHORIZATION_SERVICE_URL}
       DEPARTMENT_SERVICE_URL: ${DEPARTMENT_SERVICE_URL}
+      EMPLOYEE_SERVICE_URL: ${EMPLOYEE_SERVICE_URL}
     ports:
       - "3000:3000"
     depends_on:
