@@ -36,6 +36,15 @@
         "tsConfigPath": "apps/department-service/tsconfig.app.json"
       }
     },
+    "employee-service": {
+      "type": "application",
+      "root": "apps/employee-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/employee-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/employee-service/tsconfig.app.json"
+      }
+    },
     "gateway-service": {
       "type": "application",
       "root": "apps/gateway-service",

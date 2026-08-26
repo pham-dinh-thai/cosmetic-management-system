@@ -41,12 +41,12 @@ Quy tắc:
 
 Code chia thành 4 nhóm thư mục, mỗi nhóm có trách nhiệm riêng:
 
-| Thư mục           | Trách nhiệm                              | Được phép import gì             |
-| ----------------- | ---------------------------------------- | ------------------------------- |
-| `presentation/`   | Nhận/trả HTTP: controller + DTO validate | application                     |
-| `application/`    | Xử lý từng hành động (use case)          | domain                          |
-| `domain/`         | Kiểu dữ liệu nghiệp vụ + business rule   | **không** (pure TypeScript)      |
-| `infrastructure/` | Chi tiết kỹ thuật: DB, UUID...           | domain, application             |
+| Thư mục           | Trách nhiệm                              | Được phép import gì         |
+| ----------------- | ---------------------------------------- | --------------------------- |
+| `presentation/`   | Nhận/trả HTTP: controller + DTO validate | application                 |
+| `application/`    | Xử lý từng hành động (use case)          | domain                      |
+| `domain/`         | Kiểu dữ liệu nghiệp vụ + business rule   | **không** (pure TypeScript) |
+| `infrastructure/` | Chi tiết kỹ thuật: DB, UUID...           | domain, application         |
 
 Chi tiết cây thư mục:
 
@@ -58,7 +58,7 @@ apps/user-service/src/
 │   ├── public/users/                # API cho client (qua gateway): /api/users
 │   │   ├── users.controller.ts
 │   │   └── requests/create-user.request.ts
-│   └── internal/users/              # API cho service khác: /api/users/internal/*
+│   └── internal/users/              # API cho service khác: /api/internal/users/*
 │       └── users.controller.ts
 ├── application/
 │   └── use-cases/
@@ -69,8 +69,7 @@ apps/user-service/src/
 ├── domain/
 │   ├── user.aggregate.ts            # class User: field private + getter + static create()
 │   ├── repositories/
-│   │   ├── users-command.repository.ts    # interface lưu/sửa/xoá
-│   │   └── users-query.repository.ts      # interface đọc dữ liệu
+│   │   ├── users-query.repository.ts
 │   ├── read-models/user.read-model.ts     # dạng dữ liệu trả ra khi query
 │   ├── services/user-uniqueness.service.ts # rule nghiệp vụ dùng chung
 │   ├── exceptions/                        # domain exception (extends Error)
@@ -127,7 +126,7 @@ export interface IUsersCommandRepository {
   delete(id: string): Promise<boolean>;
 }
 
-export const USERS_COMMAND_REPOSITORY = 'IUsersCommandRepository';
+export const USERS_COMMAND_REPOSITORY = "IUsersCommandRepository";
 ```
 
 ### 4.2. Application (use case)

@@ -4,14 +4,8 @@ import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { PostgreSqlDriver } from '@mikro-orm/postgresql';
 import { User } from './infrastructure/entities/user.entity';
 import { FindUserByIdUseCase } from './application/use-cases/find-user-by-id/find-user-by-id.use-case';
-import { MikroUsersQueryRepository } from './infrastructure/repositories/mikro-users-query.repository';
-import { USERS_QUERY_REPOSITORY } from './domain/repositories/users-query.repository';
 import { UuidModule } from 'nestjs-uuid';
-import { CREATE_USER_ID_PORT } from './application/ports/create-user-id.port';
-import { CreateUserUuidAdapter } from './infrastructure/adapters/create-user-uuid.adapter';
 import { CreateUserUseCase } from './application/use-cases/create-user/create-user.use-case';
-import { USERS_COMMAND_REPOSITORY } from './domain/repositories/users-command.repository';
-import { MikroUsersCommandRepository } from './infrastructure/repositories/mikro-users-command.repository';
 import { UserUniquenessService } from './domain/services/user-uniqueness.service';
 import { FindUsersUseCase } from './application/use-cases/find-users/find-users.use-case';
 import { DeleteUserUseCase } from './application/use-cases/delete-user/delete-user.use-case';
@@ -19,6 +13,11 @@ import { FindUserIdByEmailUseCase } from './application/use-cases/find-user-id-b
 import { JwtModule } from '@nestjs/jwt';
 import { UsersController } from './presentation/public/users/users.controller';
 import { InternalUsersController } from './presentation/internal/users/users.controller';
+import { USERS_REPOSITORY } from './domain/repositories/users.repository';
+import { MikroUsersRepository } from './infrastructure/repositories/mikro-users.repository';
+import { CREATE_AUTH_USER_PORT } from './application/ports/create-auth-user.port';
+import { CreateAuthUserAdapter } from './infrastructure/adapters/create-auth-user.adapter';
+import { type IUsersRepository } from './domain/repositories/users.repository';
 
 @Module({
   imports: [
@@ -54,18 +53,19 @@ import { InternalUsersController } from './presentation/internal/users/users.con
     FindUserIdByEmailUseCase,
     CreateUserUseCase,
     DeleteUserUseCase,
-    UserUniquenessService,
     {
-      provide: USERS_QUERY_REPOSITORY,
-      useClass: MikroUsersQueryRepository,
+      provide: UserUniquenessService,
+      useFactory: (repo: IUsersRepository) =>
+        new UserUniquenessService(repo),
+      inject: [USERS_REPOSITORY],
     },
     {
-      provide: USERS_COMMAND_REPOSITORY,
-      useClass: MikroUsersCommandRepository,
+      provide: USERS_REPOSITORY,
+      useClass: MikroUsersRepository,
     },
     {
-      provide: CREATE_USER_ID_PORT,
-      useClass: CreateUserUuidAdapter,
+      provide: CREATE_AUTH_USER_PORT,
+      useClass: CreateAuthUserAdapter,
     },
   ],
 })

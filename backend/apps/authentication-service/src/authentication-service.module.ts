@@ -1,21 +1,17 @@
 import { Module } from '@nestjs/common';
 import { AuthenticationServiceController } from './authentication-service.controller';
 import { AuthenticationServiceService } from './authentication-service.service';
-import { UuidModule } from 'nestjs-uuid';
 import { AuthUser } from './infrastructure/entities/auth-user.entity';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PostgreSqlDriver } from '@mikro-orm/postgresql';
-import { CREATE_AUTH_USER_ID_PORT } from './application/ports/create-auth-user-id.port';
-import { CreateAuthUserUuidAdapter } from './infrastructure/adapters/create-user-uuid.adapter';
 import { CreateAuthUserUseCase } from './application/use-cases/create-auth-user/create-auth-user.use-case';
 import { PASSWORD_HASHER_PORT } from './application/ports/password-hasher.port';
 import { BcryptPasswordHasherAdapter } from './infrastructure/adapters/bcrypt-password-hasher.adapter';
-import { AuthUsersController } from './presentation/auth-users/auth-users.controller';
 import { AUTH_USERS_COMMAND_REPOSITORY } from './domain/repositories/auth-users-command.repository';
 import { MikroAuthUsersCommandRepository } from './infrastructure/repositories/mikro-auth-users-command.repository';
-import { USER_READER_PORT } from './domain/ports/user-reader.port';
-import { UserReaderAdapter } from './infrastructure/adapters/user-reader.adapter';
+import { USERS_READER_PORT } from './domain/ports/users-reader.port';
+import { UsersReaderAdapter } from './infrastructure/adapters/users-reader.adapter';
 import { AUTH_USERS_QUERY_REPOSITORY } from './domain/repositories/auth-users-query.repository';
 import { MikroAuthUsersQueryRepository } from './infrastructure/repositories/mikro-auth-users-query.repository';
 import { JwtModule } from '@nestjs/jwt';
@@ -24,6 +20,8 @@ import { SignTokenAdapter } from './infrastructure/adapters/sign-token.adapter';
 import { LoginUseCase } from './application/use-cases/login/login.use-case';
 import { EnsureUserExistsService } from './domain/services/ensure-user-exists.service';
 import { EnsureAuthUserDoesNotExistService } from './domain/services/ensure-auth-user-does-not-exist.service';
+import { AuthUsersController } from './presentation/public/auth-users/auth-users.controller';
+import { InternalAuthUsersController } from './presentation/internal/auth-users/auth-users.controller';
 
 @Module({
   imports: [
@@ -44,18 +42,17 @@ import { EnsureAuthUserDoesNotExistService } from './domain/services/ensure-auth
       inject: [ConfigService],
     }),
     MikroOrmModule.forFeature([AuthUser]),
-    UuidModule,
     JwtModule.register({}),
   ],
-  controllers: [AuthenticationServiceController, AuthUsersController],
+  controllers: [
+    AuthenticationServiceController,
+    AuthUsersController,
+    InternalAuthUsersController,
+  ],
   providers: [
     AuthenticationServiceService,
     CreateAuthUserUseCase,
     LoginUseCase,
-    {
-      provide: CREATE_AUTH_USER_ID_PORT,
-      useClass: CreateAuthUserUuidAdapter,
-    },
     {
       provide: PASSWORD_HASHER_PORT,
       useClass: BcryptPasswordHasherAdapter,
@@ -65,8 +62,8 @@ import { EnsureAuthUserDoesNotExistService } from './domain/services/ensure-auth
       useClass: MikroAuthUsersCommandRepository,
     },
     {
-      provide: USER_READER_PORT,
-      useClass: UserReaderAdapter,
+      provide: USERS_READER_PORT,
+      useClass: UsersReaderAdapter,
     },
     {
       provide: AUTH_USERS_QUERY_REPOSITORY,
