@@ -10,7 +10,9 @@ import { CreateUserAdapter } from './infrastructure/adapters/create-user.adapter
 import { EMPLOYEES_REPOSITORY } from './domain/repositories/employees.repository';
 import { MikroEmployeesRepository } from './infrastructure/repositories/mikro-employees.repository';
 import { CreateEmployeeUseCase } from './application/use-cases/create-employee/create-employee.use-case';
-import { AuthGuard, RolesGuard } from '@app/security';
+import { READ_DEPARTMENT_PORT } from './application/ports/read-department.port';
+import { ReadDepartmentAdapter } from './infrastructure/adapters/read-department.adapter';
+import { EnsureDepartmentExistsService } from './domain/services/ensure-department-exists.service';
 
 @Module({
   imports: [
@@ -42,7 +44,13 @@ import { AuthGuard, RolesGuard } from '@app/security';
       useFactory: (config: ConfigService) => new CreateUserAdapter(config),
       inject: [ConfigService],
     },
+    {
+      provide: READ_DEPARTMENT_PORT,
+      useFactory: (config: ConfigService) => new ReadDepartmentAdapter(config),
+      inject: [ConfigService],
+    },
     { provide: EMPLOYEES_REPOSITORY, useClass: MikroEmployeesRepository },
+    EnsureDepartmentExistsService,
     CreateEmployeeUseCase,
   ],
 })

@@ -16,6 +16,8 @@ import { DepartmentUniquenessService } from './domain/services/department-unique
 import { UpdateDepartmentUseCase } from './application/use-cases/update-department/update-department.use-case';
 import { DeactivateDepartmentUseCase } from './application/use-cases/deactivate-department/deactivate-department.use-case';
 import { ActivateDepartmentUseCase } from './application/use-cases/activate-department/activate-department.use-case';
+import { InternalDepartmentsController } from './presentation/internal/departments/departments.controller';
+import { FindDepartmentByIdUseCase } from './application/use-cases/find-department-by-id/find-department-by-id.use-case';
 
 @Module({
   imports: [
@@ -43,11 +45,12 @@ import { ActivateDepartmentUseCase } from './application/use-cases/activate-depa
       inject: [ConfigService],
     }),
   ],
-  controllers: [DepartmentsController],
+  controllers: [DepartmentsController, InternalDepartmentsController],
   providers: [
     { provide: DEPARTMENTS_REPOSITORY, useClass: MikroDepartmentsRepository },
     CreateDepartmentUseCase,
     FindDepartmentsUseCase,
+    FindDepartmentByIdUseCase,
     {
       provide: DepartmentUniquenessService,
       useFactory: (repo: IDepartmentsRepository) =>

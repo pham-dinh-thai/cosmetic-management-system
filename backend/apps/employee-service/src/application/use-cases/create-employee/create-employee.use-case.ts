@@ -9,6 +9,7 @@ import {
   EMPLOYEES_REPOSITORY,
   type IEmployeesRepository,
 } from 'apps/employee-service/src/domain/repositories/employees.repository';
+import { EnsureDepartmentExistsService } from 'apps/employee-service/src/domain/services/ensure-department-exists.service';
 
 @Injectable()
 export class CreateEmployeeUseCase {
@@ -18,9 +19,13 @@ export class CreateEmployeeUseCase {
 
     @Inject(EMPLOYEES_REPOSITORY)
     private readonly employeesRepository: IEmployeesRepository,
+
+    private readonly ensureDepartmentExistsService: EnsureDepartmentExistsService,
   ) {}
 
   public async execute(request: ICreateEmployeeRequest): Promise<void> {
+    await this.ensureDepartmentExistsService.byId(request.departmentId);
+
     const user = await this.createUserPort.execute({
       firstName: request.user.firstName,
       lastName: request.user.lastName,
