@@ -1,7 +1,8 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { ICreateUserRequest } from './create-user.request';
 import { User } from '../../../domain/user.aggregate';
 import { UserUniquenessService } from '../../../domain/services/user-uniqueness.service';
+import { EmailAlreadyExistsException } from '../../../domain/exceptions/email-already-exists.exception';
 import {
   type IUsersRepository,
   USERS_REPOSITORY,
@@ -24,7 +25,14 @@ export class CreateUserUseCase {
   ) {}
 
   public async execute(request: ICreateUserRequest): Promise<{ id: string }> {
-    await this.userUniquenessService.ensureEmailIsUnique(request.email);
+    try {
+      await this.userUniquenessService.ensureEmailIsUnique(request.email);
+    } catch (error) {
+      if (error instanceof EmailAlreadyExistsException) {
+        throw new ConflictException(error.message);
+      }
+      throw error;
+    }
 
     const user = User.create({
       firstName: request.firstName,

@@ -1,19 +1,14 @@
-import { ConflictException, Inject, Injectable } from '@nestjs/common';
-import {
-  type IUsersQueryRepository,
-  USERS_QUERY_REPOSITORY,
-} from '../repositories/users-query.repository';
+import { type IUsersRepository } from '../repositories/users.repository';
+import { EmailAlreadyExistsException } from '../exceptions/email-already-exists.exception';
 
-@Injectable()
 export class UserUniquenessService {
   public constructor(
-    @Inject(USERS_QUERY_REPOSITORY)
-    private readonly usersQueryRepository: IUsersQueryRepository,
+    private readonly usersRepository: IUsersRepository,
   ) {}
 
   public async ensureEmailIsUnique(email: string): Promise<void> {
-    if (await this.usersQueryRepository.findByEmail(email)) {
-      throw new ConflictException(`Email already in use: ${email}`);
+    if (await this.usersRepository.findByEmail(email)) {
+      throw new EmailAlreadyExistsException(email);
     }
   }
 }
