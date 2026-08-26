@@ -15,7 +15,7 @@ import { CreateUserRequest } from '../../public/users/requests/create-user.reque
 import { CreateUserUseCase } from 'apps/user-service/src/application/use-cases/create-user/create-user.use-case';
 import { DeleteUserUseCase } from 'apps/user-service/src/application/use-cases/delete-user/delete-user.use-case';
 
-@Controller('api/internal/users')
+@Controller('internal/users')
 export class InternalUsersController {
   public constructor(
     private readonly findUserByIdUseCase: FindUserByIdUseCase,
