@@ -2,7 +2,7 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import {
   type IReadDepartmentPort,
   READ_DEPARTMENT_PORT,
-} from '../../application/ports/read-department.port';
+} from '../ports/read-department.port';
 
 @Injectable()
 export class EnsureDepartmentExistsService {

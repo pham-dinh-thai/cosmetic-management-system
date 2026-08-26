@@ -10,7 +10,7 @@ import { CreateUserAdapter } from './infrastructure/adapters/create-user.adapter
 import { EMPLOYEES_REPOSITORY } from './domain/repositories/employees.repository';
 import { MikroEmployeesRepository } from './infrastructure/repositories/mikro-employees.repository';
 import { CreateEmployeeUseCase } from './application/use-cases/create-employee/create-employee.use-case';
-import { READ_DEPARTMENT_PORT } from './application/ports/read-department.port';
+import { READ_DEPARTMENT_PORT } from './domain/ports/read-department.port';
 import { ReadDepartmentAdapter } from './infrastructure/adapters/read-department.adapter';
 import { EnsureDepartmentExistsService } from './domain/services/ensure-department-exists.service';
 

@@ -1,5 +1,5 @@
 import { ConfigService } from '@nestjs/config';
-import { IReadDepartmentPort } from '../../application/ports/read-department.port';
+import { IReadDepartmentPort } from '../../domain/ports/read-department.port';
 
 export class ReadDepartmentAdapter implements IReadDepartmentPort {
   private readonly baseUrl: string;
