@@ -10,7 +10,11 @@ export class CreateAuthUserAdapter implements ICreateAuthUserPort {
   public constructor(private readonly config: ConfigService) {}
 
   public async execute(request: ICreateAuthUserRequest): Promise<void> {
-    const url = this.config.get('AUTH_SERVICE_URL');
+    const url = this.config.get<string>('AUTH_SERVICE_URL');
+
+    if (!url) {
+      throw new Error('AUTH_SERVICE_URL is not configured');
+    }
 
     const response = await fetch(`${url}/api/internal/auth-users`, {
       method: 'POST',
@@ -19,8 +23,9 @@ export class CreateAuthUserAdapter implements ICreateAuthUserPort {
     });
 
     if (!response.ok) {
+      const body = await response.text().catch(() => '');
       throw new Error(
-        `Failed to create auth user: ${response.status} ${response.statusText}`,
+        `Failed to create auth user: ${response.status} ${response.statusText}${body ? ` - ${body}` : ''}`,
       );
     }
   }

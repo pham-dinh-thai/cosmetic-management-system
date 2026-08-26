@@ -10,6 +10,10 @@ export class CreateUserAdapter implements ICreateUserPort {
   public async execute(request: ICreateUserRequest): Promise<{ id: string }> {
     const url = this.config.get<string>('USER_SERVICE_URL');
 
+    if (!url) {
+      throw new Error('USER_SERVICE_URL is not configured');
+    }
+
     const response = await fetch(`${url}/api/internal/users`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -17,8 +21,9 @@ export class CreateUserAdapter implements ICreateUserPort {
     });
 
     if (!response.ok) {
+      const body = await response.text().catch(() => '');
       throw new Error(
-        `Failed to create user: ${response.status} ${response.statusText}`,
+        `Failed to create user: ${response.status} ${response.statusText}${body ? ` - ${body}` : ''}`,
       );
     }
 

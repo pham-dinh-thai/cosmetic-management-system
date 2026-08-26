@@ -7,7 +7,13 @@ export class UserReaderAdapter implements IUserReaderPort {
   private readonly baseUrl: string;
 
   public constructor(private readonly config: ConfigService) {
-    this.baseUrl = this.config.get<string>('USER_SERVICE_URL')!;
+    const url = this.config.get<string>('USER_SERVICE_URL');
+
+    if (!url) {
+      throw new Error('USER_SERVICE_URL is not configured');
+    }
+
+    this.baseUrl = url;
   }
 
   public async findById(id: string): Promise<{ id: string } | null> {
