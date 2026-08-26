@@ -17,7 +17,7 @@ export class Employee {
 
   public static create(props: CreateEmployeeProps): Employee {
     return new Employee(
-      '',
+      undefined as unknown as string,
       props.userId,
       props.code,
       props.departmentId,
