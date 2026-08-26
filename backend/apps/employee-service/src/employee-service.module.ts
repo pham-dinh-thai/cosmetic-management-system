@@ -37,7 +37,11 @@ import { AuthGuard, RolesGuard } from '@app/security';
   ],
   controllers: [EmployeesController],
   providers: [
-    { provide: CREATE_USER_PORT, useClass: CreateUserAdapter },
+    {
+      provide: CREATE_USER_PORT,
+      useFactory: (config: ConfigService) => new CreateUserAdapter(config),
+      inject: [ConfigService],
+    },
     { provide: EMPLOYEES_REPOSITORY, useClass: MikroEmployeesRepository },
     CreateEmployeeUseCase,
   ],
