@@ -10,8 +10,8 @@ import { CreateUserAdapter } from './infrastructure/adapters/create-user.adapter
 import { EMPLOYEES_REPOSITORY } from './domain/repositories/employees.repository';
 import { MikroEmployeesRepository } from './infrastructure/repositories/mikro-employees.repository';
 import { CreateEmployeeUseCase } from './application/use-cases/create-employee/create-employee.use-case';
-import { READ_DEPARTMENT_PORT } from './domain/ports/read-department.port';
-import { ReadDepartmentAdapter } from './infrastructure/adapters/read-department.adapter';
+import { DEPARTMENTS_READER_PORT } from './domain/ports/departments-reader.port';
+import { ReadDepartmentAdapter } from './infrastructure/adapters/departments-reader.adapter';
 import { EnsureDepartmentExistsService } from './domain/services/ensure-department-exists.service';
 
 @Module({
@@ -45,7 +45,7 @@ import { EnsureDepartmentExistsService } from './domain/services/ensure-departme
       inject: [ConfigService],
     },
     {
-      provide: READ_DEPARTMENT_PORT,
+      provide: DEPARTMENTS_READER_PORT,
       useFactory: (config: ConfigService) => new ReadDepartmentAdapter(config),
       inject: [ConfigService],
     },
