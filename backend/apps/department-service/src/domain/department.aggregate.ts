@@ -14,7 +14,7 @@ export class Department {
   ) {}
 
   public static create(props: CreateDepartmentProps): Department {
-    return new Department('', props.code, props.name, true);
+    return new Department(undefined as unknown as string, props.code, props.name, true);
   }
 
   public static fromPersistent(
