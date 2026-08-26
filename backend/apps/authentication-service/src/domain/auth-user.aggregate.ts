@@ -8,7 +8,11 @@ export class AuthUser {
   ) {}
 
   public static create(props: CreateAuthUserProps): AuthUser {
-    return new AuthUser(props.id, props.userId, props.password);
+    return new AuthUser(
+      undefined as unknown as string,
+      props.userId,
+      props.password,
+    );
   }
 
   public getId(): string {

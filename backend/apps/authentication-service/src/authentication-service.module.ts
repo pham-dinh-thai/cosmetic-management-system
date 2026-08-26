@@ -1,13 +1,10 @@
 import { Module } from '@nestjs/common';
 import { AuthenticationServiceController } from './authentication-service.controller';
 import { AuthenticationServiceService } from './authentication-service.service';
-import { UuidModule } from 'nestjs-uuid';
 import { AuthUser } from './infrastructure/entities/auth-user.entity';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PostgreSqlDriver } from '@mikro-orm/postgresql';
-import { CREATE_AUTH_USER_ID_PORT } from './application/ports/create-auth-user-id.port';
-import { CreateAuthUserUuidAdapter } from './infrastructure/adapters/create-user-uuid.adapter';
 import { CreateAuthUserUseCase } from './application/use-cases/create-auth-user/create-auth-user.use-case';
 import { PASSWORD_HASHER_PORT } from './application/ports/password-hasher.port';
 import { BcryptPasswordHasherAdapter } from './infrastructure/adapters/bcrypt-password-hasher.adapter';
@@ -45,7 +42,6 @@ import { InternalAuthUsersController } from './presentation/internal/auth-users/
       inject: [ConfigService],
     }),
     MikroOrmModule.forFeature([AuthUser]),
-    UuidModule,
     JwtModule.register({}),
   ],
   controllers: [
@@ -57,10 +53,6 @@ import { InternalAuthUsersController } from './presentation/internal/auth-users/
     AuthenticationServiceService,
     CreateAuthUserUseCase,
     LoginUseCase,
-    {
-      provide: CREATE_AUTH_USER_ID_PORT,
-      useClass: CreateAuthUserUuidAdapter,
-    },
     {
       provide: PASSWORD_HASHER_PORT,
       useClass: BcryptPasswordHasherAdapter,

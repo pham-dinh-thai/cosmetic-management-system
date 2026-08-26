@@ -69,8 +69,7 @@ apps/user-service/src/
 ├── domain/
 │   ├── user.aggregate.ts            # class User: field private + getter + static create()
 │   ├── repositories/
-│   │   ├── users-command.repository.ts    # interface lưu/sửa/xoá
-│   │   └── users-query.repository.ts      # interface đọc dữ liệu
+│   │   ├── users-query.repository.ts
 │   ├── read-models/user.read-model.ts     # dạng dữ liệu trả ra khi query
 │   ├── services/user-uniqueness.service.ts # rule nghiệp vụ dùng chung
 │   ├── exceptions/                        # domain exception (extends Error)
