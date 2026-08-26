@@ -1,7 +1,7 @@
-export interface IUserReaderPort {
+export interface IUsersReaderPort {
   findById(id: string): Promise<{ id: string } | null>;
 
   findByEmail(email: string): Promise<{ id: string; roleId: string } | null>;
 }
 
-export const USER_READER_PORT = 'IUserReaderPort';
+export const USERS_READER_PORT = 'IUsersReaderPort';

@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { IUserReaderPort } from '../../domain/ports/user-reader.port';
+import { IUsersReaderPort } from '../../domain/ports/users-reader.port';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
-export class UserReaderAdapter implements IUserReaderPort {
+export class UsersReaderAdapter implements IUsersReaderPort {
   private readonly baseUrl: string;
 
   public constructor(private readonly config: ConfigService) {
@@ -26,8 +26,9 @@ export class UserReaderAdapter implements IUserReaderPort {
     }
 
     if (!response.ok) {
+      const body = await response.text().catch(() => '');
       throw new Error(
-        `User service returned ${response.status}: ${response.statusText}`,
+        `User service returned ${response.status}: ${response.statusText}${body ? ` - ${body}` : ''}`,
       );
     }
 
@@ -48,8 +49,9 @@ export class UserReaderAdapter implements IUserReaderPort {
     }
 
     if (!response.ok) {
+      const body = await response.text().catch(() => '');
       throw new Error(
-        `User service returned ${response.status}: ${response.statusText}`,
+        `User service returned ${response.status}: ${response.statusText}${body ? ` - ${body}` : ''}`,
       );
     }
 

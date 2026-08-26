@@ -1,7 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 import { IDepartmentsReaderPort } from '../../domain/ports/departments-reader.port';
 
-export class ReadDepartmentAdapter implements IDepartmentsReaderPort {
+export class DepartmentsReaderAdapter implements IDepartmentsReaderPort {
   private readonly baseUrl: string;
 
   public constructor(private readonly config: ConfigService) {

@@ -1,8 +1,8 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import {
-  type IUserReaderPort,
-  USER_READER_PORT,
-} from '../../../domain/ports/user-reader.port';
+  type IUsersReaderPort,
+  USERS_READER_PORT,
+} from '../../../domain/ports/users-reader.port';
 import {
   type IPasswordHasherPort,
   PASSWORD_HASHER_PORT,
@@ -21,8 +21,8 @@ import { LoginResponse } from './login.response';
 @Injectable()
 export class LoginUseCase {
   public constructor(
-    @Inject(USER_READER_PORT)
-    private readonly userReaderPort: IUserReaderPort,
+    @Inject(USERS_READER_PORT)
+    private readonly usersReaderPort: IUsersReaderPort,
 
     @Inject(PASSWORD_HASHER_PORT)
     private readonly passwordHasherPort: IPasswordHasherPort,
@@ -35,7 +35,7 @@ export class LoginUseCase {
   ) {}
 
   public async execute(request: ILoginRequest): Promise<LoginResponse> {
-    const user = await this.userReaderPort.findByEmail(request.email);
+    const user = await this.usersReaderPort.findByEmail(request.email);
 
     if (!user?.id) {
       throw new UnauthorizedException('Email or password wrong');

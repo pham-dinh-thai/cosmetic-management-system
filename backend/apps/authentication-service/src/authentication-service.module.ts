@@ -10,8 +10,8 @@ import { PASSWORD_HASHER_PORT } from './application/ports/password-hasher.port';
 import { BcryptPasswordHasherAdapter } from './infrastructure/adapters/bcrypt-password-hasher.adapter';
 import { AUTH_USERS_COMMAND_REPOSITORY } from './domain/repositories/auth-users-command.repository';
 import { MikroAuthUsersCommandRepository } from './infrastructure/repositories/mikro-auth-users-command.repository';
-import { USER_READER_PORT } from './domain/ports/user-reader.port';
-import { UserReaderAdapter } from './infrastructure/adapters/user-reader.adapter';
+import { USERS_READER_PORT } from './domain/ports/users-reader.port';
+import { UsersReaderAdapter } from './infrastructure/adapters/users-reader.adapter';
 import { AUTH_USERS_QUERY_REPOSITORY } from './domain/repositories/auth-users-query.repository';
 import { MikroAuthUsersQueryRepository } from './infrastructure/repositories/mikro-auth-users-query.repository';
 import { JwtModule } from '@nestjs/jwt';
@@ -62,8 +62,8 @@ import { InternalAuthUsersController } from './presentation/internal/auth-users/
       useClass: MikroAuthUsersCommandRepository,
     },
     {
-      provide: USER_READER_PORT,
-      useClass: UserReaderAdapter,
+      provide: USERS_READER_PORT,
+      useClass: UsersReaderAdapter,
     },
     {
       provide: AUTH_USERS_QUERY_REPOSITORY,
