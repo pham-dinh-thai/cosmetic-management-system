@@ -10,7 +10,7 @@ export class CreateUserAdapter implements ICreateUserPort {
   public async execute(request: ICreateUserRequest): Promise<{ id: string }> {
     const url = this.config.get<string>('USER_SERVICE_URL');
 
-    const response = await fetch(`${url}/internal/users`, {
+    const response = await fetch(`${url}/api/internal/users`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request),
