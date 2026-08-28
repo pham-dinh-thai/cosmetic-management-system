@@ -29,7 +29,7 @@ export class UpdateUserInformationAdapter implements IUpdateUserInformationPort 
     request: IUpdateUserInformationRequest,
   ): Promise<void> {
     const response = await fetch(`${this.url}/api/internal/users/${id}`, {
-      method: 'PUT',
+      method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request),
     });

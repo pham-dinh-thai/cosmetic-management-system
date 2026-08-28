@@ -6,8 +6,8 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
-  Put,
 } from '@nestjs/common';
 import { FindUserIdByEmailUseCase } from '../../../application/use-cases/find-user-id-by-email/find-user-id-by-email.use-case';
 import { FindUserByIdUseCase } from '../../../application/use-cases/find-user-by-id/find-user-by-id.use-case';
@@ -50,7 +50,7 @@ export class InternalUsersController {
     return await this.createUserUseCase.execute(request);
   }
 
-  @Put(`:id`)
+  @Patch(`:id`)
   public async updateInformation(
     @Param('id') id: string,
     @Body() request: UpdateUserInformationRequest,
