@@ -1,19 +1,26 @@
-import { ConfigService } from '@nestjs/config';
 import {
   BadRequestException,
   InternalServerErrorException,
-  Logger,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   ICreateUserPort,
   ICreateUserRequest,
 } from '../../application/use-cases/create-employee/ports/create-user.port';
+import {
+  EMPLOYEE_LOGGER_PORT,
+  type IEmployeeLoggerPort,
+} from '../../application/ports/employee-logger.port';
 
 export class CreateUserAdapter implements ICreateUserPort {
-  private readonly logger = new Logger(CreateUserAdapter.name);
+  private readonly logger: IEmployeeLoggerPort;
   private readonly url: string;
 
-  public constructor(private readonly config: ConfigService) {
+  public constructor(
+    logger: IEmployeeLoggerPort,
+    private readonly config: ConfigService,
+  ) {
+    this.logger = logger.createContext(CreateUserAdapter.name);
     this.url = this.config.getOrThrow<string>('USER_SERVICE_URL');
   }
 

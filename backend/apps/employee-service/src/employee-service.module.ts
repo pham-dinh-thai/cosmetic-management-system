@@ -19,7 +19,10 @@ import { UPDATE_USER_INFORMATION_PORT } from './application/use-cases/update-emp
 import { UpdateUserInformationAdapter } from './infrastructure/adapters/update-user-information.adapter';
 import { FIND_USER_INFORMATION_PORT } from './application/use-cases/update-employee-information/ports/find-user-information.port';
 import { FindUserInformationAdapter } from './infrastructure/adapters/find-user-information.adapter';
-import { EMPLOYEE_LOGGER_PORT } from './application/ports/employee-logger.port';
+import {
+  EMPLOYEE_LOGGER_PORT,
+  type IEmployeeLoggerPort,
+} from './application/ports/employee-logger.port';
 import { NestJSLoggerAdapter } from './infrastructure/adapters/nestjs-logger.adapter';
 import {
   updateEmployeeInformationUseCaseFactory,
@@ -53,8 +56,9 @@ import {
   providers: [
     {
       provide: CREATE_USER_PORT,
-      useFactory: (config: ConfigService) => new CreateUserAdapter(config),
-      inject: [ConfigService],
+      useFactory: (config: ConfigService, logger: IEmployeeLoggerPort) =>
+        new CreateUserAdapter(logger, config),
+      inject: [ConfigService, EMPLOYEE_LOGGER_PORT],
     },
     {
       provide: DEPARTMENTS_READER_PORT,
@@ -70,11 +74,15 @@ import {
     },
     {
       provide: UPDATE_USER_INFORMATION_PORT,
-      useClass: UpdateUserInformationAdapter,
+      useFactory: (config: ConfigService, logger: IEmployeeLoggerPort) =>
+        new UpdateUserInformationAdapter(logger, config),
+      inject: [ConfigService, EMPLOYEE_LOGGER_PORT],
     },
     {
       provide: FIND_USER_INFORMATION_PORT,
-      useClass: FindUserInformationAdapter,
+      useFactory: (config: ConfigService, logger: IEmployeeLoggerPort) =>
+        new FindUserInformationAdapter(logger, config),
+      inject: [ConfigService, EMPLOYEE_LOGGER_PORT],
     },
     {
       provide: EMPLOYEE_LOGGER_PORT,

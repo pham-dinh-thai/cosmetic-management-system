@@ -1,21 +1,26 @@
 import {
-  Injectable,
   InternalServerErrorException,
   BadRequestException,
-  Logger,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   IUpdateUserInformationPort,
   IUpdateUserInformationRequest,
 } from '../../application/use-cases/update-employee-information/ports/update-user-information.port';
+import {
+  EMPLOYEE_LOGGER_PORT,
+  type IEmployeeLoggerPort,
+} from '../../application/ports/employee-logger.port';
 
-@Injectable()
 export class UpdateUserInformationAdapter implements IUpdateUserInformationPort {
-  private readonly logger = new Logger(UpdateUserInformationAdapter.name);
+  private readonly logger: IEmployeeLoggerPort;
   private readonly url: string;
 
-  public constructor(private readonly config: ConfigService) {
+  public constructor(
+    logger: IEmployeeLoggerPort,
+    private readonly config: ConfigService,
+  ) {
+    this.logger = logger.createContext(UpdateUserInformationAdapter.name);
     this.url = this.config.getOrThrow<string>('USER_SERVICE_URL');
   }
 

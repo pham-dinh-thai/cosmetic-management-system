@@ -3,7 +3,15 @@ import { IEmployeeLoggerPort } from '../../application/ports/employee-logger.por
 
 @Injectable()
 export class NestJSLoggerAdapter implements IEmployeeLoggerPort {
-  private readonly logger = new Logger('App');
+  private readonly logger: Logger;
+
+  public constructor(context: string = 'App') {
+    this.logger = new Logger(context);
+  }
+
+  public createContext(context: string): IEmployeeLoggerPort {
+    return new NestJSLoggerAdapter(context);
+  }
 
   public warn(message: string, ...context: unknown[]): void {
     this.logger.warn(message, ...context);

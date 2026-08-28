@@ -1,16 +1,23 @@
 import {
   BadRequestException,
   InternalServerErrorException,
-  Logger,
 } from '@nestjs/common';
 import { IFindUserInformationPort } from '../../application/use-cases/update-employee-information/ports/find-user-information.port';
 import { ConfigService } from '@nestjs/config';
+import {
+  EMPLOYEE_LOGGER_PORT,
+  type IEmployeeLoggerPort,
+} from '../../application/ports/employee-logger.port';
 
 export class FindUserInformationAdapter implements IFindUserInformationPort {
-  private readonly logger = new Logger(FindUserInformationAdapter.name);
+  private readonly logger: IEmployeeLoggerPort;
   private readonly url: string;
 
-  public constructor(private readonly config: ConfigService) {
+  public constructor(
+    logger: IEmployeeLoggerPort,
+    private readonly config: ConfigService,
+  ) {
+    this.logger = logger.createContext(FindUserInformationAdapter.name);
     this.url = this.config.getOrThrow<string>('USER_SERVICE_URL');
   }
 
