@@ -28,6 +28,12 @@ import {
   updateEmployeeInformationUseCaseFactory,
   UpdateEmployeeInformationUseCase,
 } from './application/use-cases/update-employee-information/update-employee-information.use-case';
+import { DELETE_USER_PORT } from './application/use-cases/delete-employee/ports/delete-user.port';
+import { DeleteUserAdapter } from './infrastructure/adapters/delete-user.adapter';
+import {
+  deleteEmployeeUseCaseFactory,
+  DeleteEmployeeUseCase,
+} from './application/use-cases/delete-employee/delete-employee.use-case';
 
 @Module({
   imports: [
@@ -85,6 +91,12 @@ import {
       inject: [ConfigService, EMPLOYEE_LOGGER_PORT],
     },
     {
+      provide: DELETE_USER_PORT,
+      useFactory: (config: ConfigService, logger: IEmployeeLoggerPort) =>
+        new DeleteUserAdapter(logger, config),
+      inject: [ConfigService, EMPLOYEE_LOGGER_PORT],
+    },
+    {
       provide: EMPLOYEE_LOGGER_PORT,
       useFactory: () => new NestJSLoggerAdapter(),
     },
@@ -97,6 +109,11 @@ import {
         FIND_USER_INFORMATION_PORT,
         EMPLOYEE_LOGGER_PORT,
       ],
+    },
+    {
+      provide: DeleteEmployeeUseCase,
+      useFactory: deleteEmployeeUseCaseFactory,
+      inject: [EMPLOYEES_REPOSITORY, DELETE_USER_PORT, EMPLOYEE_LOGGER_PORT],
     },
   ],
 })
