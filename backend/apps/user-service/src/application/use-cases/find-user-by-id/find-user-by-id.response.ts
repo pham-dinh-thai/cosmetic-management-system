@@ -1,6 +1,6 @@
-import { Gender } from '../enums/gender.enum';
+import { Gender } from 'apps/user-service/src/domain/enums/gender.enum';
 
-export class UserReadModel {
+export class FindUserByIdResponse {
   public constructor(
     public readonly id: string,
     public readonly firstName: string,

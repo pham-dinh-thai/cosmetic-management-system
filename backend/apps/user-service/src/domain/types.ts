@@ -7,3 +7,18 @@ export type CreateUserProps = {
   email: string;
   roleId: string;
 };
+
+export type FromPersistentUserProps = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  gender: Gender;
+  email: string;
+  roleId: string;
+};
+
+export type UpdateUserInformationProps = {
+  firstName: string;
+  lastName: string;
+  gender: Gender;
+};

@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { UserReadModel } from '../../../domain/read-models/user.read-model';
 import {
   type IUsersRepository,
   USERS_REPOSITORY,
 } from 'apps/user-service/src/domain/repositories/users.repository';
+import { FindUserByIdResponse } from './find-user-by-id.response';
 
 @Injectable()
 export class FindUserByIdUseCase {
@@ -12,9 +12,18 @@ export class FindUserByIdUseCase {
     private readonly usersRepository: IUsersRepository,
   ) {}
 
-  public async execute(id: string): Promise<UserReadModel | null> {
-    const users = await this.usersRepository.findById(id);
+  public async execute(id: string): Promise<FindUserByIdResponse | null> {
+    const user = await this.usersRepository.findById(id);
 
-    return users;
+    return user
+      ? new FindUserByIdResponse(
+          user.getId(),
+          user.getFirstName(),
+          user.getLastName(),
+          user.getGender(),
+          user.getEmail(),
+          user.getRoleId(),
+        )
+      : null;
   }
 }

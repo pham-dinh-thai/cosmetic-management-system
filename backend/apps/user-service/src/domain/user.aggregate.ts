@@ -1,5 +1,9 @@
 import { Gender } from './enums/gender.enum';
-import { CreateUserProps } from './types';
+import {
+  CreateUserProps,
+  FromPersistentUserProps,
+  UpdateUserInformationProps,
+} from './types';
 
 export class User {
   public constructor(
@@ -20,6 +24,23 @@ export class User {
       props.email,
       props.roleId,
     );
+  }
+
+  public static fromPersistent(props: FromPersistentUserProps): User {
+    return new User(
+      props.id,
+      props.firstName,
+      props.lastName,
+      props.gender,
+      props.email,
+      props.roleId,
+    );
+  }
+
+  public updateInformation(props: UpdateUserInformationProps): void {
+    this.firstName = props.firstName;
+    this.lastName = props.lastName;
+    this.gender = props.gender;
   }
 
   public getId(): string {

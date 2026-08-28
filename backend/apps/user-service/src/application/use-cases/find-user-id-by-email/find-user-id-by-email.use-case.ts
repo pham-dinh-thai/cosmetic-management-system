@@ -3,6 +3,7 @@ import {
   type IUsersRepository,
   USERS_REPOSITORY,
 } from 'apps/user-service/src/domain/repositories/users.repository';
+import { FindUserIdByEmailResponse } from './find-user-id-by-email.response';
 
 @Injectable()
 export class FindUserIdByEmailUseCase {
@@ -13,9 +14,11 @@ export class FindUserIdByEmailUseCase {
 
   public async execute(
     email: string,
-  ): Promise<{ id?: string; roleId?: string }> {
+  ): Promise<FindUserIdByEmailResponse | null> {
     const user = await this.usersRepository.findByEmail(email);
 
-    return { id: user?.id, roleId: user?.roleId };
+    return user
+      ? new FindUserIdByEmailResponse(user.getId(), user.getRoleId())
+      : null;
   }
 }
