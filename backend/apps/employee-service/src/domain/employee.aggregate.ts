@@ -1,6 +1,6 @@
 import { EmployeeStatus } from './enums/employee-status.enum';
 import { Position } from './enums/position.enum';
-import { CreateEmployeeProps } from './types';
+import { CreateEmployeeProps, FromPersistentEmployeeProps } from './types';
 
 export class Employee {
   public constructor(
@@ -23,6 +23,20 @@ export class Employee {
       props.departmentId,
       props.hiredAt,
       EmployeeStatus.ACTIVE,
+      props.position,
+      props.phone,
+      props.address,
+    );
+  }
+
+  public static fromPersistent(props: FromPersistentEmployeeProps): Employee {
+    return new Employee(
+      props.id,
+      props.userId,
+      props.code,
+      props.departmentId,
+      props.hiredAt,
+      props.status,
       props.position,
       props.phone,
       props.address,
