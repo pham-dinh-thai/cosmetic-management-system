@@ -1,7 +1,6 @@
-import { Body, Controller, Delete, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CreateEmployeeUseCase } from 'apps/employee-service/src/application/use-cases/create-employee/create-employee.use-case';
 import { UpdateEmployeeInformationUseCase } from 'apps/employee-service/src/application/use-cases/update-employee-information/update-employee-information.use-case';
-import { DeleteEmployeeUseCase } from 'apps/employee-service/src/application/use-cases/delete-employee/delete-employee.use-case';
 import { CreateEmployeeRequest } from './requests/create-employee.request';
 import { UpdateEmployeeInformationRequest } from './requests/update-employee-information.request';
 import { AuthGuard, Role, Roles, RolesGuard } from '@app/security';
@@ -13,7 +12,6 @@ export class EmployeesController {
   public constructor(
     private readonly createEmployeeUseCase: CreateEmployeeUseCase,
     private readonly updateEmployeeInformationUseCase: UpdateEmployeeInformationUseCase,
-    private readonly deleteEmployeeUseCase: DeleteEmployeeUseCase,
   ) {}
 
   @Post()
@@ -27,10 +25,5 @@ export class EmployeesController {
     @Body() request: UpdateEmployeeInformationRequest,
   ): Promise<void> {
     await this.updateEmployeeInformationUseCase.execute(id, request);
-  }
-
-  @Delete(':id')
-  public async delete(@Param('id') id: string): Promise<void> {
-    await this.deleteEmployeeUseCase.execute(id);
   }
 }

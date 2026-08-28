@@ -1,9 +1,6 @@
 import { ConfigService } from '@nestjs/config';
 import { IDeleteUserPort } from '../../application/use-cases/delete-employee/ports/delete-user.port';
-import {
-  EMPLOYEE_LOGGER_PORT,
-  type IEmployeeLoggerPort,
-} from '../../application/ports/employee-logger.port';
+import { IEmployeeLoggerPort } from '../../application/ports/employee-logger.port';
 
 export class DeleteUserAdapter implements IDeleteUserPort {
   private readonly logger: IEmployeeLoggerPort;

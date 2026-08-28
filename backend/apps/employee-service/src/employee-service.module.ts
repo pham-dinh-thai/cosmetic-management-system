@@ -5,6 +5,7 @@ import { PostgreSqlDriver } from '@mikro-orm/postgresql';
 import { JwtModule } from '@nestjs/jwt';
 import { Employee } from './infrastructure/entities/employee.entity';
 import { EmployeesController } from './presentation/public/employees/employees.controller';
+import { InternalEmployeesController } from './presentation/internal/employees/employees.controller';
 import { CREATE_USER_PORT } from './application/use-cases/create-employee/ports/create-user.port';
 import { CreateUserAdapter } from './infrastructure/adapters/create-user.adapter';
 import { EMPLOYEES_REPOSITORY } from './domain/repositories/employees.repository';
@@ -58,7 +59,7 @@ import {
       inject: [ConfigService],
     }),
   ],
-  controllers: [EmployeesController],
+  controllers: [EmployeesController, InternalEmployeesController],
   providers: [
     {
       provide: CREATE_USER_PORT,
