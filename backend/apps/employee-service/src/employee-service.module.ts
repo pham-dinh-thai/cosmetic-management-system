@@ -86,7 +86,7 @@ import {
     },
     {
       provide: EMPLOYEE_LOGGER_PORT,
-      useClass: NestJSLoggerAdapter,
+      useFactory: () => new NestJSLoggerAdapter(),
     },
     {
       provide: UpdateEmployeeInformationUseCase,

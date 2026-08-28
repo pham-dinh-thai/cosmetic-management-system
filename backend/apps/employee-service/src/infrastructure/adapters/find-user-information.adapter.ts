@@ -26,7 +26,9 @@ export class FindUserInformationAdapter implements IFindUserInformationPort {
     lastName: string;
     gender: string;
   }> {
-    const response = await fetch(`${this.url}/api/internal/users/${userId}`);
+    const response = await fetch(
+      `${this.url}/api/internal/users/by-id/${userId}`,
+    );
 
     if (!response.ok) {
       const body = await response.text().catch(() => '');
