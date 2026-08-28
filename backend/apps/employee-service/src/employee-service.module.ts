@@ -5,14 +5,29 @@ import { PostgreSqlDriver } from '@mikro-orm/postgresql';
 import { JwtModule } from '@nestjs/jwt';
 import { Employee } from './infrastructure/entities/employee.entity';
 import { EmployeesController } from './presentation/public/employees/employees.controller';
-import { CREATE_USER_PORT } from './application/ports/create-user.port';
+import { CREATE_USER_PORT } from './application/use-cases/create-employee/ports/create-user.port';
 import { CreateUserAdapter } from './infrastructure/adapters/create-user.adapter';
 import { EMPLOYEES_REPOSITORY } from './domain/repositories/employees.repository';
 import { MikroEmployeesRepository } from './infrastructure/repositories/mikro-employees.repository';
-import { CreateEmployeeUseCase } from './application/use-cases/create-employee/create-employee.use-case';
+import {
+  createEmployeeUseCaseFactory,
+  CreateEmployeeUseCase,
+} from './application/use-cases/create-employee/create-employee.use-case';
 import { DEPARTMENTS_READER_PORT } from './domain/ports/departments-reader.port';
 import { DepartmentsReaderAdapter } from './infrastructure/adapters/departments-reader.adapter';
-import { EnsureDepartmentExistsService } from './domain/services/ensure-department-exists.service';
+import { UPDATE_USER_INFORMATION_PORT } from './application/use-cases/update-employee-information/ports/update-user-information.port';
+import { UpdateUserInformationAdapter } from './infrastructure/adapters/update-user-information.adapter';
+import { FIND_USER_INFORMATION_PORT } from './application/use-cases/update-employee-information/ports/find-user-information.port';
+import { FindUserInformationAdapter } from './infrastructure/adapters/find-user-information.adapter';
+import {
+  EMPLOYEE_LOGGER_PORT,
+  type IEmployeeLoggerPort,
+} from './application/ports/employee-logger.port';
+import { NestJSLoggerAdapter } from './infrastructure/adapters/nestjs-logger.adapter';
+import {
+  updateEmployeeInformationUseCaseFactory,
+  UpdateEmployeeInformationUseCase,
+} from './application/use-cases/update-employee-information/update-employee-information.use-case';
 
 @Module({
   imports: [
@@ -41,17 +56,48 @@ import { EnsureDepartmentExistsService } from './domain/services/ensure-departme
   providers: [
     {
       provide: CREATE_USER_PORT,
-      useFactory: (config: ConfigService) => new CreateUserAdapter(config),
-      inject: [ConfigService],
+      useFactory: (config: ConfigService, logger: IEmployeeLoggerPort) =>
+        new CreateUserAdapter(logger, config),
+      inject: [ConfigService, EMPLOYEE_LOGGER_PORT],
     },
     {
       provide: DEPARTMENTS_READER_PORT,
-      useFactory: (config: ConfigService) => new DepartmentsReaderAdapter(config),
+      useFactory: (config: ConfigService) =>
+        new DepartmentsReaderAdapter(config),
       inject: [ConfigService],
     },
     { provide: EMPLOYEES_REPOSITORY, useClass: MikroEmployeesRepository },
-    EnsureDepartmentExistsService,
-    CreateEmployeeUseCase,
+    {
+      provide: CreateEmployeeUseCase,
+      useFactory: createEmployeeUseCaseFactory,
+      inject: [CREATE_USER_PORT, EMPLOYEES_REPOSITORY, DEPARTMENTS_READER_PORT],
+    },
+    {
+      provide: UPDATE_USER_INFORMATION_PORT,
+      useFactory: (config: ConfigService, logger: IEmployeeLoggerPort) =>
+        new UpdateUserInformationAdapter(logger, config),
+      inject: [ConfigService, EMPLOYEE_LOGGER_PORT],
+    },
+    {
+      provide: FIND_USER_INFORMATION_PORT,
+      useFactory: (config: ConfigService, logger: IEmployeeLoggerPort) =>
+        new FindUserInformationAdapter(logger, config),
+      inject: [ConfigService, EMPLOYEE_LOGGER_PORT],
+    },
+    {
+      provide: EMPLOYEE_LOGGER_PORT,
+      useClass: NestJSLoggerAdapter,
+    },
+    {
+      provide: UpdateEmployeeInformationUseCase,
+      useFactory: updateEmployeeInformationUseCaseFactory,
+      inject: [
+        EMPLOYEES_REPOSITORY,
+        UPDATE_USER_INFORMATION_PORT,
+        FIND_USER_INFORMATION_PORT,
+        EMPLOYEE_LOGGER_PORT,
+      ],
+    },
   ],
 })
 export class EmployeeServiceModule {}

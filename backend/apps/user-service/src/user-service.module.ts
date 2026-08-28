@@ -18,6 +18,7 @@ import { MikroUsersRepository } from './infrastructure/repositories/mikro-users.
 import { CREATE_AUTH_USER_PORT } from './application/ports/create-auth-user.port';
 import { CreateAuthUserAdapter } from './infrastructure/adapters/create-auth-user.adapter';
 import { type IUsersRepository } from './domain/repositories/users.repository';
+import { UpdateUserInformationUseCase } from './application/use-cases/update-user-information/update-user-information.use-case';
 
 @Module({
   imports: [
@@ -55,8 +56,7 @@ import { type IUsersRepository } from './domain/repositories/users.repository';
     DeleteUserUseCase,
     {
       provide: UserUniquenessService,
-      useFactory: (repo: IUsersRepository) =>
-        new UserUniquenessService(repo),
+      useFactory: (repo: IUsersRepository) => new UserUniquenessService(repo),
       inject: [USERS_REPOSITORY],
     },
     {
@@ -67,6 +67,7 @@ import { type IUsersRepository } from './domain/repositories/users.repository';
       provide: CREATE_AUTH_USER_PORT,
       useClass: CreateAuthUserAdapter,
     },
+    UpdateUserInformationUseCase,
   ],
 })
 export class UserServiceModule {}

@@ -10,3 +10,15 @@ export type CreateEmployeeProps = {
   phone?: string;
   address?: string;
 };
+
+export type FromPersistentEmployeeProps = {
+  id: string;
+  userId: string;
+  code: string;
+  departmentId: string;
+  hiredAt: Date;
+  status: EmployeeStatus;
+  position: Position;
+  phone?: string;
+  address?: string;
+};

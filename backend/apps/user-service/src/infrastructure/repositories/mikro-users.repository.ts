@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { IUsersRepository } from '../../domain/repositories/users.repository';
 import { EntityManager } from '@mikro-orm/postgresql';
-import { UserReadModel } from '../../domain/read-models/user.read-model';
 import { User as UserMikro } from '../entities/user.entity';
 import { UsersMapper } from '../mappers/users.mapper';
 import { User } from '../../domain/user.aggregate';
@@ -10,22 +9,22 @@ import { User } from '../../domain/user.aggregate';
 export class MikroUsersRepository implements IUsersRepository {
   public constructor(private readonly entityManager: EntityManager) {}
 
-  public async findAll(): Promise<UserReadModel[]> {
+  public async findAll(): Promise<User[]> {
     const usersMikro = await this.entityManager.findAll(UserMikro);
 
-    return usersMikro.map((userMikro) => UsersMapper.toReadModel(userMikro));
+    return usersMikro.map((userMikro) => UsersMapper.toDomain(userMikro));
   }
 
-  public async findById(id: string): Promise<UserReadModel | null> {
+  public async findById(id: string): Promise<User | null> {
     const userMikro = await this.entityManager.findOne(UserMikro, { id });
 
-    return userMikro ? UsersMapper.toReadModel(userMikro) : null;
+    return userMikro ? UsersMapper.toDomain(userMikro) : null;
   }
 
-  public async findByEmail(email: string): Promise<UserReadModel | null> {
+  public async findByEmail(email: string): Promise<User | null> {
     const userMikro = await this.entityManager.findOne(UserMikro, { email });
 
-    return userMikro ? UsersMapper.toReadModel(userMikro) : null;
+    return userMikro ? UsersMapper.toDomain(userMikro) : null;
   }
 
   public async create(user: User): Promise<{ id: string }> {
@@ -36,6 +35,18 @@ export class MikroUsersRepository implements IUsersRepository {
     await this.entityManager.flush();
 
     return { id: userMikro.id };
+  }
+
+  public async updateInformation(user: User): Promise<void> {
+    await this.entityManager.nativeUpdate(
+      UserMikro,
+      { id: user.getId() },
+      {
+        firstName: user.getFirstName(),
+        lastName: user.getLastName(),
+        gender: user.getGender(),
+      },
+    );
   }
 
   public async delete(id: string): Promise<boolean> {
