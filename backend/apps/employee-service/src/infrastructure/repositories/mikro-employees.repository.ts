@@ -22,4 +22,16 @@ export class MikroEmployeesRepository implements IEmployeesRepository {
 
     await this.entityManager.flush();
   }
+
+  public async updateInformation(employee: Employee): Promise<void> {
+    await this.entityManager.nativeUpdate(
+      EmployeeMikro,
+      { id: employee.getId() },
+      {
+        phone: employee.getPhone() ?? null,
+        address: employee.getAddress() ?? null,
+        updatedAt: new Date(),
+      },
+    );
+  }
 }

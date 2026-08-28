@@ -43,6 +43,14 @@ export class Employee {
     );
   }
 
+  public updatePhone(phone: string): void {
+    this.phone = phone;
+  }
+
+  public updateAddress(address: string): void {
+    this.address = address;
+  }
+
   public getId(): string {
     return this.id;
   }

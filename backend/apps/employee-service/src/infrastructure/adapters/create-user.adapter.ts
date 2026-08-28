@@ -1,20 +1,24 @@
 import { ConfigService } from '@nestjs/config';
 import {
+  BadRequestException,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
+import {
   ICreateUserPort,
   ICreateUserRequest,
-} from '../../application/ports/create-user.port';
+} from '../../application/use-cases/create-employee/ports/create-user.port';
 
 export class CreateUserAdapter implements ICreateUserPort {
-  public constructor(private readonly config: ConfigService) {}
+  private readonly logger = new Logger(CreateUserAdapter.name);
+  private readonly url: string;
+
+  public constructor(private readonly config: ConfigService) {
+    this.url = this.config.getOrThrow<string>('USER_SERVICE_URL');
+  }
 
   public async execute(request: ICreateUserRequest): Promise<{ id: string }> {
-    const url = this.config.get<string>('USER_SERVICE_URL');
-
-    if (!url) {
-      throw new Error('USER_SERVICE_URL is not configured');
-    }
-
-    const response = await fetch(`${url}/api/internal/users`, {
+    const response = await fetch(`${this.url}/api/internal/users`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request),
@@ -22,9 +26,15 @@ export class CreateUserAdapter implements ICreateUserPort {
 
     if (!response.ok) {
       const body = await response.text().catch(() => '');
-      throw new Error(
+      this.logger.error(
         `Failed to create user: ${response.status} ${response.statusText}${body ? ` - ${body}` : ''}`,
       );
+
+      if (response.status >= 400 && response.status < 500) {
+        throw new BadRequestException('Failed to create user');
+      }
+
+      throw new InternalServerErrorException('Failed to create user');
     }
 
     return response.json();

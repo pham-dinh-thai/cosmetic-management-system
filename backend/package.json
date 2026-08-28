@@ -97,7 +97,8 @@
       "<rootDir>/libs/"
     ],
     "moduleNameMapper": {
-      "^@app/security(|/.*)$": "<rootDir>/libs/security/src/$1"
+      "^@app/security(|/.*)$": "<rootDir>/libs/security/src/$1",
+      "^apps/(.*)$": "<rootDir>/apps/$1"
     }
   }
 }
