@@ -64,4 +64,15 @@ export class MikroUsersRepository implements IUsersRepository {
 
     return user;
   }
+
+  public async updateRole(user: User): Promise<void> {
+    await this.entityManager.nativeUpdate(
+      UserMikro,
+      { id: user.getId() },
+      {
+        roleId: user.getRoleId(),
+        updatedAt: new Date(),
+      },
+    );
+  }
 }

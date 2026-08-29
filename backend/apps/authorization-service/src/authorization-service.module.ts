@@ -1,17 +1,29 @@
 import { Module } from '@nestjs/common';
-import { AuthorizationServiceController } from './authorization-service.controller';
-import { AuthorizationServiceService } from './authorization-service.service';
-import { RolesController } from './presentation/roles/roles.controller';
 import { ROLES_REPOSITORY } from './domain/repositories/roles.repository';
 import { MikroRolesRepository } from './infrastructure/repositories/mikro-roles.repository';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { PostgreSqlDriver } from '@mikro-orm/postgresql';
 import { Role } from './infrastructure/entities/role.entity';
-import { CreateRoleUseCase } from './application/use-cases/create-role/create-role.use-case';
-import { FindRolesUseCase } from './application/use-cases/find-roles/find-roles.use-case';
-import { DeleteRoleUseCase } from './application/use-cases/delete-role/delete-role.use-case';
+import {
+  CreateRoleUseCase,
+  createRoleUseCaseFactory,
+} from './application/use-cases/create-role/create-role.use-case';
+import {
+  DeleteRoleUseCase,
+  deleteRoleUseCaseFactory,
+} from './application/use-cases/delete-role/delete-role.use-case';
 import { JwtModule } from '@nestjs/jwt';
+import { RolesController } from './presentation/public/roles/roles.controller';
+import { InternalRolesController } from './presentation/internal/roles/roles.controller';
+import {
+  FindAllRoleUseCase,
+  findAllRoleUseCaseFactory,
+} from './application/use-cases/find-role/find-all/find-all-role.use-case';
+import {
+  FindRoleByIdUseCase,
+  findRoleByIdUseCaseFactory,
+} from './application/use-cases/find-role/find-by-id/find-role-by-id.use-case';
 
 @Module({
   imports: [
@@ -39,16 +51,32 @@ import { JwtModule } from '@nestjs/jwt';
       inject: [ConfigService],
     }),
   ],
-  controllers: [AuthorizationServiceController, RolesController],
+  controllers: [RolesController, InternalRolesController],
   providers: [
-    AuthorizationServiceService,
     {
       provide: ROLES_REPOSITORY,
       useClass: MikroRolesRepository,
     },
-    CreateRoleUseCase,
-    FindRolesUseCase,
-    DeleteRoleUseCase,
+    {
+      provide: FindAllRoleUseCase,
+      useFactory: findAllRoleUseCaseFactory,
+      inject: [ROLES_REPOSITORY],
+    },
+    {
+      provide: FindRoleByIdUseCase,
+      useFactory: findRoleByIdUseCaseFactory,
+      inject: [ROLES_REPOSITORY],
+    },
+    {
+      provide: DeleteRoleUseCase,
+      useFactory: deleteRoleUseCaseFactory,
+      inject: [ROLES_REPOSITORY],
+    },
+    {
+      provide: CreateRoleUseCase,
+      useFactory: createRoleUseCaseFactory,
+      inject: [ROLES_REPOSITORY],
+    },
   ],
 })
 export class AuthorizationServiceModule {}

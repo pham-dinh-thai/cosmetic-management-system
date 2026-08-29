@@ -13,6 +13,10 @@ export class Role {
     return new Role(id, formattedName);
   }
 
+  public static fromPersistent(id: string, name: string): Role {
+    return new Role(id, name);
+  }
+
   public getId(): string {
     return this.id;
   }

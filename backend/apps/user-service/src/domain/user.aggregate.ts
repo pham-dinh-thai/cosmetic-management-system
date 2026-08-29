@@ -48,6 +48,10 @@ export class User {
     this.updatedAt = new Date();
   }
 
+  public updateRole(roleId: string): void {
+    this.roleId = roleId;
+  }
+
   public getId(): string {
     return this.id;
   }
