@@ -20,4 +20,12 @@ export class MikroAuthUsersCommandRepository implements IAuthUsersCommandReposit
 
     return count > 0;
   }
+
+  public async deleteByUserId(userId: string): Promise<boolean> {
+    const result = await this.entityManager.nativeDelete(AuthUserMikro, {
+      userId,
+    });
+
+    return result > 0;
+  }
 }
