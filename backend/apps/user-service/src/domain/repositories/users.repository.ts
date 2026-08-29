@@ -11,7 +11,7 @@ export interface IUsersRepository {
 
   updateInformation(user: User): Promise<void>;
 
-  delete(id: string): Promise<boolean>;
+  delete(id: string): Promise<User | null>;
 }
 
 export const USERS_REPOSITORY = 'IUsersRepository';

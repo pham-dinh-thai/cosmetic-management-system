@@ -45,13 +45,23 @@ export class MikroUsersRepository implements IUsersRepository {
         firstName: user.getFirstName(),
         lastName: user.getLastName(),
         gender: user.getGender(),
+        updatedAt: new Date(),
       },
     );
   }
 
-  public async delete(id: string): Promise<boolean> {
-    const result = await this.entityManager.nativeDelete(UserMikro, { id });
+  public async delete(id: string): Promise<User | null> {
+    const userMikro = await this.entityManager.findOne(UserMikro, { id });
 
-    return result > 0;
+    if (!userMikro) {
+      return null;
+    }
+
+    const user = UsersMapper.toDomain(userMikro);
+
+    this.entityManager.remove(userMikro);
+    await this.entityManager.flush();
+
+    return user;
   }
 }
