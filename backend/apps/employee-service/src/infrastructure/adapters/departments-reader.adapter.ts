@@ -1,5 +1,5 @@
 import { ConfigService } from '@nestjs/config';
-import { IDepartmentsReaderPort } from '../../domain/ports/departments-reader.port';
+import { IDepartmentsReaderPort } from '../../application/ports/departments-reader.port';
 
 export class DepartmentsReaderAdapter implements IDepartmentsReaderPort {
   private readonly baseUrl: string;
@@ -19,7 +19,7 @@ export class DepartmentsReaderAdapter implements IDepartmentsReaderPort {
       `${this.baseUrl}/api/internal/departments/${id}`,
     );
 
-    if (response.status === 404) {
+    if (response.status === 404 || response.status === 400) {
       return null;
     }
 

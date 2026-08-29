@@ -51,4 +51,15 @@ export class MikroEmployeesRepository implements IEmployeesRepository {
 
     return employee;
   }
+
+  public async assignDepartment(employee: any): Promise<void> {
+    await this.entityManager.nativeUpdate(
+      EmployeeMikro,
+      { id: employee.getId() },
+      {
+        departmentId: employee.getDepartmentId(),
+        updatedAt: new Date(),
+      },
+    );
+  }
 }

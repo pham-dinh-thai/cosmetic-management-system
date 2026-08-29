@@ -11,7 +11,7 @@ import {
 import {
   DEPARTMENTS_READER_PORT,
   type IDepartmentsReaderPort,
-} from 'apps/employee-service/src/domain/ports/departments-reader.port';
+} from 'apps/employee-service/src/application/ports/departments-reader.port';
 import { DepartmentNotFoundException } from 'apps/employee-service/src/domain/exceptions/department-not-found.exception';
 
 export class CreateEmployeeUseCase {

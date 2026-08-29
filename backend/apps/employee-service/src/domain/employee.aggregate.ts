@@ -1,6 +1,7 @@
 import { EmployeeStatus } from './enums/employee-status.enum';
 import { Position } from './enums/position.enum';
 import { CreateEmployeeProps, FromPersistentEmployeeProps } from './types';
+import { EmployeePhone } from './value-objects/employee-phone.value-object';
 
 export class Employee {
   public constructor(
@@ -11,7 +12,7 @@ export class Employee {
     private hiredAt: Date,
     private status: EmployeeStatus,
     private position: Position,
-    private phone?: string,
+    private phone?: EmployeePhone,
     private address?: string,
     private createdAt?: Date,
     private updatedAt?: Date,
@@ -19,14 +20,14 @@ export class Employee {
 
   public static create(props: CreateEmployeeProps): Employee {
     return new Employee(
-      undefined as unknown as string,
+      undefined as unknown as string, // Let the persistence layer auto generate it
       props.userId,
       props.code,
       props.departmentId,
       props.hiredAt,
       EmployeeStatus.ACTIVE,
       props.position,
-      props.phone,
+      props.phone ? EmployeePhone.create(props.phone) : undefined,
       props.address,
     );
   }
@@ -40,7 +41,7 @@ export class Employee {
       props.hiredAt,
       props.status,
       props.position,
-      props.phone,
+      props.phone ? EmployeePhone.fromPersistent(props.phone) : undefined,
       props.address,
       props.createdAt,
       props.updatedAt,
@@ -48,11 +49,15 @@ export class Employee {
   }
 
   public updatePhone(phone: string): void {
-    this.phone = phone;
+    this.phone = EmployeePhone.create(phone);
   }
 
   public updateAddress(address: string): void {
     this.address = address;
+  }
+
+  public assignDepartment(departmentId: string): void {
+    this.departmentId = departmentId;
   }
 
   public getId(): string {
@@ -84,7 +89,7 @@ export class Employee {
   }
 
   public getPhone(): string | undefined {
-    return this.phone;
+    return this.phone?.getValue();
   }
 
   public getAddress(): string | undefined {

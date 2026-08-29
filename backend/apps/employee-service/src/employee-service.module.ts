@@ -14,7 +14,7 @@ import {
   createEmployeeUseCaseFactory,
   CreateEmployeeUseCase,
 } from './application/use-cases/create-employee/create-employee.use-case';
-import { DEPARTMENTS_READER_PORT } from './domain/ports/departments-reader.port';
+import { DEPARTMENTS_READER_PORT } from './application/ports/departments-reader.port';
 import { DepartmentsReaderAdapter } from './infrastructure/adapters/departments-reader.adapter';
 import { UPDATE_USER_INFORMATION_PORT } from './application/use-cases/update-employee-information/ports/update-user-information.port';
 import { UpdateUserInformationAdapter } from './infrastructure/adapters/update-user-information.adapter';
@@ -35,6 +35,10 @@ import {
   deleteEmployeeUseCaseFactory,
   DeleteEmployeeUseCase,
 } from './application/use-cases/delete-employee/delete-employee.use-case';
+import {
+  AssignDepartmentToEmployeeUseCase,
+  assignDepartmentToEmployeeUseCaseFactory,
+} from './application/use-cases/assign-department-to-employee/assign-department-to-employee.use-case';
 
 @Module({
   imports: [
@@ -110,6 +114,11 @@ import {
         FIND_USER_INFORMATION_PORT,
         EMPLOYEE_LOGGER_PORT,
       ],
+    },
+    {
+      provide: AssignDepartmentToEmployeeUseCase,
+      useFactory: assignDepartmentToEmployeeUseCaseFactory,
+      inject: [EMPLOYEES_REPOSITORY, DEPARTMENTS_READER_PORT],
     },
     {
       provide: DeleteEmployeeUseCase,
