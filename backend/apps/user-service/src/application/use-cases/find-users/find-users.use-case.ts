@@ -1,16 +1,8 @@
-import { Inject, Injectable } from '@nestjs/common';
-import {
-  type IUsersRepository,
-  USERS_REPOSITORY,
-} from 'apps/user-service/src/domain/repositories/users.repository';
 import { UserReadModel } from './read-model/user.read-model';
+import { type IUsersRepository } from 'apps/user-service/src/domain/repositories/users.repository';
 
-@Injectable()
 export class FindUsersUseCase {
-  public constructor(
-    @Inject(USERS_REPOSITORY)
-    private readonly usersRepository: IUsersRepository,
-  ) {}
+  public constructor(private readonly usersRepository: IUsersRepository) {}
 
   public async execute(): Promise<UserReadModel[]> {
     const users = await this.usersRepository.findAll();
@@ -28,3 +20,7 @@ export class FindUsersUseCase {
     );
   }
 }
+
+export const findUsersUseCaseFactory = (
+  usersRepository: IUsersRepository,
+): FindUsersUseCase => new FindUsersUseCase(usersRepository);

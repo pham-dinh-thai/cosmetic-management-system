@@ -1,28 +1,15 @@
-import { Inject, Injectable } from '@nestjs/common';
-import {
-  type IPasswordHasherPort,
-  PASSWORD_HASHER_PORT,
-} from '../../ports/password-hasher.port';
+import { type IPasswordHasherPort } from '../../ports/password-hasher.port';
 import { AuthUser } from '../../../domain/auth-user.aggregate';
-import {
-  AUTH_USERS_COMMAND_REPOSITORY,
-  type IAuthUsersCommandRepository,
-} from '../../../domain/repositories/auth-users-command.repository';
+import { type IAuthUsersCommandRepository } from '../../../domain/repositories/auth-users-command.repository';
 import { ICreateAuthUserRequest } from './create-auth-user.request';
 import { EnsureUserExistsService } from '../../../domain/services/ensure-user-exists.service';
 import { EnsureAuthUserDoesNotExistService } from '../../../domain/services/ensure-auth-user-does-not-exist.service';
 
-@Injectable()
 export class CreateAuthUserUseCase {
   public constructor(
-    @Inject(AUTH_USERS_COMMAND_REPOSITORY)
     private readonly authUsersCommandRepository: IAuthUsersCommandRepository,
-
-    @Inject(PASSWORD_HASHER_PORT)
     private readonly passwordHasherPort: IPasswordHasherPort,
-
     private readonly ensureUserExistsService: EnsureUserExistsService,
-
     private readonly ensureAuthUserDoesNotExistService: EnsureAuthUserDoesNotExistService,
   ) {}
 
@@ -40,3 +27,16 @@ export class CreateAuthUserUseCase {
     await this.authUsersCommandRepository.create(authUser);
   }
 }
+
+export const createAuthUserUseCaseFactory = (
+  authUsersCommandRepository: IAuthUsersCommandRepository,
+  passwordHasherPort: IPasswordHasherPort,
+  ensureUserExistsService: EnsureUserExistsService,
+  ensureAuthUserDoesNotExistService: EnsureAuthUserDoesNotExistService,
+): CreateAuthUserUseCase =>
+  new CreateAuthUserUseCase(
+    authUsersCommandRepository,
+    passwordHasherPort,
+    ensureUserExistsService,
+    ensureAuthUserDoesNotExistService,
+  );

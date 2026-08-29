@@ -1,16 +1,9 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { IUpdateUserInformationRequest } from './update-user-information.request';
-import {
-  type IUsersRepository,
-  USERS_REPOSITORY,
-} from 'apps/user-service/src/domain/repositories/users.repository';
+import { UserNotFoundException } from 'apps/user-service/src/domain/exceptions/user-not-found.exception';
+import { type IUsersRepository } from 'apps/user-service/src/domain/repositories/users.repository';
 
-@Injectable()
 export class UpdateUserInformationUseCase {
-  public constructor(
-    @Inject(USERS_REPOSITORY)
-    private readonly usersRepository: IUsersRepository,
-  ) {}
+  public constructor(private readonly usersRepository: IUsersRepository) {}
 
   public async execute(
     id: string,
@@ -19,7 +12,7 @@ export class UpdateUserInformationUseCase {
     const user = await this.usersRepository.findById(id);
 
     if (!user) {
-      throw new NotFoundException(`User with id ${id} not found`);
+      throw new UserNotFoundException(id);
     }
 
     user.updateInformation({
@@ -31,3 +24,8 @@ export class UpdateUserInformationUseCase {
     await this.usersRepository.updateInformation(user);
   }
 }
+
+export const updateUserInformationUseCaseFactory = (
+  usersRepository: IUsersRepository,
+): UpdateUserInformationUseCase =>
+  new UpdateUserInformationUseCase(usersRepository);

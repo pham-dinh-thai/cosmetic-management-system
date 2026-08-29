@@ -34,4 +34,21 @@ export class MikroEmployeesRepository implements IEmployeesRepository {
       },
     );
   }
+
+  public async delete(id: string): Promise<Employee | null> {
+    const employeeMikro = await this.entityManager.findOne(EmployeeMikro, {
+      id,
+    });
+
+    if (!employeeMikro) {
+      return null;
+    }
+
+    const employee = EmployeesMapper.toDomain(employeeMikro);
+
+    this.entityManager.remove(employeeMikro);
+    await this.entityManager.flush();
+
+    return employee;
+  }
 }

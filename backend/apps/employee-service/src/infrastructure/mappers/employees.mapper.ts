@@ -13,6 +13,8 @@ export class EmployeesMapper {
       position: employeeMikro.position,
       phone: employeeMikro.phone ?? undefined,
       address: employeeMikro.address ?? undefined,
+      createdAt: employeeMikro.createdAt,
+      updatedAt: employeeMikro.updatedAt,
     });
   }
 
@@ -29,6 +31,16 @@ export class EmployeesMapper {
     employeeMikro.position = employee.getPosition();
     employeeMikro.phone = employee.getPhone();
     employeeMikro.address = employee.getAddress();
+
+    const createdAt = employee.getCreatedAt();
+    const updatedAt = employee.getUpdatedAt();
+
+    if (createdAt) {
+      employeeMikro.createdAt = createdAt;
+    }
+    if (updatedAt) {
+      employeeMikro.updatedAt = updatedAt;
+    }
 
     return employeeMikro;
   }

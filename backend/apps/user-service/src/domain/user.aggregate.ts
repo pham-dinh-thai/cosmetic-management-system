@@ -13,6 +13,8 @@ export class User {
     private gender: Gender,
     private email: string,
     private roleId: string,
+    private createdAt?: Date,
+    private updatedAt?: Date,
   ) {}
 
   public static create(props: CreateUserProps): User {
@@ -34,6 +36,8 @@ export class User {
       props.gender,
       props.email,
       props.roleId,
+      props.createdAt,
+      props.updatedAt,
     );
   }
 
@@ -41,6 +45,7 @@ export class User {
     this.firstName = props.firstName;
     this.lastName = props.lastName;
     this.gender = props.gender;
+    this.updatedAt = new Date();
   }
 
   public getId(): string {
@@ -65,5 +70,13 @@ export class User {
 
   public getRoleId(): string {
     return this.roleId;
+  }
+
+  public getCreatedAt(): Date | undefined {
+    return this.createdAt;
+  }
+
+  public getUpdatedAt(): Date | undefined {
+    return this.updatedAt;
   }
 }

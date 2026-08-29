@@ -5,7 +5,14 @@ import { AuthUser } from './infrastructure/entities/auth-user.entity';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PostgreSqlDriver } from '@mikro-orm/postgresql';
-import { CreateAuthUserUseCase } from './application/use-cases/create-auth-user/create-auth-user.use-case';
+import {
+  CreateAuthUserUseCase,
+  createAuthUserUseCaseFactory,
+} from './application/use-cases/create-auth-user/create-auth-user.use-case';
+import {
+  DeleteAuthUserUseCase,
+  deleteAuthUserUseCaseFactory,
+} from './application/use-cases/delete-auth-user/delete-auth-user.use-case';
 import { PASSWORD_HASHER_PORT } from './application/ports/password-hasher.port';
 import { BcryptPasswordHasherAdapter } from './infrastructure/adapters/bcrypt-password-hasher.adapter';
 import { AUTH_USERS_COMMAND_REPOSITORY } from './domain/repositories/auth-users-command.repository';
@@ -17,9 +24,18 @@ import { MikroAuthUsersQueryRepository } from './infrastructure/repositories/mik
 import { JwtModule } from '@nestjs/jwt';
 import { SIGN_TOKEN_PORT } from './application/ports/sign-token.port';
 import { SignTokenAdapter } from './infrastructure/adapters/sign-token.adapter';
-import { LoginUseCase } from './application/use-cases/login/login.use-case';
-import { EnsureUserExistsService } from './domain/services/ensure-user-exists.service';
-import { EnsureAuthUserDoesNotExistService } from './domain/services/ensure-auth-user-does-not-exist.service';
+import {
+  LoginUseCase,
+  loginUseCaseFactory,
+} from './application/use-cases/login/login.use-case';
+import {
+  EnsureUserExistsService,
+  ensureUserExistsServiceFactory,
+} from './domain/services/ensure-user-exists.service';
+import {
+  EnsureAuthUserDoesNotExistService,
+  ensureAuthUserDoesNotExistServiceFactory,
+} from './domain/services/ensure-auth-user-does-not-exist.service';
 import { AuthUsersController } from './presentation/public/auth-users/auth-users.controller';
 import { InternalAuthUsersController } from './presentation/internal/auth-users/auth-users.controller';
 
@@ -51,8 +67,6 @@ import { InternalAuthUsersController } from './presentation/internal/auth-users/
   ],
   providers: [
     AuthenticationServiceService,
-    CreateAuthUserUseCase,
-    LoginUseCase,
     {
       provide: PASSWORD_HASHER_PORT,
       useClass: BcryptPasswordHasherAdapter,
@@ -73,8 +87,41 @@ import { InternalAuthUsersController } from './presentation/internal/auth-users/
       provide: SIGN_TOKEN_PORT,
       useClass: SignTokenAdapter,
     },
-    EnsureUserExistsService,
-    EnsureAuthUserDoesNotExistService,
+    {
+      provide: EnsureUserExistsService,
+      useFactory: ensureUserExistsServiceFactory,
+      inject: [USERS_READER_PORT],
+    },
+    {
+      provide: EnsureAuthUserDoesNotExistService,
+      useFactory: ensureAuthUserDoesNotExistServiceFactory,
+      inject: [AUTH_USERS_COMMAND_REPOSITORY],
+    },
+    {
+      provide: CreateAuthUserUseCase,
+      useFactory: createAuthUserUseCaseFactory,
+      inject: [
+        AUTH_USERS_COMMAND_REPOSITORY,
+        PASSWORD_HASHER_PORT,
+        EnsureUserExistsService,
+        EnsureAuthUserDoesNotExistService,
+      ],
+    },
+    {
+      provide: DeleteAuthUserUseCase,
+      useFactory: deleteAuthUserUseCaseFactory,
+      inject: [AUTH_USERS_COMMAND_REPOSITORY],
+    },
+    {
+      provide: LoginUseCase,
+      useFactory: loginUseCaseFactory,
+      inject: [
+        USERS_READER_PORT,
+        PASSWORD_HASHER_PORT,
+        AUTH_USERS_QUERY_REPOSITORY,
+        SIGN_TOKEN_PORT,
+      ],
+    },
   ],
 })
 export class AuthenticationServiceModule {}

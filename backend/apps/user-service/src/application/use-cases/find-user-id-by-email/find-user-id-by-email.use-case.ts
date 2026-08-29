@@ -1,16 +1,8 @@
-import { Inject, Injectable } from '@nestjs/common';
-import {
-  type IUsersRepository,
-  USERS_REPOSITORY,
-} from 'apps/user-service/src/domain/repositories/users.repository';
 import { FindUserIdByEmailResponse } from './find-user-id-by-email.response';
+import { type IUsersRepository } from 'apps/user-service/src/domain/repositories/users.repository';
 
-@Injectable()
 export class FindUserIdByEmailUseCase {
-  public constructor(
-    @Inject(USERS_REPOSITORY)
-    private readonly usersRepository: IUsersRepository,
-  ) {}
+  public constructor(private readonly usersRepository: IUsersRepository) {}
 
   public async execute(
     email: string,
@@ -22,3 +14,7 @@ export class FindUserIdByEmailUseCase {
       : null;
   }
 }
+
+export const findUserIdByEmailUseCaseFactory = (
+  usersRepository: IUsersRepository,
+): FindUserIdByEmailUseCase => new FindUserIdByEmailUseCase(usersRepository);

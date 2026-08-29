@@ -21,4 +21,6 @@ export type FromPersistentEmployeeProps = {
   position: Position;
   phone?: string;
   address?: string;
+  createdAt: Date;
+  updatedAt: Date;
 };

@@ -3,13 +3,28 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { PostgreSqlDriver } from '@mikro-orm/postgresql';
 import { User } from './infrastructure/entities/user.entity';
-import { FindUserByIdUseCase } from './application/use-cases/find-user-by-id/find-user-by-id.use-case';
+import {
+  findUserByIdUseCaseFactory,
+  FindUserByIdUseCase,
+} from './application/use-cases/find-user-by-id/find-user-by-id.use-case';
 import { UuidModule } from 'nestjs-uuid';
-import { CreateUserUseCase } from './application/use-cases/create-user/create-user.use-case';
+import {
+  createUserUseCaseFactory,
+  CreateUserUseCase,
+} from './application/use-cases/create-user/create-user.use-case';
 import { UserUniquenessService } from './domain/services/user-uniqueness.service';
-import { FindUsersUseCase } from './application/use-cases/find-users/find-users.use-case';
-import { DeleteUserUseCase } from './application/use-cases/delete-user/delete-user.use-case';
-import { FindUserIdByEmailUseCase } from './application/use-cases/find-user-id-by-email/find-user-id-by-email.use-case';
+import {
+  findUsersUseCaseFactory,
+  FindUsersUseCase,
+} from './application/use-cases/find-users/find-users.use-case';
+import {
+  deleteUserUseCaseFactory,
+  DeleteUserUseCase,
+} from './application/use-cases/delete-user/delete-user.use-case';
+import {
+  findUserIdByEmailUseCaseFactory,
+  FindUserIdByEmailUseCase,
+} from './application/use-cases/find-user-id-by-email/find-user-id-by-email.use-case';
 import { JwtModule } from '@nestjs/jwt';
 import { UsersController } from './presentation/public/users/users.controller';
 import { InternalUsersController } from './presentation/internal/users/users.controller';
@@ -17,8 +32,13 @@ import { USERS_REPOSITORY } from './domain/repositories/users.repository';
 import { MikroUsersRepository } from './infrastructure/repositories/mikro-users.repository';
 import { CREATE_AUTH_USER_PORT } from './application/ports/create-auth-user.port';
 import { CreateAuthUserAdapter } from './infrastructure/adapters/create-auth-user.adapter';
+import { DELETE_AUTH_USER_PORT } from './application/ports/delete-auth-user.port';
+import { DeleteAuthUserAdapter } from './infrastructure/adapters/delete-auth-user.adapter';
 import { type IUsersRepository } from './domain/repositories/users.repository';
-import { UpdateUserInformationUseCase } from './application/use-cases/update-user-information/update-user-information.use-case';
+import {
+  updateUserInformationUseCaseFactory,
+  UpdateUserInformationUseCase,
+} from './application/use-cases/update-user-information/update-user-information.use-case';
 
 @Module({
   imports: [
@@ -49,25 +69,52 @@ import { UpdateUserInformationUseCase } from './application/use-cases/update-use
   ],
   controllers: [UsersController, InternalUsersController],
   providers: [
-    FindUserByIdUseCase,
-    FindUsersUseCase,
-    FindUserIdByEmailUseCase,
-    CreateUserUseCase,
-    DeleteUserUseCase,
+    { provide: USERS_REPOSITORY, useClass: MikroUsersRepository },
     {
       provide: UserUniquenessService,
       useFactory: (repo: IUsersRepository) => new UserUniquenessService(repo),
       inject: [USERS_REPOSITORY],
     },
     {
-      provide: USERS_REPOSITORY,
-      useClass: MikroUsersRepository,
+      provide: FindUserByIdUseCase,
+      useFactory: findUserByIdUseCaseFactory,
+      inject: [USERS_REPOSITORY],
+    },
+    {
+      provide: FindUsersUseCase,
+      useFactory: findUsersUseCaseFactory,
+      inject: [USERS_REPOSITORY],
+    },
+    {
+      provide: FindUserIdByEmailUseCase,
+      useFactory: findUserIdByEmailUseCaseFactory,
+      inject: [USERS_REPOSITORY],
+    },
+    {
+      provide: CreateUserUseCase,
+      useFactory: createUserUseCaseFactory,
+      inject: [USERS_REPOSITORY, CREATE_AUTH_USER_PORT, UserUniquenessService],
+    },
+    {
+      provide: UpdateUserInformationUseCase,
+      useFactory: updateUserInformationUseCaseFactory,
+      inject: [USERS_REPOSITORY],
+    },
+    {
+      provide: DELETE_AUTH_USER_PORT,
+      useFactory: (config: ConfigService) => new DeleteAuthUserAdapter(config),
+      inject: [ConfigService],
+    },
+    {
+      provide: DeleteUserUseCase,
+      useFactory: deleteUserUseCaseFactory,
+      inject: [USERS_REPOSITORY, DELETE_AUTH_USER_PORT],
     },
     {
       provide: CREATE_AUTH_USER_PORT,
-      useClass: CreateAuthUserAdapter,
+      useFactory: (config: ConfigService) => new CreateAuthUserAdapter(config),
+      inject: [ConfigService],
     },
-    UpdateUserInformationUseCase,
   ],
 })
 export class UserServiceModule {}

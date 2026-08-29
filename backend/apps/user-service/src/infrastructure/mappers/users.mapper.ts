@@ -10,6 +10,8 @@ export class UsersMapper {
       gender: userMikro.gender,
       email: userMikro.email,
       roleId: userMikro.roleId,
+      createdAt: userMikro.createdAt,
+      updatedAt: userMikro.updatedAt,
     });
   }
 
@@ -22,6 +24,16 @@ export class UsersMapper {
     userMikro.gender = user.getGender();
     userMikro.email = user.getEmail();
     userMikro.roleId = user.getRoleId();
+
+    const createdAt = user.getCreatedAt();
+    const updatedAt = user.getUpdatedAt();
+
+    if (createdAt) {
+      userMikro.createdAt = createdAt;
+    }
+    if (updatedAt) {
+      userMikro.updatedAt = updatedAt;
+    }
 
     return userMikro;
   }

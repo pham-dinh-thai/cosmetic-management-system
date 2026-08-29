@@ -1,13 +1,8 @@
-import { ConflictException, Inject, Injectable } from '@nestjs/common';
-import {
-  AUTH_USERS_COMMAND_REPOSITORY,
-  type IAuthUsersCommandRepository,
-} from '../repositories/auth-users-command.repository';
+import { type IAuthUsersCommandRepository } from '../repositories/auth-users-command.repository';
+import { AuthUserAlreadyExistsException } from '../exceptions/auth-user-already-exists.exception';
 
-@Injectable()
 export class EnsureAuthUserDoesNotExistService {
   public constructor(
-    @Inject(AUTH_USERS_COMMAND_REPOSITORY)
     private readonly authUsersCommandRepository: IAuthUsersCommandRepository,
   ) {}
 
@@ -15,9 +10,12 @@ export class EnsureAuthUserDoesNotExistService {
     const exists = await this.authUsersCommandRepository.existsByUserId(userId);
 
     if (exists) {
-      throw new ConflictException(
-        `Auth user for userId ${userId} already exists`,
-      );
+      throw new AuthUserAlreadyExistsException(userId);
     }
   }
 }
+
+export const ensureAuthUserDoesNotExistServiceFactory = (
+  authUsersCommandRepository: IAuthUsersCommandRepository,
+): EnsureAuthUserDoesNotExistService =>
+  new EnsureAuthUserDoesNotExistService(authUsersCommandRepository);

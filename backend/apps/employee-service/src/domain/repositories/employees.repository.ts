@@ -6,6 +6,8 @@ export interface IEmployeesRepository {
   create(employee: Employee): Promise<void>;
 
   updateInformation(employee: Employee): Promise<void>;
+
+  delete(id: string): Promise<Employee | null>;
 }
 
 export const EMPLOYEES_REPOSITORY = 'IEmployeesRepository';

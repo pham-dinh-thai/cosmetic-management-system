@@ -13,6 +13,8 @@ export class Employee {
     private position: Position,
     private phone?: string,
     private address?: string,
+    private createdAt?: Date,
+    private updatedAt?: Date,
   ) {}
 
   public static create(props: CreateEmployeeProps): Employee {
@@ -40,6 +42,8 @@ export class Employee {
       props.position,
       props.phone,
       props.address,
+      props.createdAt,
+      props.updatedAt,
     );
   }
 
@@ -85,5 +89,13 @@ export class Employee {
 
   public getAddress(): string | undefined {
     return this.address;
+  }
+
+  public getCreatedAt(): Date | undefined {
+    return this.createdAt;
+  }
+
+  public getUpdatedAt(): Date | undefined {
+    return this.updatedAt;
   }
 }

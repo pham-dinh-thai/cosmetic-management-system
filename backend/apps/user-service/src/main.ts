@@ -2,10 +2,12 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { UserServiceModule } from './user-service.module';
 import { USER_SERVICE_PORT } from '../../../constants/ports';
+import { DomainErrorFilter } from './presentation/filters/domain-error.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(UserServiceModule);
   app.setGlobalPrefix('api');
+  app.useGlobalFilters(new DomainErrorFilter());
 
   const config = new DocumentBuilder()
     .setTitle('User Service API')

@@ -5,6 +5,7 @@ import { PostgreSqlDriver } from '@mikro-orm/postgresql';
 import { JwtModule } from '@nestjs/jwt';
 import { Employee } from './infrastructure/entities/employee.entity';
 import { EmployeesController } from './presentation/public/employees/employees.controller';
+import { InternalEmployeesController } from './presentation/internal/employees/employees.controller';
 import { CREATE_USER_PORT } from './application/use-cases/create-employee/ports/create-user.port';
 import { CreateUserAdapter } from './infrastructure/adapters/create-user.adapter';
 import { EMPLOYEES_REPOSITORY } from './domain/repositories/employees.repository';
@@ -28,6 +29,12 @@ import {
   updateEmployeeInformationUseCaseFactory,
   UpdateEmployeeInformationUseCase,
 } from './application/use-cases/update-employee-information/update-employee-information.use-case';
+import { DELETE_USER_PORT } from './application/use-cases/delete-employee/ports/delete-user.port';
+import { DeleteUserAdapter } from './infrastructure/adapters/delete-user.adapter';
+import {
+  deleteEmployeeUseCaseFactory,
+  DeleteEmployeeUseCase,
+} from './application/use-cases/delete-employee/delete-employee.use-case';
 
 @Module({
   imports: [
@@ -52,7 +59,7 @@ import {
       inject: [ConfigService],
     }),
   ],
-  controllers: [EmployeesController],
+  controllers: [EmployeesController, InternalEmployeesController],
   providers: [
     {
       provide: CREATE_USER_PORT,
@@ -85,8 +92,14 @@ import {
       inject: [ConfigService, EMPLOYEE_LOGGER_PORT],
     },
     {
+      provide: DELETE_USER_PORT,
+      useFactory: (config: ConfigService, logger: IEmployeeLoggerPort) =>
+        new DeleteUserAdapter(logger, config),
+      inject: [ConfigService, EMPLOYEE_LOGGER_PORT],
+    },
+    {
       provide: EMPLOYEE_LOGGER_PORT,
-      useClass: NestJSLoggerAdapter,
+      useFactory: () => new NestJSLoggerAdapter(),
     },
     {
       provide: UpdateEmployeeInformationUseCase,
@@ -97,6 +110,11 @@ import {
         FIND_USER_INFORMATION_PORT,
         EMPLOYEE_LOGGER_PORT,
       ],
+    },
+    {
+      provide: DeleteEmployeeUseCase,
+      useFactory: deleteEmployeeUseCaseFactory,
+      inject: [EMPLOYEES_REPOSITORY, DELETE_USER_PORT, EMPLOYEE_LOGGER_PORT],
     },
   ],
 })

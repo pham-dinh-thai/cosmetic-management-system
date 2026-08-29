@@ -15,6 +15,8 @@ export type FromPersistentUserProps = {
   gender: Gender;
   email: string;
   roleId: string;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 export type UpdateUserInformationProps = {
