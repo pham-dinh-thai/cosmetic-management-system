@@ -1,8 +1,11 @@
-import { RoleReadModel } from '../../domain/read-models/role.read-model';
 import { Role } from '../../domain/role.aggregate';
 import { Role as RoleMikro } from '../entities/role.entity';
 
 export class RolesMapper {
+  public static toDomain(roleMikro: RoleMikro): Role {
+    return Role.fromPersistent(roleMikro.id, roleMikro.name);
+  }
+
   public static toMikro(role: Role): RoleMikro {
     const roleMikro = new RoleMikro();
 
@@ -10,9 +13,5 @@ export class RolesMapper {
     roleMikro.name = role.getName();
 
     return roleMikro;
-  }
-
-  public static toReadModel(roleMikro: RoleMikro): RoleReadModel {
-    return new RoleReadModel(roleMikro.id, roleMikro.name);
   }
 }

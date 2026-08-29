@@ -8,6 +8,8 @@ export interface IEmployeesRepository {
   updateInformation(employee: Employee): Promise<void>;
 
   delete(id: string): Promise<Employee | null>;
+
+  assignDepartment(employee): Promise<void>;
 }
 
 export const EMPLOYEES_REPOSITORY = 'IEmployeesRepository';

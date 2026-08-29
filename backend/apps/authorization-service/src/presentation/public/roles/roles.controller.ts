@@ -9,26 +9,26 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { CreateRoleUseCase } from '../../application/use-cases/create-role/create-role.use-case';
-import { CreateRoleRequest } from './requests/create-role.request';
-import { FindRolesUseCase } from '../../application/use-cases/find-roles/find-roles.use-case';
-import { RoleReadModel } from '../../domain/read-models/role.read-model';
-import { DeleteRoleUseCase } from '../../application/use-cases/delete-role/delete-role.use-case';
 import { AuthGuard, Role, Roles, RolesGuard } from '@app/security';
+import { CreateRoleUseCase } from 'apps/authorization-service/src/application/use-cases/create-role/create-role.use-case';
+import { DeleteRoleUseCase } from 'apps/authorization-service/src/application/use-cases/delete-role/delete-role.use-case';
+import { CreateRoleRequest } from './requests/create-role.request';
+import { FindAllRoleUseCase } from 'apps/authorization-service/src/application/use-cases/find-role/find-all/find-all-role.use-case';
+import { FindAllRoleReadModel } from 'apps/authorization-service/src/application/use-cases/find-role/find-all/find-all-role.read-model';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Roles(Role.Admin)
 @Controller('roles')
 export class RolesController {
   public constructor(
-    private readonly findRolesUseCase: FindRolesUseCase,
+    private readonly findAllRoleUseCase: FindAllRoleUseCase,
     private readonly createRoleUseCase: CreateRoleUseCase,
     private readonly deleteRoleUseCase: DeleteRoleUseCase,
   ) {}
 
   @Get()
-  public async findAll(): Promise<RoleReadModel[]> {
-    return await this.findRolesUseCase.execute();
+  public async findAll(): Promise<FindAllRoleReadModel[]> {
+    return await this.findAllRoleUseCase.execute();
   }
 
   @Post()

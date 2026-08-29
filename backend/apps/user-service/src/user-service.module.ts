@@ -39,6 +39,12 @@ import {
   updateUserInformationUseCaseFactory,
   UpdateUserInformationUseCase,
 } from './application/use-cases/update-user-information/update-user-information.use-case';
+import { ROLE_READER_PORT } from './application/ports/role-reader.port';
+import { RoleReaderAdapter } from './infrastructure/adapters/role-reader.adapter';
+import {
+  UpdateUserRoleUseCase,
+  updateUserRoleUseCaseFactory,
+} from './application/use-cases/update-user-role/update-user-role.use-case';
 
 @Module({
   imports: [
@@ -114,6 +120,16 @@ import {
       provide: CREATE_AUTH_USER_PORT,
       useFactory: (config: ConfigService) => new CreateAuthUserAdapter(config),
       inject: [ConfigService],
+    },
+    {
+      provide: ROLE_READER_PORT,
+      useFactory: (config: ConfigService) => new RoleReaderAdapter(config),
+      inject: [ConfigService],
+    },
+    {
+      provide: UpdateUserRoleUseCase,
+      useFactory: updateUserRoleUseCaseFactory,
+      inject: [USERS_REPOSITORY, ROLE_READER_PORT],
     },
   ],
 })

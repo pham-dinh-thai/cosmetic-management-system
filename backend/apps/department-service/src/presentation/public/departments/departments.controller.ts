@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   Put,
@@ -42,19 +43,21 @@ export class DepartmentsController {
 
   @Put(':id')
   public async update(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() request: UpdateDepartmentRequest,
   ): Promise<void> {
     await this.updateDepartmentUseCase.execute(id, request);
   }
 
   @Patch(':id/deactivate')
-  public async deactivate(@Param('id') id: string): Promise<void> {
+  public async deactivate(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<void> {
     await this.deactivateDepartmentUseCase.execute(id);
   }
 
   @Patch(':id/activate')
-  public async activate(@Param('id') id: string): Promise<void> {
+  public async activate(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
     await this.activateDepartmentUseCase.execute(id);
   }
 }

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { ICreateRoleRequest } from 'apps/authorization-service/src/application/use-cases/create-role/create-role.request';
 import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
-import { ICreateRoleRequest } from '../../../application/use-cases/create-role/create-role.request';
 
 export class CreateRoleRequest implements ICreateRoleRequest {
   @ApiProperty()
