@@ -1,6 +1,6 @@
 import { UserNotFoundException } from 'apps/user-service/src/domain/exceptions/user-not-found.exception';
 import { type IUsersRepository } from 'apps/user-service/src/domain/repositories/users.repository';
-import { type IDeleteAuthUserPort } from '../../ports/delete-auth-user.port';
+import { type IDeleteAuthUserPort } from './ports/delete-auth-user.port';
 
 export class DeleteUserUseCase {
   public constructor(

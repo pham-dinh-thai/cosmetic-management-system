@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { IDeleteAuthUserPort } from '../../application/ports/delete-auth-user.port';
+import { IDeleteAuthUserPort } from '../../application/use-cases/delete-user/ports/delete-auth-user.port';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
