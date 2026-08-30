@@ -1,5 +1,6 @@
 import { EmployeeStatus } from './enums/employee-status.enum';
 import { Position } from './enums/position.enum';
+import { CannotUpdatePositionForEmployeeException } from './exceptions/cannot-update-position-for-employee.exception';
 import { CreateEmployeeProps, FromPersistentEmployeeProps } from './types';
 import { EmployeePhone } from './value-objects/employee-phone.value-object';
 
@@ -54,6 +55,14 @@ export class Employee {
 
   public updateAddress(address: string): void {
     this.address = address;
+  }
+
+  public updatePosition(position: Position): void {
+    if (this.status !== EmployeeStatus.ACTIVE) {
+      throw new CannotUpdatePositionForEmployeeException(this.id, this.status);
+    }
+
+    this.position = position;
   }
 
   public assignDepartment(departmentId: string): void {

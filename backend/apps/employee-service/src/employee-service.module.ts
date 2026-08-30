@@ -39,6 +39,10 @@ import {
   AssignDepartmentToEmployeeUseCase,
   assignDepartmentToEmployeeUseCaseFactory,
 } from './application/use-cases/assign-department-to-employee/assign-department-to-employee.use-case';
+import {
+  UpdateEmployeePositionUseCase,
+  updateEmployeePositionUseCaseFactory,
+} from './application/use-cases/update-employee-position/update-employee-position.use-case';
 
 @Module({
   imports: [
@@ -124,6 +128,11 @@ import {
       provide: DeleteEmployeeUseCase,
       useFactory: deleteEmployeeUseCaseFactory,
       inject: [EMPLOYEES_REPOSITORY, DELETE_USER_PORT, EMPLOYEE_LOGGER_PORT],
+    },
+    {
+      provide: UpdateEmployeePositionUseCase,
+      useFactory: updateEmployeePositionUseCaseFactory,
+      inject: [EMPLOYEES_REPOSITORY],
     },
   ],
 })
