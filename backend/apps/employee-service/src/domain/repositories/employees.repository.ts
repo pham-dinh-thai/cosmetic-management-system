@@ -9,7 +9,9 @@ export interface IEmployeesRepository {
 
   delete(id: string): Promise<Employee | null>;
 
-  assignDepartment(employee): Promise<void>;
+  assignDepartment(employee: Employee): Promise<void>;
+
+  updatePosition(employee: Employee): Promise<void>;
 }
 
 export const EMPLOYEES_REPOSITORY = 'IEmployeesRepository';

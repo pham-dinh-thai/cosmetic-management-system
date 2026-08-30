@@ -13,6 +13,8 @@ import { UpdateEmployeeInformationRequest } from './requests/update-employee-inf
 import { AuthGuard, Role, Roles, RolesGuard } from '@app/security';
 import { AssignDepartmentToEmployeeUseCase } from 'apps/employee-service/src/application/use-cases/assign-department-to-employee/assign-department-to-employee.use-case';
 import { AssignDepartmentToEmployeeRequest } from './requests/assign-department-to-employee.request';
+import { UpdateEmployeePositionUseCase } from 'apps/employee-service/src/application/use-cases/update-employee-position/update-employee-position.use-case';
+import { UpdateEmployeePositionRequest } from './requests/update-employee-position.request';
 
 @Controller('employees')
 @UseGuards(AuthGuard, RolesGuard)
@@ -22,6 +24,7 @@ export class EmployeesController {
     private readonly createEmployeeUseCase: CreateEmployeeUseCase,
     private readonly updateEmployeeInformationUseCase: UpdateEmployeeInformationUseCase,
     private readonly assignDepartmentToEmployeeUseCase: AssignDepartmentToEmployeeUseCase,
+    private readonly updateEmployeePositionUseCase: UpdateEmployeePositionUseCase,
   ) {}
 
   @Post()
@@ -43,5 +46,13 @@ export class EmployeesController {
     @Body() request: AssignDepartmentToEmployeeRequest,
   ): Promise<void> {
     await this.assignDepartmentToEmployeeUseCase.execute(id, request);
+  }
+
+  @Patch(':id/position')
+  public async updatePosition(
+    @Param('id') id: string,
+    @Body() request: UpdateEmployeePositionRequest,
+  ): Promise<void> {
+    await this.updateEmployeePositionUseCase.execute(id, request);
   }
 }
