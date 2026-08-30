@@ -3,10 +3,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { PostgreSqlDriver } from '@mikro-orm/postgresql';
 import { User } from './infrastructure/entities/user.entity';
-import {
-  findUserByIdUseCaseFactory,
-  FindUserByIdUseCase,
-} from './application/use-cases/find-user-by-id/find-user-by-id.use-case';
 import { UuidModule } from 'nestjs-uuid';
 import {
   createUserUseCaseFactory,
@@ -14,17 +10,9 @@ import {
 } from './application/use-cases/create-user/create-user.use-case';
 import { UserUniquenessService } from './domain/services/user-uniqueness.service';
 import {
-  findUsersUseCaseFactory,
-  FindUsersUseCase,
-} from './application/use-cases/find-users/find-users.use-case';
-import {
   deleteUserUseCaseFactory,
   DeleteUserUseCase,
 } from './application/use-cases/delete-user/delete-user.use-case';
-import {
-  findUserIdByEmailUseCaseFactory,
-  FindUserIdByEmailUseCase,
-} from './application/use-cases/find-user-id-by-email/find-user-id-by-email.use-case';
 import { JwtModule } from '@nestjs/jwt';
 import { UsersController } from './presentation/public/users/users.controller';
 import { InternalUsersController } from './presentation/internal/users/users.controller';
@@ -45,6 +33,18 @@ import {
   UpdateUserRoleUseCase,
   updateUserRoleUseCaseFactory,
 } from './application/use-cases/update-user-role/update-user-role.use-case';
+import {
+  FindAllUserUseCase,
+  findAllUserUseCaseFactory,
+} from './application/use-cases/find-user/find-all/find-users.use-case';
+import {
+  FindUserByIdUseCase,
+  findUserByIdUseCaseFactory,
+} from './application/use-cases/find-user/find-by-id/find-user-by-id.use-case';
+import {
+  FindUserByEmailUseCase,
+  findUserByEmailUseCaseFactory,
+} from './application/use-cases/find-user/find-by-email/find-user-by-email.use-case';
 
 @Module({
   imports: [
@@ -87,13 +87,13 @@ import {
       inject: [USERS_REPOSITORY],
     },
     {
-      provide: FindUsersUseCase,
-      useFactory: findUsersUseCaseFactory,
+      provide: FindAllUserUseCase,
+      useFactory: findAllUserUseCaseFactory,
       inject: [USERS_REPOSITORY],
     },
     {
-      provide: FindUserIdByEmailUseCase,
-      useFactory: findUserIdByEmailUseCaseFactory,
+      provide: FindUserByEmailUseCase,
+      useFactory: findUserByEmailUseCaseFactory,
       inject: [USERS_REPOSITORY],
     },
     {
