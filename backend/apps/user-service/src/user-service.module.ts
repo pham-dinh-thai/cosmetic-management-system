@@ -30,7 +30,7 @@ import { UsersController } from './presentation/public/users/users.controller';
 import { InternalUsersController } from './presentation/internal/users/users.controller';
 import { USERS_REPOSITORY } from './domain/repositories/users.repository';
 import { MikroUsersRepository } from './infrastructure/repositories/mikro-users.repository';
-import { CREATE_AUTH_USER_PORT } from './application/ports/create-auth-user.port';
+import { CREATE_AUTH_USER_PORT } from './application/use-cases/create-user/ports/create-auth-user.port';
 import { CreateAuthUserAdapter } from './infrastructure/adapters/create-auth-user.adapter';
 import { DELETE_AUTH_USER_PORT } from './application/ports/delete-auth-user.port';
 import { DeleteAuthUserAdapter } from './infrastructure/adapters/delete-auth-user.adapter';

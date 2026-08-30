@@ -2,7 +2,7 @@ import { ICreateUserRequest } from './create-user.request';
 import { User } from '../../../domain/user.aggregate';
 import { UserUniquenessService } from '../../../domain/services/user-uniqueness.service';
 import { type IUsersRepository } from 'apps/user-service/src/domain/repositories/users.repository';
-import { type ICreateAuthUserPort } from '../../ports/create-auth-user.port';
+import { type ICreateAuthUserPort } from './ports/create-auth-user.port';
 
 export class CreateUserUseCase {
   public constructor(
