@@ -15,6 +15,7 @@ export type FromPersistentUserProps = {
   gender: Gender;
   email: string;
   roleId: string;
+  isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
 };
