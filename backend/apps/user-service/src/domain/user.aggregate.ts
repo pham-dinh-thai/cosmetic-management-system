@@ -55,6 +55,14 @@ export class User {
     this.roleId = roleId;
   }
 
+  public deactivate(): void {
+    this.isActive = false;
+  }
+
+  public activate(): void {
+    this.isActive = true;
+  }
+
   public getId(): string {
     return this.id;
   }
