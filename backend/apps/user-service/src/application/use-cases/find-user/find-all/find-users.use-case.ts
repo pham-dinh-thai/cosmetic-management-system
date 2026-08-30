@@ -1,15 +1,15 @@
-import { UserReadModel } from './read-model/user.read-model';
 import { type IUsersRepository } from 'apps/user-service/src/domain/repositories/users.repository';
+import { FindAllUserReadModel } from './read-models/find-all-user.read-model';
 
-export class FindUsersUseCase {
+export class FindAllUserUseCase {
   public constructor(private readonly usersRepository: IUsersRepository) {}
 
-  public async execute(): Promise<UserReadModel[]> {
+  public async execute(): Promise<FindAllUserReadModel[]> {
     const users = await this.usersRepository.findAll();
 
     return users.map(
       (user) =>
-        new UserReadModel(
+        new FindAllUserReadModel(
           user.getId(),
           user.getFirstName(),
           user.getLastName(),
@@ -21,6 +21,6 @@ export class FindUsersUseCase {
   }
 }
 
-export const findUsersUseCaseFactory = (
+export const findAllUserUseCaseFactory = (
   usersRepository: IUsersRepository,
-): FindUsersUseCase => new FindUsersUseCase(usersRepository);
+): FindAllUserUseCase => new FindAllUserUseCase(usersRepository);

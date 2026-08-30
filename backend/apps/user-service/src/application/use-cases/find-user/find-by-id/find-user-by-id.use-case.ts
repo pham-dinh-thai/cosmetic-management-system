@@ -1,14 +1,14 @@
-import { FindUserByIdResponse } from './find-user-by-id.response';
 import { type IUsersRepository } from 'apps/user-service/src/domain/repositories/users.repository';
+import { FindUserByIdReadModel } from './read-models/find-user-by-id.read-model';
 
 export class FindUserByIdUseCase {
   public constructor(private readonly usersRepository: IUsersRepository) {}
 
-  public async execute(id: string): Promise<FindUserByIdResponse | null> {
+  public async execute(id: string): Promise<FindUserByIdReadModel | null> {
     const user = await this.usersRepository.findById(id);
 
     return user
-      ? new FindUserByIdResponse(
+      ? new FindUserByIdReadModel(
           user.getId(),
           user.getFirstName(),
           user.getLastName(),
