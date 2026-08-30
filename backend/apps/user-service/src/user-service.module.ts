@@ -45,6 +45,14 @@ import {
   FindUserByEmailUseCase,
   findUserByEmailUseCaseFactory,
 } from './application/use-cases/find-user/find-by-email/find-user-by-email.use-case';
+import {
+  ActivateUserUseCase,
+  activateUserUseCaseFactory,
+} from './application/use-cases/activate-user/activate-user.use-case';
+import {
+  DeactivateUserUseCase,
+  deactivateUserUseCaseFactory,
+} from './application/use-cases/deactivate-user/deactivate-user.use-case';
 
 @Module({
   imports: [
@@ -130,6 +138,16 @@ import {
       provide: UpdateUserRoleUseCase,
       useFactory: updateUserRoleUseCaseFactory,
       inject: [USERS_REPOSITORY, ROLE_READER_PORT],
+    },
+    {
+      provide: ActivateUserUseCase,
+      useFactory: activateUserUseCaseFactory,
+      inject: [USERS_REPOSITORY],
+    },
+    {
+      provide: DeactivateUserUseCase,
+      useFactory: deactivateUserUseCaseFactory,
+      inject: [USERS_REPOSITORY],
     },
   ],
 })
