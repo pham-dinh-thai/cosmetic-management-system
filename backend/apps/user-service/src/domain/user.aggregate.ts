@@ -13,6 +13,7 @@ export class User {
     private gender: Gender,
     private email: string,
     private roleId: string,
+    private isActive: boolean,
     private createdAt?: Date,
     private updatedAt?: Date,
   ) {}
@@ -25,6 +26,7 @@ export class User {
       props.gender,
       props.email,
       props.roleId,
+      true,
     );
   }
 
@@ -36,6 +38,7 @@ export class User {
       props.gender,
       props.email,
       props.roleId,
+      props.isActive,
       props.createdAt,
       props.updatedAt,
     );
@@ -74,6 +77,10 @@ export class User {
 
   public getRoleId(): string {
     return this.roleId;
+  }
+
+  public getIsActive(): boolean {
+    return this.isActive;
   }
 
   public getCreatedAt(): Date | undefined {

@@ -12,6 +12,7 @@ const UserSchema = defineEntity({
     gender: p.enum(() => Gender),
     email: p.string().unique(),
     roleId: p.string(),
+    isActive: p.boolean().default(true),
     createdAt: p.datetime().onCreate(() => new Date()),
     updatedAt: p
       .datetime()
