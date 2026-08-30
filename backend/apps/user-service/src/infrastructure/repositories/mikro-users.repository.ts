@@ -75,4 +75,15 @@ export class MikroUsersRepository implements IUsersRepository {
       },
     );
   }
+
+  public async updateActiveStatus(user: User): Promise<void> {
+    await this.entityManager.nativeUpdate(
+      UserMikro,
+      { id: user.getId() },
+      {
+        isActive: user.getIsActive(),
+        updatedAt: new Date(),
+      },
+    );
+  }
 }
