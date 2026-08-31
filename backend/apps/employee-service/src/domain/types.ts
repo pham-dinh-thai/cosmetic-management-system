@@ -1,9 +1,10 @@
 import { EmployeeStatus } from './enums/employee-status.enum';
 import { Position } from './enums/position.enum';
+import { EmployeeCode } from './value-objects/employee-code.value-object';
 
 export type CreateEmployeeProps = {
   userId: string;
-  code: string;
+  code: EmployeeCode;
   departmentId: string;
   hiredAt: Date;
   position: Position;
@@ -14,7 +15,7 @@ export type CreateEmployeeProps = {
 export type FromPersistentEmployeeProps = {
   id: string;
   userId: string;
-  code: string;
+  code: EmployeeCode;
   departmentId: string;
   hiredAt: Date;
   status: EmployeeStatus;

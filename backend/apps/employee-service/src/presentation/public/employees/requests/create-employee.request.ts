@@ -56,12 +56,6 @@ export class CreateEmployeeRequest implements ICreateEmployeeRequest {
 
   @ApiProperty()
   @IsString()
-  @MaxLength(10)
-  @IsNotEmpty()
-  code!: string;
-
-  @ApiProperty()
-  @IsString()
   @IsNotEmpty()
   departmentId!: string;
 
