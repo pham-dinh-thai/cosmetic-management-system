@@ -29,6 +29,12 @@ import {
   FindDepartmentByIdUseCase,
   findDepartmentByIdUseCaseFactory,
 } from './application/use-cases/find-department/find-by-id/find-department-by-id.use-case';
+import {
+  AssignManagerToDepartmentUseCase,
+  assignManagerToDepartmentUseCaseFactory,
+} from './application/use-cases/assign-manager-to-department/assign-manager-to-department.use-case';
+import { EMPLOYEE_READER_PORT } from './application/use-cases/assign-manager-to-department/ports/employee-reader.port';
+import { EmployeeReaderAdapter } from './infrastructure/adapters/employee-reader.port';
 
 @Module({
   imports: [
@@ -84,6 +90,15 @@ import {
       provide: ActivateDepartmentUseCase,
       useFactory: activateDepartmentUseCaseFactory,
       inject: [DEPARTMENTS_REPOSITORY],
+    },
+    {
+      provide: AssignManagerToDepartmentUseCase,
+      useFactory: assignManagerToDepartmentUseCaseFactory,
+      inject: [DEPARTMENTS_REPOSITORY, EMPLOYEE_READER_PORT],
+    },
+    {
+      provide: EMPLOYEE_READER_PORT,
+      useClass: EmployeeReaderAdapter,
     },
   ],
 })

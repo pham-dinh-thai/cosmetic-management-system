@@ -1,4 +1,12 @@
-import { CreateDepartmentProps, FromPersistentDepartmentProps } from './types';
+import { EmployeeStatus } from './employee/enums/employee-status.enum';
+import { Position } from './employee/enums/position.enum';
+import { EmployeeNotActiveException } from './exceptions/employee-not-active.exception';
+import { EmployeeNotManagerException } from './exceptions/employee-not-manager.exception';
+import {
+  AssignManagerProps,
+  CreateDepartmentProps,
+  FromPersistentDepartmentProps,
+} from './types';
 
 export class Department {
   public constructor(
@@ -36,6 +44,18 @@ export class Department {
 
   public updateName(name: string): void {
     this.name = name;
+  }
+
+  public assignManager(props: AssignManagerProps): void {
+    if (props.status !== EmployeeStatus.ACTIVE) {
+      throw new EmployeeNotActiveException(props.employeeId);
+    }
+
+    if (props.position !== Position.Manager) {
+      throw new EmployeeNotManagerException(props.employeeId);
+    }
+
+    this.managerId = props.employeeId;
   }
 
   public getId(): string {

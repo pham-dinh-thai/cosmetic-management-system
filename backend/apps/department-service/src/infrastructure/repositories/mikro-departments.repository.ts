@@ -66,4 +66,12 @@ export class MikroDepartmentsRepository implements IDepartmentsRepository {
       { isActive: true, updatedAt: new Date() },
     );
   }
+
+  public async assignManager(department: Department): Promise<void> {
+    await this.entityManager.nativeUpdate(
+      DepartmentMikro,
+      { id: department.getId() },
+      { managerId: department.getManagerId(), updatedAt: new Date() },
+    );
+  }
 }

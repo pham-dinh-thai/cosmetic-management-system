@@ -17,6 +17,8 @@ import { DeactivateDepartmentUseCase } from 'apps/department-service/src/applica
 import { ActivateDepartmentUseCase } from 'apps/department-service/src/application/use-cases/activate-department/activate-department.use-case';
 import { FindAllDepartmentUseCase } from 'apps/department-service/src/application/use-cases/find-department/find-all/find-all-department.use-case';
 import { FindAllDepartmentReadModel } from 'apps/department-service/src/application/use-cases/find-department/find-all/read-models/find-all-department.read-model';
+import { AssignManagerToDepartmentUseCase } from 'apps/department-service/src/application/use-cases/assign-manager-to-department/assign-manager-to-department.use-case';
+import { AssignManagerToDepartmentRequest } from './requests/assign-manager-to-department.request';
 
 @Controller('departments')
 @UseGuards(AuthGuard, RolesGuard)
@@ -28,6 +30,7 @@ export class DepartmentsController {
     private readonly updateDepartmentUseCase: UpdateDepartmentUseCase,
     private readonly deactivateDepartmentUseCase: DeactivateDepartmentUseCase,
     private readonly activateDepartmentUseCase: ActivateDepartmentUseCase,
+    private readonly assignManagerToDepartmentUseCase: AssignManagerToDepartmentUseCase,
   ) {}
 
   @Get()
@@ -56,5 +59,13 @@ export class DepartmentsController {
   @Patch(':id/activate')
   public async activate(@Param('id') id: string): Promise<void> {
     await this.activateDepartmentUseCase.execute(id);
+  }
+
+  @Patch(':id/manager')
+  public async assignManager(
+    @Param('id') id: string,
+    @Body() request: AssignManagerToDepartmentRequest,
+  ): Promise<void> {
+    await this.assignManagerToDepartmentUseCase.execute(id, request);
   }
 }
