@@ -1,12 +1,11 @@
 import { Department } from '../department.aggregate';
-import { DepartmentReadModel } from '../read-models/department.read-model';
 
 export interface IDepartmentsRepository {
-  findAll(): Promise<DepartmentReadModel[]>;
+  findAll(): Promise<Department[]>;
 
-  findByCode(code: string): Promise<DepartmentReadModel | null>;
+  findByCode(code: string): Promise<Department | null>;
 
-  findById(id: string): Promise<DepartmentReadModel | null>;
+  findById(id: string): Promise<Department | null>;
 
   create(department: Department): Promise<void>;
 

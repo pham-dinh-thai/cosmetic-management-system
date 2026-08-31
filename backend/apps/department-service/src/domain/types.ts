@@ -10,8 +10,3 @@ export type FromPersistentDepartmentProps = {
   name: string;
   managerId?: string;
 };
-
-export type UpdateDepartmentProps = {
-  code: string;
-  name: string;
-};
