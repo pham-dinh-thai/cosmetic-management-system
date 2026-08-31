@@ -17,6 +17,10 @@ export class MikroEmployeesRepository implements IEmployeesRepository {
     return employeeMikro ? EmployeesMapper.toDomain(employeeMikro) : null;
   }
 
+  public async count(): Promise<number> {
+    return await this.entityManager.count(EmployeeMikro);
+  }
+
   public async create(employee: Employee): Promise<void> {
     this.entityManager.persist(EmployeesMapper.toMikro(employee));
 

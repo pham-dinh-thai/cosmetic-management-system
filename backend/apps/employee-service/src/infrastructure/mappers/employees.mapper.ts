@@ -1,12 +1,13 @@
 import { Employee } from '../../domain/employee.aggregate';
 import { Employee as EmployeeMikro } from '../entities/employee.entity';
+import { EmployeeCode } from '../../domain/value-objects/employee-code.value-object';
 
 export class EmployeesMapper {
   public static toDomain(employeeMikro: EmployeeMikro): Employee {
     return Employee.fromPersistent({
       id: employeeMikro.id,
       userId: employeeMikro.userId,
-      code: employeeMikro.code,
+      code: EmployeeCode.fromPersistent(employeeMikro.code),
       departmentId: employeeMikro.departmentId,
       hiredAt: employeeMikro.hiredAt,
       status: employeeMikro.status,

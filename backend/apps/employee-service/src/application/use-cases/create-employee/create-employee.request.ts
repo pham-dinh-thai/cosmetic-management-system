@@ -9,7 +9,6 @@ export interface ICreateEmployeeRequest {
     password: string;
     roleId: string;
   };
-  code: string;
   departmentId: string;
   hiredAt: string;
   position: Position;

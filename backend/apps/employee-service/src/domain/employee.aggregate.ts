@@ -2,13 +2,14 @@ import { EmployeeStatus } from './enums/employee-status.enum';
 import { Position } from './enums/position.enum';
 import { CannotUpdatePositionForEmployeeException } from './exceptions/cannot-update-position-for-employee.exception';
 import { CreateEmployeeProps, FromPersistentEmployeeProps } from './types';
+import { EmployeeCode } from './value-objects/employee-code.value-object';
 import { EmployeePhone } from './value-objects/employee-phone.value-object';
 
 export class Employee {
   public constructor(
     private readonly id: string,
     private readonly userId: string,
-    private readonly code: string,
+    private readonly code: EmployeeCode,
     private departmentId: string,
     private hiredAt: Date,
     private status: EmployeeStatus,
@@ -78,7 +79,7 @@ export class Employee {
   }
 
   public getCode(): string {
-    return this.code;
+    return this.code.getValue();
   }
 
   public getDepartmentId(): string {

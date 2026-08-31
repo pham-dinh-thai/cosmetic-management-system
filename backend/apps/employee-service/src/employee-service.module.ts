@@ -89,7 +89,13 @@ import {
     {
       provide: CreateEmployeeUseCase,
       useFactory: createEmployeeUseCaseFactory,
-      inject: [CREATE_USER_PORT, EMPLOYEES_REPOSITORY, DEPARTMENTS_READER_PORT],
+      inject: [
+        CREATE_USER_PORT,
+        EMPLOYEES_REPOSITORY,
+        DEPARTMENTS_READER_PORT,
+        DELETE_USER_PORT,
+        EMPLOYEE_LOGGER_PORT,
+      ],
     },
     {
       provide: UPDATE_USER_INFORMATION_PORT,

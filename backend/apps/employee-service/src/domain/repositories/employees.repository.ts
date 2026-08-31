@@ -3,6 +3,8 @@ import { Employee } from '../employee.aggregate';
 export interface IEmployeesRepository {
   findById(id: string): Promise<Employee | null>;
 
+  count(): Promise<number>;
+
   create(employee: Employee): Promise<void>;
 
   updateInformation(employee: Employee): Promise<void>;
