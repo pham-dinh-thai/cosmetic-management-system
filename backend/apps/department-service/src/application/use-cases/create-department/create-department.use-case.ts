@@ -1,23 +1,19 @@
-import { Inject, Injectable } from '@nestjs/common';
-import {
-  DEPARTMENTS_REPOSITORY,
-  type IDepartmentsRepository,
-} from 'apps/department-service/src/domain/repositories/departments.repository';
+import { IDepartmentsRepository } from 'apps/department-service/src/domain/repositories/departments.repository';
 import { ICreateDepartmentRequest } from './create-department.request';
 import { Department } from 'apps/department-service/src/domain/department.aggregate';
-import { DepartmentUniquenessService } from 'apps/department-service/src/domain/services/department-uniqueness.service';
+import { DepartmentCodeAlreadyExistsException } from 'apps/department-service/src/domain/exceptions/department-code-already-exists.exception';
 
-@Injectable()
 export class CreateDepartmentUseCase {
   public constructor(
-    @Inject(DEPARTMENTS_REPOSITORY)
     private readonly departmentsRepository: IDepartmentsRepository,
-
-    private readonly departmentUniquenessService: DepartmentUniquenessService,
   ) {}
 
   public async execute(request: ICreateDepartmentRequest): Promise<void> {
-    await this.departmentUniquenessService.ensureCodeIsUnique(request.code);
+    const existing = await this.departmentsRepository.findByCode(request.code);
+
+    if (existing) {
+      throw new DepartmentCodeAlreadyExistsException(request.code);
+    }
 
     const department = Department.create({
       code: request.code,
@@ -27,3 +23,7 @@ export class CreateDepartmentUseCase {
     await this.departmentsRepository.create(department);
   }
 }
+
+export const createDepartmentUseCaseFactory = (
+  departmentsRepository: IDepartmentsRepository,
+) => new CreateDepartmentUseCase(departmentsRepository);

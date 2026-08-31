@@ -1,23 +1,22 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import {
-  DEPARTMENTS_REPOSITORY,
-  type IDepartmentsRepository,
-} from 'apps/department-service/src/domain/repositories/departments.repository';
+import { DepartmentNotFoundException } from 'apps/department-service/src/domain/exceptions/department-not-found.exception';
+import { IDepartmentsRepository } from 'apps/department-service/src/domain/repositories/departments.repository';
 
-@Injectable()
 export class DeactivateDepartmentUseCase {
   public constructor(
-    @Inject(DEPARTMENTS_REPOSITORY)
     private readonly departmentsRepository: IDepartmentsRepository,
   ) {}
 
   public async execute(id: string): Promise<void> {
-    const existing = await this.departmentsRepository.findById(id);
+    const department = await this.departmentsRepository.findById(id);
 
-    if (!existing) {
-      throw new NotFoundException(`Department with id ${id} not found`);
+    if (!department) {
+      throw new DepartmentNotFoundException(id);
     }
 
     await this.departmentsRepository.deactivate(id);
   }
 }
+
+export const deactivateDepartmentUseCaseFactory = (
+  departmentsRepository: IDepartmentsRepository,
+) => new DeactivateDepartmentUseCase(departmentsRepository);

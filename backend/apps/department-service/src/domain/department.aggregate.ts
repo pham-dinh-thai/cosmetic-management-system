@@ -1,8 +1,4 @@
-import {
-  CreateDepartmentProps,
-  FromPersistentDepartmentProps,
-  UpdateDepartmentProps,
-} from './types';
+import { CreateDepartmentProps, FromPersistentDepartmentProps } from './types';
 
 export class Department {
   public constructor(
@@ -14,7 +10,12 @@ export class Department {
   ) {}
 
   public static create(props: CreateDepartmentProps): Department {
-    return new Department(undefined as unknown as string, props.code, props.name, true);
+    return new Department(
+      undefined as unknown as string,
+      props.code,
+      props.name,
+      true,
+    );
   }
 
   public static fromPersistent(
@@ -29,9 +30,12 @@ export class Department {
     );
   }
 
-  public update(props: UpdateDepartmentProps): void {
-    this.code = props.code;
-    this.name = props.name;
+  public updateCode(code: string): void {
+    this.code = code;
+  }
+
+  public updateName(name: string): void {
+    this.name = name;
   }
 
   public getId(): string {

@@ -1,4 +1,4 @@
-export class DepartmentReadModel {
+export class FindDepartmentByIdReadModel {
   public constructor(
     public readonly id: string,
     public readonly code: string,
