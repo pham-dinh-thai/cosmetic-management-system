@@ -43,6 +43,10 @@ import {
   UpdateEmployeePositionUseCase,
   updateEmployeePositionUseCaseFactory,
 } from './application/use-cases/update-employee-position/update-employee-position.use-case';
+import {
+  FindEmployeeByIdUseCase,
+  findEmployeeByIdUseCaseFactory,
+} from './application/use-cases/find-employee/find-by-id/find-employee-by-id.use-case';
 
 @Module({
   imports: [
@@ -132,6 +136,11 @@ import {
     {
       provide: UpdateEmployeePositionUseCase,
       useFactory: updateEmployeePositionUseCaseFactory,
+      inject: [EMPLOYEES_REPOSITORY],
+    },
+    {
+      provide: FindEmployeeByIdUseCase,
+      useFactory: findEmployeeByIdUseCaseFactory,
       inject: [EMPLOYEES_REPOSITORY],
     },
   ],

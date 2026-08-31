@@ -14,6 +14,8 @@ export interface IDepartmentsRepository {
   deactivate(id: string): Promise<void>;
 
   activate(id: string): Promise<void>;
+
+  assignManager(department: Department): Promise<void>;
 }
 
 export const DEPARTMENTS_REPOSITORY = 'IDepartmentsRepository';
