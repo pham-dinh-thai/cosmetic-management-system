@@ -27,6 +27,15 @@
         "tsConfigPath": "apps/authorization-service/tsconfig.app.json"
       }
     },
+    "customer-service": {
+      "type": "application",
+      "root": "apps/customer-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/customer-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/customer-service/tsconfig.app.json"
+      }
+    },
     "department-service": {
       "type": "application",
       "root": "apps/department-service",

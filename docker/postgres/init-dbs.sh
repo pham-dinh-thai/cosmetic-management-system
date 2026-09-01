@@ -1,60 +1,65 @@
 #!/bin/sh
 set -e
 
+# Create per-service roles and databases entirely from environment variables
+# (populated from .env via docker-compose), so there is no hardcoded name/password.
+
 psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" <<-SQL
-  CREATE USER cosmetic_user WITH PASSWORD '${USER_DB_PASSWORD}';
-  CREATE USER cosmetic_auth  WITH PASSWORD '${AUTH_DB_PASSWORD}';
-  CREATE USER cosmetic_authorization WITH PASSWORD '${AUTHORIZATION_DB_PASSWORD}';
-  CREATE USER cosmetic_department WITH PASSWORD '${DEPARTMENT_DB_PASSWORD}';
-  CREATE USER cosmetic_employee WITH PASSWORD '${EMPLOYEE_DB_PASSWORD}';
+  CREATE USER ${USER_DB_USER} WITH PASSWORD '${USER_DB_PASSWORD}';
+  CREATE USER ${AUTH_DB_USER}  WITH PASSWORD '${AUTH_DB_PASSWORD}';
+  CREATE USER ${AUTHORIZATION_DB_USER} WITH PASSWORD '${AUTHORIZATION_DB_PASSWORD}';
+  CREATE USER ${DEPARTMENT_DB_USER} WITH PASSWORD '${DEPARTMENT_DB_PASSWORD}';
+  CREATE USER ${EMPLOYEE_DB_USER} WITH PASSWORD '${EMPLOYEE_DB_PASSWORD}';
+  CREATE USER ${CUSTOMER_DB_USER} WITH PASSWORD '${CUSTOMER_DB_PASSWORD}';
 
-  GRANT ALL PRIVILEGES ON DATABASE cosmetic_user_service TO cosmetic_user;
-  GRANT ALL PRIVILEGES ON SCHEMA public TO cosmetic_user;
-
-  CREATE DATABASE cosmetic_department_service OWNER cosmetic_department;
-  GRANT ALL PRIVILEGES ON DATABASE cosmetic_department_service TO cosmetic_department;
-
-  CREATE DATABASE cosmetic_authentication_service OWNER cosmetic_auth;
-  GRANT ALL PRIVILEGES ON DATABASE cosmetic_authentication_service TO cosmetic_auth;
-
-  CREATE DATABASE cosmetic_authorization_service OWNER cosmetic_authorization;
-  GRANT ALL PRIVILEGES ON DATABASE cosmetic_authorization_service TO cosmetic_authorization;
-
-  CREATE DATABASE cosmetic_employee_service OWNER cosmetic_employee;
-  GRANT ALL PRIVILEGES ON DATABASE cosmetic_employee_service TO cosmetic_employee;
 SQL
 
-psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d cosmetic_user_service <<-SQL
-  GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO cosmetic_user;
-  GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO cosmetic_user;
-  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO cosmetic_user;
-  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO cosmetic_user;
+# Create databases only if they do not already exist (idempotent).
+psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" <<-SQL
+  SELECT 'CREATE DATABASE "$USER_DB_NAME" OWNER "$USER_DB_USER"'
+  WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '$USER_DB_NAME')\gexec
+  SELECT 'CREATE DATABASE "$AUTH_DB_NAME" OWNER "$AUTH_DB_USER"'
+  WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '$AUTH_DB_NAME')\gexec
+  SELECT 'CREATE DATABASE "$AUTHORIZATION_DB_NAME" OWNER "$AUTHORIZATION_DB_USER"'
+  WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '$AUTHORIZATION_DB_NAME')\gexec
+  SELECT 'CREATE DATABASE "$DEPARTMENT_DB_NAME" OWNER "$DEPARTMENT_DB_USER"'
+  WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '$DEPARTMENT_DB_NAME')\gexec
+  SELECT 'CREATE DATABASE "$EMPLOYEE_DB_NAME" OWNER "$EMPLOYEE_DB_USER"'
+  WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '$EMPLOYEE_DB_NAME')\gexec
+  SELECT 'CREATE DATABASE "$CUSTOMER_DB_NAME" OWNER "$CUSTOMER_DB_USER"'
+  WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '$CUSTOMER_DB_NAME')\gexec
 SQL
 
-psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d cosmetic_authentication_service <<-SQL
-  GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO cosmetic_auth;
-  GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO cosmetic_auth;
-  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO cosmetic_auth;
-  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO cosmetic_auth;
-SQL
+# Grant database privileges to each owner.
+for pair in \
+  "$USER_DB_NAME:$USER_DB_USER" \
+  "$AUTH_DB_NAME:$AUTH_DB_USER" \
+  "$AUTHORIZATION_DB_NAME:$AUTHORIZATION_DB_USER" \
+  "$DEPARTMENT_DB_NAME:$DEPARTMENT_DB_USER" \
+  "$EMPLOYEE_DB_NAME:$EMPLOYEE_DB_USER" \
+  "$CUSTOMER_DB_NAME:$CUSTOMER_DB_USER"; do
+  db="${pair%%:*}"
+  owner="${pair##*:}"
+  psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" \
+    -c "GRANT ALL PRIVILEGES ON DATABASE \"$db\" TO \"$owner\";"
+done
 
-psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d cosmetic_authorization_service <<-SQL
-  GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO cosmetic_authorization;
-  GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO cosmetic_authorization;
-  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO cosmetic_authorization;
-  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO cosmetic_authorization;
+# Grant schema-level privileges inside each created database.
+grant_schema_privileges() {
+  db="$1"
+  owner="$2"
+  psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$db" <<-SQL
+    GRANT ALL PRIVILEGES ON SCHEMA public TO "$owner";
+    GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO "$owner";
+    GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO "$owner";
+    ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO "$owner";
+    ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO "$owner";
 SQL
+}
 
-psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d cosmetic_department_service <<-SQL
-  GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO cosmetic_department;
-  GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO cosmetic_department;
-  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO cosmetic_department;
-  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO cosmetic_department;
-SQL
-
-psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d cosmetic_employee_service <<-SQL
-  GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO cosmetic_employee;
-  GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO cosmetic_employee;
-  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO cosmetic_employee;
-  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO cosmetic_employee;
-SQL
+grant_schema_privileges "$USER_DB_NAME" "$USER_DB_USER"
+grant_schema_privileges "$AUTH_DB_NAME" "$AUTH_DB_USER"
+grant_schema_privileges "$AUTHORIZATION_DB_NAME" "$AUTHORIZATION_DB_USER"
+grant_schema_privileges "$DEPARTMENT_DB_NAME" "$DEPARTMENT_DB_USER"
+grant_schema_privileges "$EMPLOYEE_DB_NAME" "$EMPLOYEE_DB_USER"
+grant_schema_privileges "$CUSTOMER_DB_NAME" "$CUSTOMER_DB_USER"

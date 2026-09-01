@@ -1,4 +1,4 @@
-export class FindUserByEmailReadModel {
+export class UserReadModel {
   public constructor(
     public readonly id: string,
     public readonly roleId: string,

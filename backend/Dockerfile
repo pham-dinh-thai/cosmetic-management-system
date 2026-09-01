@@ -8,7 +8,8 @@ RUN npx nest build user-service && \
     npx nest build authentication-service && \
     npx nest build authorization-service && \
     npx nest build department-service && \
-    npx nest build employee-service
+    npx nest build employee-service && \
+    npx nest build customer-service
     
 FROM node:26-slim
 WORKDIR /app

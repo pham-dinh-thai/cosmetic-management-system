@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ICreateAuthUserRequest } from 'apps/user-service/src/application/use-cases/create-user/ports/create-auth-user.port';
+import { ICreateAuthUserRequest } from '../../../../application/use-cases/create-auth-user/create-auth-user.request';
 import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
 
 export class CreateAuthUserRequest implements ICreateAuthUserRequest {

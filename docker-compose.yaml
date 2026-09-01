@@ -6,9 +6,24 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
+      USER_DB_USER: ${USER_DB_USER}
       USER_DB_PASSWORD: ${USER_DB_PASSWORD}
+      USER_DB_NAME: ${USER_DB_NAME}
+      AUTH_DB_USER: ${AUTH_DB_USER}
       AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD}
+      AUTH_DB_NAME: ${AUTH_DB_NAME}
+      AUTHORIZATION_DB_USER: ${AUTHORIZATION_DB_USER}
       AUTHORIZATION_DB_PASSWORD: ${AUTHORIZATION_DB_PASSWORD}
+      AUTHORIZATION_DB_NAME: ${AUTHORIZATION_DB_NAME}
+      DEPARTMENT_DB_USER: ${DEPARTMENT_DB_USER}
+      DEPARTMENT_DB_PASSWORD: ${DEPARTMENT_DB_PASSWORD}
+      DEPARTMENT_DB_NAME: ${DEPARTMENT_DB_NAME}
+      EMPLOYEE_DB_USER: ${EMPLOYEE_DB_USER}
+      EMPLOYEE_DB_PASSWORD: ${EMPLOYEE_DB_PASSWORD}
+      EMPLOYEE_DB_NAME: ${EMPLOYEE_DB_NAME}
+      CUSTOMER_DB_USER: ${CUSTOMER_DB_USER}
+      CUSTOMER_DB_PASSWORD: ${CUSTOMER_DB_PASSWORD}
+      CUSTOMER_DB_NAME: ${CUSTOMER_DB_NAME}
     ports:
       - "5432:5432"
     volumes:
@@ -201,6 +216,37 @@ services:
       migration-employee:
         condition: service_completed_successfully
 
+  migration-customer:
+    build: ./backend
+    command: sh -c "npx mikro-orm migration:up"
+    environment:
+      NODE_OPTIONS: "-r ts-node/register"
+      MIKRO_ORM_CLI_CONFIG: "./apps/customer-service/mikro-orm.config.ts"
+      CUSTOMER_DB_HOST: ${CUSTOMER_DB_HOST}
+      CUSTOMER_DB_PORT: "${CUSTOMER_DB_PORT}"
+      CUSTOMER_DB_USER: ${CUSTOMER_DB_USER}
+      CUSTOMER_DB_PASSWORD: ${CUSTOMER_DB_PASSWORD}
+      CUSTOMER_DB_NAME: ${CUSTOMER_DB_NAME}
+    depends_on:
+      sync-users:
+        condition: service_completed_successfully
+
+  customer-service:
+    build: ./backend
+    command: ["node", "dist/apps/customer-service/main.js"]
+    environment:
+      CUSTOMER_DB_HOST: ${CUSTOMER_DB_HOST}
+      CUSTOMER_DB_PORT: "${CUSTOMER_DB_PORT}"
+      CUSTOMER_DB_USER: ${CUSTOMER_DB_USER}
+      CUSTOMER_DB_PASSWORD: ${CUSTOMER_DB_PASSWORD}
+      CUSTOMER_DB_NAME: ${CUSTOMER_DB_NAME}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+    ports:
+      - "3006:3006"
+    depends_on:
+      migration-customer:
+        condition: service_completed_successfully
+
   gateway-service:
     build: ./backend
     command: ["node", "dist/apps/gateway-service/main.js"]
@@ -210,6 +256,7 @@ services:
       AUTHORIZATION_SERVICE_URL: ${AUTHORIZATION_SERVICE_URL}
       DEPARTMENT_SERVICE_URL: ${DEPARTMENT_SERVICE_URL}
       EMPLOYEE_SERVICE_URL: ${EMPLOYEE_SERVICE_URL}
+      CUSTOMER_SERVICE_URL: ${CUSTOMER_SERVICE_URL}
     ports:
       - "3000:3000"
     depends_on:

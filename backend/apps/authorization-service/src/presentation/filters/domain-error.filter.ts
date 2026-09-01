@@ -1,6 +1,6 @@
 import { ArgumentsHost, Catch, ExceptionFilter } from '@nestjs/common';
 import { Response } from 'express';
-import { BaseDomainException } from 'apps/user-service/src/domain/exceptions/base-domain.exception';
+import { BaseDomainException } from '../../domain/exceptions/base-domain-exception';
 
 @Catch(BaseDomainException)
 export class DomainErrorFilter implements ExceptionFilter {

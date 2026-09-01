@@ -18,4 +18,5 @@ async function bootstrap() {
 
   await app.listen(USER_SERVICE_PORT);
 }
-bootstrap();
+
+void bootstrap();
