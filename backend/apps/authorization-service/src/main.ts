@@ -18,4 +18,5 @@ async function bootstrap() {
 
   await app.listen(AUTHORIZATION_SERVICE_PORT);
 }
-bootstrap();
+
+void bootstrap();

@@ -17,19 +17,21 @@ browser ──> nginx (:80) ──> gateway-service (:3000) ──> <các servic
 - **gateway-service**: định tuyến theo path (`/api/users`, `/api/roles`, ...) tới
   từng service qua biến `<SVC>_SERVICE_URL`.
 - **postgres**: 1 container duy nhất chứa nhiều database, mỗi service có user +
-  database riêng. User/DB được tạo bởi `docker/postgres/init-dbs.sh`.
+  database riêng. User/DB được tạo bởi `docker/postgres/init-dbs.sh`, vốn đọc
+  toàn bộ tên/password từ biến môi trường `<SVC>_DB_*` (do `docker-compose.yaml`
+  inject từ `.env`), không hardcode.
 
 ## Checklist nhanh
 
 | # | Việc cần làm | File |
 |---|--------------|------|
 | 1 | Sinh app NestJS + khai báo port | `backend/apps/<svc>-service`, `backend/constants/ports.ts`, `backend/nest-cli.json` |
-| 2 | Khai báo biến môi trường | `.env`, `docker-compose.yaml` |
-| 3 | Cấp phát user + database | `docker/postgres/init-dbs.sh` |
+| 2 | Khai báo biến môi trường | `.env`, block `environment` của `postgres` trong `docker-compose.yaml` |
+| 3 | Cấp phát user + database (env-driven) | `docker/postgres/init-dbs.sh` |
 | 4 | Tạo entity + cấu hình MikroORM | `src/infrastructure/entities/*.entity.ts`, `mikro-orm.config.ts` |
 | 5 | Sinh migration | `apps/<svc>-service/migrations/` |
 | 6 | Thêm service vào Docker Compose | `docker-compose.yaml` |
-| 7 | Định tuyến ở gateway | `backend/apps/gateway-service/src/main.ts` |
+| 7 | Định tuyến + docs ở gateway | `backend/apps/gateway-service/src/main.ts` |
 
 Chi tiết từng bước bên dưới, lấy ví dụ thực tế là `department-service`.
 
@@ -90,45 +92,67 @@ DEPARTMENT_SERVICE_URL=http://department-service:3004
 > (tên service). Khi chạy lệnh trực tiếp trên máy host phải override
 > `DEPARTMENT_DB_HOST=localhost` (xem Bước 5).
 
+Sau đó, để `init-dbs.sh` (Bước 3) nhìn thấy các biến này, phải **khai báo thêm
+chúng vào block `environment` của service `postgres`** trong
+`docker-compose.yaml`. Mỗi service cần 3 biến `_DB_USER`, `_DB_PASSWORD`,
+`_DB_NAME`:
+
+```yaml
+  postgres:
+    environment:
+      # ... các biến đã có ...
+      DEPARTMENT_DB_USER: ${DEPARTMENT_DB_USER}
+      DEPARTMENT_DB_PASSWORD: ${DEPARTMENT_DB_PASSWORD}
+      DEPARTMENT_DB_NAME: ${DEPARTMENT_DB_NAME}
+```
+
 ## Bước 3: Cấp phát user + database (`init-dbs.sh`)
 
 Script `docker/postgres/init-dbs.sh` được mount vào
 `/docker-entrypoint-initdb.d/` của container postgres — nó **chỉ chạy đúng một
-lần khi volume `postgres-data` còn trống**.
+lần khi volume `postgres-data` còn trống**. Vì thế toàn bộ tên user/database/
+password trong script lấy từ **biến môi trường** (do `docker-compose.yaml` inject
+từ `.env`), **không hardcode**.
 
-> Superuser của PostgreSQL container lấy từ `POSTGRES_USER` trong `.env`
-> (vd: `cosmetic_admin`), **không phải** `postgres`. Check bằng
-> `grep POSTGRES_USER .env`.
+> Quan trọng: `init-dbs.sh` nhận các biến `<SVC>_DB_USER`, `<SVC>_DB_PASSWORD`,
+> `<SVC>_DB_NAME` qua block `environment` của container `postgres` trong
+> `docker-compose.yaml`. Nếu bạn thêm service mới, nhớ thêm đủ 3 biến đó vào
+> **cả** `.env` lẫn block `environment` của service `postgres`.
 
-Thêm user + DB cho service mới:
+Superuser của PostgreSQL container lấy từ `POSTGRES_USER` trong `.env`
+(vd: `cosmetic_admin`), **không phải** `postgres`. Check bằng
+`grep POSTGRES_USER .env`.
 
-```sql
-CREATE USER cosmetic_department WITH PASSWORD '${DEPARTMENT_DB_PASSWORD}';
+**Thêm service mới ở đâu:** trong `docker/postgres/init-dbs.sh`, thêm service
+vào 3 chỗ, tất cả đều dùng biến `<SVC>_DB_*`:
 
-CREATE DATABASE cosmetic_department_service OWNER cosmetic_department;
-GRANT ALL PRIVILEGES ON DATABASE cosmetic_department_service TO cosmetic_department;
-```
+1. Khối `CREATE USER ${SVC_DB_USER} ...` (tạo role cho service)
+2. Khối `SELECT 'CREATE DATABASE ...' WHERE NOT EXISTS ... \gexec` (tạo database
+   nếu chưa tồn tại — **idempotent**, không lỗi khi DB đã có)
+3. Các dòng `"...:$SVC_DB_NAME:$SVC_DB_USER"` trong vòng lặp grant database và
+   lời gọi `grant_schema_privileges "$SVC_DB_NAME" "$SVC_DB_USER"`
 
-Cùng block grant TABLES/SEQUENCES như các service khác.
+Script dùng biến nên tên/password lấy thẳng từ `.env`, không phải sửa tay.
 
 ### Nếu volume đã tồn tại (script sẽ KHÔNG chạy lại)
 
-Tạo tay trong container đang chạy. Lấy `POSTGRES_USER` và password từ `.env`
-ở thư mục gốc repo:
+`init-dbs.sh` chỉ chạy khi volume trống. Nếu volume đã có dữ liệu, phải tạo tay
+trong container đang chạy. Lấy `POSTGRES_USER` và password từ `.env` ở thư mục
+gốc repo:
 
 ```bash
 # Đọc .env (chạy từ thư mục gốc repo)
 export $(grep -v '^#' .env | xargs)
 
-# Tạo user + database
+# Tạo user + database (thay DEPARTMENT_ bằng tiền tố service của bạn)
 docker exec cosmetic-postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" \
-  -c "CREATE USER cosmetic_department WITH PASSWORD '$DEPARTMENT_DB_PASSWORD';" \
-  -c "CREATE DATABASE cosmetic_department_service OWNER cosmetic_department;" \
-  -c "GRANT ALL PRIVILEGES ON DATABASE cosmetic_department_service TO cosmetic_department;"
+  -c "CREATE USER $DEPARTMENT_DB_USER WITH PASSWORD '$DEPARTMENT_DB_PASSWORD';" \
+  -c "CREATE DATABASE $DEPARTMENT_DB_NAME OWNER $DEPARTMENT_DB_USER;" \
+  -c "GRANT ALL PRIVILEGES ON DATABASE $DEPARTMENT_DB_NAME TO $DEPARTMENT_DB_USER;"
 
-docker exec cosmetic-postgres psql -U "$POSTGRES_USER" -d cosmetic_department_service \
-  -c "ALTER SCHEMA public OWNER TO cosmetic_department;
-      GRANT ALL ON SCHEMA public TO cosmetic_department;"
+docker exec cosmetic-postgres psql -U "$POSTGRES_USER" -d "$DEPARTMENT_DB_NAME" \
+  -c "ALTER SCHEMA public OWNER TO $DEPARTMENT_DB_USER;
+      GRANT ALL ON SCHEMA public TO $DEPARTMENT_DB_USER;"
 ```
 
 > Lưu ý: `POSTGRES_USER` là superuser của PostgreSQL container (vd: `cosmetic_admin`),
