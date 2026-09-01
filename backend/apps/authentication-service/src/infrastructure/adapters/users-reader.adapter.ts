@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { IUsersReaderPort } from '../../domain/ports/users-reader.port';
+import { UserReadModel } from '../../domain/read-models/user.read-model';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -37,9 +38,7 @@ export class UsersReaderAdapter implements IUsersReaderPort {
     return text ? JSON.parse(text) : null;
   }
 
-  public async findByEmail(
-    email: string,
-  ): Promise<{ id: string; roleId: string } | null> {
+  public async findByEmail(email: string): Promise<UserReadModel | null> {
     const response = await fetch(
       `${this.baseUrl}/api/internal/users/by-email/${email}`,
     );
@@ -57,6 +56,16 @@ export class UsersReaderAdapter implements IUsersReaderPort {
 
     const text = await response.text();
 
-    return text ? JSON.parse(text) : null;
+    if (!text) {
+      return null;
+    }
+
+    const data = JSON.parse(text) as {
+      id: string;
+      roleId: string;
+      isActive: boolean;
+    };
+
+    return new UserReadModel(data.id, data.roleId, data.isActive);
   }
 }

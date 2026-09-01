@@ -10,7 +10,11 @@ export class FindUserByEmailUseCase {
     const user = await this.usersRepository.findByEmail(email);
 
     return user
-      ? new FindUserByEmailReadModel(user.getId(), user.getRoleId())
+      ? new FindUserByEmailReadModel(
+          user.getId(),
+          user.getRoleId(),
+          user.getIsActive(),
+        )
       : null;
   }
 }

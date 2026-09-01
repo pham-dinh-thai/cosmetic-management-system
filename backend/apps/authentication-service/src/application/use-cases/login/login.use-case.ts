@@ -5,6 +5,7 @@ import { ILoginRequest } from './login.request';
 import { type ISignTokenPort } from '../../ports/sign-token.port';
 import { LoginResponse } from './login.response';
 import { InvalidCredentialsException } from 'apps/authentication-service/src/domain/exceptions/invalid-credentials.exception';
+import { UserDeactivatedException } from 'apps/authentication-service/src/domain/exceptions/user-deactivated.exception';
 
 export class LoginUseCase {
   public constructor(
@@ -19,6 +20,10 @@ export class LoginUseCase {
 
     if (!user?.id) {
       throw new InvalidCredentialsException();
+    }
+
+    if (!user.isActive) {
+      throw new UserDeactivatedException();
     }
 
     const authUser = await this.authUsersQueryRepository.findByUserId(user.id);
