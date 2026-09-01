@@ -6,10 +6,7 @@ import { IDepartmentsReaderPort } from 'apps/employee-service/src/application/po
 import { DepartmentNotFoundException } from 'apps/employee-service/src/domain/exceptions/department-not-found.exception';
 import { EmployeeCode } from 'apps/employee-service/src/domain/value-objects/employee-code.value-object';
 import { IDeleteUserPort } from '../delete-employee/ports/delete-user.port';
-import {
-  EMPLOYEE_LOGGER_PORT,
-  type IEmployeeLoggerPort,
-} from '../../ports/employee-logger.port';
+import { IEmployeeLoggerPort } from '../../ports/employee-logger.port';
 
 export class CreateEmployeeUseCase {
   public constructor(
