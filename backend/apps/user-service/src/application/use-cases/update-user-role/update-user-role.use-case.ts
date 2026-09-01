@@ -2,7 +2,7 @@ import { IUsersRepository } from 'apps/user-service/src/domain/repositories/user
 import { IUpdateUserRoleRequest } from './update-user-role.request';
 import { UserNotFoundException } from 'apps/user-service/src/domain/exceptions/user-not-found.exception';
 import { IRoleReaderPort } from '../../ports/role-reader.port';
-import { RoleNotFoundException } from 'apps/authorization-service/src/domain/exceptions/role-not-found.exception';
+import { RoleNotFoundException } from 'apps/user-service/src/domain/exceptions/role-not-found.exception';
 
 export class UpdateUserRoleUseCase {
   public constructor(
