@@ -1,7 +1,5 @@
 import { Address } from './entities/address.entity';
 import { Phone } from './entities/phone.entity';
-import { AddressNotFoundException } from './exceptions/address-not-found.exception';
-import { PhoneNotFoundException } from './exceptions/phone-not-found.exception';
 import { CreateCustomerProps, FromPersistentCustomerProps } from './types';
 
 export class Customer {
@@ -52,47 +50,6 @@ export class Customer {
       props.createdAt,
       props.updatedAt,
     );
-  }
-
-  public addAddress(city: string, street: string): void {
-    const address = Address.create({
-      customerId: this.id,
-      city: city,
-      street: street,
-    });
-
-    this.addresses.push(address);
-  }
-
-  public addPhone(phoneNumber: string): void {
-    const phone = Phone.create({
-      customerId: this.id,
-      phone: phoneNumber,
-    });
-
-    this.phones.push(phone);
-  }
-
-  public removeAddress(addressId: string): void {
-    const index = this.addresses.findIndex(
-      (address) => address.getId() === addressId,
-    );
-
-    if (index === -1) {
-      throw new AddressNotFoundException(addressId);
-    }
-
-    this.addresses.splice(index, 1);
-  }
-
-  public removePhone(phoneId: string): void {
-    const index = this.phones.findIndex((phone) => phone.getId() === phoneId);
-
-    if (index === -1) {
-      throw new PhoneNotFoundException(phoneId);
-    }
-
-    this.phones.splice(index, 1);
   }
 
   public getId(): string {
