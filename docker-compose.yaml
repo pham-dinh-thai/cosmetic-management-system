@@ -36,6 +36,9 @@ services:
       INVENTORY_DB_USER: ${INVENTORY_DB_USER}
       INVENTORY_DB_PASSWORD: ${INVENTORY_DB_PASSWORD}
       INVENTORY_DB_NAME: ${INVENTORY_DB_NAME}
+      PURCHASE_DB_USER: ${PURCHASE_DB_USER}
+      PURCHASE_DB_PASSWORD: ${PURCHASE_DB_PASSWORD}
+      PURCHASE_DB_NAME: ${PURCHASE_DB_NAME}
     ports:
       - "5432:5432"
     volumes:
@@ -383,6 +386,38 @@ services:
       migration-inventory:
         condition: service_completed_successfully
 
+  migration-purchase:
+    build: ./backend
+    command: sh -c "npx mikro-orm migration:up"
+    environment:
+      NODE_OPTIONS: "-r ts-node/register"
+      MIKRO_ORM_CLI_CONFIG: "./apps/purchase-service/mikro-orm.config.ts"
+      PURCHASE_DB_HOST: ${PURCHASE_DB_HOST}
+      PURCHASE_DB_PORT: "${PURCHASE_DB_PORT}"
+      PURCHASE_DB_USER: ${PURCHASE_DB_USER}
+      PURCHASE_DB_PASSWORD: ${PURCHASE_DB_PASSWORD}
+      PURCHASE_DB_NAME: ${PURCHASE_DB_NAME}
+    depends_on:
+      sync-users:
+        condition: service_completed_successfully
+
+  purchase-service:
+    build: ./backend
+    command: ["node", "dist/apps/purchase-service/main.js"]
+    environment:
+      PURCHASE_DB_HOST: ${PURCHASE_DB_HOST}
+      PURCHASE_DB_PORT: "${PURCHASE_DB_PORT}"
+      PURCHASE_DB_USER: ${PURCHASE_DB_USER}
+      PURCHASE_DB_PASSWORD: ${PURCHASE_DB_PASSWORD}
+      PURCHASE_DB_NAME: ${PURCHASE_DB_NAME}
+      INVENTORY_SERVICE_URL: ${INVENTORY_SERVICE_URL}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+    ports:
+      - "3011:3011"
+    depends_on:
+      migration-purchase:
+        condition: service_completed_successfully
+
   gateway-service:
     build: ./backend
     command: ["node", "dist/apps/gateway-service/main.js"]
@@ -397,6 +432,7 @@ services:
       SUPPLIER_SERVICE_URL: ${SUPPLIER_SERVICE_URL}
       COSMETIC_SERVICE_URL: ${COSMETIC_SERVICE_URL}
       INVENTORY_SERVICE_URL: ${INVENTORY_SERVICE_URL}
+      PURCHASE_SERVICE_URL: ${PURCHASE_SERVICE_URL}
     ports:
       - "3000:3000"
     depends_on:
@@ -407,6 +443,7 @@ services:
       - supplier-service
       - cosmetic-service
       - inventory-service
+      - purchase-service
 
   frontend:
     build: ./frontend
