@@ -28,19 +28,17 @@ export class MikroCategoriesRepository implements ICategoriesRepository {
   }
 
   public async findById(id: string): Promise<Category | null> {
-    const categoryMikro = await this.entityManager.findOne(
-      CategoryMikro,
-      { id },
-    );
+    const categoryMikro = await this.entityManager.findOne(CategoryMikro, {
+      id,
+    });
 
     return categoryMikro ? CategoriesMapper.toDomain(categoryMikro) : null;
   }
 
   public async findByName(name: string): Promise<Category | null> {
-    const categoryMikro = await this.entityManager.findOne(
-      CategoryMikro,
-      { name },
-    );
+    const categoryMikro = await this.entityManager.findOne(CategoryMikro, {
+      name,
+    });
 
     return categoryMikro ? CategoriesMapper.toDomain(categoryMikro) : null;
   }
@@ -58,10 +56,9 @@ export class MikroCategoriesRepository implements ICategoriesRepository {
     id: string,
     data: { name: string; description: string | null },
   ): Promise<Category | null> {
-    const categoryMikro = await this.entityManager.findOne(
-      CategoryMikro,
-      { id },
-    );
+    const categoryMikro = await this.entityManager.findOne(CategoryMikro, {
+      id,
+    });
 
     if (!categoryMikro) {
       return null;
@@ -76,10 +73,9 @@ export class MikroCategoriesRepository implements ICategoriesRepository {
   }
 
   public async activate(id: string): Promise<Category | null> {
-    const categoryMikro = await this.entityManager.findOne(
-      CategoryMikro,
-      { id },
-    );
+    const categoryMikro = await this.entityManager.findOne(CategoryMikro, {
+      id,
+    });
 
     if (!categoryMikro) {
       return null;
@@ -92,10 +88,9 @@ export class MikroCategoriesRepository implements ICategoriesRepository {
   }
 
   public async deactivate(id: string): Promise<Category | null> {
-    const categoryMikro = await this.entityManager.findOne(
-      CategoryMikro,
-      { id },
-    );
+    const categoryMikro = await this.entityManager.findOne(CategoryMikro, {
+      id,
+    });
 
     if (!categoryMikro) {
       return null;
@@ -108,10 +103,9 @@ export class MikroCategoriesRepository implements ICategoriesRepository {
   }
 
   public async delete(id: string): Promise<Category | null> {
-    const categoryMikro = await this.entityManager.findOne(
-      CategoryMikro,
-      { id },
-    );
+    const categoryMikro = await this.entityManager.findOne(CategoryMikro, {
+      id,
+    });
 
     if (!categoryMikro) {
       return null;
