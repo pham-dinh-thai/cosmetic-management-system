@@ -1,5 +1,3 @@
-import { SupplierCode } from './value-objects/supplier-code.value-object';
-
 export type CreateSupplierProps = {
   code: string;
   name: string;

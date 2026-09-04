@@ -9,7 +9,9 @@ export class CreateSupplierUseCase {
     private readonly suppliersRepository: ISuppliersRepository,
   ) {}
 
-  public async execute(request: ICreateSupplierRequest): Promise<{ id: string }> {
+  public async execute(
+    request: ICreateSupplierRequest,
+  ): Promise<{ id: string }> {
     const existing = await this.suppliersRepository.findByEmail(request.email);
 
     if (existing) {

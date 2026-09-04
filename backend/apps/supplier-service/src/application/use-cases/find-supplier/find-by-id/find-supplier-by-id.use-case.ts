@@ -27,5 +27,4 @@ export class FindSupplierByIdUseCase {
 
 export const findSupplierByIdUseCaseFactory = (
   suppliersRepository: ISuppliersRepository,
-): FindSupplierByIdUseCase =>
-  new FindSupplierByIdUseCase(suppliersRepository);
+): FindSupplierByIdUseCase => new FindSupplierByIdUseCase(suppliersRepository);

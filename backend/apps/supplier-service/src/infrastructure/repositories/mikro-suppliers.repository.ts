@@ -20,11 +20,9 @@ export class MikroSuppliersRepository implements ISuppliersRepository {
       ];
     }
 
-    const suppliersMikro = await this.entityManager.find(
-      SupplierMikro,
-      where,
-      { orderBy: { createdAt: 'DESC' } },
-    );
+    const suppliersMikro = await this.entityManager.find(SupplierMikro, where, {
+      orderBy: { createdAt: 'DESC' },
+    });
 
     return suppliersMikro.map((supplierMikro) =>
       SuppliersMapper.toDomain(supplierMikro),
