@@ -81,6 +81,15 @@
         "tsConfigPath": "libs/security/tsconfig.lib.json"
       }
     },
+    "supplier-service": {
+      "type": "application",
+      "root": "apps/supplier-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/supplier-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/supplier-service/tsconfig.app.json"
+      }
+    },
     "user-service": {
       "type": "application",
       "root": "apps/user-service",

@@ -27,6 +27,9 @@ services:
       CATEGORY_DB_USER: ${CATEGORY_DB_USER}
       CATEGORY_DB_PASSWORD: ${CATEGORY_DB_PASSWORD}
       CATEGORY_DB_NAME: ${CATEGORY_DB_NAME}
+      SUPPLIER_DB_USER: ${SUPPLIER_DB_USER}
+      SUPPLIER_DB_PASSWORD: ${SUPPLIER_DB_PASSWORD}
+      SUPPLIER_DB_NAME: ${SUPPLIER_DB_NAME}
     ports:
       - "5432:5432"
     volumes:
@@ -281,6 +284,37 @@ services:
       migration-category:
         condition: service_completed_successfully
 
+  migration-supplier:
+    build: ./backend
+    command: sh -c "npx mikro-orm migration:up"
+    environment:
+      NODE_OPTIONS: "-r ts-node/register"
+      MIKRO_ORM_CLI_CONFIG: "./apps/supplier-service/mikro-orm.config.ts"
+      SUPPLIER_DB_HOST: ${SUPPLIER_DB_HOST}
+      SUPPLIER_DB_PORT: "${SUPPLIER_DB_PORT}"
+      SUPPLIER_DB_USER: ${SUPPLIER_DB_USER}
+      SUPPLIER_DB_PASSWORD: ${SUPPLIER_DB_PASSWORD}
+      SUPPLIER_DB_NAME: ${SUPPLIER_DB_NAME}
+    depends_on:
+      sync-users:
+        condition: service_completed_successfully
+
+  supplier-service:
+    build: ./backend
+    command: ["node", "dist/apps/supplier-service/main.js"]
+    environment:
+      SUPPLIER_DB_HOST: ${SUPPLIER_DB_HOST}
+      SUPPLIER_DB_PORT: "${SUPPLIER_DB_PORT}"
+      SUPPLIER_DB_USER: ${SUPPLIER_DB_USER}
+      SUPPLIER_DB_PASSWORD: ${SUPPLIER_DB_PASSWORD}
+      SUPPLIER_DB_NAME: ${SUPPLIER_DB_NAME}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+    ports:
+      - "3008:3008"
+    depends_on:
+      migration-supplier:
+        condition: service_completed_successfully
+
   gateway-service:
     build: ./backend
     command: ["node", "dist/apps/gateway-service/main.js"]
@@ -292,6 +326,7 @@ services:
       EMPLOYEE_SERVICE_URL: ${EMPLOYEE_SERVICE_URL}
       CUSTOMER_SERVICE_URL: ${CUSTOMER_SERVICE_URL}
       CATEGORY_SERVICE_URL: ${CATEGORY_SERVICE_URL}
+      SUPPLIER_SERVICE_URL: ${SUPPLIER_SERVICE_URL}
     ports:
       - "3000:3000"
     depends_on:
@@ -299,6 +334,7 @@ services:
       - authentication-service
       - authorization-service
       - category-service
+      - supplier-service
 
   frontend:
     build: ./frontend
