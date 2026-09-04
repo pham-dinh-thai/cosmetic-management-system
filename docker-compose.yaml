@@ -33,6 +33,9 @@ services:
       COSMETIC_DB_USER: ${COSMETIC_DB_USER}
       COSMETIC_DB_PASSWORD: ${COSMETIC_DB_PASSWORD}
       COSMETIC_DB_NAME: ${COSMETIC_DB_NAME}
+      INVENTORY_DB_USER: ${INVENTORY_DB_USER}
+      INVENTORY_DB_PASSWORD: ${INVENTORY_DB_PASSWORD}
+      INVENTORY_DB_NAME: ${INVENTORY_DB_NAME}
     ports:
       - "5432:5432"
     volumes:
@@ -349,6 +352,37 @@ services:
       migration-cosmetic:
         condition: service_completed_successfully
 
+  migration-inventory:
+    build: ./backend
+    command: sh -c "npx mikro-orm migration:up"
+    environment:
+      NODE_OPTIONS: "-r ts-node/register"
+      MIKRO_ORM_CLI_CONFIG: "./apps/inventory-service/mikro-orm.config.ts"
+      INVENTORY_DB_HOST: ${INVENTORY_DB_HOST}
+      INVENTORY_DB_PORT: "${INVENTORY_DB_PORT}"
+      INVENTORY_DB_USER: ${INVENTORY_DB_USER}
+      INVENTORY_DB_PASSWORD: ${INVENTORY_DB_PASSWORD}
+      INVENTORY_DB_NAME: ${INVENTORY_DB_NAME}
+    depends_on:
+      sync-users:
+        condition: service_completed_successfully
+
+  inventory-service:
+    build: ./backend
+    command: ["node", "dist/apps/inventory-service/main.js"]
+    environment:
+      INVENTORY_DB_HOST: ${INVENTORY_DB_HOST}
+      INVENTORY_DB_PORT: "${INVENTORY_DB_PORT}"
+      INVENTORY_DB_USER: ${INVENTORY_DB_USER}
+      INVENTORY_DB_PASSWORD: ${INVENTORY_DB_PASSWORD}
+      INVENTORY_DB_NAME: ${INVENTORY_DB_NAME}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+    ports:
+      - "3010:3010"
+    depends_on:
+      migration-inventory:
+        condition: service_completed_successfully
+
   gateway-service:
     build: ./backend
     command: ["node", "dist/apps/gateway-service/main.js"]
@@ -362,6 +396,7 @@ services:
       CATEGORY_SERVICE_URL: ${CATEGORY_SERVICE_URL}
       SUPPLIER_SERVICE_URL: ${SUPPLIER_SERVICE_URL}
       COSMETIC_SERVICE_URL: ${COSMETIC_SERVICE_URL}
+      INVENTORY_SERVICE_URL: ${INVENTORY_SERVICE_URL}
     ports:
       - "3000:3000"
     depends_on:
@@ -371,6 +406,7 @@ services:
       - category-service
       - supplier-service
       - cosmetic-service
+      - inventory-service
 
   frontend:
     build: ./frontend
