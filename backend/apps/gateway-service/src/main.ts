@@ -31,6 +31,7 @@ const SERVICE_DOCS_SOURCES: ServiceDocsSource[] = [
   { name: 'suppliers', url: process.env.SUPPLIER_SERVICE_URL },
   { name: 'cosmetics', url: process.env.COSMETIC_SERVICE_URL },
   { name: 'inventory', url: process.env.INVENTORY_SERVICE_URL },
+  { name: 'purchase-orders', url: process.env.PURCHASE_SERVICE_URL },
 ];
 
 async function fetchServiceDocument(
@@ -174,6 +175,13 @@ async function bootstrap() {
       target: process.env.INVENTORY_SERVICE_URL,
       changeOrigin: true,
       pathFilter: (pathname) => /^\/api\/inventory(\/|$)/.test(pathname),
+    }),
+  );
+  app.use(
+    createProxyMiddleware({
+      target: process.env.PURCHASE_SERVICE_URL,
+      changeOrigin: true,
+      pathFilter: (pathname) => /^\/api\/purchase-orders(\/|$)/.test(pathname),
     }),
   );
 
