@@ -32,6 +32,12 @@
       "@app/security/*": [
         "./libs/security/src/*"
       ],
+      "@app/rabbitmq": [
+        "./libs/rabbitmq/src"
+      ],
+      "@app/rabbitmq/*": [
+        "./libs/rabbitmq/src/*"
+      ],
       "constants/*": [
         "./constants/*"
       ]
