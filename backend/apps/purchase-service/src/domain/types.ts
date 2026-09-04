@@ -7,6 +7,33 @@ export const PurchaseOrderStatus = {
 export type PurchaseOrderStatus =
   (typeof PurchaseOrderStatus)[keyof typeof PurchaseOrderStatus];
 
+export const PurchaseTransactionType = {
+  PURCHASE: 'PURCHASE',
+} as const;
+
+export type PurchaseTransactionType =
+  (typeof PurchaseTransactionType)[keyof typeof PurchaseTransactionType];
+
+export type CreatePurchaseTransactionProps = {
+  purchaseOrderId: string;
+  variantId: string;
+  quantity: number;
+  unitPrice: number;
+  employeeId: string;
+};
+
+export type FromPersistentPurchaseTransactionProps = {
+  id: string;
+  purchaseOrderId: string;
+  variantId: string;
+  quantity: number;
+  unitPrice: number;
+  subtotal: number;
+  employeeId: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 export type CreatePurchaseOrderLineProps = {
   variantId: string;
   quantity: number;

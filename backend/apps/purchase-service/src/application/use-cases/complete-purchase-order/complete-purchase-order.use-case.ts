@@ -1,14 +1,20 @@
+import { PurchaseTransaction } from '../../../domain/entities/purchase-transaction.entity';
 import { PurchaseOrderNotFoundException } from '../../../domain/exceptions/purchase-order-not-found.exception';
 import { IAddStockPort } from '../../../domain/ports/add-stock.port';
 import { IPurchaseOrdersRepository } from '../../../domain/repositories/purchase-orders.repository';
+import { IPurchaseTransactionsRepository } from '../../../domain/repositories/purchase-transactions.repository';
 
 export class CompletePurchaseOrderUseCase {
   public constructor(
     private readonly purchaseOrdersRepository: IPurchaseOrdersRepository,
     private readonly addStockPort: IAddStockPort,
+    private readonly purchaseTransactionsRepository: IPurchaseTransactionsRepository,
   ) {}
 
-  public async execute(id: string): Promise<{ id: string }> {
+  public async execute(
+    id: string,
+    employeeId: string,
+  ): Promise<{ id: string }> {
     const purchaseOrder = await this.purchaseOrdersRepository.findById(id);
 
     if (!purchaseOrder) {
@@ -26,6 +32,18 @@ export class CompletePurchaseOrderUseCase {
       throw new PurchaseOrderNotFoundException(id);
     }
 
+    const transactions = purchaseOrder.getLines().map((line) =>
+      PurchaseTransaction.create({
+        purchaseOrderId: purchaseOrder.getId(),
+        variantId: line.getVariantId(),
+        quantity: line.getQuantity(),
+        unitPrice: line.getUnitPrice(),
+        employeeId,
+      }),
+    );
+
+    await this.purchaseTransactionsRepository.saveMany(transactions);
+
     for (const line of purchaseOrder.getLines()) {
       await this.addStockPort.execute(line.getVariantId(), line.getQuantity());
     }
@@ -37,5 +55,10 @@ export class CompletePurchaseOrderUseCase {
 export const completePurchaseOrderUseCaseFactory = (
   purchaseOrdersRepository: IPurchaseOrdersRepository,
   addStockPort: IAddStockPort,
+  purchaseTransactionsRepository: IPurchaseTransactionsRepository,
 ): CompletePurchaseOrderUseCase =>
-  new CompletePurchaseOrderUseCase(purchaseOrdersRepository, addStockPort);
+  new CompletePurchaseOrderUseCase(
+    purchaseOrdersRepository,
+    addStockPort,
+    purchaseTransactionsRepository,
+  );

@@ -10,8 +10,10 @@ import {
   Post,
   Put,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
+import type { Request } from 'express';
 import { AuthGuard, Role, Roles, RolesGuard } from '@app/security';
 import { CreatePurchaseOrderUseCase } from 'apps/purchase-service/src/application/use-cases/create-purchase-order/create-purchase-order.use-case';
 import { FindAllPurchaseOrdersUseCase } from 'apps/purchase-service/src/application/use-cases/find-all-purchase-orders/find-all-purchase-orders.use-case';
@@ -20,8 +22,10 @@ import { UpdatePurchaseOrderUseCase } from 'apps/purchase-service/src/applicatio
 import { CompletePurchaseOrderUseCase } from 'apps/purchase-service/src/application/use-cases/complete-purchase-order/complete-purchase-order.use-case';
 import { CancelPurchaseOrderUseCase } from 'apps/purchase-service/src/application/use-cases/cancel-purchase-order/cancel-purchase-order.use-case';
 import { DeletePurchaseOrderUseCase } from 'apps/purchase-service/src/application/use-cases/delete-purchase-order/delete-purchase-order.use-case';
+import { FindPurchaseTransactionsUseCase } from 'apps/purchase-service/src/application/use-cases/find-purchase-transactions/find-purchase-transactions.use-case';
 import { PurchaseOrderDetailReadModel } from 'apps/purchase-service/src/application/use-cases/find-purchase-order-by-id/read-models/purchase-order-detail.read-model';
 import { PurchaseOrderReadModel } from 'apps/purchase-service/src/application/use-cases/find-all-purchase-orders/read-models/purchase-order.read-model';
+import { PurchaseTransactionReadModel } from 'apps/purchase-service/src/application/use-cases/find-purchase-transactions/read-models/purchase-transaction.read-model';
 import { PurchaseOrderStatus } from 'apps/purchase-service/src/domain/types';
 import { CreatePurchaseOrderRequest } from './requests/create-purchase-order.request';
 import { UpdatePurchaseOrderRequest } from './requests/update-purchase-order.request';
@@ -38,6 +42,7 @@ export class PurchaseOrdersController {
     private readonly completePurchaseOrderUseCase: CompletePurchaseOrderUseCase,
     private readonly cancelPurchaseOrderUseCase: CancelPurchaseOrderUseCase,
     private readonly deletePurchaseOrderUseCase: DeletePurchaseOrderUseCase,
+    private readonly findPurchaseTransactionsUseCase: FindPurchaseTransactionsUseCase,
   ) {}
 
   @Get()
@@ -50,6 +55,19 @@ export class PurchaseOrdersController {
       search,
       status,
       supplierId,
+    });
+  }
+
+  @Get('transactions')
+  public async findTransactions(
+    @Query('purchaseOrderId') purchaseOrderId?: string,
+    @Query('variantId') variantId?: string,
+    @Query('employeeId') employeeId?: string,
+  ): Promise<PurchaseTransactionReadModel[]> {
+    return await this.findPurchaseTransactionsUseCase.execute({
+      purchaseOrderId,
+      variantId,
+      employeeId,
     });
   }
 
@@ -77,8 +95,13 @@ export class PurchaseOrdersController {
 
   @HttpCode(HttpStatus.OK)
   @Patch(':id/complete')
-  public async complete(@Param('id') id: string): Promise<{ id: string }> {
-    return await this.completePurchaseOrderUseCase.execute(id);
+  public async complete(
+    @Param('id') id: string,
+    @Req() request: Request,
+  ): Promise<{ id: string }> {
+    const employeeId =
+      (request as unknown as { user?: { sub?: string } }).user?.sub ?? '';
+    return await this.completePurchaseOrderUseCase.execute(id, employeeId);
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)

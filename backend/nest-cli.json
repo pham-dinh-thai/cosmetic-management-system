@@ -90,6 +90,24 @@
         "tsConfigPath": "apps/inventory-service/tsconfig.app.json"
       }
     },
+    "order-service": {
+      "type": "application",
+      "root": "apps/order-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/order-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/order-service/tsconfig.app.json"
+      }
+    },
+    "invoice-service": {
+      "type": "application",
+      "root": "apps/invoice-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/invoice-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/invoice-service/tsconfig.app.json"
+      }
+    },
     "purchase-service": {
       "type": "application",
       "root": "apps/purchase-service",
@@ -97,6 +115,15 @@
       "sourceRoot": "apps/purchase-service/src",
       "compilerOptions": {
         "tsConfigPath": "apps/purchase-service/tsconfig.app.json"
+      }
+    },
+    "rabbitmq": {
+      "type": "library",
+      "root": "libs/rabbitmq",
+      "entryFile": "index",
+      "sourceRoot": "libs/rabbitmq/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/rabbitmq/tsconfig.lib.json"
       }
     },
     "security": {
