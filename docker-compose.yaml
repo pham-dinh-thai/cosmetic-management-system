@@ -24,6 +24,9 @@ services:
       CUSTOMER_DB_USER: ${CUSTOMER_DB_USER}
       CUSTOMER_DB_PASSWORD: ${CUSTOMER_DB_PASSWORD}
       CUSTOMER_DB_NAME: ${CUSTOMER_DB_NAME}
+      CATEGORY_DB_USER: ${CATEGORY_DB_USER}
+      CATEGORY_DB_PASSWORD: ${CATEGORY_DB_PASSWORD}
+      CATEGORY_DB_NAME: ${CATEGORY_DB_NAME}
     ports:
       - "5432:5432"
     volumes:
@@ -247,6 +250,37 @@ services:
       migration-customer:
         condition: service_completed_successfully
 
+  migration-category:
+    build: ./backend
+    command: sh -c "npx mikro-orm migration:up"
+    environment:
+      NODE_OPTIONS: "-r ts-node/register"
+      MIKRO_ORM_CLI_CONFIG: "./apps/category-service/mikro-orm.config.ts"
+      CATEGORY_DB_HOST: ${CATEGORY_DB_HOST}
+      CATEGORY_DB_PORT: "${CATEGORY_DB_PORT}"
+      CATEGORY_DB_USER: ${CATEGORY_DB_USER}
+      CATEGORY_DB_PASSWORD: ${CATEGORY_DB_PASSWORD}
+      CATEGORY_DB_NAME: ${CATEGORY_DB_NAME}
+    depends_on:
+      sync-users:
+        condition: service_completed_successfully
+
+  category-service:
+    build: ./backend
+    command: ["node", "dist/apps/category-service/main.js"]
+    environment:
+      CATEGORY_DB_HOST: ${CATEGORY_DB_HOST}
+      CATEGORY_DB_PORT: "${CATEGORY_DB_PORT}"
+      CATEGORY_DB_USER: ${CATEGORY_DB_USER}
+      CATEGORY_DB_PASSWORD: ${CATEGORY_DB_PASSWORD}
+      CATEGORY_DB_NAME: ${CATEGORY_DB_NAME}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+    ports:
+      - "3007:3007"
+    depends_on:
+      migration-category:
+        condition: service_completed_successfully
+
   gateway-service:
     build: ./backend
     command: ["node", "dist/apps/gateway-service/main.js"]
@@ -257,12 +291,14 @@ services:
       DEPARTMENT_SERVICE_URL: ${DEPARTMENT_SERVICE_URL}
       EMPLOYEE_SERVICE_URL: ${EMPLOYEE_SERVICE_URL}
       CUSTOMER_SERVICE_URL: ${CUSTOMER_SERVICE_URL}
+      CATEGORY_SERVICE_URL: ${CATEGORY_SERVICE_URL}
     ports:
       - "3000:3000"
     depends_on:
       - user-service
       - authentication-service
       - authorization-service
+      - category-service
 
   frontend:
     build: ./frontend
