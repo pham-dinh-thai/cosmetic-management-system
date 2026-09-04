@@ -40,6 +40,13 @@ import {
   DeletePurchaseOrderUseCase,
   deletePurchaseOrderUseCaseFactory,
 } from './application/use-cases/delete-purchase-order/delete-purchase-order.use-case';
+import {
+  FindPurchaseTransactionsUseCase,
+  findPurchaseTransactionsUseCaseFactory,
+} from './application/use-cases/find-purchase-transactions/find-purchase-transactions.use-case';
+import { PURCHASE_TRANSACTIONS_REPOSITORY } from './domain/repositories/purchase-transactions.repository';
+import { MikroPurchaseTransactionsRepository } from './infrastructure/repositories/mikro-purchase-transactions.repository';
+import { PurchaseTransaction } from './infrastructure/entities/purchase-transaction.entity';
 
 @Module({
   imports: [
@@ -55,11 +62,15 @@ import {
         user: config.get<string>('PURCHASE_DB_USER'),
         password: config.get<string>('PURCHASE_DB_PASSWORD'),
         dbName: config.get<string>('PURCHASE_DB_NAME'),
-        entities: [PurchaseOrder, PurchaseOrderLine],
+        entities: [PurchaseOrder, PurchaseOrderLine, PurchaseTransaction],
       }),
       inject: [ConfigService],
     }),
-    MikroOrmModule.forFeature([PurchaseOrder, PurchaseOrderLine]),
+    MikroOrmModule.forFeature([
+      PurchaseOrder,
+      PurchaseOrderLine,
+      PurchaseTransaction,
+    ]),
     JwtModule.registerAsync({
       useFactory: (config: ConfigService) => ({
         secret: config.get<string>('JWT_ACCESS_SECRET'),
@@ -81,6 +92,10 @@ import {
     {
       provide: PURCHASE_ORDERS_REPOSITORY,
       useClass: MikroPurchaseOrdersRepository,
+    },
+    {
+      provide: PURCHASE_TRANSACTIONS_REPOSITORY,
+      useClass: MikroPurchaseTransactionsRepository,
     },
     {
       provide: CreatePurchaseOrderUseCase,
@@ -105,7 +120,11 @@ import {
     {
       provide: CompletePurchaseOrderUseCase,
       useFactory: completePurchaseOrderUseCaseFactory,
-      inject: [PURCHASE_ORDERS_REPOSITORY, ADD_STOCK_PORT],
+      inject: [
+        PURCHASE_ORDERS_REPOSITORY,
+        ADD_STOCK_PORT,
+        PURCHASE_TRANSACTIONS_REPOSITORY,
+      ],
     },
     {
       provide: CancelPurchaseOrderUseCase,
@@ -116,6 +135,11 @@ import {
       provide: DeletePurchaseOrderUseCase,
       useFactory: deletePurchaseOrderUseCaseFactory,
       inject: [PURCHASE_ORDERS_REPOSITORY],
+    },
+    {
+      provide: FindPurchaseTransactionsUseCase,
+      useFactory: findPurchaseTransactionsUseCaseFactory,
+      inject: [PURCHASE_TRANSACTIONS_REPOSITORY],
     },
   ],
 })

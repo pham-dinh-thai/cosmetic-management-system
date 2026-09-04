@@ -3,6 +3,7 @@ import { config as loadEnv } from 'dotenv';
 import { defineConfig } from '@mikro-orm/postgresql';
 import { PurchaseOrder } from './src/infrastructure/entities/purchase-order.entity';
 import { PurchaseOrderLine } from './src/infrastructure/entities/purchase-order-line.entity';
+import { PurchaseTransaction } from './src/infrastructure/entities/purchase-transaction.entity';
 
 loadEnv({ path: join(__dirname, '../../../.env') });
 
@@ -12,7 +13,7 @@ export default defineConfig({
   user: process.env.PURCHASE_DB_USER,
   password: process.env.PURCHASE_DB_PASSWORD,
   dbName: process.env.PURCHASE_DB_NAME,
-  entities: [PurchaseOrder, PurchaseOrderLine],
+  entities: [PurchaseOrder, PurchaseOrderLine, PurchaseTransaction],
   migrations: {
     path: join(__dirname, 'dist/migrations'),
     pathTs: join(__dirname, 'migrations'),
