@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { PostgreSqlDriver } from '@mikro-orm/postgresql';
 import { Customer } from './infrastructure/entities/customer.entity';
@@ -62,6 +63,12 @@ import { PhoneValidationService } from './domain/services/phone-validation.servi
       inject: [ConfigService],
     }),
     MikroOrmModule.forFeature([Customer, Address, Phone]),
+    JwtModule.registerAsync({
+      useFactory: (config: ConfigService) => ({
+        secret: config.get<string>('JWT_ACCESS_SECRET'),
+      }),
+      inject: [ConfigService],
+    }),
   ],
   controllers: [CustomersController, InternalCustomersController],
   providers: [

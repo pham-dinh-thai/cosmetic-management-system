@@ -36,6 +36,15 @@
         "tsConfigPath": "apps/category-service/tsconfig.app.json"
       }
     },
+    "cosmetic-service": {
+      "type": "application",
+      "root": "apps/cosmetic-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/cosmetic-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/cosmetic-service/tsconfig.app.json"
+      }
+    },
     "customer-service": {
       "type": "application",
       "root": "apps/customer-service",

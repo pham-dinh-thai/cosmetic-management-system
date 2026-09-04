@@ -30,6 +30,9 @@ services:
       SUPPLIER_DB_USER: ${SUPPLIER_DB_USER}
       SUPPLIER_DB_PASSWORD: ${SUPPLIER_DB_PASSWORD}
       SUPPLIER_DB_NAME: ${SUPPLIER_DB_NAME}
+      COSMETIC_DB_USER: ${COSMETIC_DB_USER}
+      COSMETIC_DB_PASSWORD: ${COSMETIC_DB_PASSWORD}
+      COSMETIC_DB_NAME: ${COSMETIC_DB_NAME}
     ports:
       - "5432:5432"
     volumes:
@@ -315,6 +318,37 @@ services:
       migration-supplier:
         condition: service_completed_successfully
 
+  migration-cosmetic:
+    build: ./backend
+    command: sh -c "npx mikro-orm migration:up"
+    environment:
+      NODE_OPTIONS: "-r ts-node/register"
+      MIKRO_ORM_CLI_CONFIG: "./apps/cosmetic-service/mikro-orm.config.ts"
+      COSMETIC_DB_HOST: ${COSMETIC_DB_HOST}
+      COSMETIC_DB_PORT: "${COSMETIC_DB_PORT}"
+      COSMETIC_DB_USER: ${COSMETIC_DB_USER}
+      COSMETIC_DB_PASSWORD: ${COSMETIC_DB_PASSWORD}
+      COSMETIC_DB_NAME: ${COSMETIC_DB_NAME}
+    depends_on:
+      sync-users:
+        condition: service_completed_successfully
+
+  cosmetic-service:
+    build: ./backend
+    command: ["node", "dist/apps/cosmetic-service/main.js"]
+    environment:
+      COSMETIC_DB_HOST: ${COSMETIC_DB_HOST}
+      COSMETIC_DB_PORT: "${COSMETIC_DB_PORT}"
+      COSMETIC_DB_USER: ${COSMETIC_DB_USER}
+      COSMETIC_DB_PASSWORD: ${COSMETIC_DB_PASSWORD}
+      COSMETIC_DB_NAME: ${COSMETIC_DB_NAME}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+    ports:
+      - "3009:3009"
+    depends_on:
+      migration-cosmetic:
+        condition: service_completed_successfully
+
   gateway-service:
     build: ./backend
     command: ["node", "dist/apps/gateway-service/main.js"]
@@ -327,6 +361,7 @@ services:
       CUSTOMER_SERVICE_URL: ${CUSTOMER_SERVICE_URL}
       CATEGORY_SERVICE_URL: ${CATEGORY_SERVICE_URL}
       SUPPLIER_SERVICE_URL: ${SUPPLIER_SERVICE_URL}
+      COSMETIC_SERVICE_URL: ${COSMETIC_SERVICE_URL}
     ports:
       - "3000:3000"
     depends_on:
@@ -335,6 +370,7 @@ services:
       - authorization-service
       - category-service
       - supplier-service
+      - cosmetic-service
 
   frontend:
     build: ./frontend
