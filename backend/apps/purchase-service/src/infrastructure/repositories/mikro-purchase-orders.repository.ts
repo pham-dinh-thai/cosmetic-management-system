@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import { EntityManager } from '@mikro-orm/postgresql';
 import { IPurchaseOrdersRepository } from '../../domain/repositories/purchase-orders.repository';
 import { PurchaseOrder as PurchaseOrderDomain } from '../../domain/purchase-order.aggregate';
@@ -9,6 +10,7 @@ import { PurchaseOrder } from '../entities/purchase-order.entity';
 import { PurchaseOrderLine } from '../entities/purchase-order-line.entity';
 import { PurchaseOrdersMapper } from '../mappers/purchase-orders.mapper';
 
+@Injectable()
 export class MikroPurchaseOrdersRepository implements IPurchaseOrdersRepository {
   private readonly em: EntityManager;
 

@@ -1,9 +1,11 @@
+import { Injectable } from '@nestjs/common';
 import { EntityManager } from '@mikro-orm/postgresql';
 import { PurchaseTransaction as PurchaseTransactionDomain } from '../../domain/entities/purchase-transaction.entity';
 import { IPurchaseTransactionsRepository } from '../../domain/repositories/purchase-transactions.repository';
 import { PurchaseTransaction } from '../entities/purchase-transaction.entity';
 import { PurchaseTransactionMapper } from '../mappers/purchase-transaction.mapper';
 
+@Injectable()
 export class MikroPurchaseTransactionsRepository implements IPurchaseTransactionsRepository {
   public constructor(private readonly em: EntityManager) {}
 
