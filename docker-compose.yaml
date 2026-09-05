@@ -112,23 +112,98 @@ services:
       postgres:
         condition: service_healthy
 
-  migration-user:
-    build: ./backend
-    command: sh -c "npx mikro-orm migration:up"
+  migration:
+    image: cosmetic-management-system-backend
+    pull_policy: never
+    command: ["sh", "/scripts/migrate.sh"]
     environment:
       NODE_OPTIONS: "-r ts-node/register"
-      MIKRO_ORM_CLI_CONFIG: "./apps/user-service/mikro-orm.config.ts"
       USER_DB_HOST: ${USER_DB_HOST}
       USER_DB_PORT: "${USER_DB_PORT}"
       USER_DB_USER: ${USER_DB_USER}
       USER_DB_PASSWORD: ${USER_DB_PASSWORD}
       USER_DB_NAME: ${USER_DB_NAME}
+      AUTH_DB_HOST: ${AUTH_DB_HOST}
+      AUTH_DB_PORT: "${AUTH_DB_PORT}"
+      AUTH_DB_USER: ${AUTH_DB_USER}
+      AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD}
+      AUTH_DB_NAME: ${AUTH_DB_NAME}
+      AUTHORIZATION_DB_HOST: ${AUTHORIZATION_DB_HOST}
+      AUTHORIZATION_DB_PORT: "${AUTHORIZATION_DB_PORT}"
+      AUTHORIZATION_DB_USER: ${AUTHORIZATION_DB_USER}
+      AUTHORIZATION_DB_PASSWORD: ${AUTHORIZATION_DB_PASSWORD}
+      AUTHORIZATION_DB_NAME: ${AUTHORIZATION_DB_NAME}
+      DEPARTMENT_DB_HOST: ${DEPARTMENT_DB_HOST}
+      DEPARTMENT_DB_PORT: "${DEPARTMENT_DB_PORT}"
+      DEPARTMENT_DB_USER: ${DEPARTMENT_DB_USER}
+      DEPARTMENT_DB_PASSWORD: ${DEPARTMENT_DB_PASSWORD}
+      DEPARTMENT_DB_NAME: ${DEPARTMENT_DB_NAME}
+      EMPLOYEE_DB_HOST: ${EMPLOYEE_DB_HOST}
+      EMPLOYEE_DB_PORT: "${EMPLOYEE_DB_PORT}"
+      EMPLOYEE_DB_USER: ${EMPLOYEE_DB_USER}
+      EMPLOYEE_DB_PASSWORD: ${EMPLOYEE_DB_PASSWORD}
+      EMPLOYEE_DB_NAME: ${EMPLOYEE_DB_NAME}
+      CUSTOMER_DB_HOST: ${CUSTOMER_DB_HOST}
+      CUSTOMER_DB_PORT: "${CUSTOMER_DB_PORT}"
+      CUSTOMER_DB_USER: ${CUSTOMER_DB_USER}
+      CUSTOMER_DB_PASSWORD: ${CUSTOMER_DB_PASSWORD}
+      CUSTOMER_DB_NAME: ${CUSTOMER_DB_NAME}
+      CATEGORY_DB_HOST: ${CATEGORY_DB_HOST}
+      CATEGORY_DB_PORT: "${CATEGORY_DB_PORT}"
+      CATEGORY_DB_USER: ${CATEGORY_DB_USER}
+      CATEGORY_DB_PASSWORD: ${CATEGORY_DB_PASSWORD}
+      CATEGORY_DB_NAME: ${CATEGORY_DB_NAME}
+      SUPPLIER_DB_HOST: ${SUPPLIER_DB_HOST}
+      SUPPLIER_DB_PORT: "${SUPPLIER_DB_PORT}"
+      SUPPLIER_DB_USER: ${SUPPLIER_DB_USER}
+      SUPPLIER_DB_PASSWORD: ${SUPPLIER_DB_PASSWORD}
+      SUPPLIER_DB_NAME: ${SUPPLIER_DB_NAME}
+      COSMETIC_DB_HOST: ${COSMETIC_DB_HOST}
+      COSMETIC_DB_PORT: "${COSMETIC_DB_PORT}"
+      COSMETIC_DB_USER: ${COSMETIC_DB_USER}
+      COSMETIC_DB_PASSWORD: ${COSMETIC_DB_PASSWORD}
+      COSMETIC_DB_NAME: ${COSMETIC_DB_NAME}
+      INVENTORY_DB_HOST: ${INVENTORY_DB_HOST}
+      INVENTORY_DB_PORT: "${INVENTORY_DB_PORT}"
+      INVENTORY_DB_USER: ${INVENTORY_DB_USER}
+      INVENTORY_DB_PASSWORD: ${INVENTORY_DB_PASSWORD}
+      INVENTORY_DB_NAME: ${INVENTORY_DB_NAME}
+      PURCHASE_DB_HOST: ${PURCHASE_DB_HOST}
+      PURCHASE_DB_PORT: "${PURCHASE_DB_PORT}"
+      PURCHASE_DB_USER: ${PURCHASE_DB_USER}
+      PURCHASE_DB_PASSWORD: ${PURCHASE_DB_PASSWORD}
+      PURCHASE_DB_NAME: ${PURCHASE_DB_NAME}
+      ORDER_DB_HOST: ${ORDER_DB_HOST}
+      ORDER_DB_PORT: "${ORDER_DB_PORT}"
+      ORDER_DB_USER: ${ORDER_DB_USER}
+      ORDER_DB_PASSWORD: ${ORDER_DB_PASSWORD}
+      ORDER_DB_NAME: ${ORDER_DB_NAME}
+      INVOICE_DB_HOST: ${INVOICE_DB_HOST}
+      INVOICE_DB_PORT: "${INVOICE_DB_PORT}"
+      INVOICE_DB_USER: ${INVOICE_DB_USER}
+      INVOICE_DB_PASSWORD: ${INVOICE_DB_PASSWORD}
+      INVOICE_DB_NAME: ${INVOICE_DB_NAME}
+      BASKET_DB_HOST: ${BASKET_DB_HOST}
+      BASKET_DB_PORT: "${BASKET_DB_PORT}"
+      BASKET_DB_USER: ${BASKET_DB_USER}
+      BASKET_DB_PASSWORD: ${BASKET_DB_PASSWORD}
+      BASKET_DB_NAME: ${BASKET_DB_NAME}
+    volumes:
+      - ./docker/postgres/migrate.sh:/scripts/migrate.sh:ro
     depends_on:
       sync-users:
         condition: service_completed_successfully
 
-  user-service:
+  backend:
     build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
+    command: ["node", "--version"]
+    restart: "no"
+
+  user-service:
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: ["node", "dist/apps/user-service/main.js"]
     environment:
       USER_DB_HOST: ${USER_DB_HOST}
@@ -142,7 +217,7 @@ services:
     ports:
       - "3001:3001"
     depends_on:
-      migration-user:
+      migration:
         condition: service_completed_successfully
 
   rabbitmq:
@@ -157,23 +232,9 @@ services:
       timeout: 3s
       retries: 10
 
-  migration-auth:
-    build: ./backend
-    command: sh -c "npx mikro-orm migration:up"
-    environment:
-      NODE_OPTIONS: "-r ts-node/register"
-      MIKRO_ORM_CLI_CONFIG: "./apps/authentication-service/mikro-orm.config.ts"
-      AUTH_DB_HOST: ${AUTH_DB_HOST}
-      AUTH_DB_PORT: "${AUTH_DB_PORT}"
-      AUTH_DB_USER: ${AUTH_DB_USER}
-      AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD}
-      AUTH_DB_NAME: ${AUTH_DB_NAME}
-    depends_on:
-      sync-users:
-        condition: service_completed_successfully
-
   authentication-service:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: ["node", "dist/apps/authentication-service/main.js"]
     environment:
       AUTH_DB_HOST: ${AUTH_DB_HOST}
@@ -190,26 +251,12 @@ services:
     ports:
       - "3002:3002"
     depends_on:
-      migration-auth:
-        condition: service_completed_successfully
-
-  migration-authorization:
-    build: ./backend
-    command: sh -c "npx mikro-orm migration:up"
-    environment:
-      NODE_OPTIONS: "-r ts-node/register"
-      MIKRO_ORM_CLI_CONFIG: "./apps/authorization-service/mikro-orm.config.ts"
-      AUTHORIZATION_DB_HOST: ${AUTHORIZATION_DB_HOST}
-      AUTHORIZATION_DB_PORT: "${AUTHORIZATION_DB_PORT}"
-      AUTHORIZATION_DB_USER: ${AUTHORIZATION_DB_USER}
-      AUTHORIZATION_DB_PASSWORD: ${AUTHORIZATION_DB_PASSWORD}
-      AUTHORIZATION_DB_NAME: ${AUTHORIZATION_DB_NAME}
-    depends_on:
-      sync-users:
+      migration:
         condition: service_completed_successfully
 
   authorization-service:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: ["node", "dist/apps/authorization-service/main.js"]
     environment:
       AUTHORIZATION_DB_HOST: ${AUTHORIZATION_DB_HOST}
@@ -221,26 +268,12 @@ services:
     ports:
       - "3003:3003"
     depends_on:
-      migration-authorization:
-        condition: service_completed_successfully
-
-  migration-department:
-    build: ./backend
-    command: sh -c "npx mikro-orm migration:up"
-    environment:
-      NODE_OPTIONS: "-r ts-node/register"
-      MIKRO_ORM_CLI_CONFIG: "./apps/department-service/mikro-orm.config.ts"
-      DEPARTMENT_DB_HOST: ${DEPARTMENT_DB_HOST}
-      DEPARTMENT_DB_PORT: "${DEPARTMENT_DB_PORT}"
-      DEPARTMENT_DB_USER: ${DEPARTMENT_DB_USER}
-      DEPARTMENT_DB_PASSWORD: ${DEPARTMENT_DB_PASSWORD}
-      DEPARTMENT_DB_NAME: ${DEPARTMENT_DB_NAME}
-    depends_on:
-      sync-users:
+      migration:
         condition: service_completed_successfully
 
   department-service:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: ["node", "dist/apps/department-service/main.js"]
     environment:
       DEPARTMENT_DB_HOST: ${DEPARTMENT_DB_HOST}
@@ -253,26 +286,12 @@ services:
     ports:
       - "3004:3004"
     depends_on:
-      migration-department:
-        condition: service_completed_successfully
-
-  migration-employee:
-    build: ./backend
-    command: sh -c "npx mikro-orm migration:up"
-    environment:
-      NODE_OPTIONS: "-r ts-node/register"
-      MIKRO_ORM_CLI_CONFIG: "./apps/employee-service/mikro-orm.config.ts"
-      EMPLOYEE_DB_HOST: ${EMPLOYEE_DB_HOST}
-      EMPLOYEE_DB_PORT: "${EMPLOYEE_DB_PORT}"
-      EMPLOYEE_DB_USER: ${EMPLOYEE_DB_USER}
-      EMPLOYEE_DB_PASSWORD: ${EMPLOYEE_DB_PASSWORD}
-      EMPLOYEE_DB_NAME: ${EMPLOYEE_DB_NAME}
-    depends_on:
-      sync-users:
+      migration:
         condition: service_completed_successfully
 
   employee-service:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: ["node", "dist/apps/employee-service/main.js"]
     environment:
       EMPLOYEE_DB_HOST: ${EMPLOYEE_DB_HOST}
@@ -286,26 +305,12 @@ services:
     ports:
       - "3005:3005"
     depends_on:
-      migration-employee:
-        condition: service_completed_successfully
-
-  migration-customer:
-    build: ./backend
-    command: sh -c "npx mikro-orm migration:up"
-    environment:
-      NODE_OPTIONS: "-r ts-node/register"
-      MIKRO_ORM_CLI_CONFIG: "./apps/customer-service/mikro-orm.config.ts"
-      CUSTOMER_DB_HOST: ${CUSTOMER_DB_HOST}
-      CUSTOMER_DB_PORT: "${CUSTOMER_DB_PORT}"
-      CUSTOMER_DB_USER: ${CUSTOMER_DB_USER}
-      CUSTOMER_DB_PASSWORD: ${CUSTOMER_DB_PASSWORD}
-      CUSTOMER_DB_NAME: ${CUSTOMER_DB_NAME}
-    depends_on:
-      sync-users:
+      migration:
         condition: service_completed_successfully
 
   customer-service:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: ["node", "dist/apps/customer-service/main.js"]
     environment:
       CUSTOMER_DB_HOST: ${CUSTOMER_DB_HOST}
@@ -317,26 +322,12 @@ services:
     ports:
       - "3006:3006"
     depends_on:
-      migration-customer:
-        condition: service_completed_successfully
-
-  migration-category:
-    build: ./backend
-    command: sh -c "npx mikro-orm migration:up"
-    environment:
-      NODE_OPTIONS: "-r ts-node/register"
-      MIKRO_ORM_CLI_CONFIG: "./apps/category-service/mikro-orm.config.ts"
-      CATEGORY_DB_HOST: ${CATEGORY_DB_HOST}
-      CATEGORY_DB_PORT: "${CATEGORY_DB_PORT}"
-      CATEGORY_DB_USER: ${CATEGORY_DB_USER}
-      CATEGORY_DB_PASSWORD: ${CATEGORY_DB_PASSWORD}
-      CATEGORY_DB_NAME: ${CATEGORY_DB_NAME}
-    depends_on:
-      sync-users:
+      migration:
         condition: service_completed_successfully
 
   category-service:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: ["node", "dist/apps/category-service/main.js"]
     environment:
       CATEGORY_DB_HOST: ${CATEGORY_DB_HOST}
@@ -348,26 +339,12 @@ services:
     ports:
       - "3007:3007"
     depends_on:
-      migration-category:
-        condition: service_completed_successfully
-
-  migration-supplier:
-    build: ./backend
-    command: sh -c "npx mikro-orm migration:up"
-    environment:
-      NODE_OPTIONS: "-r ts-node/register"
-      MIKRO_ORM_CLI_CONFIG: "./apps/supplier-service/mikro-orm.config.ts"
-      SUPPLIER_DB_HOST: ${SUPPLIER_DB_HOST}
-      SUPPLIER_DB_PORT: "${SUPPLIER_DB_PORT}"
-      SUPPLIER_DB_USER: ${SUPPLIER_DB_USER}
-      SUPPLIER_DB_PASSWORD: ${SUPPLIER_DB_PASSWORD}
-      SUPPLIER_DB_NAME: ${SUPPLIER_DB_NAME}
-    depends_on:
-      sync-users:
+      migration:
         condition: service_completed_successfully
 
   supplier-service:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: ["node", "dist/apps/supplier-service/main.js"]
     environment:
       SUPPLIER_DB_HOST: ${SUPPLIER_DB_HOST}
@@ -379,26 +356,12 @@ services:
     ports:
       - "3008:3008"
     depends_on:
-      migration-supplier:
-        condition: service_completed_successfully
-
-  migration-cosmetic:
-    build: ./backend
-    command: sh -c "npx mikro-orm migration:up"
-    environment:
-      NODE_OPTIONS: "-r ts-node/register"
-      MIKRO_ORM_CLI_CONFIG: "./apps/cosmetic-service/mikro-orm.config.ts"
-      COSMETIC_DB_HOST: ${COSMETIC_DB_HOST}
-      COSMETIC_DB_PORT: "${COSMETIC_DB_PORT}"
-      COSMETIC_DB_USER: ${COSMETIC_DB_USER}
-      COSMETIC_DB_PASSWORD: ${COSMETIC_DB_PASSWORD}
-      COSMETIC_DB_NAME: ${COSMETIC_DB_NAME}
-    depends_on:
-      sync-users:
+      migration:
         condition: service_completed_successfully
 
   cosmetic-service:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: ["node", "dist/apps/cosmetic-service/main.js"]
     environment:
       COSMETIC_DB_HOST: ${COSMETIC_DB_HOST}
@@ -410,26 +373,12 @@ services:
     ports:
       - "3009:3009"
     depends_on:
-      migration-cosmetic:
-        condition: service_completed_successfully
-
-  migration-inventory:
-    build: ./backend
-    command: sh -c "npx mikro-orm migration:up"
-    environment:
-      NODE_OPTIONS: "-r ts-node/register"
-      MIKRO_ORM_CLI_CONFIG: "./apps/inventory-service/mikro-orm.config.ts"
-      INVENTORY_DB_HOST: ${INVENTORY_DB_HOST}
-      INVENTORY_DB_PORT: "${INVENTORY_DB_PORT}"
-      INVENTORY_DB_USER: ${INVENTORY_DB_USER}
-      INVENTORY_DB_PASSWORD: ${INVENTORY_DB_PASSWORD}
-      INVENTORY_DB_NAME: ${INVENTORY_DB_NAME}
-    depends_on:
-      sync-users:
+      migration:
         condition: service_completed_successfully
 
   inventory-service:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: ["node", "dist/apps/inventory-service/main.js"]
     environment:
       INVENTORY_DB_HOST: ${INVENTORY_DB_HOST}
@@ -441,26 +390,12 @@ services:
     ports:
       - "3010:3010"
     depends_on:
-      migration-inventory:
-        condition: service_completed_successfully
-
-  migration-purchase:
-    build: ./backend
-    command: sh -c "npx mikro-orm migration:up"
-    environment:
-      NODE_OPTIONS: "-r ts-node/register"
-      MIKRO_ORM_CLI_CONFIG: "./apps/purchase-service/mikro-orm.config.ts"
-      PURCHASE_DB_HOST: ${PURCHASE_DB_HOST}
-      PURCHASE_DB_PORT: "${PURCHASE_DB_PORT}"
-      PURCHASE_DB_USER: ${PURCHASE_DB_USER}
-      PURCHASE_DB_PASSWORD: ${PURCHASE_DB_PASSWORD}
-      PURCHASE_DB_NAME: ${PURCHASE_DB_NAME}
-    depends_on:
-      sync-users:
+      migration:
         condition: service_completed_successfully
 
   purchase-service:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: ["node", "dist/apps/purchase-service/main.js"]
     environment:
       PURCHASE_DB_HOST: ${PURCHASE_DB_HOST}
@@ -473,26 +408,12 @@ services:
     ports:
       - "3011:3011"
     depends_on:
-      migration-purchase:
-        condition: service_completed_successfully
-
-  migration-order:
-    build: ./backend
-    command: sh -c "npx mikro-orm migration:up"
-    environment:
-      NODE_OPTIONS: "-r ts-node/register"
-      MIKRO_ORM_CLI_CONFIG: "./apps/order-service/mikro-orm.config.ts"
-      ORDER_DB_HOST: ${ORDER_DB_HOST}
-      ORDER_DB_PORT: "${ORDER_DB_PORT}"
-      ORDER_DB_USER: ${ORDER_DB_USER}
-      ORDER_DB_PASSWORD: ${ORDER_DB_PASSWORD}
-      ORDER_DB_NAME: ${ORDER_DB_NAME}
-    depends_on:
-      sync-users:
+      migration:
         condition: service_completed_successfully
 
   order-service:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: ["node", "dist/apps/order-service/main.js"]
     environment:
       ORDER_DB_HOST: ${ORDER_DB_HOST}
@@ -506,28 +427,14 @@ services:
     ports:
       - "3012:3012"
     depends_on:
-      migration-order:
+      migration:
         condition: service_completed_successfully
       rabbitmq:
         condition: service_healthy
 
-  migration-invoice:
-    build: ./backend
-    command: sh -c "npx mikro-orm migration:up"
-    environment:
-      NODE_OPTIONS: "-r ts-node/register"
-      MIKRO_ORM_CLI_CONFIG: "./apps/invoice-service/mikro-orm.config.ts"
-      INVOICE_DB_HOST: ${INVOICE_DB_HOST}
-      INVOICE_DB_PORT: "${INVOICE_DB_PORT}"
-      INVOICE_DB_USER: ${INVOICE_DB_USER}
-      INVOICE_DB_PASSWORD: ${INVOICE_DB_PASSWORD}
-      INVOICE_DB_NAME: ${INVOICE_DB_NAME}
-    depends_on:
-      sync-users:
-        condition: service_completed_successfully
-
   invoice-service:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: ["node", "dist/apps/invoice-service/main.js"]
     environment:
       INVOICE_DB_HOST: ${INVOICE_DB_HOST}
@@ -540,28 +447,14 @@ services:
     ports:
       - "3013:3013"
     depends_on:
-      migration-invoice:
+      migration:
         condition: service_completed_successfully
       rabbitmq:
         condition: service_healthy
 
-  migration-basket:
-    build: ./backend
-    command: sh -c "npx mikro-orm migration:up"
-    environment:
-      NODE_OPTIONS: "-r ts-node/register"
-      MIKRO_ORM_CLI_CONFIG: "./apps/basket-service/mikro-orm.config.ts"
-      BASKET_DB_HOST: ${BASKET_DB_HOST}
-      BASKET_DB_PORT: "${BASKET_DB_PORT}"
-      BASKET_DB_USER: ${BASKET_DB_USER}
-      BASKET_DB_PASSWORD: ${BASKET_DB_PASSWORD}
-      BASKET_DB_NAME: ${BASKET_DB_NAME}
-    depends_on:
-      sync-users:
-        condition: service_completed_successfully
-
   basket-service:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: ["node", "dist/apps/basket-service/main.js"]
     environment:
       BASKET_DB_HOST: ${BASKET_DB_HOST}
@@ -576,11 +469,12 @@ services:
     ports:
       - "3014:3014"
     depends_on:
-      migration-basket:
+      migration:
         condition: service_completed_successfully
 
   gateway-service:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: ["node", "dist/apps/gateway-service/main.js"]
     environment:
       USER_SERVICE_URL: ${USER_SERVICE_URL}
@@ -626,4 +520,6 @@ services:
       - gateway-service
 
 volumes:
+
   postgres-data:
+
