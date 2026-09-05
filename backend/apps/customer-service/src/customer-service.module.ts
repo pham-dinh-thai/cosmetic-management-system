@@ -19,6 +19,10 @@ import {
   findCustomerByIdUseCaseFactory,
 } from './application/use-cases/find-customer/find-by-id/find-customer-by-id.use-case';
 import {
+  FindCustomerByUserUseCase,
+  findCustomerByUserUseCaseFactory,
+} from './application/use-cases/find-customer/find-by-user/find-customer-by-user.use-case';
+import {
   FindAllCustomersUseCase,
   findAllCustomersUseCaseFactory,
 } from './application/use-cases/find-customer/find-all/find-all-customers.use-case';
@@ -82,6 +86,11 @@ import { PhoneValidationService } from './domain/services/phone-validation.servi
     {
       provide: FindCustomerByIdUseCase,
       useFactory: findCustomerByIdUseCaseFactory,
+      inject: [CUSTOMERS_REPOSITORY],
+    },
+    {
+      provide: FindCustomerByUserUseCase,
+      useFactory: findCustomerByUserUseCaseFactory,
       inject: [CUSTOMERS_REPOSITORY],
     },
     {
