@@ -112,8 +112,16 @@ services:
       postgres:
         condition: service_healthy
 
-  migration-user:
+  backend:
     build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
+    command: ["node", "--version"]
+    restart: "no"
+
+  migration-user:
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: sh -c "npx mikro-orm migration:up"
     environment:
       NODE_OPTIONS: "-r ts-node/register"
@@ -128,7 +136,8 @@ services:
         condition: service_completed_successfully
 
   user-service:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: ["node", "dist/apps/user-service/main.js"]
     environment:
       USER_DB_HOST: ${USER_DB_HOST}
@@ -158,7 +167,8 @@ services:
       retries: 10
 
   migration-auth:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: sh -c "npx mikro-orm migration:up"
     environment:
       NODE_OPTIONS: "-r ts-node/register"
@@ -173,7 +183,8 @@ services:
         condition: service_completed_successfully
 
   authentication-service:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: ["node", "dist/apps/authentication-service/main.js"]
     environment:
       AUTH_DB_HOST: ${AUTH_DB_HOST}
@@ -194,7 +205,8 @@ services:
         condition: service_completed_successfully
 
   migration-authorization:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: sh -c "npx mikro-orm migration:up"
     environment:
       NODE_OPTIONS: "-r ts-node/register"
@@ -209,7 +221,8 @@ services:
         condition: service_completed_successfully
 
   authorization-service:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: ["node", "dist/apps/authorization-service/main.js"]
     environment:
       AUTHORIZATION_DB_HOST: ${AUTHORIZATION_DB_HOST}
@@ -225,7 +238,8 @@ services:
         condition: service_completed_successfully
 
   migration-department:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: sh -c "npx mikro-orm migration:up"
     environment:
       NODE_OPTIONS: "-r ts-node/register"
@@ -240,7 +254,8 @@ services:
         condition: service_completed_successfully
 
   department-service:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: ["node", "dist/apps/department-service/main.js"]
     environment:
       DEPARTMENT_DB_HOST: ${DEPARTMENT_DB_HOST}
@@ -257,7 +272,8 @@ services:
         condition: service_completed_successfully
 
   migration-employee:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: sh -c "npx mikro-orm migration:up"
     environment:
       NODE_OPTIONS: "-r ts-node/register"
@@ -272,7 +288,8 @@ services:
         condition: service_completed_successfully
 
   employee-service:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: ["node", "dist/apps/employee-service/main.js"]
     environment:
       EMPLOYEE_DB_HOST: ${EMPLOYEE_DB_HOST}
@@ -290,7 +307,8 @@ services:
         condition: service_completed_successfully
 
   migration-customer:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: sh -c "npx mikro-orm migration:up"
     environment:
       NODE_OPTIONS: "-r ts-node/register"
@@ -305,7 +323,8 @@ services:
         condition: service_completed_successfully
 
   customer-service:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: ["node", "dist/apps/customer-service/main.js"]
     environment:
       CUSTOMER_DB_HOST: ${CUSTOMER_DB_HOST}
@@ -321,7 +340,8 @@ services:
         condition: service_completed_successfully
 
   migration-category:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: sh -c "npx mikro-orm migration:up"
     environment:
       NODE_OPTIONS: "-r ts-node/register"
@@ -336,7 +356,8 @@ services:
         condition: service_completed_successfully
 
   category-service:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: ["node", "dist/apps/category-service/main.js"]
     environment:
       CATEGORY_DB_HOST: ${CATEGORY_DB_HOST}
@@ -352,7 +373,8 @@ services:
         condition: service_completed_successfully
 
   migration-supplier:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: sh -c "npx mikro-orm migration:up"
     environment:
       NODE_OPTIONS: "-r ts-node/register"
@@ -367,7 +389,8 @@ services:
         condition: service_completed_successfully
 
   supplier-service:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: ["node", "dist/apps/supplier-service/main.js"]
     environment:
       SUPPLIER_DB_HOST: ${SUPPLIER_DB_HOST}
@@ -383,7 +406,8 @@ services:
         condition: service_completed_successfully
 
   migration-cosmetic:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: sh -c "npx mikro-orm migration:up"
     environment:
       NODE_OPTIONS: "-r ts-node/register"
@@ -398,7 +422,8 @@ services:
         condition: service_completed_successfully
 
   cosmetic-service:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: ["node", "dist/apps/cosmetic-service/main.js"]
     environment:
       COSMETIC_DB_HOST: ${COSMETIC_DB_HOST}
@@ -414,7 +439,8 @@ services:
         condition: service_completed_successfully
 
   migration-inventory:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: sh -c "npx mikro-orm migration:up"
     environment:
       NODE_OPTIONS: "-r ts-node/register"
@@ -429,7 +455,8 @@ services:
         condition: service_completed_successfully
 
   inventory-service:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: ["node", "dist/apps/inventory-service/main.js"]
     environment:
       INVENTORY_DB_HOST: ${INVENTORY_DB_HOST}
@@ -445,7 +472,8 @@ services:
         condition: service_completed_successfully
 
   migration-purchase:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: sh -c "npx mikro-orm migration:up"
     environment:
       NODE_OPTIONS: "-r ts-node/register"
@@ -460,7 +488,8 @@ services:
         condition: service_completed_successfully
 
   purchase-service:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: ["node", "dist/apps/purchase-service/main.js"]
     environment:
       PURCHASE_DB_HOST: ${PURCHASE_DB_HOST}
@@ -477,7 +506,8 @@ services:
         condition: service_completed_successfully
 
   migration-order:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: sh -c "npx mikro-orm migration:up"
     environment:
       NODE_OPTIONS: "-r ts-node/register"
@@ -492,7 +522,8 @@ services:
         condition: service_completed_successfully
 
   order-service:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: ["node", "dist/apps/order-service/main.js"]
     environment:
       ORDER_DB_HOST: ${ORDER_DB_HOST}
@@ -512,7 +543,8 @@ services:
         condition: service_healthy
 
   migration-invoice:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: sh -c "npx mikro-orm migration:up"
     environment:
       NODE_OPTIONS: "-r ts-node/register"
@@ -527,7 +559,8 @@ services:
         condition: service_completed_successfully
 
   invoice-service:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: ["node", "dist/apps/invoice-service/main.js"]
     environment:
       INVOICE_DB_HOST: ${INVOICE_DB_HOST}
@@ -546,7 +579,8 @@ services:
         condition: service_healthy
 
   migration-basket:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: sh -c "npx mikro-orm migration:up"
     environment:
       NODE_OPTIONS: "-r ts-node/register"
@@ -561,7 +595,8 @@ services:
         condition: service_completed_successfully
 
   basket-service:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: ["node", "dist/apps/basket-service/main.js"]
     environment:
       BASKET_DB_HOST: ${BASKET_DB_HOST}
@@ -580,7 +615,8 @@ services:
         condition: service_completed_successfully
 
   gateway-service:
-    build: ./backend
+    image: cosmetic-management-system-backend
+    pull_policy: never
     command: ["node", "dist/apps/gateway-service/main.js"]
     environment:
       USER_SERVICE_URL: ${USER_SERVICE_URL}
