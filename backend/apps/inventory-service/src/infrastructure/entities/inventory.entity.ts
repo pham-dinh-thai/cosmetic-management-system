@@ -8,6 +8,7 @@ const InventorySchema = defineEntity({
     id: p.uuid().primary().defaultRaw('gen_random_uuid()'),
     variantId: p.string().unique(),
     quantity: p.integer().default(0),
+    expiryDate: p.date().nullable(),
     lastUpdatedAt: p.datetime().onCreate(() => new Date()),
     createdAt: p.datetime().onCreate(() => new Date()),
     updatedAt: p
@@ -18,7 +19,8 @@ const InventorySchema = defineEntity({
 });
 
 export class Inventory extends InventorySchema.class {
-  [OptionalProps]?: 'quantity' | 'lastUpdatedAt' | 'createdAt' | 'updatedAt';
+  [OptionalProps]?:
+    'quantity' | 'expiryDate' | 'lastUpdatedAt' | 'createdAt' | 'updatedAt';
 }
 
 InventorySchema.setClass(Inventory);

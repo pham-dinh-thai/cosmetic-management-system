@@ -40,14 +40,47 @@ export class MikroInventoryRepository implements IInventoryRepository {
     return inventoryMikro ? InventoryMapper.toDomain(inventoryMikro) : null;
   }
 
+  public async findExpiring(days: number): Promise<Inventory[]> {
+    const end = new Date(Date.now() + days * 86_400_000);
+    const endExpiry =
+      `${end.getFullYear()}-${String(end.getMonth() + 1).padStart(2, '0')}-` +
+      String(end.getDate()).padStart(2, '0');
+
+    const inventoriesMikro = await this.entityManager.find(
+      InventoryMikro,
+      { quantity: { $gt: 0 }, expiryDate: { $lte: endExpiry } },
+      { orderBy: { expiryDate: 'ASC' } },
+    );
+
+    return inventoriesMikro.map((inventoryMikro) =>
+      InventoryMapper.toDomain(inventoryMikro),
+    );
+  }
+
+  public async findOverstock(days: number): Promise<Inventory[]> {
+    const cutoff = new Date(Date.now() - days * 86_400_000);
+
+    const inventoriesMikro = await this.entityManager.find(
+      InventoryMikro,
+      { quantity: { $gt: 0 }, lastUpdatedAt: { $lt: cutoff } },
+      { orderBy: { lastUpdatedAt: 'ASC' } },
+    );
+
+    return inventoriesMikro.map((inventoryMikro) =>
+      InventoryMapper.toDomain(inventoryMikro),
+    );
+  }
+
   public async create(
     variantId: string,
     quantity: number,
+    expiryDate?: Date,
   ): Promise<{ id: string }> {
     const inventoryMikro = this.entityManager.create(InventoryMikro, {
       variantId,
       quantity,
       lastUpdatedAt: new Date(),
+      ...(expiryDate ? { expiryDate: this.toDateString(expiryDate) } : {}),
     });
 
     await this.entityManager.flush();
@@ -58,11 +91,12 @@ export class MikroInventoryRepository implements IInventoryRepository {
   public async addStock(
     variantId: string,
     quantity: number,
+    expiryDate?: Date,
   ): Promise<Inventory> {
     const inventory = await this.findByVariantId(variantId);
 
     if (!inventory) {
-      await this.create(variantId, quantity);
+      await this.create(variantId, quantity, expiryDate);
       const created = await this.findByVariantId(variantId);
 
       if (!created) {
@@ -74,6 +108,10 @@ export class MikroInventoryRepository implements IInventoryRepository {
 
     inventory.addStock(quantity);
 
+    if (expiryDate) {
+      inventory.setExpiryDate(expiryDate);
+    }
+
     const inventoryMikro = await this.entityManager.findOne(InventoryMikro, {
       id: inventory.getId(),
     });
@@ -84,6 +122,10 @@ export class MikroInventoryRepository implements IInventoryRepository {
 
     inventoryMikro.quantity = inventory.getQuantity();
     inventoryMikro.lastUpdatedAt = inventory.getLastUpdatedAt();
+
+    if (expiryDate) {
+      inventoryMikro.expiryDate = this.toDateString(expiryDate);
+    }
 
     await this.entityManager.flush();
 
@@ -116,6 +158,13 @@ export class MikroInventoryRepository implements IInventoryRepository {
     await this.entityManager.flush();
 
     return inventory;
+  }
+
+  private toDateString(date: Date): string {
+    return (
+      `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-` +
+      String(date.getDate()).padStart(2, '0')
+    );
   }
 
   public async adjust(
