@@ -38,6 +38,18 @@ import {
 } from './domain/services/ensure-auth-user-does-not-exist.service';
 import { AuthUsersController } from './presentation/public/auth-users/auth-users.controller';
 import { InternalAuthUsersController } from './presentation/internal/auth-users/auth-users.controller';
+import { CREATE_USER_PORT } from './application/ports/create-user.port';
+import { CreateUserAdapter } from './infrastructure/adapters/create-user.adapter';
+import { CREATE_CUSTOMER_PORT } from './application/ports/create-customer.port';
+import { CreateCustomerAdapter } from './infrastructure/adapters/create-customer.adapter';
+import {
+  EmailUniquenessService,
+  emailUniquenessServiceFactory,
+} from './domain/services/email-uniqueness.service';
+import {
+  RegisterUseCase,
+  registerUseCaseFactory,
+} from './application/use-cases/register/register.use-case';
 
 @Module({
   imports: [
@@ -119,6 +131,29 @@ import { InternalAuthUsersController } from './presentation/internal/auth-users/
         USERS_READER_PORT,
         PASSWORD_HASHER_PORT,
         AUTH_USERS_QUERY_REPOSITORY,
+        SIGN_TOKEN_PORT,
+      ],
+    },
+    {
+      provide: EmailUniquenessService,
+      useFactory: emailUniquenessServiceFactory,
+      inject: [USERS_READER_PORT],
+    },
+    {
+      provide: CREATE_USER_PORT,
+      useClass: CreateUserAdapter,
+    },
+    {
+      provide: CREATE_CUSTOMER_PORT,
+      useClass: CreateCustomerAdapter,
+    },
+    {
+      provide: RegisterUseCase,
+      useFactory: registerUseCaseFactory,
+      inject: [
+        EmailUniquenessService,
+        CREATE_USER_PORT,
+        CREATE_CUSTOMER_PORT,
         SIGN_TOKEN_PORT,
       ],
     },
