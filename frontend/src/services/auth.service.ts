@@ -10,6 +10,22 @@ export interface LoginResponse {
   refreshToken: string;
 }
 
+export type RegisterGender = "male" | "female" | "other";
+
+export interface RegisterPayload {
+  firstName: string;
+  lastName: string;
+  gender: RegisterGender;
+  email: string;
+  password: string;
+}
+
+export interface RegisterResponse {
+  accessToken: string;
+  refreshToken: string;
+  userId: string;
+}
+
 export type UserRole = "admin" | "employee" | "customer" | string;
 
 export interface TokenPayload {
@@ -40,6 +56,14 @@ export const authService = {
   async login(payload: LoginPayload): Promise<LoginResponse> {
     const { data } = await api.post<LoginResponse>(
       "/auth-users/login",
+      payload,
+    );
+    return data;
+  },
+
+  async register(payload: RegisterPayload): Promise<RegisterResponse> {
+    const { data } = await api.post<RegisterResponse>(
+      "/auth-users/register",
       payload,
     );
     return data;

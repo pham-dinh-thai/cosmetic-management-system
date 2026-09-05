@@ -1,41 +1,73 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/useAuth";
 import Header from "../../components/Header";
+import type { RegisterGender } from "../../services/auth.service";
 
-const Login: React.FC = () => {
+const Register: React.FC = () => {
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [gender, setGender] = useState<RegisterGender | "">("");
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+  const [agreeTerms, setAgreeTerms] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const { login, isLoading, role, error, clearError } = useAuth();
+  const { register, isLoading, clearError } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (role === "admin") {
-      navigate("/admin", { replace: true });
-    } else if (role === "employee") {
-      navigate("/employee", { replace: true });
-    } else if (role === "customer") {
-      navigate("/", { replace: true });
-    }
-  }, [role, navigate]);
-
-  useEffect(() => {
     return () => {
+      setFullName("");
       setEmail("");
       setPassword("");
+      setConfirmPassword("");
+      setGender("");
       setShowPassword(false);
-      setRememberMe(false);
+      setAgreeTerms(false);
+      setError(null);
       clearError();
     };
   }, [clearError]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError(null);
+
+    if (!gender) {
+      setError("Vui lòng chọn giới tính.");
+      return;
+    }
+
+    if (password.length < 8) {
+      setError("Mật khẩu phải có ít nhất 8 ký tự.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Mật khẩu xác nhận không khớp.");
+      return;
+    }
+
+    if (!agreeTerms) {
+      setError("Vui lòng đồng ý với Điều khoản dịch vụ.");
+      return;
+    }
+
+    const nameParts = fullName.trim().split(/\s+/);
+    const firstName = nameParts[0] ?? "";
+    const lastName = nameParts.slice(1).join(" ") || firstName;
+
     try {
-      await login({ email, password });
+      await register({
+        firstName,
+        lastName,
+        gender: gender as RegisterGender,
+        email,
+        password,
+      });
+      navigate("/", { replace: true });
     } catch {
       // error is handled by AuthContext
     }
@@ -45,23 +77,19 @@ const Login: React.FC = () => {
     <div className="min-h-full bg-white text-zinc-900 font-sans antialiased flex flex-col justify-between selection:bg-[#2C221E] selection:text-white">
       <Header variant="auth" />
 
-      {/* Main Login Section: Pure White Background */}
       <main className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
         <div className="w-full max-w-md bg-white rounded-3xl border border-zinc-100 shadow-[0_20px_50px_rgba(0,0,0,0.04)] overflow-hidden">
           <div className="p-8 sm:p-12 flex flex-col justify-center bg-white">
             <div className="w-full">
-              {/* Form Header */}
               <div className="mb-8 text-left">
                 <h1 className="text-3xl sm:text-4xl font-serif text-[#2C221E] font-medium tracking-tight">
-                  Đăng nhập
+                  Tạo tài khoản
                 </h1>
                 <p className="mt-2 text-sm text-zinc-500">
-                  Chào mừng bạn trở lại với thế giới chăm sóc da thông minh
-                  Guardian.
+                  Tham gia vào cộng đồng chăm sóc da cao cấp cùng Guardian.
                 </p>
               </div>
 
-              {/* Error message */}
               {error && (
                 <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-600 flex items-center gap-2">
                   <svg
@@ -79,7 +107,7 @@ const Login: React.FC = () => {
                   </svg>
                   <span>{error}</span>
                   <button
-                    onClick={clearError}
+                    onClick={() => setError(null)}
                     className="ml-auto text-red-400 hover:text-red-600"
                   >
                     <svg
@@ -99,7 +127,6 @@ const Login: React.FC = () => {
                 </div>
               )}
 
-              {/* Social Login Buttons */}
               <div className="grid grid-cols-2 gap-3 mb-6">
                 <button
                   type="button"
@@ -140,17 +167,55 @@ const Login: React.FC = () => {
                 </button>
               </div>
 
-              {/* Divider */}
               <div className="relative flex items-center justify-center mb-6">
                 <div className="w-full border-t border-zinc-200"></div>
                 <span className="px-3 bg-white text-[11px] uppercase tracking-wider text-zinc-400">
-                  hoặc bằng email
+                  hoặc đăng ký bằng email
                 </span>
               </div>
 
-              {/* Form Fields */}
               <form className="space-y-4" onSubmit={handleSubmit}>
-                {/* Email */}
+                <div>
+                  <label
+                    htmlFor="fullName"
+                    className="block text-xs font-medium uppercase tracking-wider text-zinc-700 mb-1.5"
+                  >
+                    Họ và tên
+                  </label>
+                  <input
+                    type="text"
+                    id="fullName"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="Nguyễn Văn A"
+                    className="w-full px-4 py-3 bg-white rounded-xl border border-zinc-200 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-[#2C221E] focus:ring-1 focus:ring-[#2C221E] transition-all"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="gender"
+                    className="block text-xs font-medium uppercase tracking-wider text-zinc-700 mb-1.5"
+                  >
+                    Giới tính
+                  </label>
+                  <select
+                    id="gender"
+                    value={gender}
+                    onChange={(e) => setGender(e.target.value as RegisterGender | "")}
+                    className="w-full px-4 py-3 bg-white rounded-xl border border-zinc-200 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-[#2C221E] focus:ring-1 focus:ring-[#2C221E] transition-all"
+                    required
+                  >
+                    <option value="" disabled>
+                      Chọn giới tính
+                    </option>
+                    <option value="male">Nam</option>
+                    <option value="female">Nữ</option>
+                    <option value="other">Khác</option>
+                  </select>
+                </div>
+
                 <div>
                   <label
                     htmlFor="email"
@@ -158,57 +223,33 @@ const Login: React.FC = () => {
                   >
                     Địa chỉ Email
                   </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      id="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="name@example.com"
-                      className="w-full px-4 py-3 bg-white rounded-xl border border-zinc-200 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-[#2C221E] focus:ring-1 focus:ring-[#2C221E] transition-all"
-                    />
-                    <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-zinc-400">
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="1.5"
-                          d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                        />
-                      </svg>
-                    </div>
-                  </div>
+                  <input
+                    type="email"
+                    id="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="name@example.com"
+                    className="w-full px-4 py-3 bg-white rounded-xl border border-zinc-200 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-[#2C221E] focus:ring-1 focus:ring-[#2C221E] transition-all"
+                    required
+                  />
                 </div>
 
-                {/* Password */}
                 <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label
-                      htmlFor="password"
-                      className="block text-xs font-medium uppercase tracking-wider text-zinc-700"
-                    >
-                      Mật khẩu
-                    </label>
-                    <a
-                      href="#"
-                      className="text-xs text-[#A47551] hover:text-[#2C221E] transition-colors font-medium"
-                    >
-                      Quên mật khẩu?
-                    </a>
-                  </div>
+                  <label
+                    htmlFor="password"
+                    className="block text-xs font-medium uppercase tracking-wider text-zinc-700 mb-1.5"
+                  >
+                    Mật khẩu
+                  </label>
                   <div className="relative">
                     <input
                       type={showPassword ? "text" : "password"}
                       id="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••••••"
+                      placeholder="••••••••"
                       className="w-full px-4 py-3 bg-white rounded-xl border border-zinc-200 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-[#2C221E] focus:ring-1 focus:ring-[#2C221E] transition-all"
+                      required
                     />
                     <button
                       type="button"
@@ -229,7 +270,7 @@ const Login: React.FC = () => {
                             strokeLinecap="round"
                             strokeLinejoin="round"
                             strokeWidth="1.5"
-                            d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a10.025 10.025 0 012.122-.063c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21M3 3l18 18"
+                            d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a10.025 10.025 0 014.122-.977c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21M3 3l18 18"
                           />
                         </svg>
                       ) : (
@@ -257,26 +298,51 @@ const Login: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Remember me & Privacy */}
-                <div className="flex items-center justify-between pt-1">
-                  <label className="flex items-center gap-2 cursor-pointer">
+                <div>
+                  <label
+                    htmlFor="confirmPassword"
+                    className="block text-xs font-medium uppercase tracking-wider text-zinc-700 mb-1.5"
+                  >
+                    Xác nhận mật khẩu
+                  </label>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    id="confirmPassword"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full px-4 py-3 bg-white rounded-xl border border-zinc-200 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-[#2C221E] focus:ring-1 focus:ring-[#2C221E] transition-all"
+                    required
+                  />
+                </div>
+
+                <div className="pt-2">
+                  <label className="flex items-start gap-2.5 cursor-pointer select-none">
                     <input
                       type="checkbox"
-                      checked={rememberMe}
-                      onChange={(e) => setRememberMe(e.target.checked)}
-                      className="w-4 h-4 rounded border-zinc-300 text-[#2C221E] focus:ring-[#2C221E]"
+                      checked={agreeTerms}
+                      onChange={(e) => setAgreeTerms(e.target.checked)}
+                      className="mt-0.5 w-4 h-4 rounded border-zinc-300 text-[#2C221E] focus:ring-[#2C221E]"
+                      required
                     />
-                    <span className="text-xs text-zinc-600">
-                      Ghi nhớ đăng nhập
+                    <span className="text-xs text-zinc-600 leading-tight">
+                      Tôi đồng ý với{" "}
+                      <a href="#" className="underline text-zinc-900 font-medium hover:text-black">
+                        Điều khoản Dịch vụ
+                      </a>{" "}
+                      và{" "}
+                      <a href="#" className="underline text-zinc-900 font-medium hover:text-black">
+                        Chính sách Bảo mật
+                      </a>{" "}
+                      của Guardian.
                     </span>
                   </label>
                 </div>
 
-                {/* Submit CTA */}
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full mt-2 py-3.5 px-6 rounded-xl bg-[#2C221E] hover:bg-[#1f1714] text-white text-xs font-semibold uppercase tracking-widest transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2 group cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="w-full mt-4 py-3.5 px-6 rounded-xl bg-[#2C221E] hover:bg-[#1f1714] text-white text-xs font-semibold uppercase tracking-widest transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2 group cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {isLoading ? (
                     <>
@@ -299,65 +365,38 @@ const Login: React.FC = () => {
                           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
                         />
                       </svg>
-                      <span>Đang đăng nhập...</span>
+                      <span>Đang tạo tài khoản...</span>
                     </>
                   ) : (
                     <>
-                      <span>Đăng nhập vào tài khoản</span>
+                      <span>Tạo tài khoản</span>
                       <svg
                         className="w-4 h-4 transition-transform group-hover:translate-x-1"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="1.5"
-                          d="M14 5l7 7m0 0l-7 7m7-7H3"
-                        />
                       </svg>
                     </>
                   )}
                 </button>
               </form>
 
-              {/* Footer terms inside form card */}
-              <p className="mt-8 text-center text-[11px] text-zinc-400 leading-normal">
-                Bằng việc tiếp tục, bạn đồng ý với{" "}
-                <a href="#" className="underline hover:text-zinc-700">
-                  Điều khoản Dịch vụ
-                </a>{" "}
-                và{" "}
-                <a href="#" className="underline hover:text-zinc-700">
-                  Chính sách Bảo mật
-                </a>{" "}
-                của Guardian.
-              </p>
+              <div className="mt-8 pt-6 border-t border-zinc-100 text-center text-xs text-zinc-500">
+                Đã có tài khoản?{" "}
+                <Link
+                  to="/login"
+                  className="font-medium text-[#2C221E] hover:underline uppercase tracking-wider text-[11px] ml-1"
+                >
+                  Đăng nhập ngay
+                </Link>
+              </div>
             </div>
           </div>
         </div>
       </main>
-
-      {/* Clean Bottom Footer */}
-      <footer className="w-full py-6 border-t border-zinc-100 bg-white text-center text-xs text-zinc-400">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p>© 2026 GUARDIAN Skincare Inc. Tất cả quyền được bảo lưu.</p>
-          <div className="flex items-center gap-6">
-            <a href="#" className="hover:text-zinc-600 transition-colors">
-              Trung tâm hỗ trợ
-            </a>
-            <a href="#" className="hover:text-zinc-600 transition-colors">
-              Chính sách bảo mật
-            </a>
-            <a href="#" className="hover:text-zinc-600 transition-colors">
-              Cài đặt Cookie
-            </a>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };
 
-export default Login;
+export default Register;
