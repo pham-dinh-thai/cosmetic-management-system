@@ -5,6 +5,8 @@ export interface ICustomersRepository {
 
   findById(id: string): Promise<Customer | null>;
 
+  findByUserId(userId: string): Promise<Customer | null>;
+
   create(customer: Customer): Promise<{ id: string }>;
 
   delete(id: string): Promise<Customer | null>;

@@ -33,6 +33,16 @@ export class MikroCustomersRepository implements ICustomersRepository {
     return customerMikro ? CustomersMapper.toDomain(customerMikro) : null;
   }
 
+  public async findByUserId(userId: string): Promise<Customer | null> {
+    const customerMikro = await this.entityManager.findOne(
+      CustomerMikro,
+      { userId },
+      { populate: ['addresses', 'phones'] },
+    );
+
+    return customerMikro ? CustomersMapper.toDomain(customerMikro) : null;
+  }
+
   public async create(customer: Customer): Promise<{ id: string }> {
     const customerMikro = CustomersMapper.toMikro(customer);
 

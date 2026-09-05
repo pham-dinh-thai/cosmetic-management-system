@@ -45,6 +45,9 @@ services:
       INVOICE_DB_USER: ${INVOICE_DB_USER}
       INVOICE_DB_PASSWORD: ${INVOICE_DB_PASSWORD}
       INVOICE_DB_NAME: ${INVOICE_DB_NAME}
+      BASKET_DB_USER: ${BASKET_DB_USER}
+      BASKET_DB_PASSWORD: ${BASKET_DB_PASSWORD}
+      BASKET_DB_NAME: ${BASKET_DB_NAME}
     ports:
       - "5432:5432"
     volumes:
@@ -506,6 +509,40 @@ services:
       rabbitmq:
         condition: service_healthy
 
+  migration-basket:
+    build: ./backend
+    command: sh -c "npx mikro-orm migration:up"
+    environment:
+      NODE_OPTIONS: "-r ts-node/register"
+      MIKRO_ORM_CLI_CONFIG: "./apps/basket-service/mikro-orm.config.ts"
+      BASKET_DB_HOST: ${BASKET_DB_HOST}
+      BASKET_DB_PORT: "${BASKET_DB_PORT}"
+      BASKET_DB_USER: ${BASKET_DB_USER}
+      BASKET_DB_PASSWORD: ${BASKET_DB_PASSWORD}
+      BASKET_DB_NAME: ${BASKET_DB_NAME}
+    depends_on:
+      sync-users:
+        condition: service_completed_successfully
+
+  basket-service:
+    build: ./backend
+    command: ["node", "dist/apps/basket-service/main.js"]
+    environment:
+      BASKET_DB_HOST: ${BASKET_DB_HOST}
+      BASKET_DB_PORT: "${BASKET_DB_PORT}"
+      BASKET_DB_USER: ${BASKET_DB_USER}
+      BASKET_DB_PASSWORD: ${BASKET_DB_PASSWORD}
+      BASKET_DB_NAME: ${BASKET_DB_NAME}
+      CUSTOMER_SERVICE_URL: ${CUSTOMER_SERVICE_URL}
+      COSMETIC_SERVICE_URL: ${COSMETIC_SERVICE_URL}
+      ORDER_SERVICE_URL: ${ORDER_SERVICE_URL}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+    ports:
+      - "3014:3014"
+    depends_on:
+      migration-basket:
+        condition: service_completed_successfully
+
   gateway-service:
     build: ./backend
     command: ["node", "dist/apps/gateway-service/main.js"]
@@ -523,6 +560,7 @@ services:
       PURCHASE_SERVICE_URL: ${PURCHASE_SERVICE_URL}
       ORDER_SERVICE_URL: ${ORDER_SERVICE_URL}
       INVOICE_SERVICE_URL: ${INVOICE_SERVICE_URL}
+      BASKET_SERVICE_URL: ${BASKET_SERVICE_URL}
     ports:
       - "3000:3000"
     depends_on:
@@ -536,6 +574,7 @@ services:
       - purchase-service
       - order-service
       - invoice-service
+      - basket-service
 
   frontend:
     build: ./frontend

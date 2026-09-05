@@ -16,7 +16,8 @@ RUN npx nest build user-service && \
     npx nest build inventory-service && \
     npx nest build purchase-service && \
     npx nest build order-service && \
-    npx nest build invoice-service
+    npx nest build invoice-service && \
+    npx nest build basket-service
     
 FROM node:26-slim
 WORKDIR /app
