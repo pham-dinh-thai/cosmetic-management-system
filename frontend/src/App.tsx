@@ -10,9 +10,9 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Navigate to="/landing" replace />} />
+          {/* <Route path="/" element={<Navigate to="/landing" replace />} /> */}
           <Route path="/login" element={<Login />} />
-          <Route path="/landing" element={<LandingPage />} />
+          <Route path="/" element={<LandingPage />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/employee" element={<Employee />} />
         </Routes>
