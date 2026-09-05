@@ -8,10 +8,12 @@ export class IncreaseInventoryUseCase {
   public async execute(
     variantId: string,
     quantity: number,
+    expiryDate?: Date,
   ): Promise<{ variantId: string; quantity: number }> {
     const inventory = await this.inventoryRepository.addStock(
       variantId,
       quantity,
+      expiryDate,
     );
 
     return {

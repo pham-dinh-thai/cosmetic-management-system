@@ -17,6 +17,9 @@ export class InternalInventoryController {
     return await this.increaseInventoryUseCase.execute(
       request.variantId,
       request.quantity,
+      request.expiryDate
+        ? new Date(`${request.expiryDate}T00:00:00`)
+        : undefined,
     );
   }
 
