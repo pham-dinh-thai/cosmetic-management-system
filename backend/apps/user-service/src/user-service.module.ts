@@ -3,7 +3,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { PostgreSqlDriver } from '@mikro-orm/postgresql';
 import { User } from './infrastructure/entities/user.entity';
-import { UuidModule } from 'nestjs-uuid';
 import {
   createUserUseCaseFactory,
   CreateUserUseCase,
@@ -73,7 +72,6 @@ import {
       inject: [ConfigService],
     }),
     MikroOrmModule.forFeature([User]),
-    UuidModule,
     JwtModule.registerAsync({
       useFactory: (config: ConfigService) => ({
         secret: config.get<string>('JWT_ACCESS_SECRET'),
