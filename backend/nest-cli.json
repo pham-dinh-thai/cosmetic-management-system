@@ -108,6 +108,15 @@
         "tsConfigPath": "apps/invoice-service/tsconfig.app.json"
       }
     },
+    "basket-service": {
+      "type": "application",
+      "root": "apps/basket-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/basket-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/basket-service/tsconfig.app.json"
+      }
+    },
     "purchase-service": {
       "type": "application",
       "root": "apps/purchase-service",

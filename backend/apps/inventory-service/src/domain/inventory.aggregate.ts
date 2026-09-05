@@ -7,6 +7,7 @@ export class Inventory {
     private readonly id: string,
     private readonly variantId: string,
     private quantity: number,
+    private expiryDate: Date | undefined,
     private lastUpdatedAt: Date,
     private readonly createdAt?: Date,
     private readonly updatedAt?: Date,
@@ -25,6 +26,7 @@ export class Inventory {
       undefined as unknown as string,
       props.variantId,
       props.quantity,
+      props.expiryDate,
       now,
       now,
       now,
@@ -36,6 +38,7 @@ export class Inventory {
       props.id,
       props.variantId,
       props.quantity,
+      props.expiryDate,
       props.lastUpdatedAt,
       props.createdAt,
       props.updatedAt,
@@ -45,6 +48,19 @@ export class Inventory {
   public addStock(quantity: number): void {
     this.assertPositiveInteger(quantity);
     this.quantity += quantity;
+    this.lastUpdatedAt = new Date();
+  }
+
+  public setExpiryDate(expiryDate: Date | undefined): void {
+    if (expiryDate === undefined) {
+      return;
+    }
+
+    if (Number.isNaN(expiryDate.getTime())) {
+      throw new InvalidQuantityException('Expiry date is invalid');
+    }
+
+    this.expiryDate = expiryDate;
     this.lastUpdatedAt = new Date();
   }
 
@@ -94,6 +110,10 @@ export class Inventory {
 
   public getVariantId(): string {
     return this.variantId;
+  }
+
+  public getExpiryDate(): Date | undefined {
+    return this.expiryDate;
   }
 
   public getQuantity(): number {

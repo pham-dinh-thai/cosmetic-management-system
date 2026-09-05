@@ -9,6 +9,7 @@ import { Order } from './infrastructure/entities/order.entity';
 import { OrderLine } from './infrastructure/entities/order-line.entity';
 import { OrderTransaction } from './infrastructure/entities/order-transaction.entity';
 import { OrdersController } from './presentation/public/orders/orders.controller';
+import { InternalOrdersController } from './presentation/internal/orders/orders.controller';
 import { DomainErrorFilter } from './presentation/filters/domain-error.filter';
 import { ORDERS_REPOSITORY } from './domain/repositories/orders.repository';
 import { ORDER_TRANSACTIONS_REPOSITORY } from './domain/repositories/order-transactions.repository';
@@ -78,7 +79,7 @@ import {
       inject: [ConfigService],
     }),
   ],
-  controllers: [OrdersController],
+  controllers: [OrdersController, InternalOrdersController],
   providers: [
     {
       provide: APP_FILTER,

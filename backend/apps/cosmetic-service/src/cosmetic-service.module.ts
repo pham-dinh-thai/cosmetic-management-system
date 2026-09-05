@@ -7,6 +7,7 @@ import { Cosmetic } from './infrastructure/entities/cosmetic.entity';
 import { CosmeticVariant } from './infrastructure/entities/cosmetic-variant.entity';
 import { CosmeticCategory } from './infrastructure/entities/cosmetic-category.entity';
 import { CosmeticsController } from './presentation/public/cosmetics/cosmetics.controller';
+import { InternalCosmeticsController } from './presentation/internal/cosmetics/cosmetics.controller';
 import { COSMETICS_REPOSITORY } from './domain/repositories/cosmetics.repository';
 import { MikroCosmeticsRepository } from './infrastructure/repositories/mikro-cosmetics.repository';
 import {
@@ -17,6 +18,10 @@ import {
   FindCosmeticByIdUseCase,
   findCosmeticByIdUseCaseFactory,
 } from './application/use-cases/find-cosmetic/find-by-id/find-cosmetic-by-id.use-case';
+import {
+  FindVariantByIdUseCase,
+  findVariantByIdUseCaseFactory,
+} from './application/use-cases/find-variant/find-by-id/find-variant-by-id.use-case';
 import {
   FindAllCosmeticsUseCase,
   findAllCosmeticsUseCaseFactory,
@@ -80,9 +85,14 @@ import {
       inject: [ConfigService],
     }),
   ],
-  controllers: [CosmeticsController],
+  controllers: [CosmeticsController, InternalCosmeticsController],
   providers: [
     { provide: COSMETICS_REPOSITORY, useClass: MikroCosmeticsRepository },
+    {
+      provide: FindVariantByIdUseCase,
+      useFactory: findVariantByIdUseCaseFactory,
+      inject: [COSMETICS_REPOSITORY],
+    },
     {
       provide: CreateCosmeticUseCase,
       useFactory: createCosmeticUseCaseFactory,

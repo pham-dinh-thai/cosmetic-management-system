@@ -55,6 +55,10 @@ export interface ICosmeticsRepository {
   activateVariant(variantId: string): Promise<{ id: string } | null>;
 
   deactivateVariant(variantId: string): Promise<{ id: string } | null>;
+
+  findVariantById(
+    variantId: string,
+  ): Promise<{ id: string; name: string; price: number } | null>;
 }
 
 export const COSMETICS_REPOSITORY = 'ICosmeticsRepository';

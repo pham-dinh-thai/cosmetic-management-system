@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsUUID, Min } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsDateString, IsInt, IsOptional, IsUUID, Min } from 'class-validator';
 
 export class StockChangeRequest {
   @ApiProperty()
@@ -10,4 +10,9 @@ export class StockChangeRequest {
   @IsInt()
   @Min(1)
   quantity!: number;
+
+  @ApiPropertyOptional({ description: 'Expiry date (YYYY-MM-DD) of the batch' })
+  @IsOptional()
+  @IsDateString()
+  expiryDate?: string;
 }
