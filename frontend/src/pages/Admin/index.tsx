@@ -14,7 +14,6 @@ import ProductDetailAdminPage from "./routes/ProductDetailAdmin";
 import CategoriesPage from "./routes/Categories";
 import PurchaseOrdersPage from "./routes/PurchaseOrders";
 import InventoryPage from "./routes/Inventory";
-import AdminProfilePage from "./routes/Profile";
 
 export type AdminPageKey =
   | "overview"
@@ -25,11 +24,9 @@ export type AdminPageKey =
   | "categories"
   | "purchase"
   | "inventory"
-  | "reports"
-  | "profile";
+  | "reports";
 
 const getActiveKey = (pathname: string): AdminPageKey => {
-  if (pathname.includes("/admin/profile")) return "profile";
   if (pathname.includes("/admin/reports")) return "reports";
   if (pathname.includes("/admin/customers")) return "customers";
   if (pathname.includes("/admin/employees")) return "employees";
@@ -51,7 +48,6 @@ const PAGE_TITLES: Record<AdminPageKey, string> = {
   purchase: "Nhập hàng",
   inventory: "Kho",
   reports: "Báo cáo",
-  profile: "Hồ sơ Admin",
 };
 
 const SECTIONS = (active: AdminPageKey): SidebarSection[] => [
@@ -61,7 +57,6 @@ const SECTIONS = (active: AdminPageKey): SidebarSection[] => [
     items: [
       { id: "overview", label: "Tổng quan", active: active === "overview" },
       { id: "reports", label: "Báo cáo", active: active === "reports" },
-      { id: "profile", label: "Hồ sơ cá nhân", active: active === "profile" },
     ],
   },
   {
@@ -118,7 +113,6 @@ const Admin: React.FC = () => {
         <Route path="categories" element={<CategoriesPage />} />
         <Route path="purchase" element={<PurchaseOrdersPage />} />
         <Route path="inventory" element={<InventoryPage />} />
-        <Route path="profile" element={<AdminProfilePage />} />
         <Route path="*" element={<Navigate to="overview" replace />} />
       </Routes>
     </DashboardLayout>
