@@ -113,6 +113,7 @@ export class MikroCosmeticsRepository implements ICosmeticsRepository {
       origin: string | null;
       description: string | null;
       imageUrl: string | null;
+      categoryIds?: string[];
     },
   ): Promise<Cosmetic | null> {
     const cosmeticMikro = await this.entityManager.findOne(
@@ -133,9 +134,26 @@ export class MikroCosmeticsRepository implements ICosmeticsRepository {
     cosmeticMikro.description = data.description;
     cosmeticMikro.imageUrl = data.imageUrl;
 
+    if (data.categoryIds) {
+      await this.entityManager.nativeDelete(CosmeticCategoryMikro, { cosmetic: cosmeticMikro });
+      
+      for (const categoryId of data.categoryIds) {
+        const categoryMikro = new CosmeticCategoryMikro();
+        categoryMikro.cosmetic = cosmeticMikro;
+        categoryMikro.categoryId = categoryId;
+        this.entityManager.persist(categoryMikro);
+      }
+    }
+
     await this.entityManager.flush();
 
-    return CosmeticsMapper.toDomain(cosmeticMikro);
+    const updatedMikro = await this.entityManager.findOneOrFail(
+      CosmeticMikro,
+      { id },
+      { populate: ['variants', 'categories'] },
+    );
+
+    return CosmeticsMapper.toDomain(updatedMikro);
   }
 
   public async activate(id: string): Promise<Cosmetic | null> {
