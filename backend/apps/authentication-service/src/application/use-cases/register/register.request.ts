@@ -6,4 +6,5 @@ export interface IRegisterRequest {
   gender: RegisterGender;
   email: string;
   password: string;
+  passwordConfirmation: string;
 }

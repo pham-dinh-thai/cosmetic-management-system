@@ -42,4 +42,11 @@ export class RegisterRequest implements IRegisterRequest {
   @MinLength(8)
   @MaxLength(255)
   password!: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(8)
+  @MaxLength(255)
+  passwordConfirmation!: string;
 }

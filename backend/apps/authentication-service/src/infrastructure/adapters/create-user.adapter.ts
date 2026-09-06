@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import {
   ICreateUserPort,
   ICreateUserPortRequest,
-} from '../../application/ports/create-user.port';
+} from '../../application/use-cases/register/ports/create-user.port';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()

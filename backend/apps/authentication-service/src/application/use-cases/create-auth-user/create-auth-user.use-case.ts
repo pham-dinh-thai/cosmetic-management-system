@@ -2,20 +2,31 @@ import { type IPasswordHasherPort } from '../../ports/password-hasher.port';
 import { AuthUser } from '../../../domain/auth-user.aggregate';
 import { type IAuthUsersCommandRepository } from '../../../domain/repositories/auth-users-command.repository';
 import { ICreateAuthUserRequest } from './create-auth-user.request';
-import { EnsureUserExistsService } from '../../../domain/services/ensure-user-exists.service';
-import { EnsureAuthUserDoesNotExistService } from '../../../domain/services/ensure-auth-user-does-not-exist.service';
+import { IUsersReaderPort } from 'apps/authentication-service/src/application/ports/users-reader.port';
+import { UserNotFoundException } from 'apps/authentication-service/src/domain/exceptions/user-not-found.exception';
+import { AuthUserAlreadyExistsException } from 'apps/authentication-service/src/domain/exceptions/auth-user-already-exists.exception';
 
 export class CreateAuthUserUseCase {
   public constructor(
     private readonly authUsersCommandRepository: IAuthUsersCommandRepository,
     private readonly passwordHasherPort: IPasswordHasherPort,
-    private readonly ensureUserExistsService: EnsureUserExistsService,
-    private readonly ensureAuthUserDoesNotExistService: EnsureAuthUserDoesNotExistService,
+    private readonly usersReaderPort: IUsersReaderPort,
   ) {}
 
   public async execute(request: ICreateAuthUserRequest): Promise<void> {
-    await this.ensureUserExistsService.byUserId(request.userId);
-    await this.ensureAuthUserDoesNotExistService.byUserId(request.userId);
+    const user = await this.usersReaderPort.findById(request.userId);
+
+    if (!user) {
+      throw new UserNotFoundException('userId', request.userId);
+    }
+
+    const exists = await this.authUsersCommandRepository.existsByUserId(
+      user.id,
+    );
+
+    if (exists) {
+      throw new AuthUserAlreadyExistsException(user.id);
+    }
 
     const hashed = await this.passwordHasherPort.hash(request.password, 10);
 
@@ -31,12 +42,10 @@ export class CreateAuthUserUseCase {
 export const createAuthUserUseCaseFactory = (
   authUsersCommandRepository: IAuthUsersCommandRepository,
   passwordHasherPort: IPasswordHasherPort,
-  ensureUserExistsService: EnsureUserExistsService,
-  ensureAuthUserDoesNotExistService: EnsureAuthUserDoesNotExistService,
+  usersReaderPort: IUsersReaderPort,
 ): CreateAuthUserUseCase =>
   new CreateAuthUserUseCase(
     authUsersCommandRepository,
     passwordHasherPort,
-    ensureUserExistsService,
-    ensureAuthUserDoesNotExistService,
+    usersReaderPort,
   );
