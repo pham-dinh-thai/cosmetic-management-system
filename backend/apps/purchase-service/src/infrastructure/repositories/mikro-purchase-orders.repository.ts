@@ -9,6 +9,8 @@ import {
 import { PurchaseOrder } from '../entities/purchase-order.entity';
 import { PurchaseOrderLine } from '../entities/purchase-order-line.entity';
 import { PurchaseOrdersMapper } from '../mappers/purchase-orders.mapper';
+import { PURCHASE_ORDER_CODE_PREFIX } from '../../domain/value-objects/purchase-order-code.value-object';
+import { maxSequenceFromCodes } from '@app/codes';
 
 @Injectable()
 export class MikroPurchaseOrdersRepository implements IPurchaseOrdersRepository {
@@ -55,8 +57,18 @@ export class MikroPurchaseOrdersRepository implements IPurchaseOrdersRepository 
     return entity ? PurchaseOrdersMapper.toDomain(entity) : null;
   }
 
-  public async count(): Promise<number> {
-    return this.em.count(PurchaseOrder);
+  public async findMaxCodeSequence(): Promise<number | null> {
+    const entities = await this.em.find(
+      PurchaseOrder,
+      {},
+      { fields: ['code'], orderBy: { code: 'DESC' }, limit: 1 },
+    );
+
+    if (entities.length === 0) {
+      return null;
+    }
+
+    return maxSequenceFromCodes(PURCHASE_ORDER_CODE_PREFIX, [entities[0].code]);
   }
 
   public async create(

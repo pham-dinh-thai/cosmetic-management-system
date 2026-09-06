@@ -1,9 +1,7 @@
 import { InvalidOrderCodeException } from '../exceptions/invalid-order-code.exception';
+import { generateCode, isCodeFormatValid } from '@app/codes';
 
-const ORDER_CODE_PREFIX = 'DH_';
-const MIN_CODE_DIGITS = 5;
-
-const ORDER_CODE_REGEX = /^DH_\d{5,}$/;
+export const ORDER_CODE_PREFIX = 'DH_';
 
 export class OrderCode {
   private constructor(private readonly value: string) {}
@@ -13,13 +11,11 @@ export class OrderCode {
       throw new InvalidOrderCodeException(sequence.toString());
     }
 
-    return new OrderCode(
-      `${ORDER_CODE_PREFIX}${sequence.toString().padStart(MIN_CODE_DIGITS, '0')}`,
-    );
+    return new OrderCode(generateCode(ORDER_CODE_PREFIX, sequence));
   }
 
   public static fromPersistent(value: string): OrderCode {
-    if (!ORDER_CODE_REGEX.test(value)) {
+    if (!isCodeFormatValid(ORDER_CODE_PREFIX, value)) {
       throw new InvalidOrderCodeException(value);
     }
 

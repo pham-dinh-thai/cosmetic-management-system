@@ -12,7 +12,15 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard, Role, Roles, RolesGuard } from '@app/security';
+import {
+  AuthGuard,
+  Departments,
+  OrgGuard,
+  Position,
+  Positions,
+  Role,
+  Roles,
+} from '@app/security';
 import { FindAllSuppliersUseCase } from 'apps/supplier-service/src/application/use-cases/find-supplier/find-all/find-all-suppliers.use-case';
 import { FindAllSupplierReadModel } from 'apps/supplier-service/src/application/use-cases/find-supplier/find-all/read-models/find-all-supplier.read-model';
 import { FindSupplierByIdUseCase } from 'apps/supplier-service/src/application/use-cases/find-supplier/find-by-id/find-supplier-by-id.use-case';
@@ -25,8 +33,9 @@ import { DeleteSupplierUseCase } from 'apps/supplier-service/src/application/use
 import { CreateSupplierRequest } from './requests/create-supplier.request';
 import { UpdateSupplierRequest } from './requests/update-supplier.request';
 
-@UseGuards(AuthGuard, RolesGuard)
-@Roles(Role.Admin)
+@UseGuards(AuthGuard, OrgGuard)
+@Roles(Role.Admin, Role.Employee)
+@Departments('warehouse')
 @Controller('suppliers')
 export class SuppliersController {
   public constructor(
@@ -53,6 +62,7 @@ export class SuppliersController {
     return await this.findSupplierByIdUseCase.execute(id);
   }
 
+  @Positions(Position.Manager)
   @Post()
   public async create(
     @Body() request: CreateSupplierRequest,
@@ -60,6 +70,7 @@ export class SuppliersController {
     return await this.createSupplierUseCase.execute(request);
   }
 
+  @Positions(Position.Manager)
   @Put(':id')
   public async update(
     @Param('id') id: string,
@@ -68,18 +79,21 @@ export class SuppliersController {
     await this.updateSupplierUseCase.execute(id, request);
   }
 
+  @Positions(Position.Manager)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id/activate')
   public async activate(@Param('id') id: string): Promise<void> {
     await this.activateSupplierUseCase.execute(id);
   }
 
+  @Positions(Position.Manager)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id/deactivate')
   public async deactivate(@Param('id') id: string): Promise<void> {
     await this.deactivateSupplierUseCase.execute(id);
   }
 
+  @Positions(Position.Manager)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   public async delete(@Param('id') id: string): Promise<void> {

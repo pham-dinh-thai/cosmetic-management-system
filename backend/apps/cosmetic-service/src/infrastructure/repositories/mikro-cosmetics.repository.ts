@@ -10,6 +10,8 @@ import { CosmeticVariant as CosmeticVariantMikro } from '../entities/cosmetic-va
 import { CosmeticCategory as CosmeticCategoryMikro } from '../entities/cosmetic-category.entity';
 import { CosmeticsMapper } from '../mappers/cosmetics.mapper';
 import { Cosmetic } from '../../domain/cosmetic.aggregate';
+import { COSMETIC_CODE_PREFIX } from '../../domain/value-objects/cosmetic-code.value-object';
+import { maxSequenceFromCodes } from '@app/codes';
 
 @Injectable()
 export class MikroCosmeticsRepository implements ICosmeticsRepository {
@@ -46,8 +48,22 @@ export class MikroCosmeticsRepository implements ICosmeticsRepository {
     return cosmeticMikro ? CosmeticsMapper.toDomain(cosmeticMikro) : null;
   }
 
-  public async count(): Promise<number> {
-    return await this.entityManager.count(CosmeticMikro);
+  public async findMaxCodeSequence(): Promise<number | null> {
+    const cosmeticsMikro = await this.entityManager.find(
+      CosmeticMikro,
+      {},
+      {
+        fields: ['code'],
+        orderBy: { code: 'DESC' },
+        limit: 1,
+      },
+    );
+
+    if (cosmeticsMikro.length === 0) {
+      return null;
+    }
+
+    return maxSequenceFromCodes(COSMETIC_CODE_PREFIX, [cosmeticsMikro[0].code]);
   }
 
   public async create(cosmetic: Cosmetic): Promise<{ id: string }> {

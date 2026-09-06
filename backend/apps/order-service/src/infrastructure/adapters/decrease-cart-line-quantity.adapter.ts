@@ -2,9 +2,7 @@ import { InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { IDecreaseCartLineQuantityPort } from '../../application/use-cases/place-order/ports/decrease-cart-line-quantity.port';
 
-export class DecreaseCartLineQuantityAdapter
-  implements IDecreaseCartLineQuantityPort
-{
+export class DecreaseCartLineQuantityAdapter implements IDecreaseCartLineQuantityPort {
   private readonly url: string;
 
   public constructor(private readonly config: ConfigService) {

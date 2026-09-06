@@ -10,7 +10,7 @@ export interface IPurchaseOrdersRepository {
 
   findById(id: string): Promise<PurchaseOrder | null>;
 
-  count(): Promise<number>;
+  findMaxCodeSequence(): Promise<number | null>;
 
   create(purchaseOrder: PurchaseOrder): Promise<{ id: string }>;
 

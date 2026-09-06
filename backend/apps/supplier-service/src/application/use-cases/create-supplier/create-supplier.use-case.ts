@@ -18,9 +18,9 @@ export class CreateSupplierUseCase {
       throw new DuplicateSupplierEmailException(request.email);
     }
 
-    const code = SupplierCode.generate(
-      (await this.suppliersRepository.count()) + 1,
-    );
+    const maxCodeSequence =
+      await this.suppliersRepository.findMaxCodeSequence();
+    const code = SupplierCode.generate((maxCodeSequence ?? 0) + 1);
 
     const supplier = Supplier.create({
       code: code.getValue(),
