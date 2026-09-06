@@ -1,18 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { PageHeader, Button, Input, Select } from "../../../components/ui/Primitives";
-import { DataTable, type Column } from "../../../components/ui/DataTable";
-import { ConfirmModal } from "../../../components/ui/ConfirmModal";
-import { productsService, type CosmeticSummary } from "../../../services/products.service";
-import { toast } from "sonner";
-
-type StatusFilter = "all" | "active" | "inactive";
-
-interface ProductsProps {
-  onAdd?: () => void;
-  onViewDetail?: (id: string) => void;
-  onEdit?: (id: string) => void;
-}
+import { PageHeader, Button, Input, Select } from "../../../../components/ui/Primitives";
+import { DataTable, type Column } from "../../../../components/ui/DataTable";
+import { ConfirmModal } from "../../../../components/ui/ConfirmModal";
+import { useProducts } from "./hook";
+import type { CosmeticSummary, StatusFilter } from "./type";
 
 const STATUS_OPTIONS = [
   { value: "all", label: "Tất cả trạng thái" },
@@ -26,57 +18,23 @@ const SORT_OPTIONS = [
   { value: "variants", label: "Nhiều biến thể trước" },
 ];
 
-const Products: React.FC<ProductsProps> = ({ onAdd, onViewDetail, onEdit }) => {
+const ProductsPage: React.FC = () => {
   const navigate = useNavigate();
-  const [products, setProducts] = useState<CosmeticSummary[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [q, setQ] = useState("");
-  const [status, setStatus] = useState<StatusFilter>("all");
-  const [sort, setSort] = useState("newest");
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [confirmDelete, setConfirmDelete] = useState<{ isOpen: boolean, product: CosmeticSummary | null }>({ isOpen: false, product: null });
-
-  const loadProducts = useCallback(() => {
-    productsService
-      .getCosmetics()
-      .then((data) => setProducts(data))
-      .catch(() => setError("Không thể tải danh sách sản phẩm."))
-      .finally(() => setLoading(false));
-  }, []);
-
-  useEffect(() => {
-    loadProducts();
-  }, [loadProducts]);
-
-  const filtered = useMemo(() => {
-    const k = q.trim().toLowerCase();
-    let list = products.filter(
-      (p) =>
-        (status === "all" ||
-          (status === "active" && p.isActive) ||
-          (status === "inactive" && !p.isActive)) &&
-        (!k ||
-          p.code.toLowerCase().includes(k) ||
-          p.name.toLowerCase().includes(k) ||
-          (p.brand ?? "").toLowerCase().includes(k) ||
-          (p.origin ?? "").toLowerCase().includes(k)),
-    );
-
-    if (sort === "name") {
-      list = [...list].sort((a, b) => a.name.localeCompare(b.name));
-    } else if (sort === "variants") {
-      list = [...list].sort((a, b) => b.variantCount - a.variantCount);
-    } else {
-      list = [...list].sort(
-        (a, b) =>
-          new Date(b.createdAt ?? 0).getTime() -
-          new Date(a.createdAt ?? 0).getTime(),
-      );
-    }
-
-    return list;
-  }, [products, q, status, sort]);
+  const {
+    filtered,
+    loading,
+    error,
+    q,
+    setQ,
+    status,
+    setStatus,
+    sort,
+    setSort,
+    deletingId,
+    confirmDelete,
+    setConfirmDelete,
+    handleDeleteConfirm,
+  } = useProducts();
 
   const columns: Column<CosmeticSummary>[] = useMemo(
     () => [
@@ -141,14 +99,14 @@ const Products: React.FC<ProductsProps> = ({ onAdd, onViewDetail, onEdit }) => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => onViewDetail && onViewDetail(p.id)}
+              onClick={() => navigate(`/admin/products/${p.id}`)}
             >
               Xem chi tiết
             </Button>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="sm"
-              onClick={() => onEdit && onEdit(p.id)}
+              onClick={() => navigate(`/admin/products/${p.id}/edit`)}
             >
               Sửa
             </Button>
@@ -165,24 +123,8 @@ const Products: React.FC<ProductsProps> = ({ onAdd, onViewDetail, onEdit }) => {
         ),
       },
     ],
-    [navigate, deletingId, onViewDetail, onEdit],
+    [navigate, deletingId, setConfirmDelete],
   );
-
-  const handleDeleteConfirm = async () => {
-    if (!confirmDelete.product) return;
-    const p = confirmDelete.product;
-    setConfirmDelete({ isOpen: false, product: null });
-    setDeletingId(p.id);
-    try {
-      await productsService.deleteCosmetic(p.id);
-      setProducts((prev) => prev.filter((item) => item.id !== p.id));
-      toast.success(`Đã xoá sản phẩm "${p.name}" thành công!`);
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message || `Không thể xoá sản phẩm "${p.name}".`);
-    } finally {
-      setDeletingId(null);
-    }
-  };
 
   return (
     <div className="flex flex-col gap-8">
@@ -191,7 +133,7 @@ const Products: React.FC<ProductsProps> = ({ onAdd, onViewDetail, onEdit }) => {
         title="Sản phẩm"
         description="Danh mục mỹ phẩm Guardian — sữa rửa mặt, tinh chất, kem dưỡng và các sản phẩm chăm sóc da chuyên sâu."
         actions={
-          <Button variant="primary" onClick={onAdd}>
+          <Button variant="primary" onClick={() => navigate("/admin/products/add")}>
             + Thêm sản phẩm
           </Button>
         }
@@ -244,7 +186,7 @@ const Products: React.FC<ProductsProps> = ({ onAdd, onViewDetail, onEdit }) => {
         />
       )}
 
-      <ConfirmModal 
+      <ConfirmModal
         isOpen={confirmDelete.isOpen}
         title="Xác nhận xoá sản phẩm"
         message={`Bạn có chắc chắn muốn xoá sản phẩm "${confirmDelete.product?.name}" (${confirmDelete.product?.code})? Hành động này không thể hoàn tác.`}
@@ -258,4 +200,4 @@ const Products: React.FC<ProductsProps> = ({ onAdd, onViewDetail, onEdit }) => {
   );
 };
 
-export default Products;
+export default ProductsPage;

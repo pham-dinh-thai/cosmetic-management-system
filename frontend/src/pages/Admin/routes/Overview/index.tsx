@@ -1,14 +1,10 @@
-import { useEffect, useState } from "react";
-import { Card, Kpi, PageHeader } from "../../../components/ui/Primitives";
-import {
-  overviewService,
-  formatVnd,
-  percentChange,
-  type OverviewData,
-} from "../../../services/overview.service";
+import React from "react";
+import { Card, Kpi, PageHeader } from "../../../../components/ui/Primitives";
+import { overviewApi } from "./api";
+import { useOverview } from "./hook";
 
 function pctCaption(current: number, previous: number): string {
-  const pct = percentChange(current, previous);
+  const pct = overviewApi.percentChange(current, previous);
   if (pct === null) return "Chưa có dữ liệu so sánh";
   const sign = pct >= 0 ? "+" : "";
   return `${sign}${pct.toFixed(1)}% so với hôm qua`;
@@ -26,30 +22,8 @@ const STATUS_COLORS: Record<string, { color: string; bg: string }> = {
   CANCELLED: { color: "#b04747", bg: "#f6e3e3" },
 };
 
-const Overview: React.FC = () => {
-  const [data, setData] = useState<OverviewData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    overviewService
-      .fetchOverview()
-      .then((result) => {
-        if (!cancelled) setData(result);
-      })
-      .catch(() => {
-        if (!cancelled) setError("Không thể tải dữ liệu tổng quan.");
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+const OverviewPage: React.FC = () => {
+  const { data, loading, error } = useOverview();
 
   if (loading) {
     return (
@@ -93,7 +67,7 @@ const Overview: React.FC = () => {
   const maxRevenue = Math.max(...data.revenueByDay.map((d) => d.value), 0);
   const total7Days = data.revenueByDay.reduce((sum, d) => sum + d.value, 0);
   const monthCaption = (() => {
-    const pct = percentChange(
+    const pct = overviewApi.percentChange(
       data.revenueThisMonth,
       data.revenueLastMonth,
     );
@@ -120,7 +94,7 @@ const Overview: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <Kpi
           label="Doanh thu hôm nay"
-          value={formatVnd(data.revenueToday)}
+          value={overviewApi.formatVnd(data.revenueToday)}
           caption={pctCaption(data.revenueToday, data.revenueYesterday)}
           accent="forest"
         />
@@ -132,7 +106,7 @@ const Overview: React.FC = () => {
         />
         <Kpi
           label="Doanh thu tháng này"
-          value={formatVnd(data.revenueThisMonth)}
+          value={overviewApi.formatVnd(data.revenueThisMonth)}
           caption={monthCaption}
           accent="sage"
         />
@@ -160,7 +134,7 @@ const Overview: React.FC = () => {
                   letterSpacing: "-0.48px",
                 }}
               >
-                {formatVnd(total7Days)}
+                {overviewApi.formatVnd(total7Days)}
               </h3>
               <p className="mt-1 text-[12px] text-[#666666]">
                 Tổng doanh thu giai đoạn {periodLabel(fromDate, new Date())}
@@ -178,7 +152,7 @@ const Overview: React.FC = () => {
                       style={{
                         height: `${Math.max((d.value / maxRevenue) * 100, 2)}%`,
                       }}
-                      title={formatVnd(d.value)}
+                      title={overviewApi.formatVnd(d.value)}
                     />
                   ) : (
                     <div
@@ -294,7 +268,7 @@ const Overview: React.FC = () => {
                 </div>
                 <div className="text-right shrink-0">
                   <p className="text-[14px] text-[#1c3a13]">
-                    {formatVnd(p.revenue)}
+                    {overviewApi.formatVnd(p.revenue)}
                   </p>
                   <p className="text-[11px] uppercase tracking-[0.18em] text-[#666666] mt-0.5">
                     {p.sold} sản phẩm
@@ -309,4 +283,4 @@ const Overview: React.FC = () => {
   );
 };
 
-export default Overview;
+export default OverviewPage;
