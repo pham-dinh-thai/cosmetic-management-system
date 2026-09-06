@@ -12,7 +12,15 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard, Role, Roles, RolesGuard } from '@app/security';
+import {
+  AuthGuard,
+  Departments,
+  OrgGuard,
+  Position,
+  Positions,
+  Role,
+  Roles,
+} from '@app/security';
 import { FindAllCategoriesUseCase } from 'apps/category-service/src/application/use-cases/find-category/find-all/find-all-categories.use-case';
 import { FindAllCategoryReadModel } from 'apps/category-service/src/application/use-cases/find-category/find-all/read-models/find-all-category.read-model';
 import { FindCategoryByIdUseCase } from 'apps/category-service/src/application/use-cases/find-category/find-by-id/find-category-by-id.use-case';
@@ -25,8 +33,9 @@ import { DeactivateCategoryUseCase } from 'apps/category-service/src/application
 import { CreateCategoryRequest } from './requests/create-category.request';
 import { UpdateCategoryRequest } from './requests/update-category.request';
 
-@UseGuards(AuthGuard, RolesGuard)
-@Roles(Role.Admin)
+@UseGuards(AuthGuard, OrgGuard)
+@Roles(Role.Admin, Role.Employee)
+@Departments('sales')
 @Controller('categories')
 export class CategoriesController {
   public constructor(
@@ -53,6 +62,7 @@ export class CategoriesController {
     return await this.findCategoryByIdUseCase.execute(id);
   }
 
+  @Positions(Position.Manager)
   @Post()
   public async create(
     @Body() request: CreateCategoryRequest,
@@ -60,6 +70,7 @@ export class CategoriesController {
     return await this.createCategoryUseCase.execute(request);
   }
 
+  @Positions(Position.Manager)
   @Put(':id')
   public async update(
     @Param('id') id: string,
@@ -68,18 +79,21 @@ export class CategoriesController {
     await this.updateCategoryUseCase.execute(id, request);
   }
 
+  @Positions(Position.Manager)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id/activate')
   public async activate(@Param('id') id: string): Promise<void> {
     await this.activateCategoryUseCase.execute(id);
   }
 
+  @Positions(Position.Manager)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id/deactivate')
   public async deactivate(@Param('id') id: string): Promise<void> {
     await this.deactivateCategoryUseCase.execute(id);
   }
 
+  @Positions(Position.Manager)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   public async delete(@Param('id') id: string): Promise<void> {
