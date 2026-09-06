@@ -14,6 +14,10 @@ export class FindCustomerByIdUseCase {
           customer.getId(),
           customer.getUserId(),
           customer.getCode(),
+          customer.getName(),
+          customer.getEmail(),
+          customer.getPhone(),
+          customer.getAddress(),
           customer.getAddresses().map((a) => ({
             id: a.getId(),
             city: a.getCity(),

@@ -52,6 +52,23 @@ export class MikroCustomersRepository implements ICustomersRepository {
     return { id: customerMikro.id };
   }
 
+  public async update(customer: Customer): Promise<void> {
+    const customerMikro = await this.entityManager.findOne(CustomerMikro, {
+      id: customer.getId(),
+    });
+
+    if (!customerMikro) {
+      return;
+    }
+
+    customerMikro.name = customer.getName();
+    customerMikro.email = customer.getEmail();
+    customerMikro.phone = customer.getPhone();
+    customerMikro.address = customer.getAddress();
+
+    await this.entityManager.flush();
+  }
+
   public async delete(id: string): Promise<Customer | null> {
     const customerMikro = await this.entityManager.findOne(
       CustomerMikro,
