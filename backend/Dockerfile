@@ -3,21 +3,19 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
-RUN npx nest build user-service && \
-    npx nest build gateway-service && \
-    npx nest build authentication-service && \
-    npx nest build authorization-service && \
-    npx nest build department-service && \
-    npx nest build employee-service && \
-    npx nest build customer-service && \
-    npx nest build category-service && \
-    npx nest build supplier-service && \
-    npx nest build cosmetic-service && \
-    npx nest build inventory-service && \
-    npx nest build purchase-service && \
-    npx nest build order-service && \
-    npx nest build invoice-service && \
-    npx nest build basket-service
+RUN set -eux; \
+    mkdir -p /opt/built; \
+    for app in user-service gateway-service authentication-service authorization-service department-service employee-service customer-service category-service supplier-service cosmetic-service inventory-service purchase-service order-service invoice-service basket-service storage-service; do \
+      npx nest build "$app"; \
+      mkdir -p "/opt/built/$app"; \
+      cp -r "dist/apps/$app/." "/opt/built/$app/"; \
+    done; \
+    for built in /opt/built/*; do \
+      app="$(basename "$built")"; \
+      mkdir -p "dist/apps/$app"; \
+      cp -r "$built/." "dist/apps/$app/"; \
+    done; \
+    rm -rf /opt/built
     
 FROM node:26-slim
 WORKDIR /app

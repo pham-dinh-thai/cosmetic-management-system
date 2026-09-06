@@ -382,6 +382,19 @@ services:
       migration:
         condition: service_completed_successfully
 
+  storage-service:
+    image: cosmetic-management-system-backend
+    pull_policy: never
+    command: ["node", "dist/apps/storage-service/main.js"]
+    environment:
+      UPLOAD_ROOT: /app/uploads
+    volumes:
+      - ./backend/uploads:/app/uploads
+    ports:
+      - "3015:3015"
+    depends_on:
+      - gateway-service
+
   inventory-service:
     image: cosmetic-management-system-backend
     pull_policy: never
@@ -499,6 +512,7 @@ services:
       ORDER_SERVICE_URL: ${ORDER_SERVICE_URL}
       INVOICE_SERVICE_URL: ${INVOICE_SERVICE_URL}
       BASKET_SERVICE_URL: ${BASKET_SERVICE_URL}
+      STORAGE_SERVICE_URL: ${STORAGE_SERVICE_URL}
     ports:
       - "3000:3000"
     depends_on:
@@ -521,6 +535,8 @@ services:
     build:
       context: .
       dockerfile: docker/nginx/Dockerfile
+    volumes:
+      - ./backend/uploads:/var/uploads:ro
     ports:
       - "80:80"
     depends_on:

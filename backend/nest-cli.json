@@ -161,6 +161,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/user-service/tsconfig.app.json"
       }
+    },
+    "storage-service": {
+      "type": "application",
+      "root": "apps/storage-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/storage-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/storage-service/tsconfig.app.json"
+      }
     }
   }
 }

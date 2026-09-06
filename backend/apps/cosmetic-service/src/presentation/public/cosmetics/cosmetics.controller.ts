@@ -31,9 +31,6 @@ import { UpdateCosmeticRequest } from './requests/update-cosmetic.request';
 import { AddVariantRequest } from './requests/add-variant.request';
 import { UpdateVariantRequest } from './requests/update-variant.request';
 
-@UseGuards(AuthGuard, OrgGuard)
-@Roles(Role.Admin, Role.Employee)
-@Departments('sales')
 @Controller('cosmetics')
 export class CosmeticsController {
   public constructor(
@@ -64,6 +61,9 @@ export class CosmeticsController {
     return await this.findCosmeticByIdUseCase.execute(id);
   }
 
+  @UseGuards(AuthGuard, OrgGuard)
+  @Roles(Role.Admin, Role.Employee)
+  @Departments('sales')
   @Post()
   public async create(
     @Body() request: CreateCosmeticRequest,
@@ -71,6 +71,9 @@ export class CosmeticsController {
     return await this.createCosmeticUseCase.execute(request);
   }
 
+  @UseGuards(AuthGuard, OrgGuard)
+  @Roles(Role.Admin, Role.Employee)
+  @Departments('sales')
   @Put(':id')
   public async update(
     @Param('id') id: string,
@@ -79,24 +82,36 @@ export class CosmeticsController {
     await this.updateCosmeticUseCase.execute(id, request);
   }
 
+  @UseGuards(AuthGuard, OrgGuard)
+  @Roles(Role.Admin, Role.Employee)
+  @Departments('sales')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id/activate')
   public async activate(@Param('id') id: string): Promise<void> {
     await this.activateCosmeticUseCase.execute(id);
   }
 
+  @UseGuards(AuthGuard, OrgGuard)
+  @Roles(Role.Admin, Role.Employee)
+  @Departments('sales')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id/deactivate')
   public async deactivate(@Param('id') id: string): Promise<void> {
     await this.deactivateCosmeticUseCase.execute(id);
   }
 
+  @UseGuards(AuthGuard, OrgGuard)
+  @Roles(Role.Admin, Role.Employee)
+  @Departments('sales')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   public async delete(@Param('id') id: string): Promise<void> {
     await this.deleteCosmeticUseCase.execute(id);
   }
 
+  @UseGuards(AuthGuard, OrgGuard)
+  @Roles(Role.Admin, Role.Employee)
+  @Departments('sales')
   @Post(':id/variants')
   public async addVariant(
     @Param('id') id: string,
@@ -105,6 +120,9 @@ export class CosmeticsController {
     return await this.addVariantUseCase.execute(id, request);
   }
 
+  @UseGuards(AuthGuard, OrgGuard)
+  @Roles(Role.Admin, Role.Employee)
+  @Departments('sales')
   @Put('variants/:variantId')
   public async updateVariant(
     @Param('variantId') variantId: string,
@@ -113,6 +131,9 @@ export class CosmeticsController {
     await this.updateVariantUseCase.execute(variantId, request);
   }
 
+  @UseGuards(AuthGuard, OrgGuard)
+  @Roles(Role.Admin, Role.Employee)
+  @Departments('sales')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch('variants/:variantId/activate')
   public async activateVariant(
@@ -121,6 +142,9 @@ export class CosmeticsController {
     await this.activateVariantUseCase.execute(variantId);
   }
 
+  @UseGuards(AuthGuard, OrgGuard)
+  @Roles(Role.Admin, Role.Employee)
+  @Departments('sales')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch('variants/:variantId/deactivate')
   public async deactivateVariant(
