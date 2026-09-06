@@ -10,7 +10,19 @@ export function useSuppliers() {
   const fetchSuppliers = useCallback(() => {
     setLoading(true);
     suppliersService.getSuppliers().then((data) => {
-      setSuppliers(data);
+      setSuppliers(
+        data.map((s) => ({
+          id: s.id,
+          code: s.code,
+          name: s.name,
+          phone: s.phone || "",
+          email: s.email,
+          address: s.address || "",
+          isActive: s.isActive,
+          createdAt: s.createdAt,
+          updatedAt: s.updatedAt,
+        })),
+      );
       setLoading(false);
     });
   }, []);

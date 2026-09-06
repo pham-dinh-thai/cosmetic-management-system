@@ -1,6 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -15,6 +19,9 @@ import { AssignDepartmentToEmployeeUseCase } from 'apps/employee-service/src/app
 import { AssignDepartmentToEmployeeRequest } from './requests/assign-department-to-employee.request';
 import { UpdateEmployeePositionUseCase } from 'apps/employee-service/src/application/use-cases/update-employee-position/update-employee-position.use-case';
 import { UpdateEmployeePositionRequest } from './requests/update-employee-position.request';
+import { FindAllEmployeesUseCase } from 'apps/employee-service/src/application/use-cases/find-employee/find-all/find-all-employees.use-case';
+import { FindAllEmployeeReadModel } from 'apps/employee-service/src/application/use-cases/find-employee/find-all/read-models/find-all-employee.read-model';
+import { DeleteEmployeeUseCase } from 'apps/employee-service/src/application/use-cases/delete-employee/delete-employee.use-case';
 
 @Controller('employees')
 @UseGuards(AuthGuard, RolesGuard)
@@ -25,7 +32,14 @@ export class EmployeesController {
     private readonly updateEmployeeInformationUseCase: UpdateEmployeeInformationUseCase,
     private readonly assignDepartmentToEmployeeUseCase: AssignDepartmentToEmployeeUseCase,
     private readonly updateEmployeePositionUseCase: UpdateEmployeePositionUseCase,
+    private readonly findAllEmployeesUseCase: FindAllEmployeesUseCase,
+    private readonly deleteEmployeeUseCase: DeleteEmployeeUseCase,
   ) {}
+
+  @Get()
+  public async findAll(): Promise<FindAllEmployeeReadModel[]> {
+    return await this.findAllEmployeesUseCase.execute();
+  }
 
   @Post()
   public async create(@Body() request: CreateEmployeeRequest): Promise<void> {
@@ -54,5 +68,11 @@ export class EmployeesController {
     @Body() request: UpdateEmployeePositionRequest,
   ): Promise<void> {
     await this.updateEmployeePositionUseCase.execute(id, request);
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete(':id')
+  public async delete(@Param('id') id: string): Promise<void> {
+    await this.deleteEmployeeUseCase.execute(id);
   }
 }

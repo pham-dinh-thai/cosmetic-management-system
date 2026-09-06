@@ -22,6 +22,10 @@ import {
 } from './application/use-cases/activate-department/activate-department.use-case';
 import { InternalDepartmentsController } from './presentation/internal/departments/departments.controller';
 import {
+  DeleteDepartmentUseCase,
+  deleteDepartmentUseCaseFactory,
+} from './application/use-cases/delete-department/delete-department.use-case';
+import {
   FindAllDepartmentUseCase,
   findAllDepartmentUseCaseFactory,
 } from './application/use-cases/find-department/find-all/find-all-department.use-case';
@@ -81,6 +85,11 @@ import { EmployeeReaderAdapter } from './infrastructure/adapters/employee-reader
       inject: [DEPARTMENTS_REPOSITORY],
     },
     UpdateDepartmentUseCase,
+    {
+      provide: DeleteDepartmentUseCase,
+      useFactory: deleteDepartmentUseCaseFactory,
+      inject: [DEPARTMENTS_REPOSITORY],
+    },
     {
       provide: DeactivateDepartmentUseCase,
       useFactory: deactivateDepartmentUseCaseFactory,

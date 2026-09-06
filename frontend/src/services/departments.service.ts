@@ -1,48 +1,83 @@
+import api from "../config/axios";
 import type { Department } from "../pages/Admin/routes/Departments/type";
 
-let mockDepartments: Department[] = [
-  { id: "1", code: "PB-001", name: "Phòng Kinh doanh", managerId: "2", positions: ["Quản lý", "Nhân viên bán hàng", "Thực tập sinh"], isActive: true },
-  { id: "2", code: "PB-002", name: "Phòng Kế toán", managerId: "3", positions: ["Kế toán trưởng", "Kế toán viên"], isActive: true },
-  { id: "3", code: "PB-003", name: "Phòng Nhân sự", managerId: null, positions: ["Trưởng phòng", "Chuyên viên tuyển dụng"], isActive: true },
-];
+interface DepartmentDto {
+  id: string;
+  code: string;
+  name: string;
+  managerId: string | null;
+  isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+const toDepartment = (dto: DepartmentDto): Department => ({
+  id: dto.id,
+  code: dto.code,
+  name: dto.name,
+  managerId: dto.managerId ?? null,
+  isActive: dto.isActive,
+  createdAt: dto.createdAt,
+  updatedAt: dto.updatedAt,
+});
+
+function nextDepartmentCode(departments: DepartmentDto[]): string {
+  const max = departments.reduce((acc, d) => {
+    const match = /^PB-(\d+)$/.exec(d.code);
+    return match ? Math.max(acc, Number(match[1])) : acc;
+  }, 0);
+  return `PB-${String(max + 1).padStart(3, "0")}`;
+}
 
 export const departmentsService = {
   async getDepartments(_search?: string): Promise<Department[]> {
-    return [...mockDepartments];
+    const { data } = await api.get<DepartmentDto[]>("/departments");
+    return data.map(toDepartment);
   },
 
   async getDepartmentById(id: string): Promise<Department> {
-    const department = mockDepartments.find(d => d.id === id);
+    const departments = await this.getDepartments();
+    const department = departments.find((d) => d.id === id);
     if (!department) throw new Error("Department not found");
-    return { ...department };
+    return department;
   },
 
-  async createDepartment(payload: Partial<Department>): Promise<{ id: string }> {
-    const newDepartment: Department = {
-      id: Math.random().toString(36).substr(2, 9),
-      code: payload.code || `PB-00${mockDepartments.length + 1}`,
-      name: payload.name || "",
-      managerId: payload.managerId || null,
-      positions: payload.positions || [],
-      isActive: payload.isActive !== undefined ? payload.isActive : true,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    mockDepartments.push(newDepartment);
-    return { id: newDepartment.id };
+  async createDepartment(payload: Partial<Department>): Promise<void> {
+    const { data: departments } = await api.get<DepartmentDto[]>("/departments");
+    const code = payload.code || nextDepartmentCode(departments);
+    await api.post<void>("/departments", { code, name: payload.name });
+
+    if (payload.isActive === false) {
+      const created = (
+        await api.get<DepartmentDto[]>("/departments")
+      ).data.find((d) => d.code === code);
+      if (created) await this.deactivateDepartment(created.id);
+    }
   },
 
   async updateDepartment(id: string, payload: Partial<Department>): Promise<void> {
-    const index = mockDepartments.findIndex((d) => d.id === id);
-    if (index === -1) throw new Error("Department not found");
-    mockDepartments[index] = { 
-      ...mockDepartments[index], 
-      ...payload,
-      updatedAt: new Date().toISOString()
-    };
+    const current = await this.getDepartmentById(id);
+    await api.put<void>(`/departments/${id}`, {
+      code: payload.code || current.code,
+      name: payload.name,
+    });
+
+    if (payload.isActive === false) {
+      await this.deactivateDepartment(id);
+    } else if (payload.isActive === true) {
+      await this.activateDepartment(id);
+    }
   },
 
   async deleteDepartment(id: string): Promise<void> {
-    mockDepartments = mockDepartments.filter((d) => d.id !== id);
+    await api.delete<void>(`/departments/${id}`);
+  },
+
+  async activateDepartment(id: string): Promise<void> {
+    await api.patch<void>(`/departments/${id}/activate`);
+  },
+
+  async deactivateDepartment(id: string): Promise<void> {
+    await api.patch<void>(`/departments/${id}/deactivate`);
   },
 };

@@ -1,10 +1,13 @@
+import { Inject } from '@nestjs/common';
 import { IUpdateDepartmentRequest } from './update-department.request';
-import { IDepartmentsRepository } from 'apps/department-service/src/domain/repositories/departments.repository';
+import { DEPARTMENTS_REPOSITORY } from 'apps/department-service/src/domain/repositories/departments.repository';
+import type { IDepartmentsRepository } from 'apps/department-service/src/domain/repositories/departments.repository';
 import { DepartmentNotFoundException } from 'apps/department-service/src/domain/exceptions/department-not-found.exception';
 import { DepartmentCodeAlreadyExistsException } from 'apps/department-service/src/domain/exceptions/department-code-already-exists.exception';
 
 export class UpdateDepartmentUseCase {
   public constructor(
+    @Inject(DEPARTMENTS_REPOSITORY)
     private readonly departmentsRepository: IDepartmentsRepository,
   ) {}
 

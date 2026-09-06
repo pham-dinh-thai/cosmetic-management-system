@@ -11,6 +11,7 @@ export type FromPersistentDepartmentProps = {
   id: string;
   code: string;
   name: string;
+  isActive: boolean;
   managerId?: string;
 };
 

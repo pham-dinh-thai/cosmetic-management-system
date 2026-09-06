@@ -38,23 +38,6 @@ const DepartmentsPage: React.FC = () => {
     () => [
       { key: "code", header: "Mã PB", render: (d) => <span className="font-mono text-[12px]">{d.code}</span> },
       { key: "name", header: "Tên phòng ban", render: (d) => <span className="font-medium text-[#1c3a13]">{d.name}</span> },
-      { 
-        key: "positions", 
-        header: "Các chức vụ", 
-        render: (d) => (
-          <div className="flex flex-wrap gap-1">
-            {d.positions.length > 0 ? (
-              d.positions.map((pos, i) => (
-                <span key={i} className="inline-flex bg-gray-100 text-gray-700 rounded px-2 py-0.5 text-xs">
-                  {pos}
-                </span>
-              ))
-            ) : (
-              <span className="text-[#666666]">-</span>
-            )}
-          </div>
-        ) 
-      },
       {
         key: "isActive",
         header: "Trạng thái",
@@ -94,7 +77,7 @@ const DepartmentsPage: React.FC = () => {
       <PageHeader
         eyebrow="Quản lý / Phòng ban"
         title="Danh sách phòng ban"
-        description="Quản lý thông tin phòng ban và các chức vụ trực thuộc."
+        description="Quản lý thông tin phòng ban."
         actions={<Button variant="primary" onClick={openAdd}>+ Thêm phòng ban</Button>}
       />
       <div className="max-w-md">

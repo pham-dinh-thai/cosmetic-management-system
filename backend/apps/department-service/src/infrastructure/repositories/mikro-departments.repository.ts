@@ -51,6 +51,14 @@ export class MikroDepartmentsRepository implements IDepartmentsRepository {
     );
   }
 
+  public async delete(id: string): Promise<boolean> {
+    const result = await this.entityManager.nativeDelete(DepartmentMikro, {
+      id,
+    });
+
+    return result > 0;
+  }
+
   public async deactivate(id: string): Promise<void> {
     await this.entityManager.nativeUpdate(
       DepartmentMikro,

@@ -1,12 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageHeader, Input, Button, Card, Select } from "../../../../components/ui/Primitives";
 import { employeesService } from "../../../../services/employees.service";
+import { departmentsService } from "../../../../services/departments.service";
+import type { Department } from "../Departments/type";
 import type { Employee } from "../Employees/type";
 
 const AddEmployeePage: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [departments, setDepartments] = useState<Department[]>([]);
   const [formData, setFormData] = useState<Partial<Employee>>({
     name: "",
     phone: "",
@@ -18,10 +21,18 @@ const AddEmployeePage: React.FC = () => {
     hiredAt: new Date().toISOString().split('T')[0],
   });
 
+  useEffect(() => {
+    departmentsService.getDepartments().then((data) => setDepartments(data));
+  }, []);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
+
+  const departmentOptions = departments
+    .filter((d) => d.isActive)
+    .map((d) => ({ value: d.id, label: d.name }));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,13 +101,17 @@ const AddEmployeePage: React.FC = () => {
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
               <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
-                Phòng ban
+                Phòng ban <span className="text-red-500">*</span>
               </label>
-              <Input
+              <Select
                 name="departmentId"
+                required
                 value={formData.departmentId || ""}
                 onChange={handleChange}
-                placeholder="Ví dụ: Kế toán"
+                options={[
+                  { value: "", label: "Chọn phòng ban" },
+                  ...departmentOptions,
+                ]}
               />
             </div>
             <div className="flex flex-col gap-1.5">
@@ -106,6 +121,7 @@ const AddEmployeePage: React.FC = () => {
               <Select
                 name="position"
                 required
+                disabled={!formData.departmentId}
                 value={formData.position || "MEMBER"}
                 onChange={handleChange}
                 options={[

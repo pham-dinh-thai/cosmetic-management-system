@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { PageHeader, Input, Button, Card, Select } from "../../../../components/ui/Primitives";
 import { employeesService } from "../../../../services/employees.service";
+import { departmentsService } from "../../../../services/departments.service";
+import type { Department } from "../Departments/type";
 import type { Employee } from "../Employees/type";
 
 const EditEmployeePage: React.FC = () => {
@@ -9,6 +11,7 @@ const EditEmployeePage: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const [departments, setDepartments] = useState<Department[]>([]);
   const [formData, setFormData] = useState<Partial<Employee>>({
     name: "",
     phone: "",
@@ -21,6 +24,10 @@ const EditEmployeePage: React.FC = () => {
   });
 
   useEffect(() => {
+    departmentsService.getDepartments().then((data) => setDepartments(data));
+  }, []);
+
+  useEffect(() => {
     if (id) {
       employeesService.getEmployeeById(id)
         .then(data => {
@@ -31,7 +38,7 @@ const EditEmployeePage: React.FC = () => {
             address: data.address || "",
             departmentId: data.departmentId || "",
             position: data.position || "MEMBER",
-            status: data.status || "ACTIVE",
+            status: (data.status as Employee["status"]) || "ACTIVE",
             hiredAt: data.hiredAt ? new Date(data.hiredAt).toISOString().split('T')[0] : "",
           });
         })
@@ -66,6 +73,21 @@ const EditEmployeePage: React.FC = () => {
       setLoading(false);
     }
   };
+
+  const departmentOptions = departments.map((d) => ({ value: d.id, label: d.name }));
+  const currentInOptions = departmentOptions.some(
+    (o) => o.value === formData.departmentId,
+  );
+  const allDepartmentOptions =
+    formData.departmentId && !currentInOptions
+      ? [
+          ...departmentOptions,
+          {
+            value: formData.departmentId,
+            label: formData.departmentId,
+          },
+        ]
+      : departmentOptions;
 
   if (fetching) {
     return <div className="py-12 text-center text-[#666666]">Đang tải thông tin nhân viên…</div>;
@@ -124,13 +146,17 @@ const EditEmployeePage: React.FC = () => {
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
               <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
-                Phòng ban
+                Phòng ban <span className="text-red-500">*</span>
               </label>
-              <Input
+              <Select
                 name="departmentId"
+                required
                 value={formData.departmentId || ""}
                 onChange={handleChange}
-                placeholder="Ví dụ: Kế toán"
+                options={[
+                  { value: "", label: "Chọn phòng ban" },
+                  ...allDepartmentOptions,
+                ]}
               />
             </div>
             <div className="flex flex-col gap-1.5">
@@ -140,6 +166,7 @@ const EditEmployeePage: React.FC = () => {
               <Select
                 name="position"
                 required
+                disabled={!formData.departmentId}
                 value={formData.position || "MEMBER"}
                 onChange={handleChange}
                 options={[
