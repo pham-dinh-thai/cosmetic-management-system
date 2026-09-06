@@ -18,6 +18,7 @@ export interface RegisterPayload {
   gender: RegisterGender;
   email: string;
   password: string;
+  passwordConfirmation: string;
 }
 
 export interface RegisterResponse {

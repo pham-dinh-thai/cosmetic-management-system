@@ -4,6 +4,6 @@ export class PasswordNotMatchingException extends BaseDomainException {
   public readonly statusCode = 401;
 
   public constructor() {
-    super('Password is not matching');
+    super('Mật khẩu xác nhận không khớp');
   }
 }

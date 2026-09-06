@@ -4,6 +4,6 @@ export class InvalidCredentialsException extends BaseDomainException {
   public readonly statusCode = 401;
 
   public constructor() {
-    super('Email or password wrong');
+    super('Email hoặc mật khẩu không hợp lệ');
   }
 }

@@ -39,14 +39,14 @@ export class RegisterRequest implements IRegisterRequest {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  @MinLength(8)
+  @MinLength(8, { message: 'Mật khẩu phải dài tối thiểu 8 ký tự' })
   @MaxLength(255)
   password!: string;
 
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  @MinLength(8)
+  @MinLength(8, { message: 'Mật khẩu phải dài tối thiểu 8 ký tự' })
   @MaxLength(255)
   passwordConfirmation!: string;
 }

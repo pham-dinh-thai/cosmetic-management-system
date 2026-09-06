@@ -4,6 +4,6 @@ export class UserNotFoundException extends BaseDomainException {
   public readonly statusCode = 404;
 
   public constructor(key: string, value: string) {
-    super(`User with ${key} ${value} not found`);
+    super(`Người dùng ${key}: ${value} - không tìm thấy`);
   }
 }
