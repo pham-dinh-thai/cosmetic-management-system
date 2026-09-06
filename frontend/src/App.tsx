@@ -7,6 +7,8 @@ import Register from "./pages/Register";
 import Admin from "./pages/Admin";
 import Employee from "./pages/Employee";
 import ProductDetail from "./pages/ProductDetail";
+import NotFound from "./pages/NotFound";
+import RoleRoute from "./components/RoleRoute";
 
 function App() {
   return (
@@ -17,8 +19,17 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/" element={<LandingPage />} />
           <Route path="/product/:code" element={<ProductDetail />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/employee" element={<Employee />} />
+          <Route path="/admin" element={
+            <RoleRoute allowedRoles={["admin"]}>
+              <Admin />
+            </RoleRoute>
+          } />
+          <Route path="/employee" element={
+            <RoleRoute allowedRoles={["employee"]}>
+              <Employee />
+            </RoleRoute>
+          } />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
       <Toaster 
