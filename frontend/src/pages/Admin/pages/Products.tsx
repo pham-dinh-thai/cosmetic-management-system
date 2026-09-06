@@ -15,7 +15,9 @@ import {
 type StatusFilter = "all" | "active" | "inactive";
 
 interface ProductsProps {
-  onAdd: () => void;
+  onAdd?: () => void;
+  onViewDetail?: (id: string) => void;
+  onEdit?: (id: string) => void;
 }
 
 const STATUS_OPTIONS = [
@@ -30,7 +32,7 @@ const SORT_OPTIONS = [
   { value: "variants", label: "Nhiều biến thể trước" },
 ];
 
-const Products: React.FC<ProductsProps> = ({ onAdd }) => {
+const Products: React.FC<ProductsProps> = ({ onAdd, onViewDetail, onEdit }) => {
   const navigate = useNavigate();
   const [products, setProducts] = useState<CosmeticSummary[]>([]);
   const [loading, setLoading] = useState(true);
@@ -144,11 +146,15 @@ const Products: React.FC<ProductsProps> = ({ onAdd }) => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate(`/product/${p.code}`)}
+              onClick={() => onViewDetail && onViewDetail(p.id)}
             >
               Xem chi tiết
             </Button>
-            <Button variant="outline" size="sm">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => onEdit && onEdit(p.id)}
+            >
               Sửa
             </Button>
             <Button

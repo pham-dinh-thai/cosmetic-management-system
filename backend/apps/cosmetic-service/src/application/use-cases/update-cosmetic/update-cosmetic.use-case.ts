@@ -17,6 +17,7 @@ export class UpdateCosmeticUseCase {
       origin: request.origin ?? null,
       description: request.description ?? null,
       imageUrl: request.imageUrl ?? null,
+      categoryIds: request.categoryIds,
     });
 
     if (!updated) {
