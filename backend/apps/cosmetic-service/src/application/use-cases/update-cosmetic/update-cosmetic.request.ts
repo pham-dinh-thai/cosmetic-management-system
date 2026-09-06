@@ -4,4 +4,5 @@ export interface IUpdateCosmeticRequest {
   origin?: string;
   description?: string;
   imageUrl?: string;
+  categoryIds?: string[];
 }

@@ -11,6 +11,8 @@ import PurchaseOrders from "./pages/PurchaseOrders";
 import Inventory from "./pages/Inventory";
 import Reports from "./pages/Reports";
 import AddProduct from "./pages/AddProduct";
+import ProductDetailAdmin from "./pages/ProductDetailAdmin";
+import EditProduct from "./pages/EditProduct";
 
 export type AdminPageKey =
   | "overview"
@@ -19,6 +21,8 @@ export type AdminPageKey =
   | "suppliers"
   | "products"
   | "products-add"
+  | "products-detail"
+  | "products-edit"
   | "purchase"
   | "inventory"
   | "reports";
@@ -67,6 +71,8 @@ const PAGE_TITLES: Record<AdminPageKey, string> = {
   suppliers: "Nhà cung cấp",
   products: "Sản phẩm",
   "products-add": "Thêm sản phẩm",
+  "products-detail": "Chi tiết sản phẩm",
+  "products-edit": "Sửa sản phẩm",
   purchase: "Nhập hàng",
   inventory: "Kho",
   reports: "Báo cáo",
@@ -74,6 +80,7 @@ const PAGE_TITLES: Record<AdminPageKey, string> = {
 
 const Admin: React.FC = () => {
   const [active, setActive] = useState<AdminPageKey>("overview");
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
 
   const sections = SECTIONS(active).map((section) => ({
     ...section,
@@ -82,6 +89,16 @@ const Admin: React.FC = () => {
       onClick: () => setActive(item.id as AdminPageKey),
     })),
   }));
+
+  const handleViewDetail = (id: string) => {
+    setSelectedProductId(id);
+    setActive("products-detail");
+  };
+
+  const handleEdit = (id: string) => {
+    setSelectedProductId(id);
+    setActive("products-edit");
+  };
 
   return (
     <DashboardLayout
@@ -93,8 +110,20 @@ const Admin: React.FC = () => {
       {active === "customers" && <Customers />}
       {active === "employees" && <Employees />}
       {active === "suppliers" && <Suppliers />}
-      {active === "products" && <Products onAdd={() => setActive("products-add")} />}
+      {active === "products" && (
+        <Products 
+          onAdd={() => setActive("products-add")} 
+          onViewDetail={handleViewDetail}
+          onEdit={handleEdit}
+        />
+      )}
       {active === "products-add" && <AddProduct onBack={() => setActive("products")} />}
+      {active === "products-detail" && selectedProductId && (
+        <ProductDetailAdmin productId={selectedProductId} onBack={() => setActive("products")} />
+      )}
+      {active === "products-edit" && selectedProductId && (
+        <EditProduct productId={selectedProductId} onBack={() => setActive("products")} />
+      )}
       {active === "purchase" && <PurchaseOrders />}
       {active === "inventory" && <Inventory />}
       {active === "reports" && <Reports />}
