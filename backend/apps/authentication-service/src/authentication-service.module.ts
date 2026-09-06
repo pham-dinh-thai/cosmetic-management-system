@@ -26,6 +26,14 @@ import {
   LoginUseCase,
   loginUseCaseFactory,
 } from './application/use-cases/login/login.use-case';
+import {
+  RefreshTokenUseCase,
+  refreshTokenUseCaseFactory,
+} from './application/use-cases/refresh-token/refresh-token.use-case';
+import {
+  PermissionResolver,
+  permissionResolverFactory,
+} from './application/services/permission.resolver';
 import { AuthUsersController } from './presentation/public/auth-users/auth-users.controller';
 import { InternalAuthUsersController } from './presentation/internal/auth-users/auth-users.controller';
 import { CREATE_USER_PORT } from './application/use-cases/register/ports/create-user.port';
@@ -36,6 +44,10 @@ import {
   RegisterUseCase,
   registerUseCaseFactory,
 } from './application/use-cases/register/register.use-case';
+import { EMPLOYEE_PERMISSION_READER_PORT } from './application/ports/employee-permission-reader.port';
+import { EmployeePermissionReaderAdapter } from './infrastructure/adapters/employee-permission-reader.adapter';
+import { DEPARTMENT_PERMISSION_READER_PORT } from './application/ports/department-permission-reader.port';
+import { DepartmentPermissionReaderAdapter } from './infrastructure/adapters/department-permission-reader.adapter';
 
 @Module({
   imports: [
@@ -102,6 +114,20 @@ import {
         PASSWORD_HASHER_PORT,
         AUTH_USERS_QUERY_REPOSITORY,
         SIGN_TOKEN_PORT,
+        PermissionResolver,
+      ],
+    },
+    {
+      provide: RefreshTokenUseCase,
+      useFactory: refreshTokenUseCaseFactory,
+      inject: [SIGN_TOKEN_PORT, USERS_READER_PORT, PermissionResolver],
+    },
+    {
+      provide: PermissionResolver,
+      useFactory: permissionResolverFactory,
+      inject: [
+        EMPLOYEE_PERMISSION_READER_PORT,
+        DEPARTMENT_PERMISSION_READER_PORT,
       ],
     },
     {
@@ -121,6 +147,14 @@ import {
         CREATE_CUSTOMER_PORT,
         SIGN_TOKEN_PORT,
       ],
+    },
+    {
+      provide: EMPLOYEE_PERMISSION_READER_PORT,
+      useClass: EmployeePermissionReaderAdapter,
+    },
+    {
+      provide: DEPARTMENT_PERMISSION_READER_PORT,
+      useClass: DepartmentPermissionReaderAdapter,
     },
   ],
 })

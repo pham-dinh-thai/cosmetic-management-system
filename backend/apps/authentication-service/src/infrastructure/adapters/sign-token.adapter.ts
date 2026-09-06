@@ -27,4 +27,16 @@ export class SignTokenAdapter implements ISignTokenPort {
       expiresIn: this.configService.get('JWT_REFRESH_EXPIRES_IN'),
     });
   }
+
+  public async verifyRefreshToken(
+    token: string,
+  ): Promise<RefreshTokenPayload | null> {
+    try {
+      return await this.jwtService.verifyAsync<RefreshTokenPayload>(token, {
+        secret: this.configService.get('JWT_REFRESH_SECRET'),
+      });
+    } catch {
+      return null;
+    }
+  }
 }

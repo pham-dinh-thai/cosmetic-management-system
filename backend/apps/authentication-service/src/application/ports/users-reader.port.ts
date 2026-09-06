@@ -1,8 +1,5 @@
 import { UserReadModel } from '../../domain/read-models/user.read-model';
-
-export class FindUserByIdReadModel {
-  public constructor(public readonly id: string) {}
-}
+import { FindUserByIdReadModel } from '../../domain/read-models/user-by-id.read-model';
 
 export interface IUsersReaderPort {
   findById(id: string): Promise<FindUserByIdReadModel | null>;

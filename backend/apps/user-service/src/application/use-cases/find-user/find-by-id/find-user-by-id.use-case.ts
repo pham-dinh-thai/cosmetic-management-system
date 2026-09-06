@@ -15,6 +15,7 @@ export class FindUserByIdUseCase {
           user.getGender(),
           user.getEmail(),
           user.getRoleId(),
+          user.getIsActive(),
         )
       : null;
   }

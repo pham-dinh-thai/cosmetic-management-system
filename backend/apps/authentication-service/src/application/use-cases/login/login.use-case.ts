@@ -6,6 +6,7 @@ import { type ISignTokenPort } from '../../ports/sign-token.port';
 import { LoginResponse } from './login.response';
 import { InvalidCredentialsException } from 'apps/authentication-service/src/domain/exceptions/invalid-credentials.exception';
 import { UserDeactivatedException } from 'apps/authentication-service/src/domain/exceptions/user-deactivated.exception';
+import { PermissionResolver } from '../../services/permission.resolver';
 
 export class LoginUseCase {
   public constructor(
@@ -13,6 +14,7 @@ export class LoginUseCase {
     private readonly passwordHasherPort: IPasswordHasherPort,
     private readonly authUsersQueryRepository: IAuthUsersQueryRepository,
     private readonly signTokenPort: ISignTokenPort,
+    private readonly permissionResolver: PermissionResolver,
   ) {}
 
   public async execute(request: ILoginRequest): Promise<LoginResponse> {
@@ -40,11 +42,15 @@ export class LoginUseCase {
       throw new InvalidCredentialsException();
     }
 
+    const permission = await this.permissionResolver.load(user.id);
+
     return new LoginResponse(
       this.signTokenPort.signAccessToken({
         sub: user.id,
         email: request.email,
         roleId: user.roleId,
+        departmentCode: permission?.departmentCode,
+        position: permission?.position,
       }),
       this.signTokenPort.signRefreshToken({ sub: user.id }),
     );
@@ -56,10 +62,12 @@ export const loginUseCaseFactory = (
   passwordHasherPort: IPasswordHasherPort,
   authUsersQueryRepository: IAuthUsersQueryRepository,
   signTokenPort: ISignTokenPort,
+  permissionResolver: PermissionResolver,
 ): LoginUseCase =>
   new LoginUseCase(
     usersReaderPort,
     passwordHasherPort,
     authUsersQueryRepository,
     signTokenPort,
+    permissionResolver,
   );
