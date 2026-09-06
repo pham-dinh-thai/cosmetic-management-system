@@ -193,7 +193,7 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
                       </svg>
                       <span>Thông tin cá nhân</span>
                     </Link>
-                    {role && role !== 'customer' && (
+                    {role === 'admin' && (
                       <Link
                         to="/admin"
                         onClick={() => setIsProfileMenuOpen(false)}
