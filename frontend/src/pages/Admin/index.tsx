@@ -10,6 +10,7 @@ import Products from "./pages/Products";
 import PurchaseOrders from "./pages/PurchaseOrders";
 import Inventory from "./pages/Inventory";
 import Reports from "./pages/Reports";
+import AddProduct from "./pages/AddProduct";
 
 export type AdminPageKey =
   | "overview"
@@ -17,6 +18,7 @@ export type AdminPageKey =
   | "employees"
   | "suppliers"
   | "products"
+  | "products-add"
   | "purchase"
   | "inventory"
   | "reports";
@@ -64,6 +66,7 @@ const PAGE_TITLES: Record<AdminPageKey, string> = {
   employees: "Nhân viên",
   suppliers: "Nhà cung cấp",
   products: "Sản phẩm",
+  "products-add": "Thêm sản phẩm",
   purchase: "Nhập hàng",
   inventory: "Kho",
   reports: "Báo cáo",
@@ -90,7 +93,8 @@ const Admin: React.FC = () => {
       {active === "customers" && <Customers />}
       {active === "employees" && <Employees />}
       {active === "suppliers" && <Suppliers />}
-      {active === "products" && <Products />}
+      {active === "products" && <Products onAdd={() => setActive("products-add")} />}
+      {active === "products-add" && <AddProduct onBack={() => setActive("products")} />}
       {active === "purchase" && <PurchaseOrders />}
       {active === "inventory" && <Inventory />}
       {active === "reports" && <Reports />}
