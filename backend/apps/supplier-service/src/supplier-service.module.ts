@@ -35,9 +35,6 @@ import {
   DeleteSupplierUseCase,
   deleteSupplierUseCaseFactory,
 } from './application/use-cases/delete-supplier/delete-supplier.use-case';
-import { DEPARTMENT_READER_PORT, EMPLOYEE_READER_PORT } from '@app/security';
-import { EmployeeReaderAdapter } from './infrastructure/adapters/employee-reader.adapter';
-import { DepartmentReaderAdapter } from './infrastructure/adapters/department-reader.adapter';
 
 @Module({
   imports: [
@@ -68,17 +65,6 @@ import { DepartmentReaderAdapter } from './infrastructure/adapters/department-re
   controllers: [SuppliersController],
   providers: [
     { provide: SUPPLIERS_REPOSITORY, useClass: MikroSuppliersRepository },
-    {
-      provide: EMPLOYEE_READER_PORT,
-      useFactory: (config: ConfigService) => new EmployeeReaderAdapter(config),
-      inject: [ConfigService],
-    },
-    {
-      provide: DEPARTMENT_READER_PORT,
-      useFactory: (config: ConfigService) =>
-        new DepartmentReaderAdapter(config),
-      inject: [ConfigService],
-    },
     {
       provide: CreateSupplierUseCase,
       useFactory: createSupplierUseCaseFactory,

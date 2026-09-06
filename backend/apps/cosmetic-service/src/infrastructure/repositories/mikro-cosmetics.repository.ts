@@ -112,7 +112,6 @@ export class MikroCosmeticsRepository implements ICosmeticsRepository {
       brand: string | null;
       origin: string | null;
       description: string | null;
-      imageUrl: string | null;
       categoryIds?: string[];
     },
   ): Promise<Cosmetic | null> {
@@ -132,11 +131,12 @@ export class MikroCosmeticsRepository implements ICosmeticsRepository {
     cosmeticMikro.brand = data.brand;
     cosmeticMikro.origin = data.origin;
     cosmeticMikro.description = data.description;
-    cosmeticMikro.imageUrl = data.imageUrl;
 
     if (data.categoryIds) {
-      await this.entityManager.nativeDelete(CosmeticCategoryMikro, { cosmetic: cosmeticMikro });
-      
+      await this.entityManager.nativeDelete(CosmeticCategoryMikro, {
+        cosmetic: cosmeticMikro,
+      });
+
       for (const categoryId of data.categoryIds) {
         const categoryMikro = new CosmeticCategoryMikro();
         categoryMikro.cosmetic = cosmeticMikro;
@@ -144,6 +144,33 @@ export class MikroCosmeticsRepository implements ICosmeticsRepository {
         this.entityManager.persist(categoryMikro);
       }
     }
+
+    await this.entityManager.flush();
+
+    const updatedMikro = await this.entityManager.findOneOrFail(
+      CosmeticMikro,
+      { id },
+      { populate: ['variants', 'categories'] },
+    );
+
+    return CosmeticsMapper.toDomain(updatedMikro);
+  }
+
+  public async updateImage(
+    id: string,
+    imageUrl: string,
+  ): Promise<Cosmetic | null> {
+    const cosmeticMikro = await this.entityManager.findOne(
+      CosmeticMikro,
+      { id },
+      { populate: ['variants', 'categories'] },
+    );
+
+    if (!cosmeticMikro) {
+      return null;
+    }
+
+    cosmeticMikro.imageUrl = imageUrl;
 
     await this.entityManager.flush();
 

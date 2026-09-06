@@ -31,6 +31,10 @@ import {
   updateCosmeticUseCaseFactory,
 } from './application/use-cases/update-cosmetic/update-cosmetic.use-case';
 import {
+  UpdateCosmeticImageUseCase,
+  updateCosmeticImageUseCaseFactory,
+} from './application/use-cases/update-cosmetic-image/update-cosmetic-image.use-case';
+import {
   ActivateCosmeticUseCase,
   activateCosmeticUseCaseFactory,
 } from './application/use-cases/activate-cosmetic/activate-cosmetic.use-case';
@@ -58,9 +62,6 @@ import {
   DeactivateVariantUseCase,
   deactivateVariantUseCaseFactory,
 } from './application/use-cases/deactivate-variant/deactivate-variant.use-case';
-import { DEPARTMENT_READER_PORT, EMPLOYEE_READER_PORT } from '@app/security';
-import { DepartmentReaderAdapter } from './infrastructure/adapters/department-reader.adapter';
-import { EmployeeReaderAdapter } from './infrastructure/adapters/employee-reader.adapter';
 
 @Module({
   imports: [
@@ -117,6 +118,11 @@ import { EmployeeReaderAdapter } from './infrastructure/adapters/employee-reader
       inject: [COSMETICS_REPOSITORY],
     },
     {
+      provide: UpdateCosmeticImageUseCase,
+      useFactory: updateCosmeticImageUseCaseFactory,
+      inject: [COSMETICS_REPOSITORY],
+    },
+    {
       provide: ActivateCosmeticUseCase,
       useFactory: activateCosmeticUseCaseFactory,
       inject: [COSMETICS_REPOSITORY],
@@ -130,17 +136,6 @@ import { EmployeeReaderAdapter } from './infrastructure/adapters/employee-reader
       provide: DeleteCosmeticUseCase,
       useFactory: deleteCosmeticUseCaseFactory,
       inject: [COSMETICS_REPOSITORY],
-    },
-    {
-      provide: DEPARTMENT_READER_PORT,
-      useFactory: (config: ConfigService) =>
-        new DepartmentReaderAdapter(config),
-      inject: [ConfigService],
-    },
-    {
-      provide: EMPLOYEE_READER_PORT,
-      useFactory: (config: ConfigService) => new EmployeeReaderAdapter(config),
-      inject: [ConfigService],
     },
     {
       provide: AddVariantUseCase,

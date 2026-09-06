@@ -35,9 +35,6 @@ import {
   DeactivateCategoryUseCase,
   deactivateCategoryUseCaseFactory,
 } from './application/use-cases/deactivate-category/deactivate-category.use-case';
-import { DEPARTMENT_READER_PORT, EMPLOYEE_READER_PORT } from '@app/security';
-import { EmployeeReaderAdapter } from './infrastructure/adapters/employee-reader.adapter';
-import { DepartmentReaderAdapter } from './infrastructure/adapters/department-reader.adapter';
 
 @Module({
   imports: [
@@ -68,17 +65,6 @@ import { DepartmentReaderAdapter } from './infrastructure/adapters/department-re
   controllers: [CategoriesController],
   providers: [
     { provide: CATEGORIES_REPOSITORY, useClass: MikroCategoriesRepository },
-    {
-      provide: EMPLOYEE_READER_PORT,
-      useFactory: (config: ConfigService) => new EmployeeReaderAdapter(config),
-      inject: [ConfigService],
-    },
-    {
-      provide: DEPARTMENT_READER_PORT,
-      useFactory: (config: ConfigService) =>
-        new DepartmentReaderAdapter(config),
-      inject: [ConfigService],
-    },
     {
       provide: CreateCategoryUseCase,
       useFactory: createCategoryUseCaseFactory,

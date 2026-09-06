@@ -19,6 +19,7 @@ import { FindAllCosmeticReadModel } from 'apps/cosmetic-service/src/application/
 import { FindCosmeticByIdUseCase } from 'apps/cosmetic-service/src/application/use-cases/find-cosmetic/find-by-id/find-cosmetic-by-id.use-case';
 import { FindCosmeticByIdReadModel } from 'apps/cosmetic-service/src/application/use-cases/find-cosmetic/find-by-id/read-models/find-cosmetic-by-id.read-model';
 import { UpdateCosmeticUseCase } from 'apps/cosmetic-service/src/application/use-cases/update-cosmetic/update-cosmetic.use-case';
+import { UpdateCosmeticImageUseCase } from 'apps/cosmetic-service/src/application/use-cases/update-cosmetic-image/update-cosmetic-image.use-case';
 import { ActivateCosmeticUseCase } from 'apps/cosmetic-service/src/application/use-cases/activate-cosmetic/activate-cosmetic.use-case';
 import { DeactivateCosmeticUseCase } from 'apps/cosmetic-service/src/application/use-cases/deactivate-cosmetic/deactivate-cosmetic.use-case';
 import { DeleteCosmeticUseCase } from 'apps/cosmetic-service/src/application/use-cases/delete-cosmetic/delete-cosmetic.use-case';
@@ -28,6 +29,7 @@ import { ActivateVariantUseCase } from 'apps/cosmetic-service/src/application/us
 import { DeactivateVariantUseCase } from 'apps/cosmetic-service/src/application/use-cases/deactivate-variant/deactivate-variant.use-case';
 import { CreateCosmeticRequest } from './requests/create-cosmetic.request';
 import { UpdateCosmeticRequest } from './requests/update-cosmetic.request';
+import { UpdateCosmeticImageRequest } from './requests/update-cosmetic-image.request';
 import { AddVariantRequest } from './requests/add-variant.request';
 import { UpdateVariantRequest } from './requests/update-variant.request';
 
@@ -38,6 +40,7 @@ export class CosmeticsController {
     private readonly findCosmeticByIdUseCase: FindCosmeticByIdUseCase,
     private readonly createCosmeticUseCase: CreateCosmeticUseCase,
     private readonly updateCosmeticUseCase: UpdateCosmeticUseCase,
+    private readonly updateCosmeticImageUseCase: UpdateCosmeticImageUseCase,
     private readonly activateCosmeticUseCase: ActivateCosmeticUseCase,
     private readonly deactivateCosmeticUseCase: DeactivateCosmeticUseCase,
     private readonly deleteCosmeticUseCase: DeleteCosmeticUseCase,
@@ -80,6 +83,17 @@ export class CosmeticsController {
     @Body() request: UpdateCosmeticRequest,
   ): Promise<void> {
     await this.updateCosmeticUseCase.execute(id, request);
+  }
+
+  @UseGuards(AuthGuard, OrgGuard)
+  @Roles(Role.Admin, Role.Employee)
+  @Departments('sales')
+  @Patch(':id/image')
+  public async updateImage(
+    @Param('id') id: string,
+    @Body() request: UpdateCosmeticImageRequest,
+  ): Promise<void> {
+    await this.updateCosmeticImageUseCase.execute(id, request);
   }
 
   @UseGuards(AuthGuard, OrgGuard)
