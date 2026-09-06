@@ -13,6 +13,7 @@ import Reports from "./pages/Reports";
 import AddProduct from "./pages/AddProduct";
 import ProductDetailAdmin from "./pages/ProductDetailAdmin";
 import EditProduct from "./pages/EditProduct";
+import Categories from "./pages/Categories";
 
 export type AdminPageKey =
   | "overview"
@@ -23,6 +24,7 @@ export type AdminPageKey =
   | "products-add"
   | "products-detail"
   | "products-edit"
+  | "categories"
   | "purchase"
   | "inventory"
   | "reports";
@@ -58,6 +60,7 @@ const SECTIONS = (active: AdminPageKey): SidebarSection[] => [
     title: "Sản phẩm & Kho",
     items: [
       { id: "products", label: "Sản phẩm", active: active === "products" },
+      { id: "categories", label: "Danh mục", active: active === "categories" },
       { id: "purchase", label: "Nhập hàng", active: active === "purchase" },
       { id: "inventory", label: "Kho", active: active === "inventory" },
     ],
@@ -73,6 +76,7 @@ const PAGE_TITLES: Record<AdminPageKey, string> = {
   "products-add": "Thêm sản phẩm",
   "products-detail": "Chi tiết sản phẩm",
   "products-edit": "Sửa sản phẩm",
+  categories: "Danh mục",
   purchase: "Nhập hàng",
   inventory: "Kho",
   reports: "Báo cáo",
@@ -124,6 +128,7 @@ const Admin: React.FC = () => {
       {active === "products-edit" && selectedProductId && (
         <EditProduct productId={selectedProductId} onBack={() => setActive("products")} />
       )}
+      {active === "categories" && <Categories />}
       {active === "purchase" && <PurchaseOrders />}
       {active === "inventory" && <Inventory />}
       {active === "reports" && <Reports />}

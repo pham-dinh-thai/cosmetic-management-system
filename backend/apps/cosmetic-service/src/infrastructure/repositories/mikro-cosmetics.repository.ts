@@ -18,7 +18,7 @@ export class MikroCosmeticsRepository implements ICosmeticsRepository {
   public constructor(private readonly entityManager: EntityManager) {}
 
   public async findAll(search?: string): Promise<Cosmetic[]> {
-    const where: Record<string, unknown> = { isActive: true };
+    const where: Record<string, unknown> = {};
 
     if (search) {
       where.$or = [

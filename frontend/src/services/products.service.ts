@@ -101,6 +101,27 @@ export const productsService = {
     return data;
   },
 
+  async createCategory(payload: { name: string; description?: string }): Promise<{ id: string }> {
+    const { data } = await api.post<{ id: string }>("/categories", payload);
+    return data;
+  },
+
+  async updateCategory(id: string, payload: { name: string; description?: string }): Promise<void> {
+    await api.put<void>(`/categories/${id}`, payload);
+  },
+
+  async deleteCategory(id: string): Promise<void> {
+    await api.delete<void>(`/categories/${id}`);
+  },
+
+  async activateCategory(id: string): Promise<void> {
+    await api.patch<void>(`/categories/${id}/activate`);
+  },
+
+  async deactivateCategory(id: string): Promise<void> {
+    await api.patch<void>(`/categories/${id}/deactivate`);
+  },
+
   async createCosmetic(payload: CreateCosmeticPayload): Promise<{ id: string }> {
     const { data } = await api.post<{ id: string }>("/cosmetics", payload);
     return data;
