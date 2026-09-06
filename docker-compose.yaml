@@ -374,6 +374,8 @@ services:
       COSMETIC_DB_PASSWORD: ${COSMETIC_DB_PASSWORD}
       COSMETIC_DB_NAME: ${COSMETIC_DB_NAME}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      EMPLOYEE_SERVICE_URL: ${EMPLOYEE_SERVICE_URL}
+      DEPARTMENT_SERVICE_URL: ${DEPARTMENT_SERVICE_URL}
     ports:
       - "3009:3009"
     depends_on:
@@ -526,6 +528,4 @@ services:
       - gateway-service
 
 volumes:
-
   postgres-data:
-

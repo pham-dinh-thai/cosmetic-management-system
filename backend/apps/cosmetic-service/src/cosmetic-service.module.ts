@@ -58,6 +58,9 @@ import {
   DeactivateVariantUseCase,
   deactivateVariantUseCaseFactory,
 } from './application/use-cases/deactivate-variant/deactivate-variant.use-case';
+import { DEPARTMENT_READER_PORT, EMPLOYEE_READER_PORT } from '@app/security';
+import { DepartmentReaderAdapter } from './infrastructure/adapters/department-reader.adapter';
+import { EmployeeReaderAdapter } from './infrastructure/adapters/employee-reader.adapter';
 
 @Module({
   imports: [
@@ -127,6 +130,17 @@ import {
       provide: DeleteCosmeticUseCase,
       useFactory: deleteCosmeticUseCaseFactory,
       inject: [COSMETICS_REPOSITORY],
+    },
+    {
+      provide: DEPARTMENT_READER_PORT,
+      useFactory: (config: ConfigService) =>
+        new DepartmentReaderAdapter(config),
+      inject: [ConfigService],
+    },
+    {
+      provide: EMPLOYEE_READER_PORT,
+      useFactory: (config: ConfigService) => new EmployeeReaderAdapter(config),
+      inject: [ConfigService],
     },
     {
       provide: AddVariantUseCase,
