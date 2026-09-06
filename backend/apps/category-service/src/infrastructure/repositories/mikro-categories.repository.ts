@@ -10,7 +10,7 @@ export class MikroCategoriesRepository implements ICategoriesRepository {
   public constructor(private readonly entityManager: EntityManager) {}
 
   public async findAll(search?: string): Promise<Category[]> {
-    const where: Record<string, unknown> = { isActive: true };
+    const where: Record<string, unknown> = {};
 
     if (search) {
       where.name = { $ilike: `%${search}%` };
