@@ -16,7 +16,6 @@ export class UpdateCosmeticUseCase {
       brand: request.brand ?? null,
       origin: request.origin ?? null,
       description: request.description ?? null,
-      imageUrl: request.imageUrl ?? null,
       categoryIds: request.categoryIds,
     });
 

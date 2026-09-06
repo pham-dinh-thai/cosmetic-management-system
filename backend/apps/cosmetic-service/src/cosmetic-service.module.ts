@@ -31,6 +31,10 @@ import {
   updateCosmeticUseCaseFactory,
 } from './application/use-cases/update-cosmetic/update-cosmetic.use-case';
 import {
+  UpdateCosmeticImageUseCase,
+  updateCosmeticImageUseCaseFactory,
+} from './application/use-cases/update-cosmetic-image/update-cosmetic-image.use-case';
+import {
   ActivateCosmeticUseCase,
   activateCosmeticUseCaseFactory,
 } from './application/use-cases/activate-cosmetic/activate-cosmetic.use-case';
@@ -114,6 +118,11 @@ import { EmployeeReaderAdapter } from './infrastructure/adapters/employee-reader
     {
       provide: UpdateCosmeticUseCase,
       useFactory: updateCosmeticUseCaseFactory,
+      inject: [COSMETICS_REPOSITORY],
+    },
+    {
+      provide: UpdateCosmeticImageUseCase,
+      useFactory: updateCosmeticImageUseCaseFactory,
       inject: [COSMETICS_REPOSITORY],
     },
     {

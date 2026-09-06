@@ -32,10 +32,11 @@ export interface ICosmeticsRepository {
       brand: string | null;
       origin: string | null;
       description: string | null;
-      imageUrl: string | null;
       categoryIds?: string[];
     },
   ): Promise<Cosmetic | null>;
+
+  updateImage(id: string, imageUrl: string): Promise<Cosmetic | null>;
 
   activate(id: string): Promise<Cosmetic | null>;
 

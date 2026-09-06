@@ -1,6 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IUpdateCosmeticRequest } from 'apps/cosmetic-service/src/application/use-cases/update-cosmetic/update-cosmetic.request';
-import { IsNotEmpty, IsOptional, IsString, MaxLength, IsArray } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+  IsArray,
+} from 'class-validator';
 
 export class UpdateCosmeticRequest implements IUpdateCosmeticRequest {
   @ApiProperty()
@@ -26,12 +32,6 @@ export class UpdateCosmeticRequest implements IUpdateCosmeticRequest {
   @IsOptional()
   @MaxLength(1000)
   description?: string;
-
-  @ApiProperty({ required: false })
-  @IsString()
-  @IsOptional()
-  @MaxLength(500)
-  imageUrl?: string;
 
   @ApiProperty({ required: false })
   @IsArray()
