@@ -8,6 +8,7 @@ import {
   type CreateVariantPayload,
   type UpdateVariantPayload
 } from "../../../services/products.service";
+import { toast } from "sonner";
 
 interface EditProductProps {
   productId: string;
@@ -107,9 +108,11 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack }) => {
         categoryIds: productData.categoryIds,
       };
       await productsService.updateCosmetic(productId, payload);
-      alert("Đã lưu thông tin chung & danh mục thành công!");
+      toast.success("Đã lưu thông tin chung & danh mục thành công!");
     } catch (err: any) {
-      setError(err?.response?.data?.message || "Đã xảy ra lỗi khi cập nhật thông tin chung.");
+      const msg = err?.response?.data?.message || "Đã xảy ra lỗi khi cập nhật thông tin chung.";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -126,9 +129,9 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack }) => {
         color: v.color || undefined,
       };
       await productsService.updateVariant(v.id, payload);
-      alert(`Đã lưu cấu hình "${v.name}"!`);
+      toast.success(`Đã lưu cấu hình "${v.name}"!`);
     } catch (err: any) {
-      alert(err?.response?.data?.message || "Lỗi khi lưu cấu hình.");
+      toast.error(err?.response?.data?.message || "Lỗi khi lưu cấu hình.");
     }
   };
 
@@ -137,12 +140,14 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack }) => {
     try {
       if (v.isActive) {
         await productsService.deactivateVariant(v.id);
+        toast.success(`Đã vô hiệu hoá "${v.name}"`);
       } else {
         await productsService.activateVariant(v.id);
+        toast.success(`Đã kích hoạt lại "${v.name}"`);
       }
       loadData();
     } catch (err: any) {
-      alert(err?.response?.data?.message || "Lỗi khi đổi trạng thái.");
+      toast.error(err?.response?.data?.message || "Lỗi khi đổi trạng thái.");
     }
   };
 
@@ -157,7 +162,7 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack }) => {
   const saveNewVariant = async (index: number) => {
     const v = newVariants[index];
     if (!v.name || !v.price) {
-      alert("Vui lòng điền đủ Tên và Giá bán cho biến thể mới.");
+      toast.error("Vui lòng điền đủ Tên và Giá bán cho biến thể mới.");
       return;
     }
     try {
@@ -169,11 +174,11 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack }) => {
         color: v.color || undefined,
       };
       await productsService.addVariant(productId, payload);
-      alert("Đã thêm biến thể mới!");
+      toast.success("Đã thêm biến thể mới!");
       loadData();
       setNewVariants(newVariants.filter((_, i) => i !== index));
     } catch (err: any) {
-      alert(err?.response?.data?.message || "Lỗi khi thêm biến thể mới.");
+      toast.error(err?.response?.data?.message || "Lỗi khi thêm biến thể mới.");
     }
   };
 

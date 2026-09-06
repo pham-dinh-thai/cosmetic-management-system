@@ -1,16 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Button,
-  Input,
-  PageHeader,
-  Select,
-} from "../../../components/ui/Primitives";
+import { PageHeader, Button, Input, Select } from "../../../components/ui/Primitives";
 import { DataTable, type Column } from "../../../components/ui/DataTable";
-import {
-  productsService,
-  type CosmeticSummary,
-} from "../../../services/products.service";
+import { ConfirmModal } from "../../../components/ui/ConfirmModal";
+import { productsService, type CosmeticSummary } from "../../../services/products.service";
+import { toast } from "sonner";
 
 type StatusFilter = "all" | "active" | "inactive";
 
@@ -41,6 +35,7 @@ const Products: React.FC<ProductsProps> = ({ onAdd, onViewDetail, onEdit }) => {
   const [status, setStatus] = useState<StatusFilter>("all");
   const [sort, setSort] = useState("newest");
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<{ isOpen: boolean, product: CosmeticSummary | null }>({ isOpen: false, product: null });
 
   const loadProducts = useCallback(() => {
     productsService
@@ -162,26 +157,7 @@ const Products: React.FC<ProductsProps> = ({ onAdd, onViewDetail, onEdit }) => {
               size="sm"
               className="text-red-600 hover:bg-red-50/80"
               disabled={deletingId === p.id}
-              onClick={async () => {
-                if (
-                  !window.confirm(
-                    `Bạn có chắc muốn xoá sản phẩm "${p.name}" (${p.code})?`,
-                  )
-                ) {
-                  return;
-                }
-                setDeletingId(p.id);
-                try {
-                  await productsService.deleteCosmetic(p.id);
-                  setProducts((prev) =>
-                    prev.filter((item) => item.id !== p.id),
-                  );
-                } catch {
-                  setError(`Không thể xoá sản phẩm "${p.name}".`);
-                } finally {
-                  setDeletingId(null);
-                }
-              }}
+              onClick={() => setConfirmDelete({ isOpen: true, product: p })}
             >
               Xoá
             </Button>
@@ -189,9 +165,24 @@ const Products: React.FC<ProductsProps> = ({ onAdd, onViewDetail, onEdit }) => {
         ),
       },
     ],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [navigate, deletingId],
+    [navigate, deletingId, onViewDetail, onEdit],
   );
+
+  const handleDeleteConfirm = async () => {
+    if (!confirmDelete.product) return;
+    const p = confirmDelete.product;
+    setConfirmDelete({ isOpen: false, product: null });
+    setDeletingId(p.id);
+    try {
+      await productsService.deleteCosmetic(p.id);
+      setProducts((prev) => prev.filter((item) => item.id !== p.id));
+      toast.success(`Đã xoá sản phẩm "${p.name}" thành công!`);
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || `Không thể xoá sản phẩm "${p.name}".`);
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   return (
     <div className="flex flex-col gap-8">
@@ -252,6 +243,17 @@ const Products: React.FC<ProductsProps> = ({ onAdd, onViewDetail, onEdit }) => {
           empty="Không tìm thấy sản phẩm phù hợp"
         />
       )}
+
+      <ConfirmModal 
+        isOpen={confirmDelete.isOpen}
+        title="Xác nhận xoá sản phẩm"
+        message={`Bạn có chắc chắn muốn xoá sản phẩm "${confirmDelete.product?.name}" (${confirmDelete.product?.code})? Hành động này không thể hoàn tác.`}
+        confirmText="Xoá sản phẩm"
+        cancelText="Hủy"
+        isDestructive={true}
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setConfirmDelete({ isOpen: false, product: null })}
+      />
     </div>
   );
 };

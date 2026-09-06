@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Button, Input, PageHeader, Card } from "../../../components/ui/Primitives";
 import { productsService, type CategorySummary, type CreateCosmeticPayload, type CreateVariantPayload } from "../../../services/products.service";
+import { toast } from "sonner";
 
 interface AddProductProps {
   onBack: () => void;
@@ -102,9 +103,12 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack }) => {
       };
       
       await productsService.createCosmetic(payload);
+      toast.success("Đã thêm sản phẩm thành công!");
       onBack();
     } catch (err: any) {
-      setError(err?.response?.data?.message || "Đã xảy ra lỗi khi tạo sản phẩm.");
+      const msg = err?.response?.data?.message || "Đã xảy ra lỗi khi tạo sản phẩm.";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }

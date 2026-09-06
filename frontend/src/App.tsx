@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Toaster } from "sonner";
 import { AuthProvider } from "./contexts/AuthProvider";
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
@@ -20,6 +21,16 @@ function App() {
           <Route path="/employee" element={<Employee />} />
         </Routes>
       </BrowserRouter>
+      <Toaster 
+        position="top-right" 
+        toastOptions={{ 
+          style: { 
+            background: "#fcfcf7", 
+            color: "#1c3a13", 
+            border: "1px solid #1c3a13" 
+          } 
+        }} 
+      />
     </AuthProvider>
   );
 }
