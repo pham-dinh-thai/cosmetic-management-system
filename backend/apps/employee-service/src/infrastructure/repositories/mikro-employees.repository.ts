@@ -17,6 +17,14 @@ export class MikroEmployeesRepository implements IEmployeesRepository {
     return employeeMikro ? EmployeesMapper.toDomain(employeeMikro) : null;
   }
 
+  public async findByUserId(userId: string): Promise<Employee | null> {
+    const employeeMikro = await this.entityManager.findOne(EmployeeMikro, {
+      userId,
+    });
+
+    return employeeMikro ? EmployeesMapper.toDomain(employeeMikro) : null;
+  }
+
   public async count(): Promise<number> {
     return await this.entityManager.count(EmployeeMikro);
   }
@@ -56,7 +64,7 @@ export class MikroEmployeesRepository implements IEmployeesRepository {
     return employee;
   }
 
-  public async assignDepartment(employee: any): Promise<void> {
+  public async assignDepartment(employee: Employee): Promise<void> {
     await this.entityManager.nativeUpdate(
       EmployeeMikro,
       { id: employee.getId() },
