@@ -11,6 +11,14 @@ import { maxSequenceFromCodes } from '@app/codes';
 export class MikroEmployeesRepository implements IEmployeesRepository {
   public constructor(private readonly entityManager: EntityManager) {}
 
+  public async findAll(): Promise<Employee[]> {
+    const employeesMikro = await this.entityManager.find(EmployeeMikro, {});
+
+    return employeesMikro.map((employeeMikro) =>
+      EmployeesMapper.toDomain(employeeMikro),
+    );
+  }
+
   public async findById(id: string): Promise<Employee | null> {
     const employeeMikro = await this.entityManager.findOne(EmployeeMikro, {
       id,

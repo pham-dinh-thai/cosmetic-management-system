@@ -33,7 +33,7 @@ export class Department {
       props.id,
       props.code,
       props.name,
-      true,
+      props.isActive,
       props.managerId,
     );
   }

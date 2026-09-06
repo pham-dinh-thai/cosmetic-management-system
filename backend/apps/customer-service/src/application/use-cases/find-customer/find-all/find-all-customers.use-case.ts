@@ -15,6 +15,10 @@ export class FindAllCustomersUseCase {
           customer.getId(),
           customer.getUserId(),
           customer.getCode(),
+          customer.getName(),
+          customer.getEmail(),
+          customer.getPhone(),
+          customer.getAddress(),
         ),
     );
   }

@@ -7,6 +7,7 @@ export class DepartmentsMapper {
       id: departmentMikro.id,
       code: departmentMikro.code,
       name: departmentMikro.name,
+      isActive: departmentMikro.isActive,
       managerId: departmentMikro.managerId ?? undefined,
     });
   }

@@ -5,8 +5,17 @@ import DashboardLayout, { type SidebarSection } from "../../components/Dashboard
 import OverviewPage from "./routes/Overview";
 import ReportsPage from "./routes/Reports";
 import CustomersPage from "./routes/Customers";
+import AddCustomerPage from "./routes/AddCustomer";
+import EditCustomerPage from "./routes/EditCustomer";
 import EmployeesPage from "./routes/Employees";
+import AddEmployeePage from "./routes/AddEmployee";
+import EditEmployeePage from "./routes/EditEmployee";
+import DepartmentsPage from "./routes/Departments";
+import AddDepartmentPage from "./routes/AddDepartment";
+import EditDepartmentPage from "./routes/EditDepartment";
 import SuppliersPage from "./routes/Suppliers";
+import AddSupplierPage from "./routes/AddSupplier";
+import EditSupplierPage from "./routes/EditSupplier";
 import ProductsPage from "./routes/Products";
 import AddProductPage from "./routes/AddProduct";
 import EditProductPage from "./routes/EditProduct";
@@ -19,6 +28,7 @@ export type AdminPageKey =
   | "overview"
   | "customers"
   | "employees"
+  | "departments"
   | "suppliers"
   | "products"
   | "categories"
@@ -30,6 +40,7 @@ const getActiveKey = (pathname: string): AdminPageKey => {
   if (pathname.includes("/admin/reports")) return "reports";
   if (pathname.includes("/admin/customers")) return "customers";
   if (pathname.includes("/admin/employees")) return "employees";
+  if (pathname.includes("/admin/departments")) return "departments";
   if (pathname.includes("/admin/suppliers")) return "suppliers";
   if (pathname.includes("/admin/products")) return "products";
   if (pathname.includes("/admin/categories")) return "categories";
@@ -42,6 +53,7 @@ const PAGE_TITLES: Record<AdminPageKey, string> = {
   overview: "Tổng quan",
   customers: "Khách hàng",
   employees: "Nhân viên",
+  departments: "Phòng ban",
   suppliers: "Nhà cung cấp",
   products: "Sản phẩm",
   categories: "Danh mục",
@@ -65,6 +77,7 @@ const SECTIONS = (active: AdminPageKey): SidebarSection[] => [
     items: [
       { id: "customers", label: "Khách hàng", active: active === "customers" },
       { id: "employees", label: "Nhân viên", active: active === "employees" },
+      { id: "departments", label: "Phòng ban", active: active === "departments" },
       { id: "suppliers", label: "Nhà cung cấp", active: active === "suppliers" },
     ],
   },
@@ -104,8 +117,17 @@ const Admin: React.FC = () => {
         <Route path="overview" element={<OverviewPage />} />
         <Route path="reports" element={<ReportsPage />} />
         <Route path="customers" element={<CustomersPage />} />
+        <Route path="customers/add" element={<AddCustomerPage />} />
+        <Route path="customers/:id/edit" element={<EditCustomerPage />} />
         <Route path="employees" element={<EmployeesPage />} />
+        <Route path="employees/add" element={<AddEmployeePage />} />
+        <Route path="employees/:id/edit" element={<EditEmployeePage />} />
+        <Route path="departments" element={<DepartmentsPage />} />
+        <Route path="departments/add" element={<AddDepartmentPage />} />
+        <Route path="departments/:id/edit" element={<EditDepartmentPage />} />
         <Route path="suppliers" element={<SuppliersPage />} />
+        <Route path="suppliers/add" element={<AddSupplierPage />} />
+        <Route path="suppliers/:id/edit" element={<EditSupplierPage />} />
         <Route path="products" element={<ProductsPage />} />
         <Route path="products/add" element={<AddProductPage />} />
         <Route path="products/:id/edit" element={<EditProductPage />} />

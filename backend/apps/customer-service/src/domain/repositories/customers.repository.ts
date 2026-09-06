@@ -9,6 +9,8 @@ export interface ICustomersRepository {
 
   create(customer: Customer): Promise<{ id: string }>;
 
+  update(customer: Customer): Promise<void>;
+
   delete(id: string): Promise<Customer | null>;
 
   createAddress(

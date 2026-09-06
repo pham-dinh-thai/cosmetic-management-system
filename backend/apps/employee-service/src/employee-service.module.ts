@@ -51,6 +51,10 @@ import {
   FindEmployeeByUserIdUseCase,
   findEmployeeByUserIdUseCaseFactory,
 } from './application/use-cases/find-employee/find-by-user-id/find-employee-by-user-id.use-case';
+import {
+  FindAllEmployeesUseCase,
+  findAllEmployeesUseCaseFactory,
+} from './application/use-cases/find-employee/find-all/find-all-employees.use-case';
 
 @Module({
   imports: [
@@ -157,6 +161,11 @@ import {
       provide: FindEmployeeByUserIdUseCase,
       useFactory: findEmployeeByUserIdUseCaseFactory,
       inject: [EMPLOYEES_REPOSITORY],
+    },
+    {
+      provide: FindAllEmployeesUseCase,
+      useFactory: findAllEmployeesUseCaseFactory,
+      inject: [EMPLOYEES_REPOSITORY, FIND_USER_INFORMATION_PORT, EMPLOYEE_LOGGER_PORT],
     },
   ],
 })

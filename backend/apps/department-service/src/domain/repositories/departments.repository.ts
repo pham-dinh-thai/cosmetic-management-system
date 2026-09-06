@@ -11,6 +11,8 @@ export interface IDepartmentsRepository {
 
   update(id: string, department: Department): Promise<void>;
 
+  delete(id: string): Promise<boolean>;
+
   deactivate(id: string): Promise<void>;
 
   activate(id: string): Promise<void>;

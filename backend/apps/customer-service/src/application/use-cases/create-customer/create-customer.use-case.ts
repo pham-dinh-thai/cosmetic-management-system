@@ -10,9 +10,20 @@ export class CreateCustomerUseCase {
   public async execute(
     request: ICreateCustomerRequest,
   ): Promise<{ id: string }> {
+    const customers = await this.customersRepository.findAll();
+
+    const code =
+      request.code && request.code.trim().length > 0
+        ? request.code
+        : `KH-${String(customers.length + 1).padStart(3, '0')}`;
+
     const customer = Customer.create({
-      userId: request.userId,
-      code: request.code,
+      userId: request.userId ?? '',
+      code,
+      name: request.name ?? '',
+      email: request.email ?? '',
+      phone: request.phone ?? '',
+      address: request.address ?? '',
     });
 
     return await this.customersRepository.create(customer);

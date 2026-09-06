@@ -22,6 +22,7 @@ export class FindUserInformationAdapter implements IFindUserInformationPort {
     firstName: string;
     lastName: string;
     gender: string;
+    email?: string;
   }> {
     const response = await fetch(
       `${this.url}/api/internal/users/by-id/${userId}`,
@@ -43,6 +44,6 @@ export class FindUserInformationAdapter implements IFindUserInformationPort {
     const text = await response.text();
     const body: unknown = JSON.parse(text);
 
-    return body as { firstName: string; lastName: string; gender: string };
+    return body as { firstName: string; lastName: string; gender: string; email?: string };
   }
 }

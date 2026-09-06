@@ -1,6 +1,8 @@
 import { Employee } from '../employee.aggregate';
 
 export interface IEmployeesRepository {
+  findAll(): Promise<Employee[]>;
+
   findById(id: string): Promise<Employee | null>;
 
   findByUserId(userId: string): Promise<Employee | null>;

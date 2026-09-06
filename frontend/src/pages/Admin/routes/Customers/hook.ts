@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { customersApi } from "./api";
+import { useEffect, useState, useCallback } from "react";
+import { customersService } from "../../../../services/customers.service";
 import type { Customer } from "./type";
 
 export function useCustomers() {
@@ -7,12 +7,36 @@ export function useCustomers() {
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
 
-  useEffect(() => {
-    customersApi.fetchCustomers().then((data) => {
-      setCustomers(data);
+  const fetchCustomers = useCallback(() => {
+    setLoading(true);
+    customersService.getCustomers().then((data) => {
+      setCustomers(
+        data.map((c) => ({
+          id: c.id,
+          code: c.code,
+          name: c.name,
+          phone: c.phone,
+          email: c.email,
+          address: c.address,
+          orders: 0,
+          totalSpent: 0,
+        })),
+      );
+      setLoading(false);
+    }).catch(err => {
+      console.error(err);
       setLoading(false);
     });
   }, []);
+
+  useEffect(() => {
+    fetchCustomers();
+  }, [fetchCustomers]);
+
+  const handleDeleteCustomer = async (id: string) => {
+    await customersService.deleteCustomer(id);
+    fetchCustomers();
+  };
 
   const filtered = customers.filter(
     (c) =>
@@ -22,5 +46,11 @@ export function useCustomers() {
       c.code.toLowerCase().includes(q.toLowerCase()),
   );
 
-  return { customers: filtered, loading, q, setQ };
+  return { 
+    customers: filtered, 
+    loading, 
+    q, 
+    setQ, 
+    handleDeleteCustomer 
+  };
 }

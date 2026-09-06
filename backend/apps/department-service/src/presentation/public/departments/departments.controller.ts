@@ -1,7 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -15,6 +18,7 @@ import { UpdateDepartmentUseCase } from 'apps/department-service/src/application
 import { UpdateDepartmentRequest } from './requests/update-department.request';
 import { DeactivateDepartmentUseCase } from 'apps/department-service/src/application/use-cases/deactivate-department/deactivate-department.use-case';
 import { ActivateDepartmentUseCase } from 'apps/department-service/src/application/use-cases/activate-department/activate-department.use-case';
+import { DeleteDepartmentUseCase } from 'apps/department-service/src/application/use-cases/delete-department/delete-department.use-case';
 import { FindAllDepartmentUseCase } from 'apps/department-service/src/application/use-cases/find-department/find-all/find-all-department.use-case';
 import { FindAllDepartmentReadModel } from 'apps/department-service/src/application/use-cases/find-department/find-all/read-models/find-all-department.read-model';
 import { AssignManagerToDepartmentUseCase } from 'apps/department-service/src/application/use-cases/assign-manager-to-department/assign-manager-to-department.use-case';
@@ -30,6 +34,7 @@ export class DepartmentsController {
     private readonly updateDepartmentUseCase: UpdateDepartmentUseCase,
     private readonly deactivateDepartmentUseCase: DeactivateDepartmentUseCase,
     private readonly activateDepartmentUseCase: ActivateDepartmentUseCase,
+    private readonly deleteDepartmentUseCase: DeleteDepartmentUseCase,
     private readonly assignManagerToDepartmentUseCase: AssignManagerToDepartmentUseCase,
   ) {}
 
@@ -49,6 +54,12 @@ export class DepartmentsController {
     @Body() request: UpdateDepartmentRequest,
   ): Promise<void> {
     await this.updateDepartmentUseCase.execute(id, request);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  public async delete(@Param('id') id: string): Promise<void> {
+    await this.deleteDepartmentUseCase.execute(id);
   }
 
   @Patch(':id/deactivate')

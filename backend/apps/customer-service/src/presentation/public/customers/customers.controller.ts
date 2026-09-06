@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard, Role, Roles, RolesGuard } from '@app/security';
@@ -16,6 +17,9 @@ import { FindCustomerByIdUseCase } from 'apps/customer-service/src/application/u
 import { FindCustomerByIdReadModel } from 'apps/customer-service/src/application/use-cases/find-customer/find-by-id/read-models/find-customer-by-id.read-model';
 import { CreateCustomerUseCase } from 'apps/customer-service/src/application/use-cases/create-customer/create-customer.use-case';
 import { CreateCustomerRequest } from './requests/create-customer.request';
+import { UpdateCustomerUseCase } from 'apps/customer-service/src/application/use-cases/update-customer/update-customer.use-case';
+import { UpdateCustomerRequest } from './requests/update-customer.request';
+import { DeleteCustomerUseCase } from 'apps/customer-service/src/application/use-cases/delete-customer/delete-customer.use-case';
 import { AddAddressUseCase } from 'apps/customer-service/src/application/use-cases/add-address/add-address.use-case';
 import { AddAddressRequest } from './requests/add-address.request';
 import { RemoveAddressUseCase } from 'apps/customer-service/src/application/use-cases/remove-address/remove-address.use-case';
@@ -31,6 +35,8 @@ export class CustomersController {
     private readonly findAllCustomersUseCase: FindAllCustomersUseCase,
     private readonly findCustomerByIdUseCase: FindCustomerByIdUseCase,
     private readonly createCustomerUseCase: CreateCustomerUseCase,
+    private readonly updateCustomerUseCase: UpdateCustomerUseCase,
+    private readonly deleteCustomerUseCase: DeleteCustomerUseCase,
     private readonly addAddressUseCase: AddAddressUseCase,
     private readonly removeAddressUseCase: RemoveAddressUseCase,
     private readonly addPhoneUseCase: AddPhoneUseCase,
@@ -54,6 +60,21 @@ export class CustomersController {
     @Body() request: CreateCustomerRequest,
   ): Promise<{ id: string }> {
     return await this.createCustomerUseCase.execute(request);
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Put(':id')
+  public async update(
+    @Param('id') id: string,
+    @Body() request: UpdateCustomerRequest,
+  ): Promise<void> {
+    await this.updateCustomerUseCase.execute(id, request);
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete(':id')
+  public async delete(@Param('id') id: string): Promise<void> {
+    await this.deleteCustomerUseCase.execute(id);
   }
 
   @Post(':id/addresses')
