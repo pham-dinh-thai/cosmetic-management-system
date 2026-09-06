@@ -5,7 +5,7 @@ export interface IEmployeesRepository {
 
   findByUserId(userId: string): Promise<Employee | null>;
 
-  count(): Promise<number>;
+  findMaxCodeSequence(): Promise<number | null>;
 
   create(employee: Employee): Promise<void>;
 

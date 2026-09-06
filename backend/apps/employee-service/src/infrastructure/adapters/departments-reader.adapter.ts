@@ -31,6 +31,8 @@ export class DepartmentsReaderAdapter implements IDepartmentsReaderPort {
     }
 
     const text = await response.text();
-    return text ? JSON.parse(text) : null;
+    const body: unknown = text ? JSON.parse(text) : null;
+
+    return body as { id: string } | null;
   }
 }

@@ -15,9 +15,8 @@ export class CreateInvoiceFromOrderUseCase {
       return null;
     }
 
-    const code = InvoiceCode.generate(
-      (await this.invoicesRepository.count()) + 1,
-    );
+    const maxCodeSequence = await this.invoicesRepository.findMaxCodeSequence();
+    const code = InvoiceCode.generate((maxCodeSequence ?? 0) + 1);
 
     const invoice = Invoice.create({
       code: code.getValue(),

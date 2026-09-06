@@ -36,9 +36,9 @@ export class CreateEmployeeUseCase {
     });
 
     try {
-      const code = EmployeeCode.generate(
-        (await this.employeesRepository.count()) + 1,
-      );
+      const maxCodeSequence =
+        await this.employeesRepository.findMaxCodeSequence();
+      const code = EmployeeCode.generate((maxCodeSequence ?? 0) + 1);
 
       const employee = Employee.create({
         userId: user.id,

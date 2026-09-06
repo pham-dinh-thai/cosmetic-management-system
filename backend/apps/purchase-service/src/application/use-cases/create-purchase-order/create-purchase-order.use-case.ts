@@ -11,9 +11,9 @@ export class CreatePurchaseOrderUseCase {
   public async execute(
     request: ICreatePurchaseOrderRequest,
   ): Promise<{ id: string }> {
-    const code = PurchaseOrderCode.generate(
-      (await this.purchaseOrdersRepository.count()) + 1,
-    );
+    const maxCodeSequence =
+      await this.purchaseOrdersRepository.findMaxCodeSequence();
+    const code = PurchaseOrderCode.generate((maxCodeSequence ?? 0) + 1);
 
     const purchaseOrder = PurchaseOrder.create({
       code: code.getValue(),

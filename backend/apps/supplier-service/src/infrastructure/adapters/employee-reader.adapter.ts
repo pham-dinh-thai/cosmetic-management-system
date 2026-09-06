@@ -1,8 +1,5 @@
 import { ConfigService } from '@nestjs/config';
-import {
-  type EmployeeReadable,
-  type IEmployeeReaderPort,
-} from '@app/security';
+import { type EmployeeReadable, type IEmployeeReaderPort } from '@app/security';
 
 export class EmployeeReaderAdapter implements IEmployeeReaderPort {
   private readonly url: string;

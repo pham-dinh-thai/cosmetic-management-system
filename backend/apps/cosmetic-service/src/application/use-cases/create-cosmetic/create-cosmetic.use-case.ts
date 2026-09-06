@@ -11,9 +11,9 @@ export class CreateCosmeticUseCase {
   public async execute(
     request: ICreateCosmeticRequest,
   ): Promise<{ id: string }> {
-    const code = CosmeticCode.generate(
-      (await this.cosmeticsRepository.count()) + 1,
-    );
+    const maxCodeSequence =
+      await this.cosmeticsRepository.findMaxCodeSequence();
+    const code = CosmeticCode.generate((maxCodeSequence ?? 0) + 1);
 
     const cosmetic = Cosmetic.create({
       code: code.getValue(),

@@ -1,9 +1,7 @@
 import { InvalidSupplierCodeException } from '../exceptions/invalid-supplier-code.exception';
+import { generateCode, isCodeFormatValid } from '@app/codes';
 
-const SUPPLIER_CODE_PREFIX = 'NCC_';
-const MIN_CODE_DIGITS = 5;
-
-const SUPPLIER_CODE_REGEX = /^NCC_\d{5,}$/;
+export const SUPPLIER_CODE_PREFIX = 'NCC_';
 
 export class SupplierCode {
   private constructor(private readonly value: string) {}
@@ -13,15 +11,11 @@ export class SupplierCode {
       throw new InvalidSupplierCodeException(sequence.toString());
     }
 
-    return new SupplierCode(
-      `${SUPPLIER_CODE_PREFIX}${sequence
-        .toString()
-        .padStart(MIN_CODE_DIGITS, '0')}`,
-    );
+    return new SupplierCode(generateCode(SUPPLIER_CODE_PREFIX, sequence));
   }
 
   public static fromPersistent(value: string): SupplierCode {
-    if (!SUPPLIER_CODE_REGEX.test(value)) {
+    if (!isCodeFormatValid(SUPPLIER_CODE_PREFIX, value)) {
       throw new InvalidSupplierCodeException(value);
     }
 

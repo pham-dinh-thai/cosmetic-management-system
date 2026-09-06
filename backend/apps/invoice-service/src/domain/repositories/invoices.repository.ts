@@ -10,7 +10,7 @@ export interface InvoicesRepository {
   }): Promise<Invoice[]>;
   findById(id: string): Promise<Invoice | null>;
   findByOrderId(orderId: string): Promise<Invoice | null>;
-  count(): Promise<number>;
+  findMaxCodeSequence(): Promise<number | null>;
   create(invoice: Invoice): Promise<{ id: string }>;
   recordPayment(id: string, amount: number): Promise<Invoice | null>;
   updateNote(id: string, note?: string): Promise<Invoice | null>;

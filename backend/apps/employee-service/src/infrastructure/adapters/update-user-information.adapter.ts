@@ -7,10 +7,7 @@ import {
   IUpdateUserInformationPort,
   IUpdateUserInformationRequest,
 } from '../../application/use-cases/update-employee-information/ports/update-user-information.port';
-import {
-  EMPLOYEE_LOGGER_PORT,
-  type IEmployeeLoggerPort,
-} from '../../application/ports/employee-logger.port';
+import { type IEmployeeLoggerPort } from '../../application/ports/employee-logger.port';
 
 export class UpdateUserInformationAdapter implements IUpdateUserInformationPort {
   private readonly logger: IEmployeeLoggerPort;

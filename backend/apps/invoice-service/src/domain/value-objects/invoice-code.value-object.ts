@@ -1,9 +1,7 @@
 import { InvalidInvoiceCodeException } from '../exceptions/invalid-invoice-code.exception';
+import { generateCode, isCodeFormatValid } from '@app/codes';
 
-const INVOICE_CODE_PREFIX = 'HD_';
-const MIN_CODE_DIGITS = 5;
-
-const INVOICE_CODE_REGEX = /^HD_\d{5,}$/;
+export const INVOICE_CODE_PREFIX = 'HD_';
 
 export class InvoiceCode {
   private constructor(private readonly value: string) {}
@@ -13,13 +11,11 @@ export class InvoiceCode {
       throw new InvalidInvoiceCodeException(sequence.toString());
     }
 
-    return new InvoiceCode(
-      `${INVOICE_CODE_PREFIX}${sequence.toString().padStart(MIN_CODE_DIGITS, '0')}`,
-    );
+    return new InvoiceCode(generateCode(INVOICE_CODE_PREFIX, sequence));
   }
 
   public static fromPersistent(value: string): InvoiceCode {
-    if (!INVOICE_CODE_REGEX.test(value)) {
+    if (!isCodeFormatValid(INVOICE_CODE_PREFIX, value)) {
       throw new InvalidInvoiceCodeException(value);
     }
 

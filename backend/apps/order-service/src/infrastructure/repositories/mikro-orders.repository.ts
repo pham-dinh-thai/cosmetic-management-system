@@ -6,6 +6,8 @@ import { CreateOrderLineProps, OrderStatus } from '../../domain/types';
 import { Order } from '../entities/order.entity';
 import { OrderLine } from '../entities/order-line.entity';
 import { OrdersMapper } from '../mappers/orders.mapper';
+import { ORDER_CODE_PREFIX } from '../../domain/value-objects/order-code.value-object';
+import { maxSequenceFromCodes } from '@app/codes';
 
 @Injectable()
 export class MikroOrdersRepository implements IOrdersRepository {
@@ -52,8 +54,18 @@ export class MikroOrdersRepository implements IOrdersRepository {
     return entity ? OrdersMapper.toDomain(entity) : null;
   }
 
-  public async count(): Promise<number> {
-    return this.em.count(Order);
+  public async findMaxCodeSequence(): Promise<number | null> {
+    const entities = await this.em.find(
+      Order,
+      {},
+      { fields: ['code'], orderBy: { code: 'DESC' }, limit: 1 },
+    );
+
+    if (entities.length === 0) {
+      return null;
+    }
+
+    return maxSequenceFromCodes(ORDER_CODE_PREFIX, [entities[0].code]);
   }
 
   public async create(order: OrderDomain): Promise<{ id: string }> {

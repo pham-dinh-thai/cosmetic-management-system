@@ -4,6 +4,8 @@ import { EntityManager } from '@mikro-orm/postgresql';
 import { Employee } from '../../domain/employee.aggregate';
 import { EmployeesMapper } from '../mappers/employees.mapper';
 import { Employee as EmployeeMikro } from '../entities/employee.entity';
+import { EMPLOYEE_CODE_PREFIX } from '../../domain/value-objects/employee-code.value-object';
+import { maxSequenceFromCodes } from '@app/codes';
 
 @Injectable()
 export class MikroEmployeesRepository implements IEmployeesRepository {
@@ -25,8 +27,22 @@ export class MikroEmployeesRepository implements IEmployeesRepository {
     return employeeMikro ? EmployeesMapper.toDomain(employeeMikro) : null;
   }
 
-  public async count(): Promise<number> {
-    return await this.entityManager.count(EmployeeMikro);
+  public async findMaxCodeSequence(): Promise<number | null> {
+    const employeesMikro = await this.entityManager.find(
+      EmployeeMikro,
+      {},
+      {
+        fields: ['code'],
+        orderBy: { code: 'DESC' },
+        limit: 1,
+      },
+    );
+
+    if (employeesMikro.length === 0) {
+      return null;
+    }
+
+    return maxSequenceFromCodes(EMPLOYEE_CODE_PREFIX, [employeesMikro[0].code]);
   }
 
   public async create(employee: Employee): Promise<void> {

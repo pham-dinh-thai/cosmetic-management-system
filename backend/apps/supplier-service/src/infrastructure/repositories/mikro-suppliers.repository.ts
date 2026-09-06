@@ -4,6 +4,8 @@ import { EntityManager } from '@mikro-orm/postgresql';
 import { Supplier as SupplierMikro } from '../entities/supplier.entity';
 import { SuppliersMapper } from '../mappers/suppliers.mapper';
 import { Supplier } from '../../domain/supplier.aggregate';
+import { SUPPLIER_CODE_PREFIX } from '../../domain/value-objects/supplier-code.value-object';
+import { maxSequenceFromCodes } from '@app/codes';
 
 @Injectable()
 export class MikroSuppliersRepository implements ISuppliersRepository {
@@ -45,8 +47,22 @@ export class MikroSuppliersRepository implements ISuppliersRepository {
     return supplierMikro ? SuppliersMapper.toDomain(supplierMikro) : null;
   }
 
-  public async count(): Promise<number> {
-    return await this.entityManager.count(SupplierMikro);
+  public async findMaxCodeSequence(): Promise<number | null> {
+    const suppliersMikro = await this.entityManager.find(
+      SupplierMikro,
+      {},
+      {
+        fields: ['code'],
+        orderBy: { code: 'DESC' },
+        limit: 1,
+      },
+    );
+
+    if (suppliersMikro.length === 0) {
+      return null;
+    }
+
+    return maxSequenceFromCodes(SUPPLIER_CODE_PREFIX, [suppliersMikro[0].code]);
   }
 
   public async create(supplier: Supplier): Promise<{ id: string }> {

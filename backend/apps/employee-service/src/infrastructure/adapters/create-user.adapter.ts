@@ -7,10 +7,7 @@ import {
   ICreateUserPort,
   ICreateUserRequest,
 } from '../../application/use-cases/create-employee/ports/create-user.port';
-import {
-  EMPLOYEE_LOGGER_PORT,
-  type IEmployeeLoggerPort,
-} from '../../application/ports/employee-logger.port';
+import { type IEmployeeLoggerPort } from '../../application/ports/employee-logger.port';
 
 export class CreateUserAdapter implements ICreateUserPort {
   private readonly logger: IEmployeeLoggerPort;
@@ -44,6 +41,8 @@ export class CreateUserAdapter implements ICreateUserPort {
       throw new InternalServerErrorException('Failed to create user');
     }
 
-    return response.json();
+    const body: unknown = await response.json();
+
+    return body as { id: string };
   }
 }
