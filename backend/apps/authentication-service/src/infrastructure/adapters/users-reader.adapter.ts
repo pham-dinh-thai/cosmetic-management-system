@@ -1,7 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { IUsersReaderPort } from '../../domain/ports/users-reader.port';
+import {
+  FindUserByIdReadModel,
+  IUsersReaderPort,
+} from '../../application/ports/users-reader.port';
 import { UserReadModel } from '../../domain/read-models/user.read-model';
 import { ConfigService } from '@nestjs/config';
+import { z } from 'zod';
+
+export const findUserByIdReadModel = z.object({
+  id: z.string(),
+});
 
 @Injectable()
 export class UsersReaderAdapter implements IUsersReaderPort {
@@ -17,7 +25,7 @@ export class UsersReaderAdapter implements IUsersReaderPort {
     this.baseUrl = url;
   }
 
-  public async findById(id: string): Promise<{ id: string } | null> {
+  public async findById(id: string): Promise<FindUserByIdReadModel | null> {
     const response = await fetch(
       `${this.baseUrl}/api/internal/users/by-id/${id}`,
     );
@@ -35,7 +43,15 @@ export class UsersReaderAdapter implements IUsersReaderPort {
 
     const text = await response.text();
 
-    return text ? JSON.parse(text) : null;
+    if (!text) {
+      return null;
+    }
+
+    const data: unknown = JSON.parse(text);
+
+    const user = findUserByIdReadModel.parse(data);
+
+    return new FindUserByIdReadModel(user.id);
   }
 
   public async findByEmail(email: string): Promise<UserReadModel | null> {

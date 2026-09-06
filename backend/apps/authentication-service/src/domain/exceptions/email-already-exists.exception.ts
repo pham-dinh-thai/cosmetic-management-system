@@ -4,6 +4,6 @@ export class EmailAlreadyExistsException extends BaseDomainException {
   public readonly statusCode = 409;
 
   public constructor(email: string) {
-    super(`Email ${email} already exists`);
+    super(`Email ${email} đã tồn tại`);
   }
 }

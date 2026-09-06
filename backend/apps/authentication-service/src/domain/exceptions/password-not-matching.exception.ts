@@ -1,9 +1,9 @@
 import { BaseDomainException } from './base-domain.exception';
 
-export class InvalidCredentialsException extends BaseDomainException {
+export class PasswordNotMatchingException extends BaseDomainException {
   public readonly statusCode = 401;
 
   public constructor() {
-    super('Email hoặc mật khẩu không hợp lệ');
+    super('Mật khẩu xác nhận không khớp');
   }
 }

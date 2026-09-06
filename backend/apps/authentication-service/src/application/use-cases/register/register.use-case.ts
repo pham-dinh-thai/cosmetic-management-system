@@ -1,23 +1,33 @@
 import { randomUUID } from 'node:crypto';
 import { IRegisterRequest } from './register.request';
 import { RegisterResponse } from './register.response';
-import { type ICreateUserPort } from '../../ports/create-user.port';
-import { type ICreateCustomerPort } from '../../ports/create-customer.port';
-import { type ISignTokenPort } from '../../ports/sign-token.port';
-import { EmailUniquenessService } from '../../../domain/services/email-uniqueness.service';
+import { ICreateUserPort } from './ports/create-user.port';
+import { ICreateCustomerPort } from './ports/create-customer.port';
+import { ISignTokenPort } from '../../ports/sign-token.port';
+import { IUsersReaderPort } from 'apps/authentication-service/src/application/ports/users-reader.port';
+import { EmailAlreadyExistsException } from 'apps/authentication-service/src/domain/exceptions/email-already-exists.exception';
+import { PasswordNotMatchingException } from 'apps/authentication-service/src/domain/exceptions/password-not-matching.exception';
 
 const REGISTER_ROLE_ID = 'customer';
 
 export class RegisterUseCase {
   public constructor(
-    private readonly emailUniquenessService: EmailUniquenessService,
+    private readonly usersReaderPort: IUsersReaderPort,
     private readonly createUserPort: ICreateUserPort,
     private readonly createCustomerPort: ICreateCustomerPort,
     private readonly signTokenPort: ISignTokenPort,
   ) {}
 
   public async execute(request: IRegisterRequest): Promise<RegisterResponse> {
-    await this.emailUniquenessService.ensureEmailIsUnique(request.email);
+    const user = await this.usersReaderPort.findByEmail(request.email);
+
+    if (user) {
+      throw new EmailAlreadyExistsException(request.email);
+    }
+
+    if (request.password !== request.passwordConfirmation) {
+      throw new PasswordNotMatchingException();
+    }
 
     const { id: userId } = await this.createUserPort.execute({
       firstName: request.firstName,
@@ -46,13 +56,13 @@ export class RegisterUseCase {
 }
 
 export const registerUseCaseFactory = (
-  emailUniquenessService: EmailUniquenessService,
+  usersReaderPort: IUsersReaderPort,
   createUserPort: ICreateUserPort,
   createCustomerPort: ICreateCustomerPort,
   signTokenPort: ISignTokenPort,
 ): RegisterUseCase =>
   new RegisterUseCase(
-    emailUniquenessService,
+    usersReaderPort,
     createUserPort,
     createCustomerPort,
     signTokenPort,

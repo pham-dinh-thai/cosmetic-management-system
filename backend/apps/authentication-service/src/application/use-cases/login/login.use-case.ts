@@ -1,4 +1,4 @@
-import { type IUsersReaderPort } from '../../../domain/ports/users-reader.port';
+import { type IUsersReaderPort } from '../../ports/users-reader.port';
 import { type IPasswordHasherPort } from '../../ports/password-hasher.port';
 import { type IAuthUsersQueryRepository } from '../../../domain/repositories/auth-users-query.repository';
 import { ILoginRequest } from './login.request';

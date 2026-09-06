@@ -66,10 +66,19 @@ const Register: React.FC = () => {
         gender: gender as RegisterGender,
         email,
         password,
+        passwordConfirmation: confirmPassword,
       });
       navigate("/", { replace: true });
-    } catch {
-      // error is handled by AuthContext
+    } catch (err) {
+      const data = (err as { response?: { data?: { message?: unknown } } })
+        ?.response?.data;
+      const rawMessage = data?.message;
+      const message = Array.isArray(rawMessage)
+        ? rawMessage.join(", ")
+        : typeof rawMessage === "string"
+          ? rawMessage
+          : undefined;
+      setError(message || "Đăng ký thất bại. Vui lòng thử lại.");
     }
   };
 
