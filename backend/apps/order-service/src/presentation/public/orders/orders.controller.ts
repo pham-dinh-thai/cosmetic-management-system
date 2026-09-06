@@ -7,7 +7,6 @@ import {
   HttpStatus,
   Param,
   Patch,
-  Post,
   Put,
   Query,
   Req,
@@ -15,7 +14,6 @@ import {
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { AuthGuard, Role, Roles, RolesGuard } from '@app/security';
-import { CreateOrderUseCase } from 'apps/order-service/src/application/use-cases/create-order/create-order.use-case';
 import { FindAllOrdersUseCase } from 'apps/order-service/src/application/use-cases/find-all-orders/find-all-orders.use-case';
 import { FindOrderByIdUseCase } from 'apps/order-service/src/application/use-cases/find-order-by-id/find-order-by-id.use-case';
 import { UpdateOrderUseCase } from 'apps/order-service/src/application/use-cases/update-order/update-order.use-case';
@@ -27,7 +25,6 @@ import { OrderDetailReadModel } from 'apps/order-service/src/application/use-cas
 import { OrderReadModel } from 'apps/order-service/src/application/use-cases/find-all-orders/read-models/order.read-model';
 import { OrderTransactionReadModel } from 'apps/order-service/src/application/use-cases/find-order-transactions/read-models/order-transaction.read-model';
 import { OrderStatus } from 'apps/order-service/src/domain/types';
-import { CreateOrderRequest } from './requests/create-order.request';
 import { UpdateOrderRequest } from './requests/update-order.request';
 
 @UseGuards(AuthGuard, RolesGuard)
@@ -35,7 +32,6 @@ import { UpdateOrderRequest } from './requests/update-order.request';
 @Controller('orders')
 export class OrdersController {
   public constructor(
-    private readonly createOrderUseCase: CreateOrderUseCase,
     private readonly findAllOrdersUseCase: FindAllOrdersUseCase,
     private readonly findOrderByIdUseCase: FindOrderByIdUseCase,
     private readonly updateOrderUseCase: UpdateOrderUseCase,
@@ -76,13 +72,6 @@ export class OrdersController {
     @Param('id') id: string,
   ): Promise<OrderDetailReadModel> {
     return await this.findOrderByIdUseCase.execute(id);
-  }
-
-  @Post()
-  public async create(
-    @Body() request: CreateOrderRequest,
-  ): Promise<{ id: string }> {
-    return await this.createOrderUseCase.execute(request);
   }
 
   @Put(':id')

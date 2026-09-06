@@ -26,6 +26,10 @@ export class CartItem {
     this.quantity += quantity;
   }
 
+  public decrease(quantity: number): void {
+    this.quantity -= quantity;
+  }
+
   public setQuantity(quantity: number): void {
     this.quantity = quantity;
   }

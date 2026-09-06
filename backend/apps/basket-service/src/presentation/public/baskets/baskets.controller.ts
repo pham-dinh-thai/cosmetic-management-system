@@ -18,7 +18,6 @@ import { CartReadModel } from 'apps/basket-service/src/application/use-cases/get
 import { AddCartItemUseCase } from 'apps/basket-service/src/application/use-cases/add-cart-item/add-cart-item.use-case';
 import { UpdateCartItemUseCase } from 'apps/basket-service/src/application/use-cases/update-cart-item/update-cart-item.use-case';
 import { RemoveCartItemUseCase } from 'apps/basket-service/src/application/use-cases/remove-cart-item/remove-cart-item.use-case';
-import { CheckoutUseCase } from 'apps/basket-service/src/application/use-cases/checkout/checkout.use-case';
 import { AddCartItemRequest } from './requests/add-cart-item.request';
 import { UpdateCartItemRequest } from './requests/update-cart-item.request';
 
@@ -31,7 +30,6 @@ export class BasketsController {
     private readonly addCartItemUseCase: AddCartItemUseCase,
     private readonly updateCartItemUseCase: UpdateCartItemUseCase,
     private readonly removeCartItemUseCase: RemoveCartItemUseCase,
-    private readonly checkoutUseCase: CheckoutUseCase,
   ) {}
 
   private getUserId(request: Request): string {
@@ -90,14 +88,6 @@ export class BasketsController {
     });
 
     return await this.getCartUseCase.execute({
-      userId: this.getUserId(request),
-    });
-  }
-
-  @HttpCode(HttpStatus.CREATED)
-  @Post('me/checkout')
-  public async checkout(@Req() request: Request): Promise<{ orderId: string }> {
-    return await this.checkoutUseCase.execute({
       userId: this.getUserId(request),
     });
   }
