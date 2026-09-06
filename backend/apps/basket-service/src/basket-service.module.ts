@@ -11,8 +11,6 @@ import { CUSTOMER_READER_PORT } from './application/ports/customer-reader.port';
 import { CustomerReaderAdapter } from './infrastructure/adapters/customer-reader.adapter';
 import { VARIANT_READER_PORT } from './application/ports/variant-reader.port';
 import { VariantReaderAdapter } from './infrastructure/adapters/variant-reader.adapter';
-import { CREATE_ORDER_PORT } from './application/ports/create-order.port';
-import { CreateOrderAdapter } from './infrastructure/adapters/create-order.adapter';
 import {
   GetCartUseCase,
   getCartUseCaseFactory,
@@ -30,10 +28,11 @@ import {
   removeCartItemUseCaseFactory,
 } from './application/use-cases/remove-cart-item/remove-cart-item.use-case';
 import {
-  CheckoutUseCase,
-  checkoutUseCaseFactory,
-} from './application/use-cases/checkout/checkout.use-case';
+  RemoveCartItemsUseCase,
+  removeCartItemsUseCaseFactory,
+} from './application/use-cases/remove-cart-items/remove-cart-items.use-case';
 import { BasketsController } from './presentation/public/baskets/baskets.controller';
+import { InternalCartsController } from './presentation/internal/carts/carts.controller';
 
 @Module({
   imports: [
@@ -61,12 +60,11 @@ import { BasketsController } from './presentation/public/baskets/baskets.control
       inject: [ConfigService],
     }),
   ],
-  controllers: [BasketsController],
+  controllers: [BasketsController, InternalCartsController],
   providers: [
     { provide: CARTS_REPOSITORY, useClass: MikroCartsRepository },
     { provide: CUSTOMER_READER_PORT, useClass: CustomerReaderAdapter },
     { provide: VARIANT_READER_PORT, useClass: VariantReaderAdapter },
-    { provide: CREATE_ORDER_PORT, useClass: CreateOrderAdapter },
     {
       provide: GetCartUseCase,
       useFactory: getCartUseCaseFactory,
@@ -88,14 +86,9 @@ import { BasketsController } from './presentation/public/baskets/baskets.control
       inject: [CARTS_REPOSITORY, CUSTOMER_READER_PORT],
     },
     {
-      provide: CheckoutUseCase,
-      useFactory: checkoutUseCaseFactory,
-      inject: [
-        CARTS_REPOSITORY,
-        CUSTOMER_READER_PORT,
-        VARIANT_READER_PORT,
-        CREATE_ORDER_PORT,
-      ],
+      provide: RemoveCartItemsUseCase,
+      useFactory: removeCartItemsUseCaseFactory,
+      inject: [CARTS_REPOSITORY],
     },
   ],
 })

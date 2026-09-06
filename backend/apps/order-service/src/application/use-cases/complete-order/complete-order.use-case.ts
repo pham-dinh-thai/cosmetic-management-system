@@ -1,14 +1,12 @@
 import { OrderTransaction } from '../../../domain/entities/order-transaction.entity';
 import { OrderNotFoundException } from '../../../domain/exceptions/order-not-found.exception';
 import { IPublishOrderCompletedPort } from '../../../domain/ports/publish-order-completed.port';
-import { IRemoveStockPort } from '../../../domain/ports/remove-stock.port';
 import { IOrdersRepository } from '../../../domain/repositories/orders.repository';
 import { IOrderTransactionsRepository } from '../../../domain/repositories/order-transactions.repository';
 
 export class CompleteOrderUseCase {
   public constructor(
     private readonly ordersRepository: IOrdersRepository,
-    private readonly removeStockPort: IRemoveStockPort,
     private readonly orderTransactionsRepository: IOrderTransactionsRepository,
     private readonly publishOrderCompletedPort: IPublishOrderCompletedPort,
   ) {}
@@ -21,13 +19,6 @@ export class CompleteOrderUseCase {
 
     if (!order) {
       throw new OrderNotFoundException(id);
-    }
-
-    for (const line of order.getLines()) {
-      await this.removeStockPort.execute(
-        line.getVariantId(),
-        line.getQuantity(),
-      );
     }
 
     order.complete();
@@ -68,13 +59,11 @@ export class CompleteOrderUseCase {
 
 export const completeOrderUseCaseFactory = (
   ordersRepository: IOrdersRepository,
-  removeStockPort: IRemoveStockPort,
   orderTransactionsRepository: IOrderTransactionsRepository,
   publishOrderCompletedPort: IPublishOrderCompletedPort,
 ): CompleteOrderUseCase =>
   new CompleteOrderUseCase(
     ordersRepository,
-    removeStockPort,
     orderTransactionsRepository,
     publishOrderCompletedPort,
   );

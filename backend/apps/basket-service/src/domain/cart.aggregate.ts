@@ -95,6 +95,20 @@ export class Cart {
     this.items.splice(index, 1);
   }
 
+  public decreaseItem(variantId: string, quantity: number): void {
+    const item = this.items.find((item) => item.getVariantId() === variantId);
+
+    if (!item) {
+      throw new CartItemNotFoundException(variantId);
+    }
+
+    item.decrease(quantity);
+
+    if (item.getQuantity() <= 0) {
+      this.removeItem(variantId);
+    }
+  }
+
   public hasItems(): boolean {
     return this.items.length > 0;
   }

@@ -9,7 +9,7 @@ import { Order } from './infrastructure/entities/order.entity';
 import { OrderLine } from './infrastructure/entities/order-line.entity';
 import { OrderTransaction } from './infrastructure/entities/order-transaction.entity';
 import { OrdersController } from './presentation/public/orders/orders.controller';
-import { InternalOrdersController } from './presentation/internal/orders/orders.controller';
+import { ClientOrdersController } from './presentation/public/orders/client-orders.controller';
 import { DomainErrorFilter } from './presentation/filters/domain-error.filter';
 import { ORDERS_REPOSITORY } from './domain/repositories/orders.repository';
 import { ORDER_TRANSACTIONS_REPOSITORY } from './domain/repositories/order-transactions.repository';
@@ -19,10 +19,10 @@ import { MikroOrdersRepository } from './infrastructure/repositories/mikro-order
 import { MikroOrderTransactionsRepository } from './infrastructure/repositories/mikro-order-transactions.repository';
 import { RemoveStockAdapter } from './infrastructure/adapters/remove-stock.adapter';
 import { OrderCompletedPublisherAdapter } from './infrastructure/adapters/order-completed-publisher.adapter';
-import {
-  CreateOrderUseCase,
-  createOrderUseCaseFactory,
-} from './application/use-cases/create-order/create-order.use-case';
+import { VariantsReaderAdapter } from './infrastructure/adapters/variants-reader.adapter';
+import { ReverseInventoryAdapter } from './infrastructure/adapters/reverse-inventory.adapter';
+import { DecreaseCartLineQuantityAdapter } from './infrastructure/adapters/decrease-cart-line-quantity.adapter';
+import { OrderLoggerAdapter } from './infrastructure/adapters/order-logger.adapter';
 import {
   FindAllOrdersUseCase,
   findAllOrdersUseCaseFactory,
@@ -51,6 +51,14 @@ import {
   FindOrderTransactionsUseCase,
   findOrderTransactionsUseCaseFactory,
 } from './application/use-cases/find-order-transactions/find-order-transactions.use-case';
+import {
+  PlaceOrderUseCase,
+  placeOrderUseCaseFactory,
+} from './application/use-cases/place-order/place-order.use-case';
+import { VARIANT_READER_PORT } from './application/use-cases/place-order/ports/variants-reader.port';
+import { REVERSE_INVENTORY_PORT } from './application/use-cases/place-order/ports/reverse-inventory.port';
+import { DECREASE_CART_LINE_QUANTITY_PORT } from './application/use-cases/place-order/ports/decrease-cart-line-quantity.port';
+import { ORDER_LOGGER_PORT } from './application/ports/employee-logger.port';
 
 @Module({
   imports: [
@@ -79,7 +87,7 @@ import {
       inject: [ConfigService],
     }),
   ],
-  controllers: [OrdersController, InternalOrdersController],
+  controllers: [OrdersController, ClientOrdersController],
   providers: [
     {
       provide: APP_FILTER,
@@ -97,17 +105,33 @@ import {
       inject: [RabbitmqService],
     },
     {
+      provide: VARIANT_READER_PORT,
+      useFactory: (config: ConfigService) => new VariantsReaderAdapter(config),
+      inject: [ConfigService],
+    },
+    {
+      provide: REVERSE_INVENTORY_PORT,
+      useFactory: (config: ConfigService) =>
+        new ReverseInventoryAdapter(config),
+      inject: [ConfigService],
+    },
+    {
+      provide: DECREASE_CART_LINE_QUANTITY_PORT,
+      useFactory: (config: ConfigService) =>
+        new DecreaseCartLineQuantityAdapter(config),
+      inject: [ConfigService],
+    },
+    {
+      provide: ORDER_LOGGER_PORT,
+      useFactory: () => new OrderLoggerAdapter(),
+    },
+    {
       provide: ORDERS_REPOSITORY,
       useClass: MikroOrdersRepository,
     },
     {
       provide: ORDER_TRANSACTIONS_REPOSITORY,
       useClass: MikroOrderTransactionsRepository,
-    },
-    {
-      provide: CreateOrderUseCase,
-      useFactory: createOrderUseCaseFactory,
-      inject: [ORDERS_REPOSITORY],
     },
     {
       provide: FindAllOrdersUseCase,
@@ -129,9 +153,20 @@ import {
       useFactory: completeOrderUseCaseFactory,
       inject: [
         ORDERS_REPOSITORY,
-        REMOVE_STOCK_PORT,
         ORDER_TRANSACTIONS_REPOSITORY,
         PUBLISH_ORDER_COMPLETED_PORT,
+      ],
+    },
+    {
+      provide: PlaceOrderUseCase,
+      useFactory: placeOrderUseCaseFactory,
+      inject: [
+        ORDERS_REPOSITORY,
+        VARIANT_READER_PORT,
+        REMOVE_STOCK_PORT,
+        REVERSE_INVENTORY_PORT,
+        DECREASE_CART_LINE_QUANTITY_PORT,
+        ORDER_LOGGER_PORT,
       ],
     },
     {
