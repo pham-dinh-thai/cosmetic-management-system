@@ -20,6 +20,7 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
   };
 
   const isRegisterPage = location.pathname === '/register';
+  const isAdminPage = location.pathname.startsWith('/admin');
 
   if (variant === 'auth') {
     return (
@@ -97,31 +98,33 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
         </div>
 
         {/* Center: Search Area */}
-        <div className="hidden lg:flex flex-[2] max-w-[700px] items-center justify-center gap-3">
-          {/* Menu Box */}
-          <div className="flex items-center justify-center gap-1.5 hover:bg-[#eeeee9] p-2 rounded-lg cursor-pointer transition-colors text-[#666666]">
-             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-             </svg>
-             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-            </svg>
-          </div>
-
-          {/* Search Bar */}
-          <div className="relative flex flex-1 items-center bg-[#fcfcf7] border-[1.5px] border-[#1c3a13] rounded-[8px] overflow-hidden h-[42px] transition-colors shadow-sm">
-            <input
-              type="text"
-              placeholder="Tìm kiếm sản phẩm..."
-              className="flex-1 h-full px-4 outline-none text-[14px] text-[#1c3a13] placeholder-[#666666] bg-transparent font-sans"
-            />
-            <button className="h-full px-6 bg-[#1c3a13] hover:opacity-90 text-[#fcfcf7] transition-colors flex items-center justify-center">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        {!isAdminPage && (
+          <div className="hidden lg:flex flex-[2] max-w-[700px] items-center justify-center gap-3">
+            {/* Menu Box */}
+            <div className="flex items-center justify-center gap-1.5 hover:bg-[#eeeee9] p-2 rounded-lg cursor-pointer transition-colors text-[#666666]">
+               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+               </svg>
+               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
               </svg>
-            </button>
+            </div>
+
+            {/* Search Bar */}
+            <div className="relative flex flex-1 items-center bg-[#fcfcf7] border-[1.5px] border-[#1c3a13] rounded-[8px] overflow-hidden h-[42px] transition-colors shadow-sm">
+              <input
+                type="text"
+                placeholder="Tìm kiếm sản phẩm..."
+                className="flex-1 h-full px-4 outline-none text-[14px] text-[#1c3a13] placeholder-[#666666] bg-transparent font-sans"
+              />
+              <button className="h-full px-6 bg-[#1c3a13] hover:opacity-90 text-[#fcfcf7] transition-colors flex items-center justify-center">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Right: Actions */}
         <div className="flex-1 flex items-center justify-end gap-4">
@@ -143,15 +146,17 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
           )}
 
           <div className="flex items-center gap-2 ml-2">
-            <button
-              className="w-10 h-10 flex items-center justify-center text-[#1c3a13] hover:bg-[#eeeee9] rounded-full transition-colors relative"
-              title="Giỏ hàng"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-              </svg>
-              <span className="absolute top-2 right-2 w-2 h-2 bg-[#d3fa99] rounded-full ring-2 ring-[#fcfcf7]"></span>
-            </button>
+            {!isAdminPage && (
+              <button
+                className="w-10 h-10 flex items-center justify-center text-[#1c3a13] hover:bg-[#eeeee9] rounded-full transition-colors relative"
+                title="Giỏ hàng"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+                <span className="absolute top-2 right-2 w-2 h-2 bg-[#d3fa99] rounded-full ring-2 ring-[#fcfcf7]"></span>
+              </button>
+            )}
 
             {/* Profile Dropdown */}
             <div className="relative">

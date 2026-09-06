@@ -743,7 +743,7 @@ const ProductCard = ({ product }: { product: Product }) => (
       </p>
     </div>
     <Link
-      to="/login"
+      to={`/product/${encodeURIComponent(product.code)}`}
       className="self-start inline-flex items-center justify-center rounded-full bg-[--color-snow-white] text-[--color-forest-depths] px-5 py-3 text-[14px] hover:opacity-90 transition-opacity"
     >
       Mua ngay →
