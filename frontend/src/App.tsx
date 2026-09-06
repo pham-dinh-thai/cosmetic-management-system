@@ -19,7 +19,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/" element={<LandingPage />} />
           <Route path="/product/:code" element={<ProductDetail />} />
-          <Route path="/admin" element={
+          <Route path="/admin/*" element={
             <RoleRoute allowedRoles={["admin"]}>
               <Admin />
             </RoleRoute>
