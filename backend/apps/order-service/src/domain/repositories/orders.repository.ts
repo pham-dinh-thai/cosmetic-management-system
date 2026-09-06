@@ -8,7 +8,7 @@ export interface IOrdersRepository {
     customerId?: string;
   }): Promise<Order[]>;
   findById(id: string): Promise<Order | null>;
-  count(): Promise<number>;
+  findMaxCodeSequence(): Promise<number | null>;
   create(order: Order): Promise<{ id: string }>;
   replaceLines(
     id: string,

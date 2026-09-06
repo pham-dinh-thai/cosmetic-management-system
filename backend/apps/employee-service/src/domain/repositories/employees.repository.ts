@@ -3,7 +3,9 @@ import { Employee } from '../employee.aggregate';
 export interface IEmployeesRepository {
   findById(id: string): Promise<Employee | null>;
 
-  count(): Promise<number>;
+  findByUserId(userId: string): Promise<Employee | null>;
+
+  findMaxCodeSequence(): Promise<number | null>;
 
   create(employee: Employee): Promise<void>;
 

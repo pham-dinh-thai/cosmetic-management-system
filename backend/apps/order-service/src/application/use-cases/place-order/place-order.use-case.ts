@@ -36,7 +36,8 @@ export class PlaceOrderUseCase {
     customerId: string,
     lines: IPlaceOrderRequest['lines'],
   ): Promise<Order> {
-    const code = OrderCode.generate((await this.ordersRepository.count()) + 1);
+    const maxCodeSequence = await this.ordersRepository.findMaxCodeSequence();
+    const code = OrderCode.generate((maxCodeSequence ?? 0) + 1);
 
     const pricedLines = await Promise.all(
       lines.map(async (line) => ({

@@ -7,7 +7,7 @@ export interface ISuppliersRepository {
 
   findByEmail(email: string): Promise<Supplier | null>;
 
-  count(): Promise<number>;
+  findMaxCodeSequence(): Promise<number | null>;
 
   create(supplier: Supplier): Promise<{ id: string }>;
 

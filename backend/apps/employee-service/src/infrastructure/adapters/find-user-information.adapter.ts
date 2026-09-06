@@ -4,10 +4,7 @@ import {
 } from '@nestjs/common';
 import { IFindUserInformationPort } from '../../application/use-cases/update-employee-information/ports/find-user-information.port';
 import { ConfigService } from '@nestjs/config';
-import {
-  EMPLOYEE_LOGGER_PORT,
-  type IEmployeeLoggerPort,
-} from '../../application/ports/employee-logger.port';
+import { type IEmployeeLoggerPort } from '../../application/ports/employee-logger.port';
 
 export class FindUserInformationAdapter implements IFindUserInformationPort {
   private readonly logger: IEmployeeLoggerPort;
@@ -44,7 +41,8 @@ export class FindUserInformationAdapter implements IFindUserInformationPort {
     }
 
     const text = await response.text();
+    const body: unknown = JSON.parse(text);
 
-    return JSON.parse(text);
+    return body as { firstName: string; lastName: string; gender: string };
   }
 }

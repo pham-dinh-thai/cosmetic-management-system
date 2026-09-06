@@ -21,7 +21,7 @@ export interface ICosmeticsRepository {
 
   findById(id: string): Promise<Cosmetic | null>;
 
-  count(): Promise<number>;
+  findMaxCodeSequence(): Promise<number | null>;
 
   create(cosmetic: Cosmetic): Promise<{ id: string }>;
 

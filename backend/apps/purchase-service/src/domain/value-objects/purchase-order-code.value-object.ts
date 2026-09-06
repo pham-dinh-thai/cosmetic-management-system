@@ -1,9 +1,7 @@
 import { InvalidPurchaseOrderCodeException } from '../exceptions/invalid-purchase-order-code.exception';
+import { generateCode, isCodeFormatValid } from '@app/codes';
 
-const PURCHASE_ORDER_CODE_PREFIX = 'PN_';
-const MIN_CODE_DIGITS = 5;
-
-const PURCHASE_ORDER_CODE_REGEX = /^PN_\d{5,}$/;
+export const PURCHASE_ORDER_CODE_PREFIX = 'PN_';
 
 export class PurchaseOrderCode {
   private constructor(private readonly value: string) {}
@@ -14,14 +12,12 @@ export class PurchaseOrderCode {
     }
 
     return new PurchaseOrderCode(
-      `${PURCHASE_ORDER_CODE_PREFIX}${sequence
-        .toString()
-        .padStart(MIN_CODE_DIGITS, '0')}`,
+      generateCode(PURCHASE_ORDER_CODE_PREFIX, sequence),
     );
   }
 
   public static fromPersistent(value: string): PurchaseOrderCode {
-    if (!PURCHASE_ORDER_CODE_REGEX.test(value)) {
+    if (!isCodeFormatValid(PURCHASE_ORDER_CODE_PREFIX, value)) {
       throw new InvalidPurchaseOrderCodeException(value);
     }
 

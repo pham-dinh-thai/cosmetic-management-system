@@ -38,6 +38,12 @@
       "@app/rabbitmq/*": [
         "./libs/rabbitmq/src/*"
       ],
+      "@app/codes": [
+        "./libs/codes/src"
+      ],
+      "@app/codes/*": [
+        "./libs/codes/src/*"
+      ],
       "constants/*": [
         "./constants/*"
       ]

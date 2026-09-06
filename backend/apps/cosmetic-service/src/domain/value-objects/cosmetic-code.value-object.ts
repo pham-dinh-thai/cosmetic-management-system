@@ -1,9 +1,7 @@
 import { InvalidCosmeticCodeException } from '../exceptions/invalid-cosmetic-code.exception';
+import { generateCode, isCodeFormatValid } from '@app/codes';
 
-const COSMETIC_CODE_PREFIX = 'SP_';
-const MIN_CODE_DIGITS = 5;
-
-const COSMETIC_CODE_REGEX = /^SP_\d{5,}$/;
+export const COSMETIC_CODE_PREFIX = 'SP_';
 
 export class CosmeticCode {
   private constructor(private readonly value: string) {}
@@ -13,15 +11,11 @@ export class CosmeticCode {
       throw new InvalidCosmeticCodeException(sequence.toString());
     }
 
-    return new CosmeticCode(
-      `${COSMETIC_CODE_PREFIX}${sequence
-        .toString()
-        .padStart(MIN_CODE_DIGITS, '0')}`,
-    );
+    return new CosmeticCode(generateCode(COSMETIC_CODE_PREFIX, sequence));
   }
 
   public static fromPersistent(value: string): CosmeticCode {
-    if (!COSMETIC_CODE_REGEX.test(value)) {
+    if (!isCodeFormatValid(COSMETIC_CODE_PREFIX, value)) {
       throw new InvalidCosmeticCodeException(value);
     }
 

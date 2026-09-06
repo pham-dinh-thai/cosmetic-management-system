@@ -5,6 +5,8 @@ import { InvoiceStatus } from '../../domain/types';
 import { InvoicesRepository } from '../../domain/repositories/invoices.repository';
 import { Invoice } from '../entities/invoice.entity';
 import { InvoiceMapper } from '../mappers/invoice.mapper';
+import { INVOICE_CODE_PREFIX } from '../../domain/value-objects/invoice-code.value-object';
+import { maxSequenceFromCodes } from '@app/codes';
 
 @Injectable()
 export class MikroInvoicesRepository implements InvoicesRepository {
@@ -57,8 +59,18 @@ export class MikroInvoicesRepository implements InvoicesRepository {
     return entity ? InvoiceMapper.toDomain(entity) : null;
   }
 
-  public async count(): Promise<number> {
-    return this.em.count(Invoice);
+  public async findMaxCodeSequence(): Promise<number | null> {
+    const entities = await this.em.find(
+      Invoice,
+      {},
+      { fields: ['code'], orderBy: { code: 'DESC' }, limit: 1 },
+    );
+
+    if (entities.length === 0) {
+      return null;
+    }
+
+    return maxSequenceFromCodes(INVOICE_CODE_PREFIX, [entities[0].code]);
   }
 
   public async create(invoice: InvoiceDomain): Promise<{ id: string }> {
