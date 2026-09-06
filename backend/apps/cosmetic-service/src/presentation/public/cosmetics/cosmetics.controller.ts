@@ -12,7 +12,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard, Role, Roles, RolesGuard } from '@app/security';
+import { AuthGuard, Departments, OrgGuard, Role, Roles } from '@app/security';
 import { CreateCosmeticUseCase } from 'apps/cosmetic-service/src/application/use-cases/create-cosmetic/create-cosmetic.use-case';
 import { FindAllCosmeticsUseCase } from 'apps/cosmetic-service/src/application/use-cases/find-cosmetic/find-all/find-all-cosmetics.use-case';
 import { FindAllCosmeticReadModel } from 'apps/cosmetic-service/src/application/use-cases/find-cosmetic/find-all/read-models/find-all-cosmetic.read-model';
@@ -31,8 +31,9 @@ import { UpdateCosmeticRequest } from './requests/update-cosmetic.request';
 import { AddVariantRequest } from './requests/add-variant.request';
 import { UpdateVariantRequest } from './requests/update-variant.request';
 
-@UseGuards(AuthGuard, RolesGuard)
-@Roles(Role.Admin)
+@UseGuards(AuthGuard, OrgGuard)
+@Roles(Role.Admin, Role.Employee)
+@Departments('sales')
 @Controller('cosmetics')
 export class CosmeticsController {
   public constructor(
