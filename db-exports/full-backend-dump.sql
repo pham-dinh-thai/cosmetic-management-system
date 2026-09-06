@@ -2,14 +2,57 @@
 -- PostgreSQL database cluster dump
 --
 
--- Started on 2026-09-06 12:20:16 UTC
+-- Started on 2026-09-06 12:30:29 UTC
 
-\restrict mgYc9Y4KGAOvvcg5h532E3tt7MFgAs1whBZCf1tNcwoauIxlM2OvDsnorWX5eid
+\restrict da3j8qs6sblmUnoiaIF9z93VdRh55SCokAQBe7CpVqrBzHwB73zDDX6Q480N2xr
 
 SET default_transaction_read_only = off;
 
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
+
+--
+-- Drop databases (except postgres and template1)
+--
+
+DROP DATABASE IF EXISTS cosmetic_authentication_service;
+DROP DATABASE IF EXISTS cosmetic_authorization_service;
+DROP DATABASE IF EXISTS cosmetic_basket_service;
+DROP DATABASE IF EXISTS cosmetic_category_service;
+DROP DATABASE IF EXISTS cosmetic_cosmetic_service;
+DROP DATABASE IF EXISTS cosmetic_customer_service;
+DROP DATABASE IF EXISTS cosmetic_department_service;
+DROP DATABASE IF EXISTS cosmetic_employee_service;
+DROP DATABASE IF EXISTS cosmetic_inventory_service;
+DROP DATABASE IF EXISTS cosmetic_invoice_service;
+DROP DATABASE IF EXISTS cosmetic_order_service;
+DROP DATABASE IF EXISTS cosmetic_purchase_service;
+DROP DATABASE IF EXISTS cosmetic_supplier_service;
+DROP DATABASE IF EXISTS cosmetic_user_service;
+
+
+
+
+--
+-- Drop roles
+--
+
+DROP ROLE IF EXISTS cosmetic_admin;
+DROP ROLE IF EXISTS cosmetic_auth;
+DROP ROLE IF EXISTS cosmetic_authorization;
+DROP ROLE IF EXISTS cosmetic_basket;
+DROP ROLE IF EXISTS cosmetic_category;
+DROP ROLE IF EXISTS cosmetic_cosmetic;
+DROP ROLE IF EXISTS cosmetic_customer;
+DROP ROLE IF EXISTS cosmetic_department;
+DROP ROLE IF EXISTS cosmetic_employee;
+DROP ROLE IF EXISTS cosmetic_inventory;
+DROP ROLE IF EXISTS cosmetic_invoice;
+DROP ROLE IF EXISTS cosmetic_order;
+DROP ROLE IF EXISTS cosmetic_purchase;
+DROP ROLE IF EXISTS cosmetic_supplier;
+DROP ROLE IF EXISTS cosmetic_user;
+
 
 --
 -- Roles
@@ -57,7 +100,7 @@ ALTER ROLE cosmetic_user WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN 
 
 
 
-\unrestrict mgYc9Y4KGAOvvcg5h532E3tt7MFgAs1whBZCf1tNcwoauIxlM2OvDsnorWX5eid
+\unrestrict da3j8qs6sblmUnoiaIF9z93VdRh55SCokAQBe7CpVqrBzHwB73zDDX6Q480N2xr
 
 --
 -- Databases
@@ -67,18 +110,16 @@ ALTER ROLE cosmetic_user WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN 
 -- Database "template1" dump
 --
 
-\connect template1
-
 --
 -- PostgreSQL database dump
 --
 
-\restrict sLBvqkAooTq9T7Rh3bnyfCKVeoBmUC3924otXY6mr5ShK0ANEC8bWd26s3ThFtK
+\restrict Owh27TWZYKcEEPzAd2GtL6Nq0qFJsjMWqYhJZx7PuAPtCvOOooLBBi6q8hyFLxK
 
 -- Dumped from database version 16.15
 -- Dumped by pg_dump version 16.15
 
--- Started on 2026-09-06 12:20:16 UTC
+-- Started on 2026-09-06 12:30:29 UTC
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -91,13 +132,82 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
--- Completed on 2026-09-06 12:20:16 UTC
+UPDATE pg_catalog.pg_database SET datistemplate = false WHERE datname = 'template1';
+DROP DATABASE template1;
+--
+-- TOC entry 3444 (class 1262 OID 1)
+-- Name: template1; Type: DATABASE; Schema: -; Owner: cosmetic_admin
+--
+
+CREATE DATABASE template1 WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE_PROVIDER = libc LOCALE = 'en_US.utf8';
+
+
+ALTER DATABASE template1 OWNER TO cosmetic_admin;
+
+\unrestrict Owh27TWZYKcEEPzAd2GtL6Nq0qFJsjMWqYhJZx7PuAPtCvOOooLBBi6q8hyFLxK
+\connect template1
+\restrict Owh27TWZYKcEEPzAd2GtL6Nq0qFJsjMWqYhJZx7PuAPtCvOOooLBBi6q8hyFLxK
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- TOC entry 3445 (class 0 OID 0)
+-- Dependencies: 3444
+-- Name: DATABASE template1; Type: COMMENT; Schema: -; Owner: cosmetic_admin
+--
+
+COMMENT ON DATABASE template1 IS 'default template for new databases';
+
+
+--
+-- TOC entry 3447 (class 0 OID 0)
+-- Name: template1; Type: DATABASE PROPERTIES; Schema: -; Owner: cosmetic_admin
+--
+
+ALTER DATABASE template1 IS_TEMPLATE = true;
+
+
+\unrestrict Owh27TWZYKcEEPzAd2GtL6Nq0qFJsjMWqYhJZx7PuAPtCvOOooLBBi6q8hyFLxK
+\connect template1
+\restrict Owh27TWZYKcEEPzAd2GtL6Nq0qFJsjMWqYhJZx7PuAPtCvOOooLBBi6q8hyFLxK
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- TOC entry 3446 (class 0 OID 0)
+-- Dependencies: 3444
+-- Name: DATABASE template1; Type: ACL; Schema: -; Owner: cosmetic_admin
+--
+
+REVOKE CONNECT,TEMPORARY ON DATABASE template1 FROM PUBLIC;
+GRANT CONNECT ON DATABASE template1 TO PUBLIC;
+
+
+-- Completed on 2026-09-06 12:30:29 UTC
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict sLBvqkAooTq9T7Rh3bnyfCKVeoBmUC3924otXY6mr5ShK0ANEC8bWd26s3ThFtK
+\unrestrict Owh27TWZYKcEEPzAd2GtL6Nq0qFJsjMWqYhJZx7PuAPtCvOOooLBBi6q8hyFLxK
 
 --
 -- Database "cosmetic_authentication_service" dump
@@ -107,12 +217,12 @@ SET row_security = off;
 -- PostgreSQL database dump
 --
 
-\restrict 1eT8LsSeSHx3teydNeN9zgPZ9r25scL0HBhoKb11UT4yEtsaG3E2bcOO8cAqq3C
+\restrict AeVqCq2U6dEId1cv5WbW6MLpVGHn6eGKE17nOUhrnjS1WB7zSMSb9xjS0e9e6Mx
 
 -- Dumped from database version 16.15
 -- Dumped by pg_dump version 16.15
 
--- Started on 2026-09-06 12:20:16 UTC
+-- Started on 2026-09-06 12:30:29 UTC
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -135,9 +245,9 @@ CREATE DATABASE cosmetic_authentication_service WITH TEMPLATE = template0 ENCODI
 
 ALTER DATABASE cosmetic_authentication_service OWNER TO cosmetic_auth;
 
-\unrestrict 1eT8LsSeSHx3teydNeN9zgPZ9r25scL0HBhoKb11UT4yEtsaG3E2bcOO8cAqq3C
+\unrestrict AeVqCq2U6dEId1cv5WbW6MLpVGHn6eGKE17nOUhrnjS1WB7zSMSb9xjS0e9e6Mx
 \connect cosmetic_authentication_service
-\restrict 1eT8LsSeSHx3teydNeN9zgPZ9r25scL0HBhoKb11UT4yEtsaG3E2bcOO8cAqq3C
+\restrict AeVqCq2U6dEId1cv5WbW6MLpVGHn6eGKE17nOUhrnjS1WB7zSMSb9xjS0e9e6Mx
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -307,13 +417,13 @@ ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON S
 ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON TABLES TO cosmetic_auth;
 
 
--- Completed on 2026-09-06 12:20:16 UTC
+-- Completed on 2026-09-06 12:30:29 UTC
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 1eT8LsSeSHx3teydNeN9zgPZ9r25scL0HBhoKb11UT4yEtsaG3E2bcOO8cAqq3C
+\unrestrict AeVqCq2U6dEId1cv5WbW6MLpVGHn6eGKE17nOUhrnjS1WB7zSMSb9xjS0e9e6Mx
 
 --
 -- Database "cosmetic_authorization_service" dump
@@ -323,12 +433,12 @@ ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON T
 -- PostgreSQL database dump
 --
 
-\restrict 2lfQjrES4smlGDvwa6b2zzpXUl5MAuaryI8mafxTmtVP8TtMkPhuzc9iQEaE63F
+\restrict hBOjs7HK0NP622LvgV5mryvnQsplZOVCPiUkS1PS8LFF8HFDhmtN7TKcBO9zjXu
 
 -- Dumped from database version 16.15
 -- Dumped by pg_dump version 16.15
 
--- Started on 2026-09-06 12:20:16 UTC
+-- Started on 2026-09-06 12:30:29 UTC
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -351,9 +461,9 @@ CREATE DATABASE cosmetic_authorization_service WITH TEMPLATE = template0 ENCODIN
 
 ALTER DATABASE cosmetic_authorization_service OWNER TO cosmetic_authorization;
 
-\unrestrict 2lfQjrES4smlGDvwa6b2zzpXUl5MAuaryI8mafxTmtVP8TtMkPhuzc9iQEaE63F
+\unrestrict hBOjs7HK0NP622LvgV5mryvnQsplZOVCPiUkS1PS8LFF8HFDhmtN7TKcBO9zjXu
 \connect cosmetic_authorization_service
-\restrict 2lfQjrES4smlGDvwa6b2zzpXUl5MAuaryI8mafxTmtVP8TtMkPhuzc9iQEaE63F
+\restrict hBOjs7HK0NP622LvgV5mryvnQsplZOVCPiUkS1PS8LFF8HFDhmtN7TKcBO9zjXu
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -506,13 +616,13 @@ ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON S
 ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON TABLES TO cosmetic_authorization;
 
 
--- Completed on 2026-09-06 12:20:17 UTC
+-- Completed on 2026-09-06 12:30:29 UTC
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 2lfQjrES4smlGDvwa6b2zzpXUl5MAuaryI8mafxTmtVP8TtMkPhuzc9iQEaE63F
+\unrestrict hBOjs7HK0NP622LvgV5mryvnQsplZOVCPiUkS1PS8LFF8HFDhmtN7TKcBO9zjXu
 
 --
 -- Database "cosmetic_basket_service" dump
@@ -522,12 +632,12 @@ ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON T
 -- PostgreSQL database dump
 --
 
-\restrict 25YVz7ECM2EpgIDROr2Z42KZisqIl7pAP95uMQL3kamFlO1lnAwxh5geRkNFI34
+\restrict Mo60jkf7AI4dJlKxZmGBqaANBnQPeVJ9XnGSykilCkjFz9lgRtRDQarxyxxyutP
 
 -- Dumped from database version 16.15
 -- Dumped by pg_dump version 16.15
 
--- Started on 2026-09-06 12:20:17 UTC
+-- Started on 2026-09-06 12:30:29 UTC
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -550,9 +660,9 @@ CREATE DATABASE cosmetic_basket_service WITH TEMPLATE = template0 ENCODING = 'UT
 
 ALTER DATABASE cosmetic_basket_service OWNER TO cosmetic_basket;
 
-\unrestrict 25YVz7ECM2EpgIDROr2Z42KZisqIl7pAP95uMQL3kamFlO1lnAwxh5geRkNFI34
+\unrestrict Mo60jkf7AI4dJlKxZmGBqaANBnQPeVJ9XnGSykilCkjFz9lgRtRDQarxyxxyutP
 \connect cosmetic_basket_service
-\restrict 25YVz7ECM2EpgIDROr2Z42KZisqIl7pAP95uMQL3kamFlO1lnAwxh5geRkNFI34
+\restrict Mo60jkf7AI4dJlKxZmGBqaANBnQPeVJ9XnGSykilCkjFz9lgRtRDQarxyxxyutP
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -770,13 +880,13 @@ ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON S
 ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON TABLES TO cosmetic_basket;
 
 
--- Completed on 2026-09-06 12:20:17 UTC
+-- Completed on 2026-09-06 12:30:29 UTC
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 25YVz7ECM2EpgIDROr2Z42KZisqIl7pAP95uMQL3kamFlO1lnAwxh5geRkNFI34
+\unrestrict Mo60jkf7AI4dJlKxZmGBqaANBnQPeVJ9XnGSykilCkjFz9lgRtRDQarxyxxyutP
 
 --
 -- Database "cosmetic_category_service" dump
@@ -786,12 +896,12 @@ ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON T
 -- PostgreSQL database dump
 --
 
-\restrict W3hG9Vf8fdJSVimorprXABVfRpbiovKIhXasmR8KY9qb9uwuAOSF30zWdghAeLY
+\restrict j0FEodfBwiBppRxsSEcqumEScu9amClhL6PIry9TfSskgB9HNRAAuTwBrGniXyt
 
 -- Dumped from database version 16.15
 -- Dumped by pg_dump version 16.15
 
--- Started on 2026-09-06 12:20:17 UTC
+-- Started on 2026-09-06 12:30:29 UTC
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -814,9 +924,9 @@ CREATE DATABASE cosmetic_category_service WITH TEMPLATE = template0 ENCODING = '
 
 ALTER DATABASE cosmetic_category_service OWNER TO cosmetic_category;
 
-\unrestrict W3hG9Vf8fdJSVimorprXABVfRpbiovKIhXasmR8KY9qb9uwuAOSF30zWdghAeLY
+\unrestrict j0FEodfBwiBppRxsSEcqumEScu9amClhL6PIry9TfSskgB9HNRAAuTwBrGniXyt
 \connect cosmetic_category_service
-\restrict W3hG9Vf8fdJSVimorprXABVfRpbiovKIhXasmR8KY9qb9uwuAOSF30zWdghAeLY
+\restrict j0FEodfBwiBppRxsSEcqumEScu9amClhL6PIry9TfSskgB9HNRAAuTwBrGniXyt
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -980,13 +1090,13 @@ ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON S
 ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON TABLES TO cosmetic_category;
 
 
--- Completed on 2026-09-06 12:20:17 UTC
+-- Completed on 2026-09-06 12:30:29 UTC
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict W3hG9Vf8fdJSVimorprXABVfRpbiovKIhXasmR8KY9qb9uwuAOSF30zWdghAeLY
+\unrestrict j0FEodfBwiBppRxsSEcqumEScu9amClhL6PIry9TfSskgB9HNRAAuTwBrGniXyt
 
 --
 -- Database "cosmetic_cosmetic_service" dump
@@ -996,12 +1106,12 @@ ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON T
 -- PostgreSQL database dump
 --
 
-\restrict HjCY1b15HenoAMOgJeghfFGFEbntB4sNwm02gZZX1QIIW1FqvaImHgouvUbna6p
+\restrict YgCfKHj4QHC5QLMbglVlLPIVFBLhcfFRbWNLir1SOeBqZIcO8jGIaqsIUvg4Sjv
 
 -- Dumped from database version 16.15
 -- Dumped by pg_dump version 16.15
 
--- Started on 2026-09-06 12:20:17 UTC
+-- Started on 2026-09-06 12:30:29 UTC
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -1024,9 +1134,9 @@ CREATE DATABASE cosmetic_cosmetic_service WITH TEMPLATE = template0 ENCODING = '
 
 ALTER DATABASE cosmetic_cosmetic_service OWNER TO cosmetic_cosmetic;
 
-\unrestrict HjCY1b15HenoAMOgJeghfFGFEbntB4sNwm02gZZX1QIIW1FqvaImHgouvUbna6p
+\unrestrict YgCfKHj4QHC5QLMbglVlLPIVFBLhcfFRbWNLir1SOeBqZIcO8jGIaqsIUvg4Sjv
 \connect cosmetic_cosmetic_service
-\restrict HjCY1b15HenoAMOgJeghfFGFEbntB4sNwm02gZZX1QIIW1FqvaImHgouvUbna6p
+\restrict YgCfKHj4QHC5QLMbglVlLPIVFBLhcfFRbWNLir1SOeBqZIcO8jGIaqsIUvg4Sjv
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -1290,13 +1400,13 @@ ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON S
 ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON TABLES TO cosmetic_cosmetic;
 
 
--- Completed on 2026-09-06 12:20:17 UTC
+-- Completed on 2026-09-06 12:30:30 UTC
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict HjCY1b15HenoAMOgJeghfFGFEbntB4sNwm02gZZX1QIIW1FqvaImHgouvUbna6p
+\unrestrict YgCfKHj4QHC5QLMbglVlLPIVFBLhcfFRbWNLir1SOeBqZIcO8jGIaqsIUvg4Sjv
 
 --
 -- Database "cosmetic_customer_service" dump
@@ -1306,12 +1416,12 @@ ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON T
 -- PostgreSQL database dump
 --
 
-\restrict MQ5BFaFZADvDYszbal4xhuN6Ywn59YvoLWmrdFPnLcECC0WUsGrVWaP7v9PycSk
+\restrict LACWF0KqbxoCUxpSiUlMENrqJqoSplsiKQkjLTPg0hLZPf4DOqHq5pmbHSUPcxa
 
 -- Dumped from database version 16.15
 -- Dumped by pg_dump version 16.15
 
--- Started on 2026-09-06 12:20:17 UTC
+-- Started on 2026-09-06 12:30:30 UTC
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -1334,9 +1444,9 @@ CREATE DATABASE cosmetic_customer_service WITH TEMPLATE = template0 ENCODING = '
 
 ALTER DATABASE cosmetic_customer_service OWNER TO cosmetic_customer;
 
-\unrestrict MQ5BFaFZADvDYszbal4xhuN6Ywn59YvoLWmrdFPnLcECC0WUsGrVWaP7v9PycSk
+\unrestrict LACWF0KqbxoCUxpSiUlMENrqJqoSplsiKQkjLTPg0hLZPf4DOqHq5pmbHSUPcxa
 \connect cosmetic_customer_service
-\restrict MQ5BFaFZADvDYszbal4xhuN6Ywn59YvoLWmrdFPnLcECC0WUsGrVWaP7v9PycSk
+\restrict LACWF0KqbxoCUxpSiUlMENrqJqoSplsiKQkjLTPg0hLZPf4DOqHq5pmbHSUPcxa
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -1607,13 +1717,13 @@ ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON S
 ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON TABLES TO cosmetic_customer;
 
 
--- Completed on 2026-09-06 12:20:17 UTC
+-- Completed on 2026-09-06 12:30:30 UTC
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict MQ5BFaFZADvDYszbal4xhuN6Ywn59YvoLWmrdFPnLcECC0WUsGrVWaP7v9PycSk
+\unrestrict LACWF0KqbxoCUxpSiUlMENrqJqoSplsiKQkjLTPg0hLZPf4DOqHq5pmbHSUPcxa
 
 --
 -- Database "cosmetic_department_service" dump
@@ -1623,12 +1733,12 @@ ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON T
 -- PostgreSQL database dump
 --
 
-\restrict GQDCxv9jDacRbxljAWrb8OnZECLiE4sC7pSdY4sSINiegR7bjPoS4AB9KmLO5zj
+\restrict LCzfiitVI4CE045zDFFxl3SmLeIkgKLlMMbLBkX7P0UEnQpi9UOFVC9o2rTTr1Q
 
 -- Dumped from database version 16.15
 -- Dumped by pg_dump version 16.15
 
--- Started on 2026-09-06 12:20:17 UTC
+-- Started on 2026-09-06 12:30:30 UTC
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -1651,9 +1761,9 @@ CREATE DATABASE cosmetic_department_service WITH TEMPLATE = template0 ENCODING =
 
 ALTER DATABASE cosmetic_department_service OWNER TO cosmetic_department;
 
-\unrestrict GQDCxv9jDacRbxljAWrb8OnZECLiE4sC7pSdY4sSINiegR7bjPoS4AB9KmLO5zj
+\unrestrict LCzfiitVI4CE045zDFFxl3SmLeIkgKLlMMbLBkX7P0UEnQpi9UOFVC9o2rTTr1Q
 \connect cosmetic_department_service
-\restrict GQDCxv9jDacRbxljAWrb8OnZECLiE4sC7pSdY4sSINiegR7bjPoS4AB9KmLO5zj
+\restrict LCzfiitVI4CE045zDFFxl3SmLeIkgKLlMMbLBkX7P0UEnQpi9UOFVC9o2rTTr1Q
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -1830,13 +1940,13 @@ ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON S
 ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON TABLES TO cosmetic_department;
 
 
--- Completed on 2026-09-06 12:20:17 UTC
+-- Completed on 2026-09-06 12:30:30 UTC
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict GQDCxv9jDacRbxljAWrb8OnZECLiE4sC7pSdY4sSINiegR7bjPoS4AB9KmLO5zj
+\unrestrict LCzfiitVI4CE045zDFFxl3SmLeIkgKLlMMbLBkX7P0UEnQpi9UOFVC9o2rTTr1Q
 
 --
 -- Database "cosmetic_employee_service" dump
@@ -1846,12 +1956,12 @@ ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON T
 -- PostgreSQL database dump
 --
 
-\restrict S0aTRBPKAwua1oEkIWuGfJUi4tJmkL9MZDrfA1kyGfGQhBzDEL8iRTsvlzGzwjV
+\restrict mElhCzhFkjg1gXVjqi2UKunNjtJAdt5yMsYGmJ2wgwC9zGH4fMS7TjtS9OxSWy7
 
 -- Dumped from database version 16.15
 -- Dumped by pg_dump version 16.15
 
--- Started on 2026-09-06 12:20:17 UTC
+-- Started on 2026-09-06 12:30:30 UTC
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -1874,9 +1984,9 @@ CREATE DATABASE cosmetic_employee_service WITH TEMPLATE = template0 ENCODING = '
 
 ALTER DATABASE cosmetic_employee_service OWNER TO cosmetic_employee;
 
-\unrestrict S0aTRBPKAwua1oEkIWuGfJUi4tJmkL9MZDrfA1kyGfGQhBzDEL8iRTsvlzGzwjV
+\unrestrict mElhCzhFkjg1gXVjqi2UKunNjtJAdt5yMsYGmJ2wgwC9zGH4fMS7TjtS9OxSWy7
 \connect cosmetic_employee_service
-\restrict S0aTRBPKAwua1oEkIWuGfJUi4tJmkL9MZDrfA1kyGfGQhBzDEL8iRTsvlzGzwjV
+\restrict mElhCzhFkjg1gXVjqi2UKunNjtJAdt5yMsYGmJ2wgwC9zGH4fMS7TjtS9OxSWy7
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -2063,13 +2173,13 @@ ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON S
 ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON TABLES TO cosmetic_employee;
 
 
--- Completed on 2026-09-06 12:20:17 UTC
+-- Completed on 2026-09-06 12:30:30 UTC
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict S0aTRBPKAwua1oEkIWuGfJUi4tJmkL9MZDrfA1kyGfGQhBzDEL8iRTsvlzGzwjV
+\unrestrict mElhCzhFkjg1gXVjqi2UKunNjtJAdt5yMsYGmJ2wgwC9zGH4fMS7TjtS9OxSWy7
 
 --
 -- Database "cosmetic_inventory_service" dump
@@ -2079,12 +2189,12 @@ ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON T
 -- PostgreSQL database dump
 --
 
-\restrict bkH3shkSRFuW3uOzNDVbp4jWLZSnQXh71qZr7NFsbDWz0c3BbtfuMufamf2Q8nr
+\restrict JMyCvwpJmmhiFoALlYcMEtkx4eEDiCxKkeMNlP23vATljiRqVQ5xp5YapShsVVC
 
 -- Dumped from database version 16.15
 -- Dumped by pg_dump version 16.15
 
--- Started on 2026-09-06 12:20:17 UTC
+-- Started on 2026-09-06 12:30:30 UTC
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -2107,9 +2217,9 @@ CREATE DATABASE cosmetic_inventory_service WITH TEMPLATE = template0 ENCODING = 
 
 ALTER DATABASE cosmetic_inventory_service OWNER TO cosmetic_inventory;
 
-\unrestrict bkH3shkSRFuW3uOzNDVbp4jWLZSnQXh71qZr7NFsbDWz0c3BbtfuMufamf2Q8nr
+\unrestrict JMyCvwpJmmhiFoALlYcMEtkx4eEDiCxKkeMNlP23vATljiRqVQ5xp5YapShsVVC
 \connect cosmetic_inventory_service
-\restrict bkH3shkSRFuW3uOzNDVbp4jWLZSnQXh71qZr7NFsbDWz0c3BbtfuMufamf2Q8nr
+\restrict JMyCvwpJmmhiFoALlYcMEtkx4eEDiCxKkeMNlP23vATljiRqVQ5xp5YapShsVVC
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -2325,13 +2435,13 @@ ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON S
 ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON TABLES TO cosmetic_inventory;
 
 
--- Completed on 2026-09-06 12:20:17 UTC
+-- Completed on 2026-09-06 12:30:30 UTC
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict bkH3shkSRFuW3uOzNDVbp4jWLZSnQXh71qZr7NFsbDWz0c3BbtfuMufamf2Q8nr
+\unrestrict JMyCvwpJmmhiFoALlYcMEtkx4eEDiCxKkeMNlP23vATljiRqVQ5xp5YapShsVVC
 
 --
 -- Database "cosmetic_invoice_service" dump
@@ -2341,12 +2451,12 @@ ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON T
 -- PostgreSQL database dump
 --
 
-\restrict W0xneT0V9j9U2vV0hovImFAbQdSauLwfAmBVLOzkN34mGHWCPN76ooSR6zPYc3t
+\restrict IJ3ateoK12b2bRuBK8Hshixck8Y5hCTBRWQn9zCsIBMk0FQCfGP2fyblzRj4ZXH
 
 -- Dumped from database version 16.15
 -- Dumped by pg_dump version 16.15
 
--- Started on 2026-09-06 12:20:17 UTC
+-- Started on 2026-09-06 12:30:30 UTC
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -2369,9 +2479,9 @@ CREATE DATABASE cosmetic_invoice_service WITH TEMPLATE = template0 ENCODING = 'U
 
 ALTER DATABASE cosmetic_invoice_service OWNER TO cosmetic_invoice;
 
-\unrestrict W0xneT0V9j9U2vV0hovImFAbQdSauLwfAmBVLOzkN34mGHWCPN76ooSR6zPYc3t
+\unrestrict IJ3ateoK12b2bRuBK8Hshixck8Y5hCTBRWQn9zCsIBMk0FQCfGP2fyblzRj4ZXH
 \connect cosmetic_invoice_service
-\restrict W0xneT0V9j9U2vV0hovImFAbQdSauLwfAmBVLOzkN34mGHWCPN76ooSR6zPYc3t
+\restrict IJ3ateoK12b2bRuBK8Hshixck8Y5hCTBRWQn9zCsIBMk0FQCfGP2fyblzRj4ZXH
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -2550,13 +2660,13 @@ ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON S
 ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON TABLES TO cosmetic_invoice;
 
 
--- Completed on 2026-09-06 12:20:17 UTC
+-- Completed on 2026-09-06 12:30:30 UTC
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict W0xneT0V9j9U2vV0hovImFAbQdSauLwfAmBVLOzkN34mGHWCPN76ooSR6zPYc3t
+\unrestrict IJ3ateoK12b2bRuBK8Hshixck8Y5hCTBRWQn9zCsIBMk0FQCfGP2fyblzRj4ZXH
 
 --
 -- Database "cosmetic_order_service" dump
@@ -2566,12 +2676,12 @@ ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON T
 -- PostgreSQL database dump
 --
 
-\restrict f7R6nTHMLWS4HyPM9A8HfbIl0H5hxNvTcQ8gI8uqNImrwFdTMEvKs9sOZalLSYa
+\restrict wPNw10LaqaF9ptN35YhLEVXB5D1A22HBWtLMRx8bxB2gK9jTN0vnih7czj9amcB
 
 -- Dumped from database version 16.15
 -- Dumped by pg_dump version 16.15
 
--- Started on 2026-09-06 12:20:17 UTC
+-- Started on 2026-09-06 12:30:30 UTC
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -2594,9 +2704,9 @@ CREATE DATABASE cosmetic_order_service WITH TEMPLATE = template0 ENCODING = 'UTF
 
 ALTER DATABASE cosmetic_order_service OWNER TO cosmetic_order;
 
-\unrestrict f7R6nTHMLWS4HyPM9A8HfbIl0H5hxNvTcQ8gI8uqNImrwFdTMEvKs9sOZalLSYa
+\unrestrict wPNw10LaqaF9ptN35YhLEVXB5D1A22HBWtLMRx8bxB2gK9jTN0vnih7czj9amcB
 \connect cosmetic_order_service
-\restrict f7R6nTHMLWS4HyPM9A8HfbIl0H5hxNvTcQ8gI8uqNImrwFdTMEvKs9sOZalLSYa
+\restrict wPNw10LaqaF9ptN35YhLEVXB5D1A22HBWtLMRx8bxB2gK9jTN0vnih7czj9amcB
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -2860,13 +2970,13 @@ ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON S
 ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON TABLES TO cosmetic_order;
 
 
--- Completed on 2026-09-06 12:20:18 UTC
+-- Completed on 2026-09-06 12:30:30 UTC
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict f7R6nTHMLWS4HyPM9A8HfbIl0H5hxNvTcQ8gI8uqNImrwFdTMEvKs9sOZalLSYa
+\unrestrict wPNw10LaqaF9ptN35YhLEVXB5D1A22HBWtLMRx8bxB2gK9jTN0vnih7czj9amcB
 
 --
 -- Database "cosmetic_purchase_service" dump
@@ -2876,12 +2986,12 @@ ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON T
 -- PostgreSQL database dump
 --
 
-\restrict OtMWf3eoVcBSHDViV3x1UQEYarumlqpFhTQkdQ3nNBSd0aoS0TmGiVQRhXoQpF3
+\restrict 4CttMFLXCKZ2P7dcykjgbqpLLy7xCuKVGMrgFYFuZoDllPZi3k76KDeA9IYoTzq
 
 -- Dumped from database version 16.15
 -- Dumped by pg_dump version 16.15
 
--- Started on 2026-09-06 12:20:18 UTC
+-- Started on 2026-09-06 12:30:30 UTC
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -2904,9 +3014,9 @@ CREATE DATABASE cosmetic_purchase_service WITH TEMPLATE = template0 ENCODING = '
 
 ALTER DATABASE cosmetic_purchase_service OWNER TO cosmetic_purchase;
 
-\unrestrict OtMWf3eoVcBSHDViV3x1UQEYarumlqpFhTQkdQ3nNBSd0aoS0TmGiVQRhXoQpF3
+\unrestrict 4CttMFLXCKZ2P7dcykjgbqpLLy7xCuKVGMrgFYFuZoDllPZi3k76KDeA9IYoTzq
 \connect cosmetic_purchase_service
-\restrict OtMWf3eoVcBSHDViV3x1UQEYarumlqpFhTQkdQ3nNBSd0aoS0TmGiVQRhXoQpF3
+\restrict 4CttMFLXCKZ2P7dcykjgbqpLLy7xCuKVGMrgFYFuZoDllPZi3k76KDeA9IYoTzq
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -3171,13 +3281,13 @@ ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON S
 ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON TABLES TO cosmetic_purchase;
 
 
--- Completed on 2026-09-06 12:20:18 UTC
+-- Completed on 2026-09-06 12:30:30 UTC
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict OtMWf3eoVcBSHDViV3x1UQEYarumlqpFhTQkdQ3nNBSd0aoS0TmGiVQRhXoQpF3
+\unrestrict 4CttMFLXCKZ2P7dcykjgbqpLLy7xCuKVGMrgFYFuZoDllPZi3k76KDeA9IYoTzq
 
 --
 -- Database "cosmetic_supplier_service" dump
@@ -3187,12 +3297,12 @@ ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON T
 -- PostgreSQL database dump
 --
 
-\restrict J7y6zRhVtZzDaG1DtWcm2v2Gu12QKvfd9dp5gBpyh7LGxFneoKyJZ5eoQdxdmlT
+\restrict qujn9AQLB8lrwTA5U9bgd2r1jFBK4URpzbrkqnDzVDAUyW8T3WjfHZGjqO9qLwR
 
 -- Dumped from database version 16.15
 -- Dumped by pg_dump version 16.15
 
--- Started on 2026-09-06 12:20:18 UTC
+-- Started on 2026-09-06 12:30:30 UTC
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -3215,9 +3325,9 @@ CREATE DATABASE cosmetic_supplier_service WITH TEMPLATE = template0 ENCODING = '
 
 ALTER DATABASE cosmetic_supplier_service OWNER TO cosmetic_supplier;
 
-\unrestrict J7y6zRhVtZzDaG1DtWcm2v2Gu12QKvfd9dp5gBpyh7LGxFneoKyJZ5eoQdxdmlT
+\unrestrict qujn9AQLB8lrwTA5U9bgd2r1jFBK4URpzbrkqnDzVDAUyW8T3WjfHZGjqO9qLwR
 \connect cosmetic_supplier_service
-\restrict J7y6zRhVtZzDaG1DtWcm2v2Gu12QKvfd9dp5gBpyh7LGxFneoKyJZ5eoQdxdmlT
+\restrict qujn9AQLB8lrwTA5U9bgd2r1jFBK4URpzbrkqnDzVDAUyW8T3WjfHZGjqO9qLwR
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -3394,13 +3504,13 @@ ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON S
 ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON TABLES TO cosmetic_supplier;
 
 
--- Completed on 2026-09-06 12:20:18 UTC
+-- Completed on 2026-09-06 12:30:30 UTC
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict J7y6zRhVtZzDaG1DtWcm2v2Gu12QKvfd9dp5gBpyh7LGxFneoKyJZ5eoQdxdmlT
+\unrestrict qujn9AQLB8lrwTA5U9bgd2r1jFBK4URpzbrkqnDzVDAUyW8T3WjfHZGjqO9qLwR
 
 --
 -- Database "cosmetic_user_service" dump
@@ -3410,12 +3520,12 @@ ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON T
 -- PostgreSQL database dump
 --
 
-\restrict 7e53lkAwuluqCbWGicwcfUW5a7M5hVbB5FElAVZfIucDwlyuJSXWfOe03KkOfCm
+\restrict A1cajCF96T56wNehnET9wmxB5cCNMfeaSIwWlpyQc73wolqLxBbadVZkK92a2Kn
 
 -- Dumped from database version 16.15
 -- Dumped by pg_dump version 16.15
 
--- Started on 2026-09-06 12:20:18 UTC
+-- Started on 2026-09-06 12:30:30 UTC
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -3438,9 +3548,9 @@ CREATE DATABASE cosmetic_user_service WITH TEMPLATE = template0 ENCODING = 'UTF8
 
 ALTER DATABASE cosmetic_user_service OWNER TO cosmetic_admin;
 
-\unrestrict 7e53lkAwuluqCbWGicwcfUW5a7M5hVbB5FElAVZfIucDwlyuJSXWfOe03KkOfCm
+\unrestrict A1cajCF96T56wNehnET9wmxB5cCNMfeaSIwWlpyQc73wolqLxBbadVZkK92a2Kn
 \connect cosmetic_user_service
-\restrict 7e53lkAwuluqCbWGicwcfUW5a7M5hVbB5FElAVZfIucDwlyuJSXWfOe03KkOfCm
+\restrict A1cajCF96T56wNehnET9wmxB5cCNMfeaSIwWlpyQc73wolqLxBbadVZkK92a2Kn
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -3626,30 +3736,28 @@ ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON S
 ALTER DEFAULT PRIVILEGES FOR ROLE cosmetic_admin IN SCHEMA public GRANT ALL ON TABLES TO cosmetic_user;
 
 
--- Completed on 2026-09-06 12:20:18 UTC
+-- Completed on 2026-09-06 12:30:30 UTC
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 7e53lkAwuluqCbWGicwcfUW5a7M5hVbB5FElAVZfIucDwlyuJSXWfOe03KkOfCm
+\unrestrict A1cajCF96T56wNehnET9wmxB5cCNMfeaSIwWlpyQc73wolqLxBbadVZkK92a2Kn
 
 --
 -- Database "postgres" dump
 --
 
-\connect postgres
-
 --
 -- PostgreSQL database dump
 --
 
-\restrict LbeC8UBfEKffg3dMTDbuHuKZIrTUcZbnrshZWN5G1JDF4vcnpQVhIfmhEbrW9fL
+\restrict quEeUK9NwA1W42gKVPg1eyngdNZjR2NQJ9dyY1d1w0exZ0rBEOxNsCTRO5PRiRc
 
 -- Dumped from database version 16.15
 -- Dumped by pg_dump version 16.15
 
--- Started on 2026-09-06 12:20:18 UTC
+-- Started on 2026-09-06 12:30:30 UTC
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -3662,15 +3770,50 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
--- Completed on 2026-09-06 12:20:18 UTC
+DROP DATABASE postgres;
+--
+-- TOC entry 3444 (class 1262 OID 5)
+-- Name: postgres; Type: DATABASE; Schema: -; Owner: cosmetic_admin
+--
+
+CREATE DATABASE postgres WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE_PROVIDER = libc LOCALE = 'en_US.utf8';
+
+
+ALTER DATABASE postgres OWNER TO cosmetic_admin;
+
+\unrestrict quEeUK9NwA1W42gKVPg1eyngdNZjR2NQJ9dyY1d1w0exZ0rBEOxNsCTRO5PRiRc
+\connect postgres
+\restrict quEeUK9NwA1W42gKVPg1eyngdNZjR2NQJ9dyY1d1w0exZ0rBEOxNsCTRO5PRiRc
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- TOC entry 3445 (class 0 OID 0)
+-- Dependencies: 3444
+-- Name: DATABASE postgres; Type: COMMENT; Schema: -; Owner: cosmetic_admin
+--
+
+COMMENT ON DATABASE postgres IS 'default administrative connection database';
+
+
+-- Completed on 2026-09-06 12:30:30 UTC
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict LbeC8UBfEKffg3dMTDbuHuKZIrTUcZbnrshZWN5G1JDF4vcnpQVhIfmhEbrW9fL
+\unrestrict quEeUK9NwA1W42gKVPg1eyngdNZjR2NQJ9dyY1d1w0exZ0rBEOxNsCTRO5PRiRc
 
--- Completed on 2026-09-06 12:20:18 UTC
+-- Completed on 2026-09-06 12:30:30 UTC
 
 --
 -- PostgreSQL database cluster dump complete
