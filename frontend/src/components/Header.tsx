@@ -8,7 +8,7 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, role } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -96,20 +96,32 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
           </Link>
         </div>
 
-        <nav className="hidden lg:flex items-center justify-center gap-10 xl:gap-14 text-[15px] text-[#666666] font-medium tracking-wide whitespace-nowrap">
-          <Link to="/products" className="hover:text-[#1c3a13] transition-colors">
-            Sản phẩm
-          </Link>
-          <Link to="/rituals" className="hover:text-[#1c3a13] transition-colors">
-            Chu trình
-          </Link>
-          <Link to="/community" className="hover:text-[#1c3a13] transition-colors">
-            Cộng đồng
-          </Link>
-          <Link to="/about" className="hover:text-[#1c3a13] transition-colors">
-            Về chúng tôi
-          </Link>
-        </nav>
+        {/* Center: Search Area */}
+        <div className="hidden lg:flex flex-[2] max-w-[700px] items-center justify-center gap-3">
+          {/* Menu Box */}
+          <div className="flex items-center justify-center gap-1.5 hover:bg-[#eeeee9] p-2 rounded-lg cursor-pointer transition-colors text-[#666666]">
+             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+             </svg>
+             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+
+          {/* Search Bar */}
+          <div className="relative flex flex-1 items-center bg-[#fcfcf7] border-[1.5px] border-[#1c3a13] rounded-[8px] overflow-hidden h-[42px] transition-colors shadow-sm">
+            <input
+              type="text"
+              placeholder="Tìm kiếm sản phẩm..."
+              className="flex-1 h-full px-4 outline-none text-[14px] text-[#1c3a13] placeholder-[#666666] bg-transparent font-sans"
+            />
+            <button className="h-full px-6 bg-[#1c3a13] hover:opacity-90 text-[#fcfcf7] transition-colors flex items-center justify-center">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </button>
+          </div>
+        </div>
 
         {/* Right: Actions */}
         <div className="flex-1 flex items-center justify-end gap-4">
@@ -131,15 +143,6 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
           )}
 
           <div className="flex items-center gap-2 ml-2">
-            <button
-              className="w-10 h-10 flex items-center justify-center text-[#1c3a13] hover:bg-[#eeeee9] rounded-full transition-colors"
-              title="Tìm kiếm"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </button>
-
             <button
               className="w-10 h-10 flex items-center justify-center text-[#1c3a13] hover:bg-[#eeeee9] rounded-full transition-colors relative"
               title="Giỏ hàng"
@@ -185,6 +188,19 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
                       </svg>
                       <span>Thông tin cá nhân</span>
                     </Link>
+                    {role && role !== 'customer' && (
+                      <Link
+                        to="/admin"
+                        onClick={() => setIsProfileMenuOpen(false)}
+                        className="flex items-center gap-3 px-4 py-3 text-[14px] font-medium text-[#1c3a13] hover:bg-[#eeeee9] transition-colors"
+                      >
+                        <svg className="w-4 h-4 text-[#757c5d]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <span>Trang quản trị</span>
+                      </Link>
+                    )}
                     <div className="my-1 border-t border-[#eeeee9]" />
                     <button
                       onClick={() => {
@@ -202,6 +218,11 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
                 </>
               )}
             </div>
+          </div>
+
+          <div className="hidden lg:flex items-center gap-1 border border-[#eeeee9] rounded-md px-1.5 py-1 cursor-pointer hover:bg-zinc-50 transition-colors">
+            
+            
           </div>
         </div>
       </div>
