@@ -5,7 +5,8 @@ import Header from "../../components/Header";
 import type { RegisterGender } from "../../services/auth.service";
 
 const Register: React.FC = () => {
-  const [fullName, setFullName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -19,7 +20,8 @@ const Register: React.FC = () => {
 
   useEffect(() => {
     return () => {
-      setFullName("");
+      setFirstName("");
+      setLastName("");
       setEmail("");
       setPassword("");
       setConfirmPassword("");
@@ -40,6 +42,11 @@ const Register: React.FC = () => {
       return;
     }
 
+    if (!firstName.trim() || !lastName.trim()) {
+      setError("Vui lòng nhập đầy đủ họ và tên đệm lẫn tên riêng.");
+      return;
+    }
+
     if (password.length < 8) {
       setError("Mật khẩu phải có ít nhất 8 ký tự.");
       return;
@@ -55,14 +62,10 @@ const Register: React.FC = () => {
       return;
     }
 
-    const nameParts = fullName.trim().split(/\s+/);
-    const firstName = nameParts[0] ?? "";
-    const lastName = nameParts.slice(1).join(" ") || firstName;
-
     try {
       await register({
-        firstName,
-        lastName,
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
         gender: gender as RegisterGender,
         email,
         password,
@@ -184,22 +187,39 @@ const Register: React.FC = () => {
               </div> */}
 
               <form className="space-y-4" onSubmit={handleSubmit}>
-                <div>
-                  <label
-                    htmlFor="fullName"
-                    className="block text-xs font-medium uppercase tracking-wider text-zinc-700 mb-1.5"
-                  >
-                    Họ và tên
-                  </label>
-                  <input
-                    type="text"
-                    id="fullName"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Nguyễn Văn A"
-                    className="w-full px-4 py-3 bg-white rounded-xl border border-zinc-200 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-[#2C221E] focus:ring-1 focus:ring-[#2C221E] transition-all"
-                    required
-                  />
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label
+                      htmlFor="firstName"
+                      className="block text-xs font-medium uppercase tracking-wider text-zinc-700 mb-1.5"
+                    >
+                      Họ và tên đệm <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="firstName"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      placeholder="Nguyễn Văn"
+                      className="w-full px-4 py-3 bg-white rounded-xl border border-zinc-200 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-[#2C221E] focus:ring-1 focus:ring-[#2C221E] transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="lastName"
+                      className="block text-xs font-medium uppercase tracking-wider text-zinc-700 mb-1.5"
+                    >
+                      Tên riêng <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="lastName"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      placeholder="A"
+                      className="w-full px-4 py-3 bg-white rounded-xl border border-zinc-200 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-[#2C221E] focus:ring-1 focus:ring-[#2C221E] transition-all"
+                    />
+                  </div>
                 </div>
 
                 <div>

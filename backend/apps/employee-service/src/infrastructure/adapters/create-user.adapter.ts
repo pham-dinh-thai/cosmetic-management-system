@@ -35,7 +35,18 @@ export class CreateUserAdapter implements ICreateUserPort {
       );
 
       if (response.status >= 400 && response.status < 500) {
-        throw new BadRequestException('Failed to create user');
+        let message = 'Failed to create user';
+        try {
+          const parsed = JSON.parse(body) as { message?: string | string[] };
+          if (Array.isArray(parsed.message)) {
+            message = parsed.message.join(', ');
+          } else if (parsed.message) {
+            message = parsed.message;
+          }
+        } catch {
+          // ignore invalid body
+        }
+        throw new BadRequestException(message);
       }
 
       throw new InternalServerErrorException('Failed to create user');

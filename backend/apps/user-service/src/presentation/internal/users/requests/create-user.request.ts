@@ -5,6 +5,7 @@ import {
   IsNotEmpty,
   IsString,
   MaxLength,
+  MinLength,
 } from 'class-validator';
 import { ICreateUserRequest } from '../../../../application/use-cases/create-user/create-user.request';
 import { Gender } from '../../../../domain/enums/gender.enum';
@@ -37,6 +38,7 @@ export class CreateUserRequest implements ICreateUserRequest {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
+  @MinLength(8, { message: 'Mật khẩu phải dài tối thiểu 8 ký tự' })
   @MaxLength(255)
   password!: string;
 

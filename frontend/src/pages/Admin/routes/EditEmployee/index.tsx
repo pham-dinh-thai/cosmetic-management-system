@@ -13,8 +13,12 @@ const EditEmployeePage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [departments, setDepartments] = useState<Department[]>([]);
-  const [formData, setFormData] = useState<Partial<Employee>>({
+  const [formData, setFormData] = useState<
+    Partial<Employee> & { firstName: string; lastName: string }
+  >({
     name: "",
+    firstName: "",
+    lastName: "",
     phone: "",
     email: "",
     address: "",
@@ -32,8 +36,19 @@ const EditEmployeePage: React.FC = () => {
     if (id) {
       employeesService.getEmployeeById(id)
         .then(data => {
+          const fullName = (data.name || "").trim();
+          const lastSpaceIndex = fullName.lastIndexOf(" ");
+          const nameParts =
+            lastSpaceIndex === -1
+              ? { firstName: fullName, lastName: "" }
+              : {
+                  firstName: fullName.slice(0, lastSpaceIndex),
+                  lastName: fullName.slice(lastSpaceIndex + 1),
+                };
           setFormData({
             name: data.name || "",
+            firstName: nameParts.firstName,
+            lastName: nameParts.lastName,
             phone: data.phone || "",
             email: data.email || "",
             address: data.address || "",
@@ -62,10 +77,18 @@ const EditEmployeePage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!id) return;
-    
+
+    if (!formData.firstName.trim() || !formData.lastName.trim()) {
+      toast.error("Vui lòng nhập đầy đủ họ và tên đệm lẫn tên riêng");
+      return;
+    }
+
     setLoading(true);
     try {
-      await employeesService.updateEmployee(id, formData);
+      await employeesService.updateEmployee(id, {
+        ...formData,
+        name: `${formData.firstName.trim()} ${formData.lastName.trim()}`,
+      });
       toast.success("Đã cập nhật nhân viên thành công");
       navigate("/admin/employees");
     } catch (error) {
@@ -121,17 +144,29 @@ const EditEmployeePage: React.FC = () => {
       />
       <Card>
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
-              Họ và tên <span className="text-red-500">*</span>
-            </label>
-            <Input
-              name="name"
-              required
-              value={formData.name || ""}
-              onChange={handleChange}
-              placeholder="Ví dụ: Nguyễn Văn A"
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
+                Họ và tên đệm <span className="text-red-500">*</span>
+              </label>
+              <Input
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleChange}
+                placeholder="Ví dụ: Nguyễn Văn"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
+                Tên riêng <span className="text-red-500">*</span>
+              </label>
+              <Input
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleChange}
+                placeholder="Ví dụ: A"
+              />
+            </div>
           </div>
           
           <div className="grid grid-cols-2 gap-4">
@@ -142,6 +177,7 @@ const EditEmployeePage: React.FC = () => {
               <Input
                 name="phone"
                 required
+                maxLength={10}
                 value={formData.phone || ""}
                 onChange={handleChange}
                 placeholder="Ví dụ: 0912345678"

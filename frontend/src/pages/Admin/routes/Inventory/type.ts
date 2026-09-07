@@ -6,4 +6,5 @@ export interface InventoryItem {
   quantity: number;
   minThreshold: number;
   location: string;
+  price?: number;
 }

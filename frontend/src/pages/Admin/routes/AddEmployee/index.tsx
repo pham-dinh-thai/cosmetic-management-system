@@ -7,12 +7,25 @@ import type { Department } from "../Departments/type";
 import type { Employee } from "../Employees/type";
 import { toast } from "sonner";
 
+function extractApiMessage(error: unknown): string | null {
+  const data = (
+    error as { response?: { data?: { message?: string | string[] } } }
+  )?.response?.data;
+  const message = data?.message;
+  if (Array.isArray(message)) return message.join(", ");
+  return message ?? null;
+}
+
 const AddEmployeePage: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [departments, setDepartments] = useState<Department[]>([]);
-  const [formData, setFormData] = useState<Partial<Employee>>({
+  const [formData, setFormData] = useState<
+    Partial<Employee> & { firstName: string; lastName: string }
+  >({
     name: "",
+    firstName: "",
+    lastName: "",
     phone: "",
     email: "",
     address: "",
@@ -21,6 +34,7 @@ const AddEmployeePage: React.FC = () => {
     status: "ACTIVE",
     hiredAt: new Date().toISOString().split('T')[0],
   });
+  const [password, setPassword] = useState("");
 
   useEffect(() => {
     departmentsService.getDepartments().then((data) => setDepartments(data));
@@ -48,12 +62,22 @@ const AddEmployeePage: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await employeesService.createEmployee(formData);
+      if (!formData.firstName.trim() || !formData.lastName.trim()) {
+        toast.error("Vui lòng nhập đầy đủ họ và tên đệm lẫn tên riêng");
+        return;
+      }
+      const { firstName, lastName, ...rest } = formData;
+      await employeesService.createEmployee({
+        ...rest,
+        name: `${firstName.trim()} ${lastName.trim()}`,
+        password,
+      });
       toast.success("Đã thêm nhân viên thành công");
       navigate("/admin/employees");
     } catch (error) {
       console.error(error);
-      toast.error("Đã có lỗi xảy ra khi thêm nhân viên");
+      const message = extractApiMessage(error);
+      toast.error(message || "Đã có lỗi xảy ra khi thêm nhân viên");
     } finally {
       setLoading(false);
     }
@@ -68,19 +92,31 @@ const AddEmployeePage: React.FC = () => {
       />
       <Card>
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
-              Họ và tên <span className="text-red-500">*</span>
-            </label>
-            <Input
-              name="name"
-              required
-              value={formData.name || ""}
-              onChange={handleChange}
-              placeholder="Ví dụ: Nguyễn Văn A"
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
+                Họ và tên đệm <span className="text-red-500">*</span>
+              </label>
+              <Input
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleChange}
+                placeholder="Ví dụ: Nguyễn Văn"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
+                Tên riêng <span className="text-red-500">*</span>
+              </label>
+              <Input
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleChange}
+                placeholder="Ví dụ: A"
+              />
+            </div>
           </div>
-          
+
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
               <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
@@ -89,6 +125,7 @@ const AddEmployeePage: React.FC = () => {
               <Input
                 name="phone"
                 required
+                maxLength={10}
                 value={formData.phone || ""}
                 onChange={handleChange}
                 placeholder="Ví dụ: 0912345678"
@@ -146,14 +183,20 @@ const AddEmployeePage: React.FC = () => {
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
               <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
-                Ngày vào làm
+                Mật khẩu đăng nhập <span className="text-red-500">*</span>
               </label>
               <Input
-                type="date"
-                name="hiredAt"
-                value={formData.hiredAt || ""}
-                onChange={handleChange}
+                type="password"
+                name="password"
+                minLength={8}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Tối thiểu 8 ký tự"
               />
+              <p className="text-[11px] text-[#666666]">
+                Để trống sẽ dùng mật khẩu mặc định:{" "}
+                <code className="font-mono">Employee@123456</code>
+              </p>
             </div>
             <div className="flex flex-col gap-1.5">
               <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
@@ -169,6 +212,18 @@ const AddEmployeePage: React.FC = () => {
                 ]}
               />
             </div>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
+              Ngày vào làm
+            </label>
+            <Input
+              type="date"
+              name="hiredAt"
+              value={formData.hiredAt || ""}
+              onChange={handleChange}
+            />
           </div>
 
           <div className="flex flex-col gap-1.5">

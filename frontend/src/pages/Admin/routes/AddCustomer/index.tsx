@@ -8,7 +8,8 @@ const AddCustomerPage: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
     phone: "",
     email: "",
     address: "",
@@ -21,9 +22,18 @@ const AddCustomerPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.firstName.trim() || !formData.lastName.trim()) {
+      toast.error("Vui lòng nhập đầy đủ họ và tên đệm lẫn tên riêng");
+      return;
+    }
     setLoading(true);
     try {
-      await customersService.createCustomer(formData);
+      await customersService.createCustomer({
+        name: `${formData.firstName.trim()} ${formData.lastName.trim()}`,
+        phone: formData.phone,
+        email: formData.email,
+        address: formData.address,
+      });
       toast.success("Đã thêm khách hàng");
       navigate("/admin/customers");
     } catch (error) {
@@ -43,17 +53,29 @@ const AddCustomerPage: React.FC = () => {
       />
       <Card>
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
-              Họ và tên <span className="text-red-500">*</span>
-            </label>
-            <Input
-              name="name"
-              required
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Ví dụ: Nguyễn Văn A"
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
+                Họ và tên đệm <span className="text-red-500">*</span>
+              </label>
+              <Input
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleChange}
+                placeholder="Ví dụ: Nguyễn Văn"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
+                Tên riêng <span className="text-red-500">*</span>
+              </label>
+              <Input
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleChange}
+                placeholder="Ví dụ: A"
+              />
+            </div>
           </div>
           <div className="flex flex-col gap-1.5">
             <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
