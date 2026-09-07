@@ -3,5 +3,6 @@ export interface IUpdateCosmeticRequest {
   brand?: string;
   origin?: string;
   description?: string;
+  imageUrl?: string;
   categoryIds?: string[];
 }

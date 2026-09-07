@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { PageHeader, Input, Button, Card, Select } from "../../../../components/ui/Primitives";
+import {
+  PageHeader,
+  Input,
+  Button,
+  Card,
+  Select,
+} from "../../../../components/ui/Primitives";
 import { employeesService } from "../../../../services/employees.service";
 import { departmentsService } from "../../../../services/departments.service";
 import type { Department } from "../Departments/type";
@@ -33,15 +39,18 @@ const AddEmployeePage: React.FC = () => {
     departmentId: "",
     position: "",
     status: "ACTIVE",
-    hiredAt: new Date().toISOString().split('T')[0],
+    hiredAt: new Date().toISOString().split("T")[0],
   });
   const [password, setPassword] = useState("");
+  const [roleId, setRoleId] = useState("employee");
 
   useEffect(() => {
     departmentsService.getDepartments().then((data) => setDepartments(data));
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -74,6 +83,7 @@ const AddEmployeePage: React.FC = () => {
         ...rest,
         name: [firstName.trim(), lastName.trim()].filter(Boolean).join(" "),
         password,
+        roleId,
       });
       toast.success("Đã thêm nhân viên thành công");
       navigate("/admin/employees");
@@ -185,19 +195,19 @@ const AddEmployeePage: React.FC = () => {
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
               <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
-                Mật khẩu đăng nhập <span className="text-red-500">*</span>
+                Vai trò đăng nhập
               </label>
-              <Input
-                type="password"
-                name="password"
-                minLength={8}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Tối thiểu 8 ký tự"
+              <Select
+                name="roleId"
+                value={roleId}
+                onChange={(e) => setRoleId(e.target.value)}
+                options={[
+                  { value: "employee", label: "Nhân viên" },
+                  { value: "admin", label: "Admin (quản trị)" },
+                ]}
               />
               <p className="text-[11px] text-[#666666]">
-                Để trống sẽ dùng mật khẩu mặc định:{" "}
-                <code className="font-mono">Employee@123456</code>
+                Admin cũng là nhân viên, chỉ khác quyền quản trị.
               </p>
             </div>
             <div className="flex flex-col gap-1.5">
@@ -214,6 +224,24 @@ const AddEmployeePage: React.FC = () => {
                 ]}
               />
             </div>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
+              Mật khẩu đăng nhập <span className="text-red-500">*</span>
+            </label>
+            <Input
+              type="password"
+              name="password"
+              minLength={8}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Tối thiểu 8 ký tự"
+            />
+            <p className="text-[11px] text-[#666666]">
+              Để trống sẽ dùng mật khẩu mặc định:{" "}
+              <code className="font-mono">Employee@123456</code>
+            </p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -258,7 +286,11 @@ const AddEmployeePage: React.FC = () => {
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-[#eeeee9]">
-            <Button type="button" variant="outline" onClick={() => navigate("/admin/employees")}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate("/admin/employees")}
+            >
               Hủy
             </Button>
             <Button type="submit" variant="primary" disabled={loading}>

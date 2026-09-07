@@ -73,6 +73,7 @@ export const employeesService = {
     hiredAt?: string;
     password?: string;
     gender?: string;
+    roleId?: string;
   }): Promise<void> {
     const { firstName, lastName } = splitName(payload.name || "");
 
@@ -83,7 +84,7 @@ export const employeesService = {
         gender: payload.gender || "other",
         email: payload.email || "",
         password: payload.password || DEFAULT_PASSWORD,
-        roleId: "employee",
+        roleId: payload.roleId || "employee",
       },
       departmentId: payload.departmentId,
       hiredAt: payload.hiredAt || new Date().toISOString().split("T")[0],

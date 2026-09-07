@@ -34,6 +34,12 @@ export class UpdateCosmeticRequest implements IUpdateCosmeticRequest {
   description?: string;
 
   @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  @MaxLength(500)
+  imageUrl?: string;
+
+  @ApiProperty({ required: false })
   @IsArray()
   @IsString({ each: true })
   @IsOptional()
