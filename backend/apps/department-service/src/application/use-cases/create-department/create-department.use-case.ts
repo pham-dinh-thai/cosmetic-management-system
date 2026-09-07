@@ -18,6 +18,7 @@ export class CreateDepartmentUseCase {
     const department = Department.create({
       code: request.code,
       name: request.name,
+      positions: request.positions,
     });
 
     await this.departmentsRepository.create(department);

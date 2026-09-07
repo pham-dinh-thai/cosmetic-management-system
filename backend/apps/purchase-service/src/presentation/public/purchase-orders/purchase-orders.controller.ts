@@ -11,9 +11,10 @@ import {
   Put,
   Query,
   Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
-import type { Request } from 'express';
+import type { Request, Response } from 'express';
 import { AuthGuard, Role, Roles, RolesGuard } from '@app/security';
 import { CreatePurchaseOrderUseCase } from 'apps/purchase-service/src/application/use-cases/create-purchase-order/create-purchase-order.use-case';
 import { FindAllPurchaseOrdersUseCase } from 'apps/purchase-service/src/application/use-cases/find-all-purchase-orders/find-all-purchase-orders.use-case';
@@ -23,6 +24,8 @@ import { CompletePurchaseOrderUseCase } from 'apps/purchase-service/src/applicat
 import { CancelPurchaseOrderUseCase } from 'apps/purchase-service/src/application/use-cases/cancel-purchase-order/cancel-purchase-order.use-case';
 import { DeletePurchaseOrderUseCase } from 'apps/purchase-service/src/application/use-cases/delete-purchase-order/delete-purchase-order.use-case';
 import { FindPurchaseTransactionsUseCase } from 'apps/purchase-service/src/application/use-cases/find-purchase-transactions/find-purchase-transactions.use-case';
+import { PrintPurchaseOrderUseCase } from 'apps/purchase-service/src/application/use-cases/print-purchase-order/print-purchase-order.use-case';
+import { renderPurchaseReceiptHtml } from './receipt-html';
 import { PurchaseOrderDetailReadModel } from 'apps/purchase-service/src/application/use-cases/find-purchase-order-by-id/read-models/purchase-order-detail.read-model';
 import { PurchaseOrderReadModel } from 'apps/purchase-service/src/application/use-cases/find-all-purchase-orders/read-models/purchase-order.read-model';
 import { PurchaseTransactionReadModel } from 'apps/purchase-service/src/application/use-cases/find-purchase-transactions/read-models/purchase-transaction.read-model';
@@ -43,6 +46,7 @@ export class PurchaseOrdersController {
     private readonly cancelPurchaseOrderUseCase: CancelPurchaseOrderUseCase,
     private readonly deletePurchaseOrderUseCase: DeletePurchaseOrderUseCase,
     private readonly findPurchaseTransactionsUseCase: FindPurchaseTransactionsUseCase,
+    private readonly printPurchaseOrderUseCase: PrintPurchaseOrderUseCase,
   ) {}
 
   @Get()
@@ -69,6 +73,16 @@ export class PurchaseOrdersController {
       variantId,
       employeeId,
     });
+  }
+
+  @Get(':id/print')
+  public async print(
+    @Param('id') id: string,
+    @Res() response: Response,
+  ): Promise<void> {
+    const receipt = await this.printPurchaseOrderUseCase.execute(id);
+    response.setHeader('Content-Type', 'text/html; charset=utf-8');
+    response.send(renderPurchaseReceiptHtml(receipt));
   }
 
   @Get(':id')

@@ -1,6 +1,5 @@
 import { OptionalProps } from '@mikro-orm/core';
 import { defineEntity, p } from '@mikro-orm/postgresql';
-import { Position } from '../../domain/enums/position.enum';
 import { EmployeeStatus } from '../../domain/enums/employee-status.enum';
 
 const EmployeeSchema = defineEntity({
@@ -15,7 +14,7 @@ const EmployeeSchema = defineEntity({
     status: p.enum(() => EmployeeStatus).default(EmployeeStatus.ACTIVE),
     phone: p.string().nullable(),
     address: p.string().nullable(),
-    position: p.enum(() => Position),
+    position: p.string(),
     createdAt: p.datetime().onCreate(() => new Date()),
     updatedAt: p
       .datetime()

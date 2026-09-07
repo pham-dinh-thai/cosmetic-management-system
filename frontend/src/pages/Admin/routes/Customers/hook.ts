@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { toast } from "sonner";
 import { customersService } from "../../../../services/customers.service";
 import type { Customer } from "./type";
 
@@ -19,7 +20,6 @@ export function useCustomers() {
           email: c.email,
           address: c.address,
           orders: 0,
-          totalSpent: 0,
         })),
       );
       setLoading(false);
@@ -34,8 +34,14 @@ export function useCustomers() {
   }, [fetchCustomers]);
 
   const handleDeleteCustomer = async (id: string) => {
-    await customersService.deleteCustomer(id);
-    fetchCustomers();
+    try {
+      await customersService.deleteCustomer(id);
+      toast.success("Đã xoá khách hàng thành công");
+      fetchCustomers();
+    } catch (error) {
+      console.error(error);
+      toast.error("Lỗi khi xoá khách hàng");
+    }
   };
 
   const filtered = customers.filter(

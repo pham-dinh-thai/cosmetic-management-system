@@ -17,7 +17,8 @@ const PurchaseOrderSchema = defineEntity({
       .scale(2)
       .fieldName('total_amount')
       .default(0),
-    lines: () => p.oneToMany(PurchaseOrderLine).mappedBy('purchaseOrder'),
+    lines: () =>
+      p.oneToMany(PurchaseOrderLine).mappedBy('purchaseOrder').orphanRemoval(),
     createdAt: p
       .datetime()
       .fieldName('created_at')

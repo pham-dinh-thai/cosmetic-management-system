@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { PageHeader, Input, Button, Card, Select } from "../../../../components/ui/Primitives";
 import { suppliersService } from "../../../../services/suppliers.service";
 import type { Supplier } from "../Suppliers/type";
+import { toast } from "sonner";
 
 const AddSupplierPage: React.FC = () => {
   const navigate = useNavigate();
@@ -28,10 +29,11 @@ const AddSupplierPage: React.FC = () => {
     setLoading(true);
     try {
       await suppliersService.createSupplier(formData);
+      toast.success("Đã thêm nhà cung cấp thành công");
       navigate("/admin/suppliers");
     } catch (error) {
       console.error(error);
-      alert("Đã có lỗi xảy ra khi thêm nhà cung cấp");
+      toast.error("Đã có lỗi xảy ra khi thêm nhà cung cấp");
     } finally {
       setLoading(false);
     }

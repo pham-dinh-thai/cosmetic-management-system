@@ -30,19 +30,6 @@ function splitName(name: string): { firstName: string; lastName: string } {
   };
 }
 
-function mapPositionToBackend(position?: string): "staff" | "manager" {
-  switch (position) {
-    case "MANAGER":
-    case "DIRECTOR":
-      return "manager";
-    case "staff":
-    case "manager":
-      return position;
-    default:
-      return "staff";
-  }
-}
-
 export const employeesService = {
   async getEmployees(search?: string): Promise<EmployeeSummary[]> {
     const { data } = await api.get<EmployeeSummary[]>("/employees", {
@@ -64,7 +51,7 @@ export const employeesService = {
       phone: employee.phone || "",
       address: employee.address || "",
       email: employee.email || "",
-      position: mapPositionToBackend(employee.position) === "manager" ? "MANAGER" : "MEMBER",
+      position: employee.position,
     };
   },
 
@@ -90,7 +77,7 @@ export const employeesService = {
       },
       departmentId: payload.departmentId,
       hiredAt: payload.hiredAt || new Date().toISOString().split("T")[0],
-      position: mapPositionToBackend(payload.position),
+      position: payload.position || "staff",
       phone: payload.phone || undefined,
       address: payload.address || undefined,
     });
@@ -124,9 +111,11 @@ export const employeesService = {
       });
     }
 
-    await api.patch<void>(`/employees/${id}/position`, {
-      position: mapPositionToBackend(payload.position),
-    });
+    if (payload.position) {
+      await api.patch<void>(`/employees/${id}/position`, {
+        position: payload.position,
+      });
+    }
   },
 
   async deleteEmployee(id: string): Promise<void> {

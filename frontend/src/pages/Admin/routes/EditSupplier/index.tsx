@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { PageHeader, Input, Button, Card, Select } from "../../../../components/ui/Primitives";
 import { suppliersService } from "../../../../services/suppliers.service";
 import type { Supplier } from "../Suppliers/type";
+import { toast } from "sonner";
 
 const EditSupplierPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -31,7 +32,7 @@ const EditSupplierPage: React.FC = () => {
         })
         .catch(err => {
           console.error(err);
-          alert("Không thể tải thông tin nhà cung cấp");
+          toast.error("Không thể tải thông tin nhà cung cấp");
           navigate("/admin/suppliers");
         })
         .finally(() => {
@@ -55,10 +56,11 @@ const EditSupplierPage: React.FC = () => {
     setLoading(true);
     try {
       await suppliersService.updateSupplier(id, formData);
+      toast.success("Đã cập nhật nhà cung cấp thành công");
       navigate("/admin/suppliers");
     } catch (error) {
       console.error(error);
-      alert("Đã có lỗi xảy ra khi cập nhật nhà cung cấp");
+      toast.error("Đã có lỗi xảy ra khi cập nhật nhà cung cấp");
     } finally {
       setLoading(false);
     }

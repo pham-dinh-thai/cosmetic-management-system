@@ -4,6 +4,7 @@ import { Position } from './employee/enums/position.enum';
 export type CreateDepartmentProps = {
   code: string;
   name: string;
+  positions?: string[];
   managerId?: string;
 };
 
@@ -12,6 +13,7 @@ export type FromPersistentDepartmentProps = {
   code: string;
   name: string;
   isActive: boolean;
+  positions: string[];
   managerId?: string;
 };
 

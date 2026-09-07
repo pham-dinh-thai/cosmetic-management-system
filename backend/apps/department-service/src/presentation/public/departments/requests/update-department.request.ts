@@ -1,6 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IUpdateDepartmentRequest } from 'apps/department-service/src/application/use-cases/update-department/update-department.request';
-import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import {
+  IsArray,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 
 export class UpdateDepartmentRequest implements IUpdateDepartmentRequest {
   @ApiProperty()
@@ -14,4 +20,10 @@ export class UpdateDepartmentRequest implements IUpdateDepartmentRequest {
   @IsNotEmpty()
   @MaxLength(255)
   name: string;
+
+  @ApiProperty({ required: false, type: [String] })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  positions?: string[];
 }

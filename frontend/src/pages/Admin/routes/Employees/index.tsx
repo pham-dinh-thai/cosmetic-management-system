@@ -39,7 +39,7 @@ const EmployeesPage: React.FC = () => {
       { key: "code", header: "Mã NV", render: (e) => <span className="font-mono text-[12px]">{e.code}</span> },
       { key: "name", header: "Họ và tên", render: (e) => <span className="font-medium text-[#1c3a13]">{e.name}</span> },
       { key: "position", header: "Chức vụ", render: (e) => <span className="text-[#666666]">{e.position}</span> },
-      { key: "department", header: "Phòng ban", render: (e) => <span className="text-[#666666]">{e.departmentId || "-"}</span> },
+      { key: "department", header: "Phòng ban", render: (e) => <span className="text-[#666666]">{e.department || e.departmentId || "-"}</span> },
       { key: "phone", header: "Số điện thoại", render: (e) => <span className="text-[#666666]">{e.phone}</span> },
       { key: "email", header: "Email", render: (e) => <span className="text-[#666666]">{e.email}</span> },
       { key: "hiredAt", header: "Ngày vào làm", render: (e) => <span className="text-[#666666]">{e.hiredAt ? new Date(e.hiredAt).toLocaleDateString("vi-VN") : "-"}</span> },

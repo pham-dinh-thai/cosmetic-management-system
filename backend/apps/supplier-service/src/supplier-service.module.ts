@@ -5,6 +5,7 @@ import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { PostgreSqlDriver } from '@mikro-orm/postgresql';
 import { Supplier } from './infrastructure/entities/supplier.entity';
 import { SuppliersController } from './presentation/public/suppliers/suppliers.controller';
+import { InternalSuppliersController } from './presentation/internal/suppliers/suppliers.controller';
 import { SUPPLIERS_REPOSITORY } from './domain/repositories/suppliers.repository';
 import { MikroSuppliersRepository } from './infrastructure/repositories/mikro-suppliers.repository';
 import {
@@ -62,7 +63,7 @@ import {
       inject: [ConfigService],
     }),
   ],
-  controllers: [SuppliersController],
+  controllers: [SuppliersController, InternalSuppliersController],
   providers: [
     { provide: SUPPLIERS_REPOSITORY, useClass: MikroSuppliersRepository },
     {

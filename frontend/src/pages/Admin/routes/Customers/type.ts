@@ -6,5 +6,4 @@ export interface Customer {
   email: string;
   address: string;
   orders: number;
-  totalSpent: number;
 }

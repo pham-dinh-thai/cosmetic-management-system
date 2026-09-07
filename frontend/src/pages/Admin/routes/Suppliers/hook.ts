@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { toast } from "sonner";
 import { suppliersService } from "../../../../services/suppliers.service";
 import type { Supplier } from "./type";
 
@@ -32,8 +33,14 @@ export function useSuppliers() {
   }, [fetchSuppliers]);
 
   const handleDeleteSupplier = async (id: string) => {
-    await suppliersService.deleteSupplier(id);
-    fetchSuppliers();
+    try {
+      await suppliersService.deleteSupplier(id);
+      toast.success("Đã xoá nhà cung cấp thành công");
+      fetchSuppliers();
+    } catch (error) {
+      console.error(error);
+      toast.error("Lỗi khi xoá nhà cung cấp");
+    }
   };
 
   const filtered = suppliers.filter(

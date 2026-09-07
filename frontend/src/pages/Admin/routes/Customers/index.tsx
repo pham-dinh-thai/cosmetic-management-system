@@ -43,16 +43,6 @@ const CustomersPage: React.FC = () => {
       { key: "address", header: "Địa chỉ", render: (c) => <span className="text-[#666666]">{c.address || "-"}</span> },
       { key: "orders", header: "Số đơn hàng", render: (c) => <span className="text-[#666666]">{c.orders}</span> },
       {
-        key: "totalSpent",
-        header: "Tổng chi tiêu",
-        className: "text-right",
-        render: (c) => (
-          <span className="font-mono font-medium text-[#1c3a13]">
-            {c.totalSpent.toLocaleString("vi-VN")}₫
-          </span>
-        ),
-      },
-      {
         key: "actions",
         header: "Thao tác",
         className: "text-right",

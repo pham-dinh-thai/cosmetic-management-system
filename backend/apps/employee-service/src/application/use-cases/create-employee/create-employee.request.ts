@@ -1,5 +1,3 @@
-import { Position } from 'apps/employee-service/src/domain/enums/position.enum';
-
 export interface ICreateEmployeeRequest {
   user: {
     firstName: string;
@@ -11,7 +9,7 @@ export interface ICreateEmployeeRequest {
   };
   departmentId: string;
   hiredAt: string;
-  position: Position;
+  position: string;
   phone?: string;
   address?: string;
 }
