@@ -16,7 +16,6 @@ export class FindAllDepartmentUseCase {
           department.getCode(),
           department.getName(),
           department.getIsActive(),
-          department.getPositions(),
           department.getManagerId(),
         ),
     );

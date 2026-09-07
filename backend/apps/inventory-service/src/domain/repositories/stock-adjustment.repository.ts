@@ -13,6 +13,7 @@ export interface IStockAdjustmentRepository {
     reason: StockAdjustmentReason;
     note: string | null;
     createdBy: string;
+    minStock?: number;
   }): Promise<{ id: string; variantId: string; quantity: number }>;
   findAll(filters: AdjustStockFilters): Promise<StockAdjustment[]>;
 }

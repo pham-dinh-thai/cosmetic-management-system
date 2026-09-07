@@ -46,7 +46,6 @@ export class MikroDepartmentsRepository implements IDepartmentsRepository {
       {
         code: department.getCode(),
         name: department.getName(),
-        positions: department.getPositions(),
         updatedAt: new Date(),
       },
     );

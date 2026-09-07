@@ -30,6 +30,22 @@ export function useAddProduct() {
     { name: "Mặc định", price: 0, color: "", volume: "", costPrice: 0 },
   ]);
 
+  const [uploadingImage, setUploadingImage] = useState(false);
+
+  const handleImageUpload = async (file: File | undefined) => {
+    if (!file) return;
+    setUploadingImage(true);
+    setError(null);
+    try {
+      const { imageUrl } = await addProductApi.uploadImage(file);
+      setProductData((prev) => ({ ...prev, imageUrl }));
+    } catch {
+      setError("Tải ảnh sản phẩm lên thất bại. Vui lòng thử lại.");
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   const handleProductChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
@@ -125,7 +141,9 @@ export function useAddProduct() {
     categories,
     productData,
     variants,
+    uploadingImage,
     handleProductChange,
+    handleImageUpload,
     toggleCategory,
     handleVariantChange,
     addVariant,

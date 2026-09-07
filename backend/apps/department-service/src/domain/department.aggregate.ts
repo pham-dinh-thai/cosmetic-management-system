@@ -14,7 +14,6 @@ export class Department {
     private code: string,
     private name: string,
     private isActive: boolean,
-    private positions: string[],
     private managerId?: string,
   ) {}
 
@@ -24,7 +23,6 @@ export class Department {
       props.code,
       props.name,
       true,
-      props.positions ?? [],
     );
   }
 
@@ -36,7 +34,6 @@ export class Department {
       props.code,
       props.name,
       props.isActive,
-      props.positions,
       props.managerId,
     );
   }
@@ -47,10 +44,6 @@ export class Department {
 
   public updateName(name: string): void {
     this.name = name;
-  }
-
-  public updatePositions(positions: string[]): void {
-    this.positions = [...positions];
   }
 
   public assignManager(props: AssignManagerProps): void {
@@ -79,10 +72,6 @@ export class Department {
 
   public getIsActive(): boolean {
     return this.isActive;
-  }
-
-  public getPositions(): string[] {
-    return [...this.positions];
   }
 
   public getManagerId(): string | null {

@@ -22,12 +22,20 @@ function splitName(name: string): { firstName: string; lastName: string } {
   const trimmed = name.trim();
   const index = trimmed.lastIndexOf(" ");
   if (index === -1) {
-    return { firstName: trimmed, lastName: "" };
+    return { firstName: trimmed, lastName: trimmed };
   }
   return {
     firstName: trimmed.slice(0, index),
     lastName: trimmed.slice(index + 1),
   };
+}
+
+export function combineName(
+  firstName?: string | null,
+  lastName?: string | null,
+): string {
+  if (firstName && firstName === lastName) return firstName;
+  return [firstName, lastName].filter(Boolean).join(" ").trim();
 }
 
 export const employeesService = {
@@ -47,7 +55,7 @@ export const employeesService = {
 
     return {
       ...employee,
-      name: [employee.firstName, employee.lastName].filter(Boolean).join(" ").trim(),
+      name: combineName(employee.firstName, employee.lastName),
       phone: employee.phone || "",
       address: employee.address || "",
       email: employee.email || "",
@@ -63,6 +71,7 @@ export const employeesService = {
     departmentId?: string;
     position?: string;
     hiredAt?: string;
+    password?: string;
   }): Promise<void> {
     const { firstName, lastName } = splitName(payload.name || "");
 
@@ -72,7 +81,7 @@ export const employeesService = {
         lastName,
         gender: "other",
         email: payload.email || "",
-        password: DEFAULT_PASSWORD,
+        password: payload.password || DEFAULT_PASSWORD,
         roleId: "employee",
       },
       departmentId: payload.departmentId,

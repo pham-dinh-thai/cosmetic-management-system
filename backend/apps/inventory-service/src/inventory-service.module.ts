@@ -47,6 +47,18 @@ import {
   DecreaseInventoryUseCase,
   decreaseInventoryUseCaseFactory,
 } from './application/use-cases/decrease-inventory/decrease-inventory.use-case';
+import {
+  UpdateInventoryMinStockUseCase,
+  updateInventoryMinStockUseCaseFactory,
+} from './application/use-cases/update-inventory-min-stock/update-inventory-min-stock.use-case';
+import {
+  FindInventoryByIdUseCase,
+  findInventoryByIdUseCaseFactory,
+} from './application/use-cases/find-inventory-by-id/find-inventory-by-id.use-case';
+import {
+  DeleteInventoryUseCase,
+  deleteInventoryUseCaseFactory,
+} from './application/use-cases/delete-inventory/delete-inventory.use-case';
 
 @Module({
   imports: [
@@ -124,6 +136,21 @@ import {
     {
       provide: DecreaseInventoryUseCase,
       useFactory: decreaseInventoryUseCaseFactory,
+      inject: [INVENTORY_REPOSITORY],
+    },
+    {
+      provide: UpdateInventoryMinStockUseCase,
+      useFactory: updateInventoryMinStockUseCaseFactory,
+      inject: [INVENTORY_REPOSITORY],
+    },
+    {
+      provide: FindInventoryByIdUseCase,
+      useFactory: findInventoryByIdUseCaseFactory,
+      inject: [INVENTORY_REPOSITORY],
+    },
+    {
+      provide: DeleteInventoryUseCase,
+      useFactory: deleteInventoryUseCaseFactory,
       inject: [INVENTORY_REPOSITORY],
     },
   ],

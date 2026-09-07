@@ -13,10 +13,8 @@ const EditDepartmentPage: React.FC = () => {
   const [formData, setFormData] = useState<Partial<Department>>({
     code: "",
     name: "",
-    positions: [],
     isActive: true,
   });
-  const [positionInput, setPositionInput] = useState("");
 
   useEffect(() => {
     if (id) {
@@ -25,7 +23,6 @@ const EditDepartmentPage: React.FC = () => {
           setFormData({
             code: data.code || "",
             name: data.name || "",
-            positions: data.positions || [],
             isActive: data.isActive,
           });
         })
@@ -45,23 +42,6 @@ const EditDepartmentPage: React.FC = () => {
     setFormData((prev) => ({ 
       ...prev, 
       [name]: name === "isActive" ? value === "true" : value 
-    }));
-  };
-
-  const handleAddPosition = () => {
-    if (positionInput.trim() && !formData.positions?.includes(positionInput.trim())) {
-      setFormData((prev) => ({
-        ...prev,
-        positions: [...(prev.positions || []), positionInput.trim()],
-      }));
-      setPositionInput("");
-    }
-  };
-
-  const handleRemovePosition = (posToRemove: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      positions: prev.positions?.filter((p) => p !== posToRemove) || [],
     }));
   };
 
@@ -120,40 +100,6 @@ const EditDepartmentPage: React.FC = () => {
                 onChange={handleChange}
                 placeholder="Ví dụ: Phòng Kinh doanh"
               />
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
-              Các chức vụ trực thuộc
-            </label>
-            <div className="flex gap-2">
-              <Input
-                value={positionInput}
-                onChange={(e) => setPositionInput(e.target.value)}
-                placeholder="Ví dụ: Nhân viên bán hàng"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleAddPosition();
-                  }
-                }}
-              />
-              <Button type="button" variant="outline" onClick={handleAddPosition}>Thêm</Button>
-            </div>
-            
-            <div className="flex flex-wrap gap-2 mt-2">
-              {formData.positions?.map((pos, idx) => (
-                <div key={idx} className="flex items-center gap-1 bg-[#eeeee9] text-[#1c3a13] px-3 py-1 rounded-full text-sm">
-                  <span>{pos}</span>
-                  <button type="button" className="text-gray-500 hover:text-red-600" onClick={() => handleRemovePosition(pos)}>
-                    &times;
-                  </button>
-                </div>
-              ))}
-              {(!formData.positions || formData.positions.length === 0) && (
-                <span className="text-sm text-gray-500 italic">Chưa có chức vụ nào được thêm</span>
-              )}
             </div>
           </div>
 

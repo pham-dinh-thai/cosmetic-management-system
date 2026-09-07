@@ -135,6 +135,15 @@ export const productsService = {
     await api.delete<void>(`/cosmetics/${id}`);
   },
 
+  async uploadImage(file: File): Promise<{ imageUrl: string }> {
+    const formData = new FormData();
+    formData.append("image", file);
+    const { data } = await api.post<{ imageUrl: string }>("/uploads", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return data;
+  },
+
   async addVariant(cosmeticId: string, payload: CreateVariantPayload): Promise<{ id: string }> {
     const { data } = await api.post<{ id: string }>(`/cosmetics/${cosmeticId}/variants`, payload);
     return data;

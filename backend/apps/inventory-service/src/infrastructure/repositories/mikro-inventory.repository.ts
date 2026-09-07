@@ -75,10 +75,12 @@ export class MikroInventoryRepository implements IInventoryRepository {
     variantId: string,
     quantity: number,
     expiryDate?: Date,
+    minStock?: number,
   ): Promise<{ id: string }> {
     const inventoryMikro = this.entityManager.create(InventoryMikro, {
       variantId,
       quantity,
+      ...(minStock !== undefined ? { minStock } : {}),
       lastUpdatedAt: new Date(),
       ...(expiryDate ? { expiryDate: this.toDateString(expiryDate) } : {}),
     });
@@ -92,11 +94,12 @@ export class MikroInventoryRepository implements IInventoryRepository {
     variantId: string,
     quantity: number,
     expiryDate?: Date,
+    minStock?: number,
   ): Promise<Inventory> {
     const inventory = await this.findByVariantId(variantId);
 
     if (!inventory) {
-      await this.create(variantId, quantity, expiryDate);
+      await this.create(variantId, quantity, expiryDate, minStock);
       const created = await this.findByVariantId(variantId);
 
       if (!created) {
@@ -193,5 +196,41 @@ export class MikroInventoryRepository implements IInventoryRepository {
     await this.entityManager.flush();
 
     return inventory;
+  }
+
+  public async updateMinStock(
+    id: string,
+    minStock: number,
+  ): Promise<Inventory | null> {
+    const inventory = await this.findById(id);
+
+    if (!inventory) {
+      return null;
+    }
+
+    inventory.updateMinStock(minStock);
+
+    const inventoryMikro = await this.entityManager.findOne(InventoryMikro, {
+      id,
+    });
+
+    if (!inventoryMikro) {
+      return null;
+    }
+
+    inventoryMikro.minStock = inventory.getMinStock();
+    inventoryMikro.lastUpdatedAt = inventory.getLastUpdatedAt();
+
+    await this.entityManager.flush();
+
+    return inventory;
+  }
+
+  public async delete(id: string): Promise<boolean> {
+    const result = await this.entityManager.nativeDelete(InventoryMikro, {
+      id,
+    });
+
+    return result > 0;
   }
 }

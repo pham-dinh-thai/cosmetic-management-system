@@ -7,6 +7,7 @@ export class Inventory {
     private readonly id: string,
     private readonly variantId: string,
     private quantity: number,
+    private minStock: number,
     private expiryDate: Date | undefined,
     private lastUpdatedAt: Date,
     private readonly createdAt?: Date,
@@ -20,12 +21,22 @@ export class Inventory {
       );
     }
 
+    if (
+      props.minStock !== undefined &&
+      (!Number.isInteger(props.minStock) || props.minStock < 0)
+    ) {
+      throw new InvalidQuantityException(
+        'Min stock must be a non-negative integer',
+      );
+    }
+
     const now = new Date();
 
     return new Inventory(
       undefined as unknown as string,
       props.variantId,
       props.quantity,
+      props.minStock ?? 0,
       props.expiryDate,
       now,
       now,
@@ -38,6 +49,7 @@ export class Inventory {
       props.id,
       props.variantId,
       props.quantity,
+      props.minStock,
       props.expiryDate,
       props.lastUpdatedAt,
       props.createdAt,
@@ -118,6 +130,21 @@ export class Inventory {
 
   public getQuantity(): number {
     return this.quantity;
+  }
+
+  public getMinStock(): number {
+    return this.minStock;
+  }
+
+  public updateMinStock(minStock: number): void {
+    if (!Number.isInteger(minStock) || minStock < 0) {
+      throw new InvalidQuantityException(
+        'Min stock must be a non-negative integer',
+      );
+    }
+
+    this.minStock = minStock;
+    this.lastUpdatedAt = new Date();
   }
 
   public getLastUpdatedAt(): Date {

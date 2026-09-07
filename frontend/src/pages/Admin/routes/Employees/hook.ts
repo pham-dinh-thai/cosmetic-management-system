@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { toast } from "sonner";
-import { employeesService } from "../../../../services/employees.service";
+import { employeesService, combineName } from "../../../../services/employees.service";
 import { departmentsService } from "../../../../services/departments.service";
 import type { Employee } from "./type";
 
@@ -31,7 +31,7 @@ export function useEmployees() {
         data.map((e) => ({
           id: e.id,
           code: e.code,
-          name: [e.firstName, e.lastName].filter(Boolean).join(" ").trim(),
+          name: combineName(e.firstName, e.lastName),
           phone: e.phone || "",
           email: e.email || "",
           address: e.address || "",

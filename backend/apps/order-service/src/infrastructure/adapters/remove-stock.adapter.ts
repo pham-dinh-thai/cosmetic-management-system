@@ -22,7 +22,16 @@ export class RemoveStockAdapter implements IRemoveStockPort {
     }
 
     if (response.status === 409) {
-      throw new InsufficientStockException(variantId, quantity, 0);
+      let message = `Insufficient stock for variant "${variantId}": requested ${quantity}`;
+      try {
+        const body = (await response.json()) as { message?: string };
+        if (body?.message) {
+          message = body.message;
+        }
+      } catch {
+        // ignore parse errors
+      }
+      throw new InsufficientStockException(variantId, quantity, 0, message);
     }
 
     throw new InternalServerErrorException('Failed to remove stock');

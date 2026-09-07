@@ -5,7 +5,6 @@ import { StockAdjustment as StockAdjustmentMikro } from '../entities/stock-adjus
 import { InventoryMapper } from '../mappers/inventory.mapper';
 import { StockAdjustmentMapper } from '../mappers/stock-adjustment.mapper';
 import { StockAdjustment } from '../../domain/stock-adjustment.aggregate';
-import { InventoryNotFoundException } from '../../domain/exceptions/inventory-not-found.exception';
 import {
   AdjustStockFilters,
   IStockAdjustmentRepository,
@@ -22,14 +21,21 @@ export class MikroStockAdjustmentRepository implements IStockAdjustmentRepositor
     reason: StockAdjustmentReason;
     note: string | null;
     createdBy: string;
+    minStock?: number;
   }): Promise<{ id: string; variantId: string; quantity: number }> {
     return await this.entityManager.transactional(async (em) => {
-      const inventoryMikro = await em.findOne(InventoryMikro, {
+      let inventoryMikro = await em.findOne(InventoryMikro, {
         variantId: input.variantId,
       });
 
       if (!inventoryMikro) {
-        throw new InventoryNotFoundException(input.variantId);
+        inventoryMikro = em.create(InventoryMikro, {
+          variantId: input.variantId,
+          quantity: 0,
+          ...(input.minStock !== undefined ? { minStock: input.minStock } : {}),
+          lastUpdatedAt: new Date(),
+        });
+        await em.flush();
       }
 
       const inventory = InventoryMapper.toDomain(inventoryMikro);

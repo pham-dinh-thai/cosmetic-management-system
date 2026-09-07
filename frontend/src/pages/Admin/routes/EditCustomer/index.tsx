@@ -10,7 +10,8 @@ const EditCustomerPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [formData, setFormData] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
     phone: "",
     email: "",
     address: "",
@@ -20,8 +21,18 @@ const EditCustomerPage: React.FC = () => {
     if (id) {
       customersService.getCustomerById(id)
         .then(data => {
+          const fullName = (data.name || "").trim();
+          const lastSpaceIndex = fullName.lastIndexOf(" ");
+          const nameParts =
+            lastSpaceIndex === -1
+              ? { firstName: fullName, lastName: "" }
+              : {
+                  firstName: fullName.slice(0, lastSpaceIndex),
+                  lastName: fullName.slice(lastSpaceIndex + 1),
+                };
           setFormData({
-            name: data.name || "",
+            firstName: nameParts.firstName,
+            lastName: nameParts.lastName,
             phone: data.phone || "",
             email: data.email || "",
             address: data.address || "",
@@ -46,10 +57,19 @@ const EditCustomerPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!id) return;
-    
+    if (!formData.firstName.trim() || !formData.lastName.trim()) {
+      toast.error("Vui lòng nhập đầy đủ họ và tên đệm lẫn tên riêng");
+      return;
+    }
+
     setLoading(true);
     try {
-      await customersService.updateCustomer(id, formData);
+      await customersService.updateCustomer(id, {
+        name: `${formData.firstName.trim()} ${formData.lastName.trim()}`,
+        phone: formData.phone,
+        email: formData.email,
+        address: formData.address,
+      });
       toast.success("Đã cập nhật khách hàng");
       navigate("/admin/customers");
     } catch (error) {
@@ -73,17 +93,29 @@ const EditCustomerPage: React.FC = () => {
       />
       <Card>
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
-              Họ và tên <span className="text-red-500">*</span>
-            </label>
-            <Input
-              name="name"
-              required
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Ví dụ: Nguyễn Văn A"
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
+                Họ và tên đệm <span className="text-red-500">*</span>
+              </label>
+              <Input
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleChange}
+                placeholder="Ví dụ: Nguyễn Văn"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
+                Tên riêng <span className="text-red-500">*</span>
+              </label>
+              <Input
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleChange}
+                placeholder="Ví dụ: A"
+              />
+            </div>
           </div>
           <div className="flex flex-col gap-1.5">
             <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
