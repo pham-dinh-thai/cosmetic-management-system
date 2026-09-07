@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { PageHeader, Input, Button, Card } from "../../../../components/ui/Primitives";
+import { PageHeader, Input, Button, Card, Select } from "../../../../components/ui/Primitives";
 import { customersService } from "../../../../services/customers.service";
 import { toast } from "sonner";
 
@@ -12,6 +12,7 @@ const EditCustomerPage: React.FC = () => {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
+    gender: "",
     phone: "",
     email: "",
     address: "",
@@ -33,6 +34,7 @@ const EditCustomerPage: React.FC = () => {
           setFormData({
             firstName: nameParts.firstName,
             lastName: nameParts.lastName,
+            gender: data.gender || "other",
             phone: data.phone || "",
             email: data.email || "",
             address: data.address || "",
@@ -49,7 +51,7 @@ const EditCustomerPage: React.FC = () => {
     }
   }, [id, navigate]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -66,8 +68,8 @@ const EditCustomerPage: React.FC = () => {
     try {
       await customersService.updateCustomer(id, {
         name: `${formData.firstName.trim()} ${formData.lastName.trim()}`,
+        gender: formData.gender || "other",
         phone: formData.phone,
-        email: formData.email,
         address: formData.address,
       });
       toast.success("Đã cập nhật khách hàng");
@@ -116,6 +118,22 @@ const EditCustomerPage: React.FC = () => {
                 placeholder="Ví dụ: A"
               />
             </div>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
+              Giới tính <span className="text-red-500">*</span>
+            </label>
+            <Select
+              name="gender"
+              required
+              value={formData.gender}
+              onChange={handleChange}
+              options={[
+                { value: "male", label: "Nam" },
+                { value: "female", label: "Nữ" },
+                { value: "other", label: "Khác" },
+              ]}
+            />
           </div>
           <div className="flex flex-col gap-1.5">
             <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">

@@ -10,4 +10,5 @@ export interface Employee {
   position: string;
   hiredAt?: string;
   status: "ACTIVE" | "INACTIVE";
+  gender?: string;
 }

@@ -15,7 +15,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
-import { AuthGuard, Role, Roles, RolesGuard } from '@app/security';
+import { AuthGuard, Departments, OrgGuard, Role, Roles } from '@app/security';
 import { CreatePurchaseOrderUseCase } from 'apps/purchase-service/src/application/use-cases/create-purchase-order/create-purchase-order.use-case';
 import { FindAllPurchaseOrdersUseCase } from 'apps/purchase-service/src/application/use-cases/find-all-purchase-orders/find-all-purchase-orders.use-case';
 import { FindPurchaseOrderByIdUseCase } from 'apps/purchase-service/src/application/use-cases/find-purchase-order-by-id/find-purchase-order-by-id.use-case';
@@ -33,8 +33,9 @@ import { PurchaseOrderStatus } from 'apps/purchase-service/src/domain/types';
 import { CreatePurchaseOrderRequest } from './requests/create-purchase-order.request';
 import { UpdatePurchaseOrderRequest } from './requests/update-purchase-order.request';
 
-@UseGuards(AuthGuard, RolesGuard)
-@Roles(Role.Admin)
+@UseGuards(AuthGuard, OrgGuard)
+@Roles(Role.Admin, Role.Employee)
+@Departments('warehouse')
 @Controller('purchase-orders')
 export class PurchaseOrdersController {
   public constructor(

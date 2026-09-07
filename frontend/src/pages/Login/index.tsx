@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/useAuth";
+import { useAuthStore } from "../../store/useAuthStore";
+import { getEmployeeLandingPath } from "../../lib/permissions";
 import Header from "../../components/Header";
 
 const Login: React.FC = () => {
@@ -11,16 +13,15 @@ const Login: React.FC = () => {
 
   const { login, isLoading, role, error, clearError } = useAuth();
   const navigate = useNavigate();
+  const storeUser = useAuthStore((s) => s.user);
 
   useEffect(() => {
-    if (role === "admin") {
-      navigate("/admin", { replace: true });
-    } else if (role === "employee") {
-      navigate("/employee", { replace: true });
+    if (role === "admin" || role === "employee") {
+      navigate(getEmployeeLandingPath(storeUser), { replace: true });
     } else if (role === "customer") {
       navigate("/", { replace: true });
     }
-  }, [role, navigate]);
+  }, [role, navigate, storeUser]);
 
   useEffect(() => {
     return () => {

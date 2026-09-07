@@ -1,9 +1,14 @@
 import { type ICustomersRepository } from '../../../../domain/repositories/customers.repository';
 import { FindAllCustomerReadModel } from './read-models/find-all-customer.read-model';
+import { type IFindUserInformationPort } from '../../update-customer/ports/find-user-information.port';
+import { Logger } from '@nestjs/common';
 
 export class FindAllCustomersUseCase {
+  private readonly logger = new Logger(FindAllCustomersUseCase.name);
+
   public constructor(
     private readonly customersRepository: ICustomersRepository,
+    private readonly findUserInformationPort: IFindUserInformationPort,
   ) {}
 
   public async execute(search?: string): Promise<FindAllCustomerReadModel[]> {
@@ -15,11 +20,13 @@ export class FindAllCustomersUseCase {
           customer.getId(),
           customer.getUserId(),
           customer.getCode(),
-          customer.getName(),
-          customer.getEmail(),
+          name,
+          userInfo?.gender ?? '',
+          userInfo?.email ?? '',
           customer.getPhone(),
           customer.getAddress(),
-        ),
+        );
+      }),
     );
 
     if (!search || !search.trim()) {
@@ -38,4 +45,6 @@ export class FindAllCustomersUseCase {
 
 export const findAllCustomersUseCaseFactory = (
   customersRepository: ICustomersRepository,
-): FindAllCustomersUseCase => new FindAllCustomersUseCase(customersRepository);
+  findUserInformationPort: IFindUserInformationPort,
+): FindAllCustomersUseCase =>
+  new FindAllCustomersUseCase(customersRepository, findUserInformationPort);

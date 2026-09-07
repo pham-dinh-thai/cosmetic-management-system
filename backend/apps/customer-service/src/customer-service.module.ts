@@ -14,6 +14,16 @@ import {
   CreateCustomerUseCase,
   createCustomerUseCaseFactory,
 } from './application/use-cases/create-customer/create-customer.use-case';
+import { CREATE_USER_PORT } from './application/use-cases/create-customer/ports/create-user.port';
+import { CreateUserAdapter } from './infrastructure/adapters/create-user.adapter';
+import { DELETE_USER_PORT } from './application/use-cases/create-customer/ports/delete-user.port';
+import { DeleteUserAdapter } from './infrastructure/adapters/delete-user.adapter';
+import { UPDATE_USER_INFORMATION_PORT } from './application/use-cases/update-customer/ports/update-user-information.port';
+import { FIND_USER_INFORMATION_PORT } from './application/use-cases/update-customer/ports/find-user-information.port';
+import {
+  UpdateUserInformationAdapter,
+  FindUserInformationAdapter,
+} from './infrastructure/adapters/user-information.adapter';
 import {
   UpdateCustomerUseCase,
   updateCustomerUseCaseFactory,
@@ -81,21 +91,47 @@ import { PhoneValidationService } from './domain/services/phone-validation.servi
   controllers: [CustomersController, InternalCustomersController],
   providers: [
     { provide: CUSTOMERS_REPOSITORY, useClass: MikroCustomersRepository },
+    {
+      provide: CREATE_USER_PORT,
+      useFactory: (config: ConfigService) => new CreateUserAdapter(config),
+      inject: [ConfigService],
+    },
+    {
+      provide: DELETE_USER_PORT,
+      useFactory: (config: ConfigService) => new DeleteUserAdapter(config),
+      inject: [ConfigService],
+    },
+    {
+      provide: UPDATE_USER_INFORMATION_PORT,
+      useFactory: (config: ConfigService) =>
+        new UpdateUserInformationAdapter(config),
+      inject: [ConfigService],
+    },
+    {
+      provide: FIND_USER_INFORMATION_PORT,
+      useFactory: (config: ConfigService) =>
+        new FindUserInformationAdapter(config),
+      inject: [ConfigService],
+    },
     PhoneValidationService,
     {
       provide: CreateCustomerUseCase,
       useFactory: createCustomerUseCaseFactory,
-      inject: [CUSTOMERS_REPOSITORY],
+      inject: [CREATE_USER_PORT, CUSTOMERS_REPOSITORY, DELETE_USER_PORT],
     },
     {
       provide: UpdateCustomerUseCase,
       useFactory: updateCustomerUseCaseFactory,
-      inject: [CUSTOMERS_REPOSITORY],
+      inject: [
+        CUSTOMERS_REPOSITORY,
+        UPDATE_USER_INFORMATION_PORT,
+        FIND_USER_INFORMATION_PORT,
+      ],
     },
     {
       provide: FindCustomerByIdUseCase,
       useFactory: findCustomerByIdUseCaseFactory,
-      inject: [CUSTOMERS_REPOSITORY],
+      inject: [CUSTOMERS_REPOSITORY, FIND_USER_INFORMATION_PORT],
     },
     {
       provide: FindCustomerByUserUseCase,
@@ -105,7 +141,7 @@ import { PhoneValidationService } from './domain/services/phone-validation.servi
     {
       provide: FindAllCustomersUseCase,
       useFactory: findAllCustomersUseCaseFactory,
-      inject: [CUSTOMERS_REPOSITORY],
+      inject: [CUSTOMERS_REPOSITORY, FIND_USER_INFORMATION_PORT],
     },
     {
       provide: DeleteCustomerUseCase,

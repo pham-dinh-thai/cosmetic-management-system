@@ -72,6 +72,7 @@ export const employeesService = {
     position?: string;
     hiredAt?: string;
     password?: string;
+    gender?: string;
   }): Promise<void> {
     const { firstName, lastName } = splitName(payload.name || "");
 
@@ -79,7 +80,7 @@ export const employeesService = {
       user: {
         firstName,
         lastName,
-        gender: "other",
+        gender: payload.gender || "other",
         email: payload.email || "",
         password: payload.password || DEFAULT_PASSWORD,
         roleId: "employee",
@@ -100,6 +101,7 @@ export const employeesService = {
       address?: string;
       departmentId?: string;
       position?: string;
+      gender?: string;
     },
   ): Promise<void> {
     const { firstName, lastName } = splitName(payload.name || "");
@@ -108,7 +110,7 @@ export const employeesService = {
       user: {
         firstName,
         lastName,
-        gender: "other",
+        gender: payload.gender || "other",
       },
       phone: payload.phone || undefined,
       address: payload.address || undefined,
