@@ -6,10 +6,10 @@ export class FindAllCustomersUseCase {
     private readonly customersRepository: ICustomersRepository,
   ) {}
 
-  public async execute(): Promise<FindAllCustomerReadModel[]> {
+  public async execute(search?: string): Promise<FindAllCustomerReadModel[]> {
     const customers = await this.customersRepository.findAll();
 
-    return customers.map(
+    const readModels = customers.map(
       (customer) =>
         new FindAllCustomerReadModel(
           customer.getId(),
@@ -20,6 +20,18 @@ export class FindAllCustomersUseCase {
           customer.getPhone(),
           customer.getAddress(),
         ),
+    );
+
+    if (!search || !search.trim()) {
+      return readModels;
+    }
+
+    const keyword = search.trim().toLowerCase();
+    return readModels.filter(
+      (c) =>
+        c.name.toLowerCase().includes(keyword) ||
+        c.phone.toLowerCase().includes(keyword) ||
+        c.code.toLowerCase().includes(keyword),
     );
   }
 }

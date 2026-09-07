@@ -18,6 +18,7 @@ import {
   OrgGuard,
   Position,
   Positions,
+  Public,
   Role,
   Roles,
 } from '@app/security';
@@ -48,6 +49,7 @@ export class CategoriesController {
     private readonly deactivateCategoryUseCase: DeactivateCategoryUseCase,
   ) {}
 
+  @Public()
   @Get()
   public async findAll(
     @Query('search') search?: string,
@@ -55,6 +57,7 @@ export class CategoriesController {
     return await this.findAllCategoriesUseCase.execute(search);
   }
 
+  @Public()
   @Get(':id')
   public async findById(
     @Param('id') id: string,

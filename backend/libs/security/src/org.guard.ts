@@ -10,6 +10,7 @@ import { Position } from './position.enum';
 import { ROLES_KEY } from './roles.decorator';
 import { DEPARTMENTS_KEY } from './departments.decorator';
 import { POSITIONS_KEY } from './positions.decorator';
+import { IS_PUBLIC_KEY } from './public.decorator';
 
 export type RequestUser = {
   sub?: string;
@@ -23,6 +24,15 @@ export class OrgGuard implements CanActivate {
   public constructor(private readonly reflector: Reflector) {}
 
   public canActivate(context: ExecutionContext): boolean {
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+
+    if (isPublic) {
+      return true;
+    }
+
     const request = context.switchToHttp().getRequest<{ user?: RequestUser }>();
     const user = request.user ?? {};
 

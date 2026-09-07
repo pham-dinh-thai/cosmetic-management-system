@@ -96,13 +96,13 @@ const AddInventoryPage: React.FC = () => {
 
           <div className="flex flex-col gap-2">
             <label className="text-[12px] font-medium text-[#666666] uppercase tracking-[0.1em]">
-              Biến thể *
+              Phân loại *
             </label>
             <Select
               value={selectedVariantId}
               onChange={(e) => setSelectedVariantId(e.target.value)}
               options={[
-                { value: "", label: "-- Chọn biến thể --" },
+                { value: "", label: "-- Chọn phân loại --" },
                 ...variants.map(v => ({ value: v.id, label: v.name }))
               ]}
               disabled={!selectedProductId || variants.length === 0}

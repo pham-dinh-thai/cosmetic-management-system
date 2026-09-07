@@ -11,6 +11,7 @@ import { OrderTransaction } from './infrastructure/entities/order-transaction.en
 import { OrdersController } from './presentation/public/orders/orders.controller';
 import { ClientOrdersController } from './presentation/public/orders/client-orders.controller';
 import { PosOrdersController } from './presentation/public/orders/pos-orders.controller';
+import { BestSellersController } from './presentation/public/orders/best-sellers.controller';
 import { DomainErrorFilter } from './presentation/filters/domain-error.filter';
 import { ORDERS_REPOSITORY } from './domain/repositories/orders.repository';
 import { ORDER_TRANSACTIONS_REPOSITORY } from './domain/repositories/order-transactions.repository';
@@ -53,6 +54,10 @@ import {
   findOrderTransactionsUseCaseFactory,
 } from './application/use-cases/find-order-transactions/find-order-transactions.use-case';
 import {
+  FindBestSellersUseCase,
+  findBestSellersUseCaseFactory,
+} from './application/use-cases/find-best-sellers/find-best-sellers.use-case';
+import {
   PlaceOrderUseCase,
   placeOrderUseCaseFactory,
 } from './application/use-cases/place-order/place-order.use-case';
@@ -92,7 +97,12 @@ import { ORDER_LOGGER_PORT } from './application/ports/employee-logger.port';
       inject: [ConfigService],
     }),
   ],
-  controllers: [OrdersController, ClientOrdersController, PosOrdersController],
+  controllers: [
+    BestSellersController,
+    ClientOrdersController,
+    PosOrdersController,
+    OrdersController,
+  ],
   providers: [
     {
       provide: APP_FILTER,
@@ -199,6 +209,11 @@ import { ORDER_LOGGER_PORT } from './application/ports/employee-logger.port';
       provide: FindOrderTransactionsUseCase,
       useFactory: findOrderTransactionsUseCaseFactory,
       inject: [ORDER_TRANSACTIONS_REPOSITORY],
+    },
+    {
+      provide: FindBestSellersUseCase,
+      useFactory: findBestSellersUseCaseFactory,
+      inject: [ORDERS_REPOSITORY],
     },
   ],
 })

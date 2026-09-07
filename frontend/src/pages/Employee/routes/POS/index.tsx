@@ -426,23 +426,49 @@ const ProductModal: React.FC<ProductModalProps> = ({
   onAdd,
 }) => (
   <div
-    className="fixed inset-0 z-50 bg-[#1c3a13]/40 flex items-center justify-center p-4"
+    className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6"
     onClick={onClose}
   >
     <div
       onClick={(e) => e.stopPropagation()}
-      className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-[32px] bg-[#fcfcf7] p-8 flex flex-col gap-6"
+      className="relative w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-[24px] bg-[#fcfcf7] flex flex-col md:flex-row shadow-2xl"
     >
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <span className="text-[10px] font-medium uppercase tracking-[0.22em] text-[#666666]">
+      <button
+        onClick={onClose}
+        className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/80 backdrop-blur border border-[#eeeee9] flex items-center justify-center text-[#1c3a13] hover:bg-[#1c3a13] hover:text-[#fcfcf7] transition-colors"
+        aria-label="Đóng"
+      >
+        ✕
+      </button>
+
+      {/* Left: Image */}
+      <div className="md:w-[45%] h-[240px] sm:h-[300px] md:h-auto bg-[#eeeee9] relative shrink-0">
+        {cosmetic.imageUrl ? (
+          <img
+            src={cosmetic.imageUrl}
+            alt={cosmetic.name}
+            className="w-full h-full object-cover absolute inset-0"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center absolute inset-0">
+            <span className="text-[12px] font-medium uppercase tracking-[0.2em] text-[#666666]">
+              Chưa có hình ảnh
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Right: Content */}
+      <div className="md:w-[55%] p-6 md:p-10 flex flex-col max-h-[90vh] overflow-y-auto">
+        <div className="flex flex-col mb-8">
+          <span className="text-[10px] font-medium uppercase tracking-[0.24em] text-[#666666] mb-3">
             {cosmetic.code}
           </span>
           <h3
-            className="mt-2 text-[#1c3a13]"
+            className="text-[#1c3a13]"
             style={{
               fontWeight: 350,
-              fontSize: "32px",
+              fontSize: "clamp(24px, 3vw, 36px)",
               letterSpacing: "-0.02em",
               lineHeight: 1.1,
             }}
@@ -450,52 +476,36 @@ const ProductModal: React.FC<ProductModalProps> = ({
             {cosmetic.name}
           </h3>
         </div>
-        <button
-          onClick={onClose}
-          className="w-9 h-9 rounded-full border border-[#1c3a13] text-[#1c3a13] hover:bg-[#1c3a13] hover:text-[#fcfcf7] transition-colors"
-          aria-label="Đóng"
-        >
-          ✕
-        </button>
-      </div>
 
-      <div className="flex flex-col sm:flex-row gap-6">
-        <div className="sm:w-1/2 aspect-square rounded-[16px] bg-[#eeeee9] overflow-hidden flex items-center justify-center">
-          {cosmetic.imageUrl ? (
-            <img
-              src={cosmetic.imageUrl}
-              alt={cosmetic.name}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <span className="text-[10px] uppercase tracking-[0.18em] text-[#666666]">
-              No image
+        <div className="flex-1 flex flex-col">
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#1c3a13]">
+              Chọn biến thể
+            </p>
+            <span className="text-[12px] text-[#666666]">
+              {cosmetic.variants.filter((v) => v.isActive).length} tuỳ chọn
             </span>
-          )}
-        </div>
+          </div>
 
-        <div className="sm:w-1/2 flex flex-col gap-3">
-          <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-[#666666]">
-            Biến thể
-          </p>
-          <ul className="flex flex-col gap-2 max-h-72 overflow-y-auto">
+          <ul className="flex flex-col gap-3">
             {cosmetic.variants
               .filter((v) => v.isActive)
               .map((v) => (
                 <li
                   key={v.id}
-                  className="flex items-center justify-between rounded-[12px] border border-[#eeeee9] px-3 py-2"
+                  className="group flex flex-col sm:flex-row sm:items-center justify-between rounded-[16px] border border-[#eeeee9] bg-white p-4 hover:border-[#1c3a13]/30 transition-colors gap-4 shadow-sm hover:shadow-md"
                 >
                   <div className="flex flex-col">
-                    <span className="text-[13px] font-medium text-[#1c3a13]">
+                    <span className="text-[15px] font-medium text-[#1c3a13] mb-1">
                       {v.name}
                     </span>
-                    <span className="text-[11px] text-[#666666]">
-                      {v.color || "—"} · {v.volume || "—"}
+                    <span className="text-[12px] text-[#666666]">
+                      {[v.color, v.volume].filter(Boolean).join(" · ") || "Bản tiêu chuẩn"}
                     </span>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-[13px] font-medium text-[#1c3a13] font-[var(--font-seed-sans-mono)]">
+                  
+                  <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-4">
+                    <span className="text-[15px] font-medium text-[#1c3a13] font-[var(--font-seed-sans-mono)]">
                       {formatVND(v.price)}
                     </span>
                     <button
@@ -512,9 +522,9 @@ const ProductModal: React.FC<ProductModalProps> = ({
                           1,
                         )
                       }
-                      className="h-8 px-4 rounded-full bg-[#1c3a13] text-[#fcfcf7] text-[12px] font-medium hover:opacity-90 transition-colors"
+                      className="h-9 px-5 rounded-full bg-[#1c3a13] text-[#fcfcf7] text-[13px] font-medium whitespace-nowrap shrink-0 hover:bg-[#2a501d] active:scale-95 transition-all"
                     >
-                      + Thêm
+                      Thêm vào đơn
                     </button>
                   </div>
                 </li>

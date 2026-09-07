@@ -1,10 +1,20 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/useAuth';
+import { productsService, type CategorySummary } from '../services/products.service';
+import { ordersService, type BestSellerItem } from '../services/orders.service';
 
 interface HeaderProps {
   roleTitle?: string;
   variant?: 'default' | 'auth';
+}
+
+interface CatalogProduct {
+  code: string;
+  name: string;
+  imageUrl: string | null;
+  variantName: string;
+  categoryIds: string[];
 }
 
 const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
@@ -16,6 +26,53 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const [categories, setCategories] = useState<CategorySummary[]>([]);
+  const [bestSellers, setBestSellers] = useState<BestSellerItem[]>([]);
+  const [catalog, setCatalog] = useState<Map<string, CatalogProduct>>(new Map());
+  const [catalogLoaded, setCatalogLoaded] = useState(false);
+
+  const loadCatalog = useCallback(async () => {
+    try {
+      const cosmetics = await productsService.getCosmetics();
+
+      const detailPromises = cosmetics.map((c) =>
+        productsService.getCosmeticById(c.id).catch(() => null),
+      );
+      const details = await Promise.all(detailPromises);
+
+      const map = new Map<string, CatalogProduct>();
+      details.forEach((detail, idx) => {
+        const summary = cosmetics[idx];
+        if (!detail) return;
+        for (const v of detail.variants) {
+          map.set(v.id, {
+            code: detail.code,
+            name: detail.name,
+            imageUrl: detail.imageUrl ?? summary.imageUrl,
+            variantName: v.name,
+            categoryIds: detail.categoryIds ?? [],
+          });
+        }
+      });
+
+      setCatalog(map);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setCatalogLoaded(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    productsService.getCategories()
+      .then((cats) => setCategories(cats.filter((c) => c.isActive)))
+      .catch(console.error);
+
+    loadCatalog();
+    ordersService.getBestSellers(4).then(setBestSellers).catch(console.error);
+  }, [loadCatalog]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -34,6 +91,46 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
 
   const isRegisterPage = location.pathname === '/register';
   const isAdminPage = location.pathname.startsWith('/admin');
+
+  const bestSellerProducts = bestSellers
+    .map((b) => {
+      const p = catalog.get(b.variantId);
+      if (!p) return null;
+      return { ...p, variantId: b.variantId, quantitySold: b.quantitySold };
+    })
+    .filter((p): p is CatalogProduct & { variantId: string; quantitySold: number } => p !== null)
+    .slice(0, 4);
+
+  const fallbackProducts = !catalogLoaded
+    ? []
+    : bestSellerProducts.length >= 4
+      ? []
+      : Array.from(catalog.entries())
+          .map(([variantId, p]) => ({ ...p, variantId, quantitySold: 0 }))
+          .slice(0, Math.max(0, 4 - bestSellerProducts.length));
+
+  const displayProducts =
+    bestSellerProducts.length > 0 ? bestSellerProducts : fallbackProducts;
+
+  const categoryCount = new Map<string, { name: string; count: number }>();
+  for (const bp of bestSellerProducts) {
+    for (const cid of bp.categoryIds) {
+      const cat = categories.find((c) => c.id === cid);
+      const existing = categoryCount.get(cid) ?? {
+        name: cat?.name ?? 'Khác',
+        count: 0,
+      };
+      existing.count += 1;
+      categoryCount.set(cid, existing);
+    }
+  }
+
+  const hotCategories = categoryCount.size > 0
+    ? Array.from(categoryCount.entries())
+        .sort((a, b) => b[1].count - a[1].count || a[1].name.localeCompare(b[1].name))
+        .map(([id, v]) => ({ id, name: v.name }))
+        .slice(0, 4)
+    : categories.slice(0, 4);
 
   if (variant === 'auth') {
     return (
@@ -136,28 +233,22 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
                       <h3 className="text-[16px] font-medium text-[#1c3a13]">Tất cả danh mục</h3>
                     </div>
                     <div className="p-6 overflow-y-auto grid grid-cols-2 gap-x-8 gap-y-2">
-                      {[
-                        'Chăm sóc da mặt',
-                        'Trang điểm',
-                        'Chăm sóc cơ thể',
-                        'Chăm sóc tóc',
-                        'Nước hoa',
-                        'Dụng cụ làm đẹp',
-                        'Thực phẩm chức năng',
-                        'Mẹ & Bé',
-                        'Chăm sóc răng miệng',
-                        'Dược mỹ phẩm',
-                        'Sản phẩm thuần chay',
-                        'Khuyến mãi & Combo'
-                      ].map((cat, idx) => (
-                        <Link 
-                          key={idx}
-                          to={`/category/${idx}`}
-                          className="flex items-center px-4 py-2 text-[14px] text-[#1c3a13] rounded-lg hover:bg-[#eeeee9] transition-colors"
-                        >
-                          {cat}
-                        </Link>
-                      ))}
+                      {categories.length === 0 ? (
+                        <div className="col-span-2 text-[14px] text-[#666666] py-2">
+                          Chưa có danh mục
+                        </div>
+                      ) : (
+                        categories.map((cat) => (
+                          <Link
+                            key={cat.id}
+                            to={`/category/${cat.id}`}
+                            onClick={() => setIsCategoryMenuOpen(false)}
+                            className="flex items-center px-4 py-2 text-[14px] text-[#1c3a13] rounded-lg hover:bg-[#eeeee9] transition-colors"
+                          >
+                            {cat.name}
+                          </Link>
+                        ))
+                      )}
                     </div>
                   </div>
                 </div>
@@ -168,12 +259,19 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
             <div className="relative flex flex-1 flex-col" ref={searchRef}>
               <div className={`relative flex items-center bg-[#fcfcf7] border-[1.5px] ${isSearchFocused ? 'border-[#1c3a13] rounded-t-[16px] rounded-b-none' : 'border-[#1c3a13] rounded-[8px]'} overflow-hidden h-[42px] transition-colors shadow-sm z-50`}>
                 <input
+                  ref={inputRef}
                   type="text"
                   placeholder="Tìm kiếm sản phẩm..."
                   onFocus={() => setIsSearchFocused(true)}
                   className="flex-1 h-full px-4 outline-none text-[14px] text-[#1c3a13] placeholder-[#666666] bg-transparent font-sans"
                 />
-                <button className="h-full px-6 bg-[#1c3a13] hover:opacity-90 text-[#fcfcf7] transition-colors flex items-center justify-center">
+                <button
+                  onClick={() => {
+                    setIsSearchFocused(true);
+                    inputRef.current?.focus();
+                  }}
+                  className="h-full px-6 bg-[#1c3a13] hover:opacity-90 text-[#fcfcf7] transition-colors flex items-center justify-center"
+                >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
@@ -191,7 +289,7 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                           </svg>
-                          <span className="font-medium text-[16px]">Từ khóa hot</span>
+                          <span className="font-medium text-[16px]">Sản phẩm bán chạy</span>
                         </div>
                         <button className="text-[#666666] hover:text-[#1c3a13] transition-colors">
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -200,15 +298,31 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
                         </button>
                       </div>
                       <div className="grid grid-cols-2 gap-4">
-                        {[1, 2, 3, 4].map((i) => (
-                          <div key={i} className="flex items-center gap-3 cursor-pointer group">
+                        {displayProducts.length === 0 && (
+                          <div className="col-span-2 text-[14px] text-[#666666] py-2">
+                            Chưa có sản phẩm bán chạy
+                          </div>
+                        )}
+                        {displayProducts.map((p) => (
+                          <Link
+                            key={p.variantId}
+                            to={`/product/${p.code}`}
+                            onClick={() => setIsSearchFocused(false)}
+                            className="flex items-center gap-3 cursor-pointer group"
+                          >
                             <div className="w-12 h-12 bg-[#eeeee9] rounded-[8px] flex items-center justify-center shrink-0 overflow-hidden">
-                              <img src={`https://picsum.photos/seed/hot${i}/100`} alt="product" className="w-full h-full object-cover" />
+                              {p.imageUrl ? (
+                                <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover" />
+                              ) : (
+                                <span className="w-full h-full flex items-center justify-center text-[14px] font-serif text-[#1c3a13] bg-[#e3ecd9] uppercase">
+                                  {p.name.charAt(0)}
+                                </span>
+                              )}
                             </div>
                             <span className="text-[14px] text-[#666666] group-hover:text-[#1c3a13] transition-colors line-clamp-2">
-                              {['Sữa rửa mặt Cetaphil', 'Kem chống nắng La Roche-Posay', 'Nước tẩy trang Bioderma', 'Serum vitamin C'][i-1]}
+                              {p.name}
                             </span>
-                          </div>
+                          </Link>
                         ))}
                       </div>
                     </div>
@@ -222,7 +336,7 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                           </svg>
-                          <span className="font-medium text-[16px]">Danh mục nổi bật</span>
+                          <span className="font-medium text-[16px]">Danh mục hot</span>
                         </div>
                         <button className="text-[#666666] hover:text-[#1c3a13] transition-colors">
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -231,15 +345,25 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
                         </button>
                       </div>
                       <div className="grid grid-cols-4 gap-4">
-                        {[1, 2, 3, 4].map((i) => (
-                          <div key={i} className="flex flex-col items-center gap-2 cursor-pointer group">
-                            <div className="w-16 h-16 rounded-full bg-[#eeeee9] overflow-hidden border border-transparent group-hover:border-[#1c3a13] transition-colors">
-                              <img src={`https://picsum.photos/seed/cat${i}/150`} alt="category" className="w-full h-full object-cover" />
+                        {hotCategories.length === 0 && (
+                          <div className="col-span-4 text-[14px] text-[#666666] py-2 text-center">
+                            Chưa có danh mục
+                          </div>
+                        )}
+                        {hotCategories.map((cat) => (
+                          <Link
+                            key={cat.id}
+                            to={`/category/${cat.id}`}
+                            onClick={() => setIsSearchFocused(false)}
+                            className="flex flex-col items-center gap-2 cursor-pointer group"
+                          >
+                            <div className="w-16 h-16 rounded-full bg-[#e3ecd9] border border-transparent group-hover:border-[#1c3a13] flex items-center justify-center text-[22px] font-serif text-[#1c3a13] uppercase transition-colors overflow-hidden">
+                              <span>{cat.name.charAt(0)}</span>
                             </div>
                             <span className="text-[12px] text-[#666666] group-hover:text-[#1c3a13] font-medium text-center transition-colors">
-                              {['Làm sạch', 'Bảo vệ da', 'Dưỡng ẩm', 'Trang điểm'][i-1]}
+                              {cat.name}
                             </span>
-                          </div>
+                          </Link>
                         ))}
                       </div>
                     </div>

@@ -6,3 +6,4 @@ export * from './position.enum';
 export * from './roles.decorator';
 export * from './departments.decorator';
 export * from './positions.decorator';
+export * from './public.decorator';

@@ -20,7 +20,12 @@ export class PosOrdersController {
   @Post('pos')
   public async place(
     @Body() request: PosOrderRequest,
-  ): Promise<{ id: string; total: number; paymentMethod: string }> {
+  ): Promise<{
+    id: string;
+    status: string;
+    total: number;
+    paymentMethod: string;
+  }> {
     const result = await this.posOrderUseCase.execute({
       customerId: request.customerId,
       items: request.items,
@@ -29,6 +34,7 @@ export class PosOrdersController {
 
     return {
       id: result.id,
+      status: result.status,
       total: result.total,
       paymentMethod: result.paymentMethod,
     };
