@@ -19,7 +19,6 @@ export function useCustomers() {
           email: c.email,
           address: c.address,
           orders: 0,
-          totalSpent: 0,
         })),
       );
       setLoading(false);
