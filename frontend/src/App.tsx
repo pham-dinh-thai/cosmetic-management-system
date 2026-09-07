@@ -37,13 +37,14 @@ function App() {
             }
           />
           <Route
-            path="/employee"
+            path="/employee/*"
             element={
               <RoleRoute allowedRoles={["employee"]}>
                 <Employee />
               </RoleRoute>
             }
           />
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
