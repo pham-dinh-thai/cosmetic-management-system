@@ -1,6 +1,11 @@
+export interface IUpdateCustomerUserRequest {
+  firstName: string;
+  lastName: string;
+  gender: string;
+}
+
 export interface IUpdateCustomerRequest {
-  name: string;
-  email: string;
-  phone: string;
-  address: string;
+  user: IUpdateCustomerUserRequest;
+  phone?: string;
+  address?: string;
 }

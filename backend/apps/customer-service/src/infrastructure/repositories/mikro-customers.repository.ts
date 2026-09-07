@@ -61,8 +61,6 @@ export class MikroCustomersRepository implements ICustomersRepository {
       return;
     }
 
-    customerMikro.name = customer.getName();
-    customerMikro.email = customer.getEmail();
     customerMikro.phone = customer.getPhone();
     customerMikro.address = customer.getAddress();
 

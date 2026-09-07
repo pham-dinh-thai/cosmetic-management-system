@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEmail, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsOptional, IsString, MaxLength } from 'class-validator';
 import { ICreateCustomerRequest } from '../../../../application/use-cases/create-customer/create-customer.request';
 
 export class CreateCustomerRequest implements ICreateCustomerRequest {
@@ -14,18 +14,6 @@ export class CreateCustomerRequest implements ICreateCustomerRequest {
   @IsString()
   @MaxLength(255)
   code?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  @MaxLength(255)
-  name?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsEmail()
-  @MaxLength(255)
-  email?: string;
 
   @ApiPropertyOptional()
   @IsOptional()

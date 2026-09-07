@@ -26,6 +26,7 @@ const AddEmployeePage: React.FC = () => {
     name: "",
     firstName: "",
     lastName: "",
+    gender: "",
     phone: "",
     email: "",
     address: "",
@@ -52,6 +53,12 @@ const AddEmployeePage: React.FC = () => {
   const positionOptions = [
     { value: "staff", label: "Nhân viên" },
     { value: "manager", label: "Quản lý" },
+  ];
+
+  const genderOptions = [
+    { value: "male", label: "Nam" },
+    { value: "female", label: "Nữ" },
+    { value: "other", label: "Khác" },
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -209,16 +216,33 @@ const AddEmployeePage: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
-              Ngày vào làm
-            </label>
-            <Input
-              type="date"
-              name="hiredAt"
-              value={formData.hiredAt || ""}
-              onChange={handleChange}
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
+                Giới tính <span className="text-red-500">*</span>
+              </label>
+              <Select
+                name="gender"
+                required
+                value={formData.gender || ""}
+                onChange={handleChange}
+                options={[
+                  { value: "", label: "Chọn giới tính" },
+                  ...genderOptions,
+                ]}
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
+                Ngày vào làm
+              </label>
+              <Input
+                type="date"
+                name="hiredAt"
+                value={formData.hiredAt || ""}
+                onChange={handleChange}
+              />
+            </div>
           </div>
 
           <div className="flex flex-col gap-1.5">

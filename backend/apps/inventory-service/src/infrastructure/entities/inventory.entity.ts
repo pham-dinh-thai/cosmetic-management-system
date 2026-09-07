@@ -21,7 +21,12 @@ const InventorySchema = defineEntity({
 
 export class Inventory extends InventorySchema.class {
   [OptionalProps]?:
-    'quantity' | 'minStock' | 'expiryDate' | 'lastUpdatedAt' | 'createdAt' | 'updatedAt';
+    | 'quantity'
+    | 'minStock'
+    | 'expiryDate'
+    | 'lastUpdatedAt'
+    | 'createdAt'
+    | 'updatedAt';
 }
 
 InventorySchema.setClass(Inventory);
