@@ -20,13 +20,73 @@ export interface CreatePosOrderPayload {
 
 export interface PosOrderResponse {
   id: string;
+  status?: string;
   total: number;
   paymentMethod: PaymentMethod;
+}
+
+export interface BestSellerItem {
+  variantId: string;
+  quantitySold: number;
+}
+
+export type OrderStatus = 'PENDING' | 'PAID' | 'COMPLETED' | 'CANCELLED';
+
+export interface OrderReadModel {
+  id: string;
+  code: string;
+  customerId: string | null;
+  customerName: string | null;
+  totalAmount: number;
+  paymentMethod: PaymentMethod;
+  status: OrderStatus;
+  createdAt: string;
+}
+
+export interface OrderDetailReadModel extends OrderReadModel {
+  items: {
+    id: string;
+    variantId: string;
+    quantity: number;
+    unitPrice: number;
+    amount: number;
+    cosmeticName?: string;
+    variantName?: string;
+  }[];
 }
 
 export const ordersService = {
   async createOrder(payload: CreatePosOrderPayload): Promise<PosOrderResponse> {
     const { data } = await api.post<PosOrderResponse>("/orders/pos", payload);
     return data;
+  },
+
+  async getBestSellers(limit = 4): Promise<BestSellerItem[]> {
+    const { data } = await api.get<BestSellerItem[]>("/orders/best-sellers", {
+      params: { limit },
+    });
+    return data;
+  },
+
+  async getOrders(params?: { search?: string; status?: OrderStatus; customerId?: string }): Promise<OrderReadModel[]> {
+    const { data } = await api.get<OrderReadModel[]>('/orders', { params });
+    return data;
+  },
+
+  async getOrderById(id: string): Promise<OrderDetailReadModel> {
+    const { data } = await api.get<OrderDetailReadModel>(`/orders/${id}`);
+    return data;
+  },
+
+  async completeOrder(id: string): Promise<void> {
+    await api.patch(`/orders/${id}/complete`);
+  },
+
+  async cancelOrder(id: string): Promise<void> {
+    await api.patch(`/orders/${id}/cancel`);
+  },
+
+  async deleteOrder(id: string): Promise<void> {
+    await api.delete(`/orders/${id}`);
   },
 };

@@ -172,7 +172,7 @@ const AddProductPage: React.FC = () => {
               className="text-[20px] text-[--color-forest-depths]"
               style={{ fontWeight: 350 }}
             >
-              Biến thể (Variants)
+              Phân loại
             </h2>
             <Button
               type="button"
@@ -180,7 +180,7 @@ const AddProductPage: React.FC = () => {
               size="sm"
               onClick={addVariant}
             >
-              + Thêm biến thể
+              + Thêm phân loại
             </Button>
           </div>
 
@@ -195,7 +195,7 @@ const AddProductPage: React.FC = () => {
                     0{index + 1}
                   </span>
                   <span className="text-[16px] font-medium text-[#1c3a13]">
-                    Cấu hình biến thể
+                    Cấu hình phân loại
                   </span>
                 </div>
                 {variants.length > 1 && (
@@ -212,7 +212,7 @@ const AddProductPage: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
                 <div className="flex flex-col gap-2 md:col-span-6">
                   <label className="text-[12px] font-medium text-[#666666] uppercase tracking-[0.1em]">
-                    Tên biến thể *
+                    Tên phân loại *
                   </label>
                   <Input
                     value={variant.name}

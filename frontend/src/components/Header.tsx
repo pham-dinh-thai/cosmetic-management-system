@@ -1,10 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/useAuth';
+import { productsService, type CategorySummary } from '../services/products.service';
+import { ordersService, type BestSellerItem } from '../services/orders.service';
 
 interface HeaderProps {
   roleTitle?: string;
   variant?: 'default' | 'auth';
+}
+
+interface CatalogProduct {
+  code: string;
+  name: string;
+  imageUrl: string | null;
+  variantName: string;
+  categoryIds: string[];
 }
 
 const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
@@ -13,6 +23,66 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
   const location = useLocation();
 
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const [categories, setCategories] = useState<CategorySummary[]>([]);
+  const [bestSellers, setBestSellers] = useState<BestSellerItem[]>([]);
+  const [catalog, setCatalog] = useState<Map<string, CatalogProduct>>(new Map());
+  const [catalogLoaded, setCatalogLoaded] = useState(false);
+
+  const loadCatalog = useCallback(async () => {
+    try {
+      const cosmetics = await productsService.getCosmetics();
+
+      const detailPromises = cosmetics.map((c) =>
+        productsService.getCosmeticById(c.id).catch(() => null),
+      );
+      const details = await Promise.all(detailPromises);
+
+      const map = new Map<string, CatalogProduct>();
+      details.forEach((detail, idx) => {
+        const summary = cosmetics[idx];
+        if (!detail) return;
+        for (const v of detail.variants) {
+          map.set(v.id, {
+            code: detail.code,
+            name: detail.name,
+            imageUrl: detail.imageUrl ?? summary.imageUrl,
+            variantName: v.name,
+            categoryIds: detail.categoryIds ?? [],
+          });
+        }
+      });
+
+      setCatalog(map);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setCatalogLoaded(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    productsService.getCategories()
+      .then((cats) => setCategories(cats.filter((c) => c.isActive)))
+      .catch(console.error);
+
+    loadCatalog();
+    ordersService.getBestSellers(4).then(setBestSellers).catch(console.error);
+  }, [loadCatalog]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setIsSearchFocused(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -23,6 +93,46 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
   const isAdminPage =
     location.pathname.startsWith('/admin') ||
     location.pathname.startsWith('/employee');
+
+  const bestSellerProducts = bestSellers
+    .map((b) => {
+      const p = catalog.get(b.variantId);
+      if (!p) return null;
+      return { ...p, variantId: b.variantId, quantitySold: b.quantitySold };
+    })
+    .filter((p): p is CatalogProduct & { variantId: string; quantitySold: number } => p !== null)
+    .slice(0, 4);
+
+  const fallbackProducts = !catalogLoaded
+    ? []
+    : bestSellerProducts.length >= 4
+      ? []
+      : Array.from(catalog.entries())
+          .map(([variantId, p]) => ({ ...p, variantId, quantitySold: 0 }))
+          .slice(0, Math.max(0, 4 - bestSellerProducts.length));
+
+  const displayProducts =
+    bestSellerProducts.length > 0 ? bestSellerProducts : fallbackProducts;
+
+  const categoryCount = new Map<string, { name: string; count: number }>();
+  for (const bp of bestSellerProducts) {
+    for (const cid of bp.categoryIds) {
+      const cat = categories.find((c) => c.id === cid);
+      const existing = categoryCount.get(cid) ?? {
+        name: cat?.name ?? 'Khác',
+        count: 0,
+      };
+      existing.count += 1;
+      categoryCount.set(cid, existing);
+    }
+  }
+
+  const hotCategories = categoryCount.size > 0
+    ? Array.from(categoryCount.entries())
+        .sort((a, b) => b[1].count - a[1].count || a[1].name.localeCompare(b[1].name))
+        .map(([id, v]) => ({ id, name: v.name }))
+        .slice(0, 4)
+    : categories.slice(0, 4);
 
   if (variant === 'auth') {
     return (
@@ -103,27 +213,165 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
         {!isAdminPage && (
           <div className="hidden lg:flex flex-[2] max-w-[700px] items-center justify-center gap-3">
             {/* Menu Box */}
-            <div className="flex items-center justify-center gap-1.5 hover:bg-[#eeeee9] p-2 rounded-lg cursor-pointer transition-colors text-[#666666]">
-               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-               </svg>
-               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-              </svg>
+            <div 
+              className="relative"
+              onMouseEnter={() => setIsCategoryMenuOpen(true)}
+              onMouseLeave={() => setIsCategoryMenuOpen(false)}
+            >
+              <div className={`flex items-center justify-center gap-1.5 p-2 rounded-lg cursor-pointer transition-colors ${isCategoryMenuOpen ? 'bg-[#eeeee9] text-[#1c3a13]' : 'hover:bg-[#eeeee9] text-[#666666]'}`}>
+                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                 </svg>
+                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+
+              {/* Category Dropdown */}
+              {isCategoryMenuOpen && (
+                <div className="absolute top-full left-0 pt-2 z-50">
+                  <div className="w-[600px] bg-[#fcfcf7] border-[1.5px] border-[#1c3a13] rounded-[16px] overflow-hidden shadow-[0_12px_32px_rgba(28,58,19,0.08)] max-h-[70vh] flex flex-col">
+                    <div className="px-6 py-4 border-b border-[#eeeee9] bg-[#fcfcf7] shrink-0">
+                      <h3 className="text-[16px] font-medium text-[#1c3a13]">Tất cả danh mục</h3>
+                    </div>
+                    <div className="p-6 overflow-y-auto grid grid-cols-2 gap-x-8 gap-y-2">
+                      {categories.length === 0 ? (
+                        <div className="col-span-2 text-[14px] text-[#666666] py-2">
+                          Chưa có danh mục
+                        </div>
+                      ) : (
+                        categories.map((cat) => (
+                          <Link
+                            key={cat.id}
+                            to={`/category/${cat.id}`}
+                            onClick={() => setIsCategoryMenuOpen(false)}
+                            className="flex items-center px-4 py-2 text-[14px] text-[#1c3a13] rounded-lg hover:bg-[#eeeee9] transition-colors"
+                          >
+                            {cat.name}
+                          </Link>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Search Bar */}
-            <div className="relative flex flex-1 items-center bg-[#fcfcf7] border-[1.5px] border-[#1c3a13] rounded-[8px] overflow-hidden h-[42px] transition-colors shadow-sm">
-              <input
-                type="text"
-                placeholder="Tìm kiếm sản phẩm..."
-                className="flex-1 h-full px-4 outline-none text-[14px] text-[#1c3a13] placeholder-[#666666] bg-transparent font-sans"
-              />
-              <button className="h-full px-6 bg-[#1c3a13] hover:opacity-90 text-[#fcfcf7] transition-colors flex items-center justify-center">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </button>
+            <div className="relative flex flex-1 flex-col" ref={searchRef}>
+              <div className={`relative flex items-center bg-[#fcfcf7] border-[1.5px] ${isSearchFocused ? 'border-[#1c3a13] rounded-t-[16px] rounded-b-none' : 'border-[#1c3a13] rounded-[8px]'} overflow-hidden h-[42px] transition-colors shadow-sm z-50`}>
+                <input
+                  ref={inputRef}
+                  type="text"
+                  placeholder="Tìm kiếm sản phẩm..."
+                  onFocus={() => setIsSearchFocused(true)}
+                  className="flex-1 h-full px-4 outline-none text-[14px] text-[#1c3a13] placeholder-[#666666] bg-transparent font-sans"
+                />
+                <button
+                  onClick={() => {
+                    setIsSearchFocused(true);
+                    inputRef.current?.focus();
+                  }}
+                  className="h-full px-6 bg-[#1c3a13] hover:opacity-90 text-[#fcfcf7] transition-colors flex items-center justify-center"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Search Dropdown */}
+              {isSearchFocused && (
+                <div className="absolute top-full left-0 right-0 bg-[#fcfcf7] border-[1.5px] border-t-0 border-[#1c3a13] rounded-b-[16px] overflow-hidden shadow-[0_12px_32px_rgba(28,58,19,0.08)] z-40">
+                  <div className="p-6 flex flex-col gap-6">
+                    {/* Hot Keywords */}
+                    <div className="flex flex-col gap-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-[#1c3a13]">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                          </svg>
+                          <span className="font-medium text-[16px]">Sản phẩm bán chạy</span>
+                        </div>
+                        <button className="text-[#666666] hover:text-[#1c3a13] transition-colors">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                          </svg>
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        {displayProducts.length === 0 && (
+                          <div className="col-span-2 text-[14px] text-[#666666] py-2">
+                            Chưa có sản phẩm bán chạy
+                          </div>
+                        )}
+                        {displayProducts.map((p) => (
+                          <Link
+                            key={p.variantId}
+                            to={`/product/${p.code}`}
+                            onClick={() => setIsSearchFocused(false)}
+                            className="flex items-center gap-3 cursor-pointer group"
+                          >
+                            <div className="w-12 h-12 bg-[#eeeee9] rounded-[8px] flex items-center justify-center shrink-0 overflow-hidden">
+                              {p.imageUrl ? (
+                                <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover" />
+                              ) : (
+                                <span className="w-full h-full flex items-center justify-center text-[14px] font-serif text-[#1c3a13] bg-[#e3ecd9] uppercase">
+                                  {p.name.charAt(0)}
+                                </span>
+                              )}
+                            </div>
+                            <span className="text-[14px] text-[#666666] group-hover:text-[#1c3a13] transition-colors line-clamp-2">
+                              {p.name}
+                            </span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="w-full h-[1px] bg-[#eeeee9]"></div>
+
+                    {/* Hot Categories */}
+                    <div className="flex flex-col gap-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-[#1c3a13]">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                          </svg>
+                          <span className="font-medium text-[16px]">Danh mục hot</span>
+                        </div>
+                        <button className="text-[#666666] hover:text-[#1c3a13] transition-colors">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                          </svg>
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-4 gap-4">
+                        {hotCategories.length === 0 && (
+                          <div className="col-span-4 text-[14px] text-[#666666] py-2 text-center">
+                            Chưa có danh mục
+                          </div>
+                        )}
+                        {hotCategories.map((cat) => (
+                          <Link
+                            key={cat.id}
+                            to={`/category/${cat.id}`}
+                            onClick={() => setIsSearchFocused(false)}
+                            className="flex flex-col items-center gap-2 cursor-pointer group"
+                          >
+                            <div className="w-16 h-16 rounded-full bg-[#e3ecd9] border border-transparent group-hover:border-[#1c3a13] flex items-center justify-center text-[22px] font-serif text-[#1c3a13] uppercase transition-colors overflow-hidden">
+                              <span>{cat.name.charAt(0)}</span>
+                            </div>
+                            <span className="text-[12px] text-[#666666] group-hover:text-[#1c3a13] font-medium text-center transition-colors">
+                              {cat.name}
+                            </span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}

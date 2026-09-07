@@ -25,7 +25,12 @@ export class PosOrderUseCase {
 
   public async execute(
     request: IPosOrderRequest,
-  ): Promise<{ id: string; total: number; paymentMethod: PosOrderPaymentMethod }> {
+  ): Promise<{
+    id: string;
+    status: string;
+    total: number;
+    paymentMethod: PosOrderPaymentMethod;
+  }> {
     const maxCodeSequence = await this.ordersRepository.findMaxCodeSequence();
     const code = OrderCode.generate((maxCodeSequence ?? 0) + 1);
 
@@ -45,12 +50,15 @@ export class PosOrderUseCase {
       lines: pricedLines,
     });
 
+    order.complete();
+
     await this.deductStock(order);
 
     const { id } = await this.ordersRepository.create(order);
 
     return {
       id,
+      status: order.getStatus(),
       total: order.getTotalAmount(),
       paymentMethod: request.paymentMethod,
     };
