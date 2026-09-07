@@ -112,6 +112,7 @@ export class MikroCosmeticsRepository implements ICosmeticsRepository {
       brand: string | null;
       origin: string | null;
       description: string | null;
+      imageUrl?: string | null;
       categoryIds?: string[];
     },
   ): Promise<Cosmetic | null> {
@@ -131,6 +132,10 @@ export class MikroCosmeticsRepository implements ICosmeticsRepository {
     cosmeticMikro.brand = data.brand;
     cosmeticMikro.origin = data.origin;
     cosmeticMikro.description = data.description;
+
+    if (data.imageUrl !== undefined) {
+      cosmeticMikro.imageUrl = data.imageUrl;
+    }
 
     if (data.categoryIds) {
       await this.entityManager.nativeDelete(CosmeticCategoryMikro, {

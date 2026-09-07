@@ -5,8 +5,6 @@ import { useAuthStore } from "../../store/useAuthStore";
 import { isAdmin } from "../../lib/permissions";
 import NotFound from "../NotFound";
 
-import OverviewPage from "./routes/Overview";
-import ReportsPage from "./routes/Reports";
 import CustomersPage from "./routes/Customers";
 import AddCustomerPage from "./routes/AddCustomer";
 import EditCustomerPage from "./routes/EditCustomer";
@@ -33,7 +31,6 @@ import EditInventoryPage from "./routes/EditInventory";
 import OrdersPage from "./routes/Orders";
 
 export type AdminPageKey =
-  | "overview"
   | "orders"
   | "customers"
   | "employees"
@@ -42,11 +39,9 @@ export type AdminPageKey =
   | "products"
   | "categories"
   | "purchase"
-  | "inventory"
-  | "reports";
+  | "inventory";
 
 const getActiveKey = (pathname: string): AdminPageKey => {
-  if (pathname.includes("/admin/reports")) return "reports";
   if (pathname.includes("/admin/orders")) return "orders";
   if (pathname.includes("/admin/customers")) return "customers";
   if (pathname.includes("/admin/employees")) return "employees";
@@ -56,11 +51,10 @@ const getActiveKey = (pathname: string): AdminPageKey => {
   if (pathname.includes("/admin/categories")) return "categories";
   if (pathname.includes("/admin/purchase")) return "purchase";
   if (pathname.includes("/admin/inventory")) return "inventory";
-  return "overview";
+  return "customers";
 };
 
 const PAGE_TITLES: Record<AdminPageKey, string> = {
-  overview: "Tổng quan",
   orders: "Đơn hàng",
   customers: "Khách hàng",
   employees: "Nhân viên",
@@ -70,7 +64,6 @@ const PAGE_TITLES: Record<AdminPageKey, string> = {
   categories: "Danh mục",
   purchase: "Nhập hàng",
   inventory: "Kho",
-  reports: "Báo cáo",
 };
 
 const ALL_SECTIONS: (active: AdminPageKey) => SidebarSection[] = (
@@ -78,12 +71,8 @@ const ALL_SECTIONS: (active: AdminPageKey) => SidebarSection[] = (
 ) => [
   {
     id: "general",
-    title: "Tổng quan",
-    items: [
-      { id: "overview", label: "Tổng quan", active: active === "overview" },
-      { id: "orders", label: "Đơn hàng", active: active === "orders" },
-      { id: "reports", label: "Báo cáo", active: active === "reports" },
-    ],
+    title: "Bán hàng",
+    items: [{ id: "orders", label: "Đơn hàng", active: active === "orders" }],
   },
   {
     id: "people",
@@ -133,9 +122,7 @@ const Admin: React.FC = () => {
       sidebarTitle={PAGE_TITLES[activeKey]}
     >
       <Routes>
-        <Route path="overview" element={<OverviewPage />} />
         <Route path="orders" element={<OrdersPage />} />
-        <Route path="reports" element={<ReportsPage />} />
         <Route path="customers" element={<CustomersPage />} />
         <Route path="customers/add" element={<AddCustomerPage />} />
         <Route path="customers/:id/edit" element={<EditCustomerPage />} />
@@ -159,7 +146,7 @@ const Admin: React.FC = () => {
         <Route path="inventory" element={<InventoryPage />} />
         <Route path="inventory/add" element={<AddInventoryPage />} />
         <Route path="inventory/:id/edit" element={<EditInventoryPage />} />
-        <Route path="*" element={<Navigate to="/admin/overview" replace />} />
+        <Route path="*" element={<Navigate to="/admin/customers" replace />} />
       </Routes>
     </DashboardLayout>
   );

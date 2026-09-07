@@ -14,13 +14,33 @@ export class FindAllCustomersUseCase {
   public async execute(search?: string): Promise<FindAllCustomerReadModel[]> {
     const customers = await this.customersRepository.findAll();
 
-    const readModels = customers.map(
-      (customer) =>
-        new FindAllCustomerReadModel(
+    const readModels = await Promise.all(
+      customers.map(async (customer) => {
+        let userInfo: {
+          firstName: string;
+          lastName: string;
+          gender: string;
+          email?: string;
+        } | null = null;
+        try {
+          userInfo = await this.findUserInformationPort.execute(
+            customer.getUserId(),
+          );
+        } catch (error) {
+          this.logger.warn(
+            `Could not load user info for customer ${customer.getId()}`,
+            error instanceof Error ? error.stack : String(error),
+          );
+        }
+
+        return new FindAllCustomerReadModel(
           customer.getId(),
           customer.getUserId(),
           customer.getCode(),
-          name,
+          [userInfo?.firstName, userInfo?.lastName]
+            .filter(Boolean)
+            .join(' ')
+            .trim(),
           userInfo?.gender ?? '',
           userInfo?.email ?? '',
           customer.getPhone(),

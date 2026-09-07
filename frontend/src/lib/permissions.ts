@@ -25,8 +25,6 @@ export function getAccessibleAdminPages(
 ): AdminPageKey[] {
   if (isAdmin(user)) {
     return [
-      "overview",
-      "reports",
       "customers",
       "employees",
       "departments",
@@ -60,7 +58,7 @@ export function getAccessibleEmployeePages(
 
 export function getEmployeeLandingPath(user: UserProfile | null): string {
   if (isAdmin(user)) {
-    return "/admin/overview";
+    return "/admin/customers";
   }
   switch (user?.departmentCode as DepartmentCode | undefined) {
     case "sales":
