@@ -1,6 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
-import { ordersService, type OrderStatus, type OrderReadModel } from '../../../../services/orders.service';
+import {
+  ordersService,
+  type OrderDetailReadModel,
+  type OrderReadModel,
+} from '../../../../services/orders.service';
 import type { StatusFilter } from './type';
 
 export function useOrders() {
@@ -10,6 +14,8 @@ export function useOrders() {
   const [status, setStatus] = useState<StatusFilter>('all');
   const [confirmCancel, setConfirmCancel] = useState<{ isOpen: boolean; order: OrderReadModel | null }>({ isOpen: false, order: null });
   const [confirmComplete, setConfirmComplete] = useState<{ isOpen: boolean; order: OrderReadModel | null }>({ isOpen: false, order: null });
+  const [detailOrder, setDetailOrder] = useState<{ order: OrderReadModel; detail: OrderDetailReadModel } | null>(null);
+  const [loadingDetail, setLoadingDetail] = useState(false);
 
   const fetchOrders = useCallback(async () => {
     try {
@@ -64,6 +70,19 @@ export function useOrders() {
     }
   };
 
+  const handleViewDetail = useCallback(async (order: OrderReadModel) => {
+    try {
+      setLoadingDetail(true);
+      const detail = await ordersService.getOrderById(order.id);
+      setDetailOrder({ order, detail });
+    } catch (error) {
+      console.error(error);
+      toast.error('Lỗi khi tải chi tiết đơn hàng');
+    } finally {
+      setLoadingDetail(false);
+    }
+  }, []);
+
   const filtered = orders.filter((o) => {
     const matchesQ = !q || o.code.toLowerCase().includes(q.toLowerCase()) || (o.customerName && o.customerName.toLowerCase().includes(q.toLowerCase()));
     const matchesStatus = status === 'all' || o.status === status;
@@ -83,5 +102,9 @@ export function useOrders() {
     confirmComplete,
     setConfirmComplete,
     handleCompleteConfirm,
+    detailOrder,
+    setDetailOrder,
+    loadingDetail,
+    handleViewDetail,
   };
 }
