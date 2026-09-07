@@ -49,6 +49,9 @@ export class InventoryController {
     private readonly updateInventoryMinStockUseCase: UpdateInventoryMinStockUseCase,
   ) {}
 
+  @UseGuards(AuthGuard, OrgGuard)
+  @Roles(Role.Admin, Role.Employee)
+  @Departments('warehouse')
   @Get()
   public async findAll(): Promise<InventoryReadModel[]> {
     return await this.findAllInventoriesUseCase.execute();

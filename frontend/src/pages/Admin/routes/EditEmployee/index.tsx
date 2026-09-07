@@ -19,6 +19,7 @@ const EditEmployeePage: React.FC = () => {
     name: "",
     firstName: "",
     lastName: "",
+    gender: "other",
     phone: "",
     email: "",
     address: "",
@@ -49,6 +50,7 @@ const EditEmployeePage: React.FC = () => {
             name: data.name || "",
             firstName: nameParts.firstName,
             lastName: nameParts.lastName,
+            gender: data.gender || "other",
             phone: data.phone || "",
             email: data.email || "",
             address: data.address || "",
@@ -119,6 +121,12 @@ const EditEmployeePage: React.FC = () => {
   const positionOptions = [
     { value: "staff", label: "Nhân viên" },
     { value: "manager", label: "Quản lý" },
+  ];
+
+  const genderOptions = [
+    { value: "male", label: "Nam" },
+    { value: "female", label: "Nữ" },
+    { value: "other", label: "Khác" },
   ];
 
   const currentPositionInOptions = positionOptions.some(
@@ -232,6 +240,17 @@ const EditEmployeePage: React.FC = () => {
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
               <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
+                Giới tính <span className="text-red-500">*</span>
+              </label>
+              <Select
+                name="gender"
+                value={formData.gender || "other"}
+                onChange={handleChange}
+                options={genderOptions}
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
                 Ngày vào làm
               </label>
               <Input
@@ -241,6 +260,9 @@ const EditEmployeePage: React.FC = () => {
                 onChange={handleChange}
               />
             </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
               <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
                 Trạng thái

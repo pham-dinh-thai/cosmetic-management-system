@@ -5,9 +5,13 @@ import { DataTable, type Column } from "../../../../components/ui/DataTable";
 import { ConfirmModal } from "../../../../components/ui/ConfirmModal";
 import { useSuppliers } from "./hook";
 import type { Supplier } from "./type";
+import { useAuthStore } from "../../../../store/useAuthStore";
+import { canWriteSuppliers } from "../../../../lib/permissions";
 
 const SuppliersPage: React.FC = () => {
   const navigate = useNavigate();
+  const user = useAuthStore((s) => s.user);
+  const canWrite = canWriteSuppliers(user);
   const { suppliers, loading, q, setQ, handleDeleteSupplier } = useSuppliers();
 
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -62,17 +66,21 @@ const SuppliersPage: React.FC = () => {
         className: "text-right",
         render: (s) => (
           <div className="flex justify-end gap-2">
-            <Button variant="outline" size="sm" onClick={() => openEdit(s)}>
-              Sửa
-            </Button>
-            <Button variant="outline" size="sm" className="text-red-600 border-red-600 hover:bg-red-600 hover:text-white" onClick={() => openDelete(s)}>
-              Xóa
-            </Button>
+            {canWrite && (
+              <>
+                <Button variant="outline" size="sm" onClick={() => openEdit(s)}>
+                  Sửa
+                </Button>
+                <Button variant="outline" size="sm" className="text-red-600 border-red-600 hover:bg-red-600 hover:text-white" onClick={() => openDelete(s)}>
+                  Xóa
+                </Button>
+              </>
+            )}
           </div>
         ),
       },
     ],
-    [],
+    [canWrite],
   );
 
   return (
@@ -81,7 +89,11 @@ const SuppliersPage: React.FC = () => {
         eyebrow="Quản lý / Nhà cung cấp"
         title="Danh sách nhà cung cấp"
         description="Quản lý thông tin các nhà phân phối và nhà sản xuất mỹ phẩm."
-        actions={<Button variant="primary" onClick={openAdd}>+ Thêm nhà cung cấp</Button>}
+        actions={
+          canWrite && (
+            <Button variant="primary" onClick={openAdd}>+ Thêm nhà cung cấp</Button>
+          )
+        }
       />
       <div className="max-w-md">
         <Input

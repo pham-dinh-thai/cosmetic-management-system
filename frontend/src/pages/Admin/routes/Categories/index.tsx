@@ -4,6 +4,8 @@ import { DataTable, type Column } from "../../../../components/ui/DataTable";
 import { ConfirmModal } from "../../../../components/ui/ConfirmModal";
 import { useCategories } from "./hook";
 import type { CategorySummary, StatusFilter } from "./type";
+import { useAuthStore } from "../../../../store/useAuthStore";
+import { canWriteCatalog } from "../../../../lib/permissions";
 
 const STATUS_OPTIONS = [
   { value: "all", label: "Tất cả trạng thái" },
@@ -12,6 +14,9 @@ const STATUS_OPTIONS = [
 ];
 
 const CategoriesPage: React.FC = () => {
+  const user = useAuthStore((s) => s.user);
+  const canWrite = canWriteCatalog(user);
+
   const {
     filtered,
     loading,
@@ -64,33 +69,37 @@ const CategoriesPage: React.FC = () => {
         header: <div className="text-right">Thao tác</div>,
         render: (c) => (
           <div className="flex items-center justify-end gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => openEditModal(c)}
-            >
-              Sửa
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleToggleStatus(c)}
-            >
-              {c.isActive ? "Vô hiệu hoá" : "Kích hoạt"}
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-red-600 hover:bg-red-50/80"
-              onClick={() => setConfirmDelete({ isOpen: true, category: c })}
-            >
-              Xoá
-            </Button>
+            {canWrite && (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => openEditModal(c)}
+                >
+                  Sửa
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleToggleStatus(c)}
+                >
+                  {c.isActive ? "Vô hiệu hoá" : "Kích hoạt"}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-red-600 hover:bg-red-50/80"
+                  onClick={() => setConfirmDelete({ isOpen: true, category: c })}
+                >
+                  Xoá
+                </Button>
+              </>
+            )}
           </div>
         ),
       },
     ],
-    [openEditModal, handleToggleStatus, setConfirmDelete],
+    [openEditModal, handleToggleStatus, setConfirmDelete, canWrite],
   );
 
   return (
@@ -100,9 +109,11 @@ const CategoriesPage: React.FC = () => {
         title="Danh mục sản phẩm"
         description="Quản lý các danh mục phân loại mỹ phẩm trên hệ thống."
         actions={
-          <Button variant="primary" onClick={openAddModal}>
-            + Thêm danh mục
-          </Button>
+          canWrite && (
+            <Button variant="primary" onClick={openAddModal}>
+              + Thêm danh mục
+            </Button>
+          )
         }
       />
 

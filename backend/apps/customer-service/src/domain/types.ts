@@ -16,15 +16,11 @@ export type PhoneProps = {
 export type CreateCustomerProps = {
   userId: string;
   code: string;
-  name: string;
-  email: string;
   phone: string;
   address: string;
 };
 
 export type UpdateCustomerProps = {
-  name: string;
-  email: string;
   phone: string;
   address: string;
 };
@@ -33,8 +29,6 @@ export type FromPersistentCustomerProps = {
   id: string;
   userId: string;
   code: string;
-  name: string;
-  email: string;
   phone: string;
   address: string;
   addresses: AddressProps[];

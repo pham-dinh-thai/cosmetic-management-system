@@ -16,6 +16,7 @@ export function useCustomers() {
           id: c.id,
           code: c.code,
           name: c.name,
+          gender: c.gender,
           phone: c.phone,
           email: c.email,
           address: c.address,
