@@ -6,7 +6,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard, OrgGuard, Role, Roles } from '@app/security';
+import { AuthGuard, Departments, OrgGuard, Role, Roles } from '@app/security';
 import { PosOrderUseCase } from 'apps/order-service/src/application/use-cases/pos-order/pos-order.use-case';
 import { PosOrderRequest } from './requests/pos-order.request';
 
@@ -16,6 +16,7 @@ export class PosOrdersController {
 
   @UseGuards(AuthGuard, OrgGuard)
   @Roles(Role.Admin, Role.Employee)
+  @Departments('sales')
   @HttpCode(HttpStatus.CREATED)
   @Post('pos')
   public async place(

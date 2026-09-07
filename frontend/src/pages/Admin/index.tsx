@@ -1,6 +1,9 @@
 import React from "react";
 import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import DashboardLayout, { type SidebarSection } from "../../components/DashboardLayout";
+import { useAuthStore } from "../../store/useAuthStore";
+import { isAdmin } from "../../lib/permissions";
+import NotFound from "../NotFound";
 
 import OverviewPage from "./routes/Overview";
 import ReportsPage from "./routes/Reports";
@@ -66,7 +69,9 @@ const PAGE_TITLES: Record<AdminPageKey, string> = {
   reports: "Báo cáo",
 };
 
-const SECTIONS = (active: AdminPageKey): SidebarSection[] => [
+const ALL_SECTIONS: (active: AdminPageKey) => SidebarSection[] = (
+  active,
+) => [
   {
     id: "general",
     title: "Tổng quan",
@@ -100,10 +105,15 @@ const SECTIONS = (active: AdminPageKey): SidebarSection[] => [
 const Admin: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const user = useAuthStore((s) => s.user);
+
+  if (!isAdmin(user)) {
+    return <NotFound />;
+  }
 
   const activeKey = getActiveKey(location.pathname);
 
-  const sections = SECTIONS(activeKey).map((section) => ({
+  const sections = ALL_SECTIONS(activeKey).map((section) => ({
     ...section,
     items: section.items.map((item) => ({
       ...item,
@@ -143,7 +153,7 @@ const Admin: React.FC = () => {
         <Route path="inventory" element={<InventoryPage />} />
         <Route path="inventory/add" element={<AddInventoryPage />} />
         <Route path="inventory/:id/edit" element={<EditInventoryPage />} />
-        <Route path="*" element={<Navigate to="overview" replace />} />
+        <Route path="*" element={<Navigate to="/admin/overview" replace />} />
       </Routes>
     </DashboardLayout>
   );
