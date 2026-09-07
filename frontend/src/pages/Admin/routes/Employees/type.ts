@@ -6,6 +6,7 @@ export interface Employee {
   email: string;
   address?: string;
   departmentId?: string;
+  department?: string;
   position: string;
   hiredAt?: string;
   status: "ACTIVE" | "INACTIVE";

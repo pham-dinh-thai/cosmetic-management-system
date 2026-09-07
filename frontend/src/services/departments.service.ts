@@ -5,6 +5,7 @@ interface DepartmentDto {
   id: string;
   code: string;
   name: string;
+  positions: string[];
   managerId: string | null;
   isActive: boolean;
   createdAt?: string;
@@ -16,18 +17,11 @@ const toDepartment = (dto: DepartmentDto): Department => ({
   code: dto.code,
   name: dto.name,
   managerId: dto.managerId ?? null,
+  positions: dto.positions ?? [],
   isActive: dto.isActive,
   createdAt: dto.createdAt,
   updatedAt: dto.updatedAt,
 });
-
-function nextDepartmentCode(departments: DepartmentDto[]): string {
-  const max = departments.reduce((acc, d) => {
-    const match = /^PB-(\d+)$/.exec(d.code);
-    return match ? Math.max(acc, Number(match[1])) : acc;
-  }, 0);
-  return `PB-${String(max + 1).padStart(3, "0")}`;
-}
 
 export const departmentsService = {
   async getDepartments(_search?: string): Promise<Department[]> {
@@ -43,14 +37,15 @@ export const departmentsService = {
   },
 
   async createDepartment(payload: Partial<Department>): Promise<void> {
-    const { data: departments } = await api.get<DepartmentDto[]>("/departments");
-    const code = payload.code || nextDepartmentCode(departments);
-    await api.post<void>("/departments", { code, name: payload.name });
+    await api.post<void>("/departments", {
+      code: payload.code,
+      name: payload.name,
+      positions: payload.positions ?? [],
+    });
 
     if (payload.isActive === false) {
-      const created = (
-        await api.get<DepartmentDto[]>("/departments")
-      ).data.find((d) => d.code === code);
+      const departments = await this.getDepartments();
+      const created = departments.find((d) => d.code === payload.code);
       if (created) await this.deactivateDepartment(created.id);
     }
   },
@@ -60,6 +55,7 @@ export const departmentsService = {
     await api.put<void>(`/departments/${id}`, {
       code: payload.code || current.code,
       name: payload.name,
+      positions: payload.positions ?? [],
     });
 
     if (payload.isActive === false) {

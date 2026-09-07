@@ -3,6 +3,7 @@ export interface Department {
   code: string;
   name: string;
   managerId: string | null;
+  positions: string[];
   isActive: boolean;
   createdAt?: string;
   updatedAt?: string;

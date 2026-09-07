@@ -1,8 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ICreateEmployeeRequest } from 'apps/employee-service/src/application/use-cases/create-employee/create-employee.request';
-import { Position } from 'apps/employee-service/src/domain/enums/position.enum';
 import {
-  IsEnum,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -64,10 +62,11 @@ export class CreateEmployeeRequest implements ICreateEmployeeRequest {
   @IsNotEmpty()
   hiredAt!: string;
 
-  @ApiProperty({ enum: Position })
+  @ApiProperty()
+  @IsString()
   @IsNotEmpty()
-  @IsEnum(Position)
-  position!: Position;
+  @MaxLength(255)
+  position!: string;
 
   @ApiProperty({ required: false })
   @IsOptional()

@@ -1,5 +1,4 @@
 import { EmployeeStatus } from './enums/employee-status.enum';
-import { Position } from './enums/position.enum';
 import { CannotUpdatePositionForEmployeeException } from './exceptions/cannot-update-position-for-employee.exception';
 import { CreateEmployeeProps, FromPersistentEmployeeProps } from './types';
 import { EmployeeCode } from './value-objects/employee-code.value-object';
@@ -13,7 +12,7 @@ export class Employee {
     private departmentId: string,
     private hiredAt: Date,
     private status: EmployeeStatus,
-    private position: Position,
+    private position: string,
     private phone?: EmployeePhone,
     private address?: string,
     private createdAt?: Date,
@@ -58,7 +57,7 @@ export class Employee {
     this.address = address;
   }
 
-  public updatePosition(position: Position): void {
+  public updatePosition(position: string): void {
     if (this.status !== EmployeeStatus.ACTIVE) {
       throw new CannotUpdatePositionForEmployeeException(this.id, this.status);
     }
@@ -90,7 +89,7 @@ export class Employee {
     return this.hiredAt;
   }
 
-  public getPosition(): Position {
+  public getPosition(): string {
     return this.position;
   }
 

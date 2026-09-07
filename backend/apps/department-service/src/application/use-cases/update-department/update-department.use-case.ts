@@ -36,6 +36,10 @@ export class UpdateDepartmentUseCase {
     department.updateCode(request.code);
     department.updateName(request.name);
 
+    if (request.positions) {
+      department.updatePositions(request.positions);
+    }
+
     await this.departmentsRepository.update(id, department);
   }
 }

@@ -18,7 +18,7 @@ const EditEmployeePage: React.FC = () => {
     email: "",
     address: "",
     departmentId: "",
-    position: "MEMBER",
+    position: "",
     status: "ACTIVE",
     hiredAt: "",
   });
@@ -37,7 +37,7 @@ const EditEmployeePage: React.FC = () => {
             email: data.email || "",
             address: data.address || "",
             departmentId: data.departmentId || "",
-            position: data.position || "MEMBER",
+            position: data.position || "",
             status: (data.status as Employee["status"]) || "ACTIVE",
             hiredAt: data.hiredAt ? new Date(data.hiredAt).toISOString().split('T')[0] : "",
           });
@@ -88,6 +88,23 @@ const EditEmployeePage: React.FC = () => {
           },
         ]
       : departmentOptions;
+
+  const selectedDepartment = departments.find(
+    (d) => d.id === formData.departmentId,
+  );
+
+  const positionOptions = (selectedDepartment?.positions?.length
+    ? selectedDepartment.positions
+    : ["Nhân viên", "Quản lý"]
+  ).map((p) => ({ value: p, label: p }));
+
+  const currentPositionInOptions = positionOptions.some(
+    (o) => o.value === formData.position,
+  );
+  const allPositionOptions =
+    formData.position && !currentPositionInOptions
+      ? [...positionOptions, { value: formData.position, label: formData.position }]
+      : positionOptions;
 
   if (fetching) {
     return <div className="py-12 text-center text-[#666666]">Đang tải thông tin nhân viên…</div>;
@@ -167,12 +184,11 @@ const EditEmployeePage: React.FC = () => {
                 name="position"
                 required
                 disabled={!formData.departmentId}
-                value={formData.position || "MEMBER"}
+                value={formData.position || ""}
                 onChange={handleChange}
                 options={[
-                  { value: "MEMBER", label: "Nhân viên" },
-                  { value: "MANAGER", label: "Quản lý" },
-                  { value: "DIRECTOR", label: "Giám đốc" },
+                  { value: "", label: "Chọn chức vụ" },
+                  ...allPositionOptions,
                 ]}
               />
             </div>

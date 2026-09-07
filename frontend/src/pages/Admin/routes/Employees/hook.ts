@@ -1,15 +1,16 @@
 import { useEffect, useState, useCallback } from "react";
 import { employeesService } from "../../../../services/employees.service";
+import { departmentsService } from "../../../../services/departments.service";
 import type { Employee } from "./type";
 
 function mapPosition(position?: string): string {
   switch (position) {
     case "staff":
-      return "MEMBER";
+      return "Nhân viên";
     case "manager":
-      return "MANAGER";
+      return "Quản lý";
     default:
-      return position || "MEMBER";
+      return position || "Nhân viên";
   }
 }
 
@@ -20,7 +21,11 @@ export function useEmployees() {
 
   const fetchEmployees = useCallback(() => {
     setLoading(true);
-    employeesService.getEmployees().then((data) => {
+    Promise.all([
+      employeesService.getEmployees(),
+      departmentsService.getDepartments(),
+    ]).then(([data, departments]) => {
+      const departmentName = new Map(departments.map((d) => [d.id, d.name]));
       setEmployees(
         data.map((e) => ({
           id: e.id,
@@ -30,11 +35,17 @@ export function useEmployees() {
           email: e.email || "",
           address: e.address || "",
           departmentId: e.departmentId,
+          department: e.departmentId
+            ? departmentName.get(e.departmentId) || e.departmentId
+            : "-",
           position: mapPosition(e.position),
           hiredAt: e.hiredAt ? String(e.hiredAt) : undefined,
           status: (e.status as Employee["status"]) || "ACTIVE",
         })),
       );
+      setLoading(false);
+    }).catch(err => {
+      console.error(err);
       setLoading(false);
     });
   }, []);
@@ -53,7 +64,8 @@ export function useEmployees() {
       !q ||
       e.name.toLowerCase().includes(q.toLowerCase()) ||
       e.code.toLowerCase().includes(q.toLowerCase()) ||
-      e.phone.includes(q),
+      e.phone.includes(q) ||
+      (e.department || "").toLowerCase().includes(q.toLowerCase()),
   );
 
   return { employees: filtered, loading, q, setQ, handleDeleteEmployee };

@@ -16,7 +16,7 @@ const AddEmployeePage: React.FC = () => {
     email: "",
     address: "",
     departmentId: "",
-    position: "MEMBER",
+    position: "",
     status: "ACTIVE",
     hiredAt: new Date().toISOString().split('T')[0],
   });
@@ -33,6 +33,15 @@ const AddEmployeePage: React.FC = () => {
   const departmentOptions = departments
     .filter((d) => d.isActive)
     .map((d) => ({ value: d.id, label: d.name }));
+
+  const selectedDepartment = departments.find(
+    (d) => d.id === formData.departmentId,
+  );
+
+  const positionOptions = (selectedDepartment?.positions?.length
+    ? selectedDepartment.positions
+    : ["Nhân viên", "Quản lý"]
+  ).map((p) => ({ value: p, label: p }));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -122,12 +131,11 @@ const AddEmployeePage: React.FC = () => {
                 name="position"
                 required
                 disabled={!formData.departmentId}
-                value={formData.position || "MEMBER"}
+                value={formData.position || ""}
                 onChange={handleChange}
                 options={[
-                  { value: "MEMBER", label: "Nhân viên" },
-                  { value: "MANAGER", label: "Quản lý" },
-                  { value: "DIRECTOR", label: "Giám đốc" },
+                  { value: "", label: "Chọn chức vụ" },
+                  ...positionOptions,
                 ]}
               />
             </div>
