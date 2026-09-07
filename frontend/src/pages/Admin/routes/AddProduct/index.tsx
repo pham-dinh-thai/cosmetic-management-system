@@ -9,7 +9,9 @@ const AddProductPage: React.FC = () => {
     categories,
     productData,
     variants,
+    uploadingImage,
     handleProductChange,
+    handleImageUpload,
     toggleCategory,
     handleVariantChange,
     addVariant,
@@ -82,15 +84,34 @@ const AddProductPage: React.FC = () => {
             </div>
 
             <div className="flex flex-col gap-2">
-              <label className="text-[12px] font-medium text-[--color-pewter] uppercase tracking-[0.1em]">
-                Hình ảnh (URL)
+              <label
+                htmlFor="productImage"
+                className="text-[12px] font-medium text-[--color-pewter] uppercase tracking-[0.1em]"
+              >
+                Hình ảnh sản phẩm
               </label>
-              <Input
-                name="imageUrl"
-                value={productData.imageUrl}
-                onChange={handleProductChange}
-                placeholder="https://..."
+              <input
+                id="productImage"
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                disabled={uploadingImage}
+                onChange={(e) => handleImageUpload(e.target.files?.[0])}
+                className="w-full rounded-lg border border-[#c4c7c4] bg-[#fcfcf7] px-4 py-2.5 text-[14px] text-[#1c3a13] file:mr-4 file:cursor-pointer file:border-0 file:bg-[#1c3a13] file:px-4 file:py-2 file:text-sm file:font-medium file:text-[#fcfcf7] hover:file:opacity-90 focus:outline-none focus:border-[#1c3a13] transition-colors disabled:opacity-60"
               />
+              {uploadingImage ? (
+                <p className="text-[12px] text-[#666666]">Đang tải ảnh lên...</p>
+              ) : productData.imageUrl ? (
+                <div className="flex items-center gap-3">
+                  <img
+                    src={productData.imageUrl}
+                    alt="Ảnh sản phẩm"
+                    className="w-16 h-16 object-cover rounded-lg border border-[--color-ash]"
+                  />
+                  <p className="text-[12px] text-[#666666] break-all">
+                    {productData.imageUrl}
+                  </p>
+                </div>
+              ) : null}
             </div>
           </div>
 

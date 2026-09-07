@@ -4,9 +4,15 @@ export class InsufficientStockException extends BaseDomainException {
   public readonly statusCode = 409;
   public readonly code = 'INSUFFICIENT_STOCK';
 
-  public constructor(variantId: string, requested: number, available: number) {
+  public constructor(
+    variantId: string,
+    requested: number,
+    available: number,
+    message?: string,
+  ) {
     super(
-      `Insufficient stock for variant "${variantId}": requested ${requested}, available ${available}`,
+      message ??
+        `Insufficient stock for variant "${variantId}": requested ${requested}, available ${available}`,
     );
   }
 }

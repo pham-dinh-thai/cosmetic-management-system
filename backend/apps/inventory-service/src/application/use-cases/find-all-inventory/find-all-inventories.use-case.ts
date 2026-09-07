@@ -19,6 +19,7 @@ export class FindAllInventoriesUseCase {
           inventory.getCreatedAt(),
           inventory.getUpdatedAt(),
           inventory.getExpiryDate(),
+          inventory.getMinStock(),
         ),
     );
   }

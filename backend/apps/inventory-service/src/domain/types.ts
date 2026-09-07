@@ -11,6 +11,7 @@ export type StockAdjustmentReason = (typeof STOCK_ADJUSTMENT_REASONS)[number];
 export type CreateInventoryProps = {
   variantId: string;
   quantity: number;
+  minStock?: number;
   expiryDate?: Date;
 };
 
@@ -18,6 +19,7 @@ export type FromPersistentInventoryProps = {
   id: string;
   variantId: string;
   quantity: number;
+  minStock: number;
   expiryDate?: Date;
   lastUpdatedAt: Date;
   createdAt: Date;

@@ -7,5 +7,6 @@ export class InventoryReadModel {
     public readonly createdAt: Date | undefined,
     public readonly updatedAt: Date | undefined,
     public readonly expiryDate: Date | undefined,
+    public readonly minStock: number,
   ) {}
 }

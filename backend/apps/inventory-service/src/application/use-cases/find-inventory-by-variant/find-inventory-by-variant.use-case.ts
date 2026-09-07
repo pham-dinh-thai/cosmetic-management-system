@@ -18,6 +18,7 @@ export class FindInventoryByVariantUseCase {
           inventory.getCreatedAt(),
           inventory.getUpdatedAt(),
           inventory.getExpiryDate(),
+          inventory.getMinStock(),
         )
       : null;
   }

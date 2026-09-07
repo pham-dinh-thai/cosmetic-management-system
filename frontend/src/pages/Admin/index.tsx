@@ -25,6 +25,8 @@ import PurchaseOrdersPage from "./routes/PurchaseOrders";
 import AddPurchaseOrderPage from "./routes/AddPurchaseOrder";
 import EditPurchaseOrderPage from "./routes/EditPurchaseOrder";
 import InventoryPage from "./routes/Inventory";
+import AddInventoryPage from "./routes/AddInventory";
+import EditInventoryPage from "./routes/EditInventory";
 
 export type AdminPageKey =
   | "overview"
@@ -139,6 +141,8 @@ const Admin: React.FC = () => {
         <Route path="purchase/add" element={<AddPurchaseOrderPage />} />
         <Route path="purchase/:id/edit" element={<EditPurchaseOrderPage />} />
         <Route path="inventory" element={<InventoryPage />} />
+        <Route path="inventory/add" element={<AddInventoryPage />} />
+        <Route path="inventory/:id/edit" element={<EditInventoryPage />} />
         <Route path="*" element={<Navigate to="overview" replace />} />
       </Routes>
     </DashboardLayout>

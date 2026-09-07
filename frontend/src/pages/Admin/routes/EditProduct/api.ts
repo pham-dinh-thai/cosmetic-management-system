@@ -17,4 +17,6 @@ export const editProductApi = {
   deactivateVariant: (variantId: string) => productsService.deactivateVariant(variantId),
   addVariant: (productId: string, payload: CreateVariantPayload) =>
     productsService.addVariant(productId, payload),
+  uploadImage: (file: File): Promise<{ imageUrl: string }> =>
+    productsService.uploadImage(file),
 };

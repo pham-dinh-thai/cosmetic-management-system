@@ -10,6 +10,7 @@ import { OrderLine } from './infrastructure/entities/order-line.entity';
 import { OrderTransaction } from './infrastructure/entities/order-transaction.entity';
 import { OrdersController } from './presentation/public/orders/orders.controller';
 import { ClientOrdersController } from './presentation/public/orders/client-orders.controller';
+import { PosOrdersController } from './presentation/public/orders/pos-orders.controller';
 import { DomainErrorFilter } from './presentation/filters/domain-error.filter';
 import { ORDERS_REPOSITORY } from './domain/repositories/orders.repository';
 import { ORDER_TRANSACTIONS_REPOSITORY } from './domain/repositories/order-transactions.repository';
@@ -55,6 +56,10 @@ import {
   PlaceOrderUseCase,
   placeOrderUseCaseFactory,
 } from './application/use-cases/place-order/place-order.use-case';
+import {
+  PosOrderUseCase,
+  posOrderUseCaseFactory,
+} from './application/use-cases/pos-order/pos-order.use-case';
 import { VARIANT_READER_PORT } from './application/use-cases/place-order/ports/variants-reader.port';
 import { REVERSE_INVENTORY_PORT } from './application/use-cases/place-order/ports/reverse-inventory.port';
 import { DECREASE_CART_LINE_QUANTITY_PORT } from './application/use-cases/place-order/ports/decrease-cart-line-quantity.port';
@@ -87,7 +92,7 @@ import { ORDER_LOGGER_PORT } from './application/ports/employee-logger.port';
       inject: [ConfigService],
     }),
   ],
-  controllers: [OrdersController, ClientOrdersController],
+  controllers: [OrdersController, ClientOrdersController, PosOrdersController],
   providers: [
     {
       provide: APP_FILTER,
@@ -166,6 +171,17 @@ import { ORDER_LOGGER_PORT } from './application/ports/employee-logger.port';
         REMOVE_STOCK_PORT,
         REVERSE_INVENTORY_PORT,
         DECREASE_CART_LINE_QUANTITY_PORT,
+        ORDER_LOGGER_PORT,
+      ],
+    },
+    {
+      provide: PosOrderUseCase,
+      useFactory: posOrderUseCaseFactory,
+      inject: [
+        ORDERS_REPOSITORY,
+        VARIANT_READER_PORT,
+        REMOVE_STOCK_PORT,
+        REVERSE_INVENTORY_PORT,
         ORDER_LOGGER_PORT,
       ],
     },

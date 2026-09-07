@@ -78,8 +78,8 @@ const EditEmployeePage: React.FC = () => {
     e.preventDefault();
     if (!id) return;
 
-    if (!formData.firstName.trim() || !formData.lastName.trim()) {
-      toast.error("Vui lòng nhập đầy đủ họ và tên đệm lẫn tên riêng");
+    if (!formData.firstName.trim() && !formData.lastName.trim()) {
+      toast.error("Vui lòng nhập họ hoặc tên");
       return;
     }
 
@@ -87,7 +87,9 @@ const EditEmployeePage: React.FC = () => {
     try {
       await employeesService.updateEmployee(id, {
         ...formData,
-        name: `${formData.firstName.trim()} ${formData.lastName.trim()}`,
+        name: [formData.firstName.trim(), formData.lastName.trim()]
+          .filter(Boolean)
+          .join(" "),
       });
       toast.success("Đã cập nhật nhân viên thành công");
       navigate("/admin/employees");
@@ -114,14 +116,10 @@ const EditEmployeePage: React.FC = () => {
         ]
       : departmentOptions;
 
-  const selectedDepartment = departments.find(
-    (d) => d.id === formData.departmentId,
-  );
-
-  const positionOptions = (selectedDepartment?.positions?.length
-    ? selectedDepartment.positions
-    : ["Nhân viên", "Quản lý"]
-  ).map((p) => ({ value: p, label: p }));
+  const positionOptions = [
+    { value: "staff", label: "Nhân viên" },
+    { value: "manager", label: "Quản lý" },
+  ];
 
   const currentPositionInOptions = positionOptions.some(
     (o) => o.value === formData.position,
@@ -221,7 +219,6 @@ const EditEmployeePage: React.FC = () => {
               <Select
                 name="position"
                 required
-                disabled={!formData.departmentId}
                 value={formData.position || ""}
                 onChange={handleChange}
                 options={[

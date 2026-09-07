@@ -16,12 +16,18 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const uploadRoot = configService.get<string>('UPLOAD_ROOT') ?? './uploads';
   const absoluteUploadRoot = join(process.cwd(), uploadRoot);
+  const staticUploadRoot = uploadRoot.startsWith('/')
+    ? uploadRoot
+    : absoluteUploadRoot;
 
-  if (!existsSync(absoluteUploadRoot)) {
-    mkdirSync(absoluteUploadRoot, { recursive: true });
+  if (!existsSync(staticUploadRoot)) {
+    mkdirSync(staticUploadRoot, { recursive: true });
   }
 
-  app.use('/api/uploads', express.static(absoluteUploadRoot, { maxAge: '7d' }));
+  app.use(
+    '/api/uploads',
+    express.static(staticUploadRoot, { maxAge: '7d' }),
+  );
 
   const config = new DocumentBuilder()
     .setTitle('Storage Service API')

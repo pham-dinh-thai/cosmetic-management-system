@@ -5,7 +5,6 @@ interface DepartmentDto {
   id: string;
   code: string;
   name: string;
-  positions: string[];
   managerId: string | null;
   isActive: boolean;
   createdAt?: string;
@@ -17,7 +16,6 @@ const toDepartment = (dto: DepartmentDto): Department => ({
   code: dto.code,
   name: dto.name,
   managerId: dto.managerId ?? null,
-  positions: dto.positions ?? [],
   isActive: dto.isActive,
   createdAt: dto.createdAt,
   updatedAt: dto.updatedAt,
@@ -40,14 +38,7 @@ export const departmentsService = {
     await api.post<void>("/departments", {
       code: payload.code,
       name: payload.name,
-      positions: payload.positions ?? [],
     });
-
-    if (payload.isActive === false) {
-      const departments = await this.getDepartments();
-      const created = departments.find((d) => d.code === payload.code);
-      if (created) await this.deactivateDepartment(created.id);
-    }
   },
 
   async updateDepartment(id: string, payload: Partial<Department>): Promise<void> {
@@ -55,7 +46,6 @@ export const departmentsService = {
     await api.put<void>(`/departments/${id}`, {
       code: payload.code || current.code,
       name: payload.name,
-      positions: payload.positions ?? [],
     });
 
     if (payload.isActive === false) {

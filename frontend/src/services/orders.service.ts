@@ -26,7 +26,7 @@ export interface PosOrderResponse {
 
 export const ordersService = {
   async createOrder(payload: CreatePosOrderPayload): Promise<PosOrderResponse> {
-    const { data } = await api.post<PosOrderResponse>("/orders", payload);
+    const { data } = await api.post<PosOrderResponse>("/orders/pos", payload);
     return data;
   },
 };

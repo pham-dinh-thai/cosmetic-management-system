@@ -1,10 +1,14 @@
 export interface InventoryItem {
   id: string;
-  sku: string;
-  productName: string;
-  variantName: string;
+  variantId: string;
   quantity: number;
-  minThreshold: number;
-  location: string;
+  minStock: number;
+  expiryDate: string | null;
+  lastUpdatedAt: string;
+  sku?: string;
+  productName?: string;
+  variantName?: string;
+  minThreshold?: number;
+  location?: string;
   price?: number;
 }

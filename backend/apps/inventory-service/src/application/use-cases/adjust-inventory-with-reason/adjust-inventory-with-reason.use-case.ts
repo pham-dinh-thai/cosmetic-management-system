@@ -12,6 +12,7 @@ export type AdjustInventoryWithReasonInput = {
   reason: StockAdjustmentReason;
   note?: string;
   createdBy: string;
+  minStock?: number;
 };
 
 export type AdjustInventoryWithReasonResult = {
@@ -44,6 +45,7 @@ export class AdjustInventoryWithReasonUseCase {
       reason: input.reason,
       note: input.note ?? null,
       createdBy: input.createdBy,
+      minStock: input.minStock,
     });
   }
 }

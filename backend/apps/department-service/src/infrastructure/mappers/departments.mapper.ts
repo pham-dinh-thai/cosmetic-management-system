@@ -8,7 +8,6 @@ export class DepartmentsMapper {
       code: departmentMikro.code,
       name: departmentMikro.name,
       isActive: departmentMikro.isActive,
-      positions: departmentMikro.positions ?? [],
       managerId: departmentMikro.managerId ?? undefined,
     });
   }
@@ -22,7 +21,6 @@ export class DepartmentsMapper {
     departmentMikro.code = department.getCode();
     departmentMikro.name = department.getName();
     departmentMikro.isActive = department.getIsActive();
-    departmentMikro.positions = department.getPositions();
     departmentMikro.managerId = department.getManagerId();
 
     return departmentMikro;

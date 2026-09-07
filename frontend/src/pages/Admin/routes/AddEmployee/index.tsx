@@ -49,27 +49,23 @@ const AddEmployeePage: React.FC = () => {
     .filter((d) => d.isActive)
     .map((d) => ({ value: d.id, label: d.name }));
 
-  const selectedDepartment = departments.find(
-    (d) => d.id === formData.departmentId,
-  );
-
-  const positionOptions = (selectedDepartment?.positions?.length
-    ? selectedDepartment.positions
-    : ["Nhân viên", "Quản lý"]
-  ).map((p) => ({ value: p, label: p }));
+  const positionOptions = [
+    { value: "staff", label: "Nhân viên" },
+    { value: "manager", label: "Quản lý" },
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      if (!formData.firstName.trim() || !formData.lastName.trim()) {
-        toast.error("Vui lòng nhập đầy đủ họ và tên đệm lẫn tên riêng");
+      if (!formData.firstName.trim() && !formData.lastName.trim()) {
+        toast.error("Vui lòng nhập họ hoặc tên");
         return;
       }
       const { firstName, lastName, ...rest } = formData;
       await employeesService.createEmployee({
         ...rest,
-        name: `${firstName.trim()} ${lastName.trim()}`,
+        name: [firstName.trim(), lastName.trim()].filter(Boolean).join(" "),
         password,
       });
       toast.success("Đã thêm nhân viên thành công");
@@ -169,7 +165,6 @@ const AddEmployeePage: React.FC = () => {
               <Select
                 name="position"
                 required
-                disabled={!formData.departmentId}
                 value={formData.position || ""}
                 onChange={handleChange}
                 options={[

@@ -16,6 +16,7 @@ export function useEditProduct() {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
+  const [imageSaving, setImageSaving] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [categories, setCategories] = useState<CategorySummary[]>([]);
@@ -132,6 +133,49 @@ export function useEditProduct() {
     }
   };
 
+  const handleImageUpload = async (file: File | undefined) => {
+    if (!file) return;
+    setImageSaving(true);
+    setError(null);
+    try {
+      const { imageUrl } = await editProductApi.uploadImage(file);
+      setProductData((prev) => ({ ...prev, imageUrl }));
+      toast.success("Đã tải ảnh lên. Nhấn 'Lưu Hình Ảnh' để cập nhật.");
+    } catch (err: any) {
+      const msg =
+        err?.response?.data?.message || "Lỗi khi tải ảnh lên.";
+      toast.error(msg);
+    } finally {
+      setImageSaving(false);
+    }
+  };
+
+  const handleSaveImageOnly = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!productData.name) {
+      toast.error("Tên sản phẩm không được để trống.");
+      return;
+    }
+    setImageSaving(true);
+    try {
+      const payload: UpdateCosmeticPayload = {
+        name: productData.name,
+        brand: productData.brand || undefined,
+        origin: productData.origin || undefined,
+        description: productData.description || undefined,
+        imageUrl: productData.imageUrl || undefined,
+        categoryIds: productData.categoryIds,
+      };
+      await editProductApi.updateCosmetic(productId, payload);
+      toast.success("Đã lưu hình ảnh mới thành công!");
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || "Lỗi khi lưu hình ảnh.";
+      toast.error(msg);
+    } finally {
+      setImageSaving(false);
+    }
+  };
+
   const saveExistingVariant = async (index: number) => {
     const v = existingVariants[index];
     try {
@@ -202,6 +246,7 @@ export function useEditProduct() {
     productId,
     loading,
     fetching,
+    imageSaving,
     error,
     categories,
     productData,
@@ -212,6 +257,8 @@ export function useEditProduct() {
     handleExistingVariantChange,
     handleNewVariantChange,
     handleSaveProductInfo,
+    handleSaveImageOnly,
+    handleImageUpload,
     saveExistingVariant,
     toggleVariantStatus,
     addNewVariantBox,
