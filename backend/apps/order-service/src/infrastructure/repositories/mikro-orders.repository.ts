@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { EntityManager } from '@mikro-orm/postgresql';
+import { EntityManager, raw } from '@mikro-orm/postgresql';
 import { IOrdersRepository } from '../../domain/repositories/orders.repository';
 import { Order as OrderDomain } from '../../domain/order.aggregate';
 import { CreateOrderLineProps, OrderStatus } from '../../domain/types';
@@ -149,6 +149,26 @@ export class MikroOrdersRepository implements IOrdersRepository {
     await this.em.flush();
 
     return OrdersMapper.toDomain(entity);
+  }
+
+  public async findBestSellers(
+    limit: number,
+  ): Promise<{ variantId: string; quantitySold: number }[]> {
+    const rows = await this.em
+      .createQueryBuilder(OrderLine, 'ol')
+      .join('ol.order', 'o')
+      .select('ol.variantId')
+      .addSelect(raw('SUM(ol.quantity)').as('total'))
+      .where({ 'o.status': { $ne: OrderStatus.CANCELLED } })
+      .groupBy('ol.variantId')
+      .orderBy({ [raw('SUM(ol.quantity)')]: 'DESC' })
+      .limit(limit)
+      .execute();
+
+    return rows.map((row: Record<string, unknown>) => ({
+      variantId: String(row.variantId),
+      quantitySold: Number(row.total),
+    }));
   }
 
   public async delete(id: string): Promise<OrderDomain | null> {

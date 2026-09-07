@@ -30,9 +30,11 @@ import EditPurchaseOrderPage from "./routes/EditPurchaseOrder";
 import InventoryPage from "./routes/Inventory";
 import AddInventoryPage from "./routes/AddInventory";
 import EditInventoryPage from "./routes/EditInventory";
+import OrdersPage from "./routes/Orders";
 
 export type AdminPageKey =
   | "overview"
+  | "orders"
   | "customers"
   | "employees"
   | "departments"
@@ -45,6 +47,7 @@ export type AdminPageKey =
 
 const getActiveKey = (pathname: string): AdminPageKey => {
   if (pathname.includes("/admin/reports")) return "reports";
+  if (pathname.includes("/admin/orders")) return "orders";
   if (pathname.includes("/admin/customers")) return "customers";
   if (pathname.includes("/admin/employees")) return "employees";
   if (pathname.includes("/admin/departments")) return "departments";
@@ -58,6 +61,7 @@ const getActiveKey = (pathname: string): AdminPageKey => {
 
 const PAGE_TITLES: Record<AdminPageKey, string> = {
   overview: "Tổng quan",
+  orders: "Đơn hàng",
   customers: "Khách hàng",
   employees: "Nhân viên",
   departments: "Phòng ban",
@@ -77,6 +81,7 @@ const ALL_SECTIONS: (active: AdminPageKey) => SidebarSection[] = (
     title: "Tổng quan",
     items: [
       { id: "overview", label: "Tổng quan", active: active === "overview" },
+      { id: "orders", label: "Đơn hàng", active: active === "orders" },
       { id: "reports", label: "Báo cáo", active: active === "reports" },
     ],
   },
@@ -129,6 +134,7 @@ const Admin: React.FC = () => {
     >
       <Routes>
         <Route path="overview" element={<OverviewPage />} />
+        <Route path="orders" element={<OrdersPage />} />
         <Route path="reports" element={<ReportsPage />} />
         <Route path="customers" element={<CustomersPage />} />
         <Route path="customers/add" element={<AddCustomerPage />} />

@@ -8,6 +8,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard, Role, Roles, RolesGuard } from '@app/security';
@@ -28,7 +29,7 @@ import { AddPhoneRequest } from './requests/add-phone.request';
 import { RemovePhoneUseCase } from 'apps/customer-service/src/application/use-cases/remove-phone/remove-phone.use-case';
 
 @UseGuards(AuthGuard, RolesGuard)
-@Roles(Role.Admin)
+@Roles(Role.Admin, Role.Employee)
 @Controller('customers')
 export class CustomersController {
   public constructor(
@@ -44,8 +45,10 @@ export class CustomersController {
   ) {}
 
   @Get()
-  public async findAll(): Promise<FindAllCustomerReadModel[]> {
-    return await this.findAllCustomersUseCase.execute();
+  public async findAll(
+    @Query('search') search?: string,
+  ): Promise<FindAllCustomerReadModel[]> {
+    return await this.findAllCustomersUseCase.execute(search);
   }
 
   @Get(':id')

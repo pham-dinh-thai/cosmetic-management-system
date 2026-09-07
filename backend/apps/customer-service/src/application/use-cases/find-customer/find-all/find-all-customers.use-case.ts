@@ -11,36 +11,12 @@ export class FindAllCustomersUseCase {
     private readonly findUserInformationPort: IFindUserInformationPort,
   ) {}
 
-  public async execute(): Promise<FindAllCustomerReadModel[]> {
+  public async execute(search?: string): Promise<FindAllCustomerReadModel[]> {
     const customers = await this.customersRepository.findAll();
 
-    const readModels = await Promise.all(
-      customers.map(async (customer) => {
-        let userInfo: {
-          firstName: string;
-          lastName: string;
-          gender: string;
-          email?: string;
-        } | null = null;
-
-        if (customer.getUserId()) {
-          try {
-            userInfo = await this.findUserInformationPort.execute(
-              customer.getUserId(),
-            );
-          } catch (error) {
-            this.logger.warn(
-              `Failed to load user information for customer ${customer.getId()}`,
-              error instanceof Error ? error.message : undefined,
-            );
-          }
-        }
-
-        const name = userInfo
-          ? `${userInfo.firstName} ${userInfo.lastName}`.trim()
-          : '';
-
-        return new FindAllCustomerReadModel(
+    const readModels = customers.map(
+      (customer) =>
+        new FindAllCustomerReadModel(
           customer.getId(),
           customer.getUserId(),
           customer.getCode(),
@@ -53,7 +29,17 @@ export class FindAllCustomersUseCase {
       }),
     );
 
-    return readModels;
+    if (!search || !search.trim()) {
+      return readModels;
+    }
+
+    const keyword = search.trim().toLowerCase();
+    return readModels.filter(
+      (c) =>
+        c.name.toLowerCase().includes(keyword) ||
+        c.phone.toLowerCase().includes(keyword) ||
+        c.code.toLowerCase().includes(keyword),
+    );
   }
 }
 

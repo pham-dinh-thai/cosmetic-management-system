@@ -9,6 +9,9 @@ export interface IOrdersRepository {
   }): Promise<Order[]>;
   findById(id: string): Promise<Order | null>;
   findMaxCodeSequence(): Promise<number | null>;
+  findBestSellers(
+    limit: number,
+  ): Promise<{ variantId: string; quantitySold: number }[]>;
   create(order: Order): Promise<{ id: string }>;
   replaceLines(
     id: string,
