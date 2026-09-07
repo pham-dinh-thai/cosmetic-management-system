@@ -12,7 +12,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import type { Request } from 'express';
-import { AuthGuard, Role, Roles, RolesGuard } from '@app/security';
+import { AuthGuard, Departments, OrgGuard, Role, Roles } from '@app/security';
 import { FindAllInventoriesUseCase } from 'apps/inventory-service/src/application/use-cases/find-all-inventory/find-all-inventories.use-case';
 import { InventoryReadModel } from 'apps/inventory-service/src/application/use-cases/find-all-inventory/read-models/inventory.read-model';
 import { FindInventoryByVariantUseCase } from 'apps/inventory-service/src/application/use-cases/find-inventory-by-variant/find-inventory-by-variant.use-case';
@@ -28,8 +28,6 @@ import type { StockAdjustmentReason } from 'apps/inventory-service/src/domain/ty
 import { AdjustInventoryRequest } from './requests/adjust-inventory.request';
 import { AddStockAdjustmentRequest } from './requests/add-stock-adjustment.request';
 
-@UseGuards(AuthGuard, RolesGuard)
-@Roles(Role.Admin)
 @Controller('inventory')
 export class InventoryController {
   public constructor(
@@ -54,6 +52,9 @@ export class InventoryController {
     return await this.findInventoryByVariantUseCase.execute(variantId);
   }
 
+  @UseGuards(AuthGuard, OrgGuard)
+  @Roles(Role.Admin, Role.Employee)
+  @Departments('warehouse')
   @Get('adjustments')
   public async findAdjustments(
     @Query('variantId') variantId?: string,
@@ -65,6 +66,9 @@ export class InventoryController {
     });
   }
 
+  @UseGuards(AuthGuard, OrgGuard)
+  @Roles(Role.Admin, Role.Employee)
+  @Departments('warehouse')
   @Get('expiring')
   public async findExpiring(
     @Query('days') days?: number,
@@ -72,6 +76,9 @@ export class InventoryController {
     return await this.findExpiringInventoriesUseCase.execute(days);
   }
 
+  @UseGuards(AuthGuard, OrgGuard)
+  @Roles(Role.Admin, Role.Employee)
+  @Departments('warehouse')
   @Get('overstock')
   public async findOverstock(
     @Query('days') days?: number,
@@ -79,6 +86,9 @@ export class InventoryController {
     return await this.findOverstockInventoriesUseCase.execute(days);
   }
 
+  @UseGuards(AuthGuard, OrgGuard)
+  @Roles(Role.Admin, Role.Employee)
+  @Departments('warehouse')
   @HttpCode(HttpStatus.CREATED)
   @Post('adjustments')
   public async addAdjustment(
@@ -97,6 +107,9 @@ export class InventoryController {
     });
   }
 
+  @UseGuards(AuthGuard, OrgGuard)
+  @Roles(Role.Admin, Role.Employee)
+  @Departments('warehouse')
   @HttpCode(HttpStatus.OK)
   @Patch(':id/adjust')
   public async adjust(

@@ -39,3 +39,7 @@ export class UpdateDepartmentUseCase {
     await this.departmentsRepository.update(id, department);
   }
 }
+
+export const updateDepartmentUseCaseFactory = (
+  departmentsRepository: IDepartmentsRepository,
+) => new UpdateDepartmentUseCase(departmentsRepository);
