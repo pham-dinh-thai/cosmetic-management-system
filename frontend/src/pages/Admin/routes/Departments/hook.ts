@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { toast } from "sonner";
 import { departmentsService } from "../../../../services/departments.service";
 import type { Department } from "./type";
 
@@ -20,8 +21,14 @@ export function useDepartments() {
   }, [fetchDepartments]);
 
   const handleDeleteDepartment = async (id: string) => {
-    await departmentsService.deleteDepartment(id);
-    fetchDepartments();
+    try {
+      await departmentsService.deleteDepartment(id);
+      toast.success("Đã xoá phòng ban thành công");
+      fetchDepartments();
+    } catch (error) {
+      console.error(error);
+      toast.error("Lỗi khi xoá phòng ban");
+    }
   };
 
   const filtered = departments.filter(

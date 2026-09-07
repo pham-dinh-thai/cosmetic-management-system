@@ -130,7 +130,7 @@ const ProductsPage: React.FC = () => {
     <div className="flex flex-col gap-8">
       <PageHeader
         eyebrow="Quản lý / Sản phẩm"
-        title="Sản phẩm"
+        title="Danh sách sản phẩm"
         description="Danh mục mỹ phẩm Guardian — sữa rửa mặt, tinh chất, kem dưỡng và các sản phẩm chăm sóc da chuyên sâu."
         actions={
           <Button variant="primary" onClick={() => navigate("/admin/products/add")}>

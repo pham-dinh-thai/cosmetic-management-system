@@ -5,6 +5,7 @@ import { employeesService } from "../../../../services/employees.service";
 import { departmentsService } from "../../../../services/departments.service";
 import type { Department } from "../Departments/type";
 import type { Employee } from "../Employees/type";
+import { toast } from "sonner";
 
 const EditEmployeePage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -44,7 +45,7 @@ const EditEmployeePage: React.FC = () => {
         })
         .catch(err => {
           console.error(err);
-          alert("Không thể tải thông tin nhân viên");
+          toast.error("Không thể tải thông tin nhân viên");
           navigate("/admin/employees");
         })
         .finally(() => {
@@ -65,10 +66,11 @@ const EditEmployeePage: React.FC = () => {
     setLoading(true);
     try {
       await employeesService.updateEmployee(id, formData);
+      toast.success("Đã cập nhật nhân viên thành công");
       navigate("/admin/employees");
     } catch (error) {
       console.error(error);
-      alert("Đã có lỗi xảy ra khi cập nhật nhân viên");
+      toast.error("Đã có lỗi xảy ra khi cập nhật nhân viên");
     } finally {
       setLoading(false);
     }

@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { toast } from "sonner";
 import { employeesService } from "../../../../services/employees.service";
 import { departmentsService } from "../../../../services/departments.service";
 import type { Employee } from "./type";
@@ -55,8 +56,14 @@ export function useEmployees() {
   }, [fetchEmployees]);
 
   const handleDeleteEmployee = async (id: string) => {
-    await employeesService.deleteEmployee(id);
-    fetchEmployees();
+    try {
+      await employeesService.deleteEmployee(id);
+      toast.success("Đã xoá nhân viên thành công");
+      fetchEmployees();
+    } catch (error) {
+      console.error(error);
+      toast.error("Lỗi khi xoá nhân viên");
+    }
   };
 
   const filtered = employees.filter(

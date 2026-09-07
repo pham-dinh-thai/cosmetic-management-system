@@ -1,11 +1,50 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { PageHeader, Input, Button } from "../../../../components/ui/Primitives";
 import { DataTable, type Column } from "../../../../components/ui/DataTable";
+import { ConfirmModal } from "../../../../components/ui/ConfirmModal";
 import { usePurchaseOrders } from "./hook";
+import { openPurchaseReceiptPrint } from "../../../../services/purchase-orders.service";
 import type { PurchaseOrder } from "./type";
 
+const statusMeta: Record<
+  PurchaseOrder["status"],
+  { label: string; className: string }
+> = {
+  PENDING: {
+    label: "Chờ nhập kho",
+    className: "bg-[#f3f0d9] text-[#9f995b]",
+  },
+  COMPLETED: {
+    label: "Đã nhập kho",
+    className: "bg-[#e3ecd9] text-[#1c3a13]",
+  },
+  CANCELLED: {
+    label: "Đã hủy",
+    className: "bg-[#f0ded9] text-[#8f3f2a]",
+  },
+};
+
 const PurchaseOrdersPage: React.FC = () => {
-  const { orders, loading, q, setQ } = usePurchaseOrders();
+  const navigate = useNavigate();
+  const { orders, loading, q, setQ, handleDeleteOrder } = usePurchaseOrders();
+
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [orderToDelete, setOrderToDelete] = useState<PurchaseOrder | null>(null);
+
+  const openDelete = (o: PurchaseOrder) => {
+    setOrderToDelete(o);
+    setIsConfirmOpen(true);
+  };
+
+  const onConfirmDelete = async () => {
+    const target = orderToDelete;
+    setIsConfirmOpen(false);
+    setOrderToDelete(null);
+    if (target) {
+      await handleDeleteOrder(target.id);
+    }
+  };
 
   const columns = useMemo<Column<PurchaseOrder>[]>(
     () => [
@@ -27,26 +66,42 @@ const PurchaseOrdersPage: React.FC = () => {
         render: (o) => (
           <span
             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-[0.18em] ${
-              o.status === "COMPLETED"
-                ? "bg-[#e3ecd9] text-[#1c3a13]"
-                : "bg-[#f3f0d9] text-[#9f995b]"
+              statusMeta[o.status]?.className ?? "bg-[#eeeee9] text-[#666666]"
             }`}
           >
-            {o.status === "COMPLETED" ? "Đã nhập kho" : "Phiếu tạm"}
+            {statusMeta[o.status]?.label ?? o.status}
           </span>
         ),
       },
+      {
+        key: "actions",
+        header: "Thao tác",
+        className: "text-right",
+        render: (o) => (
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" size="sm" onClick={() => openPurchaseReceiptPrint(o.id)}>
+              In
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => navigate(`/admin/purchase/${o.id}/edit`)}>
+              Sửa
+            </Button>
+            <Button variant="outline" size="sm" className="text-red-600 border-red-600 hover:bg-red-600 hover:text-white" disabled={o.status === "COMPLETED"} onClick={() => openDelete(o)}>
+              Xóa
+            </Button>
+          </div>
+        ),
+      },
     ],
-    [],
+    [navigate],
   );
 
   return (
     <div className="flex flex-col gap-8">
       <PageHeader
         eyebrow="Quản lý / Nhập hàng"
-        title="Phiếu nhập hàng"
+        title="Danh sách phiếu nhập hàng"
         description="Quản lý việc nhập thêm hàng hóa và bổ sung tồn kho mỹ phẩm."
-        actions={<Button variant="primary">+ Tạo phiếu nhập</Button>}
+        actions={<Button variant="primary" onClick={() => navigate("/admin/purchase/add")}>+ Tạo phiếu nhập</Button>}
       />
       <div className="max-w-md">
         <Input
@@ -60,6 +115,15 @@ const PurchaseOrdersPage: React.FC = () => {
       ) : (
         <DataTable columns={columns} rows={orders} rowKey={(o) => o.id} empty="Chưa có phiếu nhập hàng" />
       )}
+
+      <ConfirmModal
+        isOpen={isConfirmOpen}
+        title="Xóa phiếu nhập"
+        message={`Bạn có chắc chắn muốn xóa phiếu ${orderToDelete?.code}? Hành động này không thể hoàn tác.`}
+        onConfirm={onConfirmDelete}
+        onCancel={() => setIsConfirmOpen(false)}
+        isDestructive={true}
+      />
     </div>
   );
 };

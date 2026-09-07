@@ -100,7 +100,7 @@ const Login: React.FC = () => {
               )}
 
               {/* Social Login Buttons */}
-              <div className="grid grid-cols-2 gap-3 mb-6">
+              {/* <div className="grid grid-cols-2 gap-3 mb-6">
                 <button
                   type="button"
                   className="flex items-center justify-center gap-2 py-2.5 px-4 border border-zinc-200 rounded-xl text-xs font-medium text-zinc-700 hover:bg-zinc-50 hover:border-zinc-300 transition-colors"
@@ -138,15 +138,15 @@ const Login: React.FC = () => {
                   </svg>
                   <span>Apple</span>
                 </button>
-              </div>
+              </div> */}
 
               {/* Divider */}
-              <div className="relative flex items-center justify-center mb-6">
+              {/* <div className="relative flex items-center justify-center mb-6">
                 <div className="w-full border-t border-zinc-200"></div>
                 <span className="px-3 bg-white text-[11px] uppercase tracking-wider text-zinc-400">
                   hoặc bằng email
                 </span>
-              </div>
+              </div> */}
 
               {/* Form Fields */}
               <form className="space-y-4" onSubmit={handleSubmit}>

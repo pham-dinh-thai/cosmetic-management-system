@@ -5,6 +5,7 @@ import { employeesService } from "../../../../services/employees.service";
 import { departmentsService } from "../../../../services/departments.service";
 import type { Department } from "../Departments/type";
 import type { Employee } from "../Employees/type";
+import { toast } from "sonner";
 
 const AddEmployeePage: React.FC = () => {
   const navigate = useNavigate();
@@ -48,10 +49,11 @@ const AddEmployeePage: React.FC = () => {
     setLoading(true);
     try {
       await employeesService.createEmployee(formData);
+      toast.success("Đã thêm nhân viên thành công");
       navigate("/admin/employees");
     } catch (error) {
       console.error(error);
-      alert("Đã có lỗi xảy ra khi thêm nhân viên");
+      toast.error("Đã có lỗi xảy ra khi thêm nhân viên");
     } finally {
       setLoading(false);
     }

@@ -10,8 +10,10 @@ import { PurchaseOrdersController } from './presentation/public/purchase-orders/
 import { DomainErrorFilter } from './presentation/filters/domain-error.filter';
 import { PURCHASE_ORDERS_REPOSITORY } from './domain/repositories/purchase-orders.repository';
 import { ADD_STOCK_PORT } from './domain/ports/add-stock.port';
+import { RECEIPT_ENRICHMENT_PORT } from './domain/ports/receipt-enrichment.port';
 import { MikroPurchaseOrdersRepository } from './infrastructure/repositories/mikro-purchase-orders.repository';
 import { AddStockAdapter } from './infrastructure/adapters/add-stock.adapter';
+import { ReceiptEnrichmentAdapter } from './infrastructure/adapters/receipt-enrichment.adapter';
 import {
   CreatePurchaseOrderUseCase,
   createPurchaseOrderUseCaseFactory,
@@ -44,6 +46,10 @@ import {
   FindPurchaseTransactionsUseCase,
   findPurchaseTransactionsUseCaseFactory,
 } from './application/use-cases/find-purchase-transactions/find-purchase-transactions.use-case';
+import {
+  PrintPurchaseOrderUseCase,
+  printPurchaseOrderUseCaseFactory,
+} from './application/use-cases/print-purchase-order/print-purchase-order.use-case';
 import { PURCHASE_TRANSACTIONS_REPOSITORY } from './domain/repositories/purchase-transactions.repository';
 import { MikroPurchaseTransactionsRepository } from './infrastructure/repositories/mikro-purchase-transactions.repository';
 import { PurchaseTransaction } from './infrastructure/entities/purchase-transaction.entity';
@@ -87,6 +93,11 @@ import { PurchaseTransaction } from './infrastructure/entities/purchase-transact
     {
       provide: ADD_STOCK_PORT,
       useFactory: (config: ConfigService) => new AddStockAdapter(config),
+      inject: [ConfigService],
+    },
+    {
+      provide: RECEIPT_ENRICHMENT_PORT,
+      useFactory: (config: ConfigService) => new ReceiptEnrichmentAdapter(config),
       inject: [ConfigService],
     },
     {
@@ -135,6 +146,11 @@ import { PurchaseTransaction } from './infrastructure/entities/purchase-transact
       provide: DeletePurchaseOrderUseCase,
       useFactory: deletePurchaseOrderUseCaseFactory,
       inject: [PURCHASE_ORDERS_REPOSITORY],
+    },
+    {
+      provide: PrintPurchaseOrderUseCase,
+      useFactory: printPurchaseOrderUseCaseFactory,
+      inject: [PURCHASE_ORDERS_REPOSITORY, RECEIPT_ENRICHMENT_PORT],
     },
     {
       provide: FindPurchaseTransactionsUseCase,

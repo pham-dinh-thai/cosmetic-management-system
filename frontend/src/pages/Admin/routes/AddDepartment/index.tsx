@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { PageHeader, Input, Button, Card, Select } from "../../../../components/ui/Primitives";
 import { departmentsService } from "../../../../services/departments.service";
 import type { Department } from "../Departments/type";
+import { toast } from "sonner";
 
 const AddDepartmentPage: React.FC = () => {
   const navigate = useNavigate();
@@ -45,10 +46,11 @@ const AddDepartmentPage: React.FC = () => {
     setLoading(true);
     try {
       await departmentsService.createDepartment(formData);
+      toast.success("Đã thêm phòng ban thành công");
       navigate("/admin/departments");
     } catch (error) {
       console.error(error);
-      alert("Đã có lỗi xảy ra khi thêm phòng ban");
+      toast.error("Đã có lỗi xảy ra khi thêm phòng ban");
     } finally {
       setLoading(false);
     }

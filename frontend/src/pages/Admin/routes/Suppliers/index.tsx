@@ -79,7 +79,7 @@ const SuppliersPage: React.FC = () => {
     <div className="flex flex-col gap-8">
       <PageHeader
         eyebrow="Quản lý / Nhà cung cấp"
-        title="Nhà cung cấp"
+        title="Danh sách nhà cung cấp"
         description="Quản lý thông tin các nhà phân phối và nhà sản xuất mỹ phẩm."
         actions={<Button variant="primary" onClick={openAdd}>+ Thêm nhà cung cấp</Button>}
       />

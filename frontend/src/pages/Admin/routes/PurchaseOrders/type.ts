@@ -1,15 +1,11 @@
-export interface PurchaseItem {
-  variantId: string;
-  variantName: string;
-  quantity: number;
-  unitPrice: number;
-}
+export type PurchaseOrderStatus = "PENDING" | "COMPLETED" | "CANCELLED";
 
 export interface PurchaseOrder {
   id: string;
   code: string;
+  supplierId: string;
   supplierName: string;
   createdDate: string;
   totalAmount: number;
-  status: "DRAFT" | "COMPLETED";
+  status: PurchaseOrderStatus;
 }

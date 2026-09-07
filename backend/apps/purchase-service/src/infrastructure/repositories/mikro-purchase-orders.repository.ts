@@ -91,6 +91,7 @@ export class MikroPurchaseOrdersRepository implements IPurchaseOrdersRepository 
         quantity: line.getQuantity(),
         unitPrice: line.getUnitPrice(),
       });
+      this.em.persist(lineEntity);
       entity.lines.add(lineEntity);
     }
 
@@ -114,6 +115,7 @@ export class MikroPurchaseOrdersRepository implements IPurchaseOrdersRepository 
     }
 
     entity.lines.removeAll();
+    this.em.persist(entity);
     await this.em.flush();
 
     for (const line of lines) {
@@ -123,6 +125,7 @@ export class MikroPurchaseOrdersRepository implements IPurchaseOrdersRepository 
         quantity: line.quantity,
         unitPrice: line.unitPrice,
       });
+      this.em.persist(lineEntity);
       entity.lines.add(lineEntity);
     }
 
@@ -167,8 +170,10 @@ export class MikroPurchaseOrdersRepository implements IPurchaseOrdersRepository 
       return null;
     }
 
+    const domain = PurchaseOrdersMapper.toDomain(entity);
+
     await this.em.remove(entity).flush();
 
-    return PurchaseOrdersMapper.toDomain(entity);
+    return domain;
   }
 }

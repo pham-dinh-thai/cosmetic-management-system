@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { PageHeader, Input, Button, Card, Select } from "../../../../components/ui/Primitives";
 import { departmentsService } from "../../../../services/departments.service";
 import type { Department } from "../Departments/type";
+import { toast } from "sonner";
 
 const EditDepartmentPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -30,7 +31,7 @@ const EditDepartmentPage: React.FC = () => {
         })
         .catch(err => {
           console.error(err);
-          alert("Không thể tải thông tin phòng ban");
+          toast.error("Không thể tải thông tin phòng ban");
           navigate("/admin/departments");
         })
         .finally(() => {
@@ -71,10 +72,11 @@ const EditDepartmentPage: React.FC = () => {
     setLoading(true);
     try {
       await departmentsService.updateDepartment(id, formData);
+      toast.success("Đã cập nhật phòng ban thành công");
       navigate("/admin/departments");
     } catch (error) {
       console.error(error);
-      alert("Đã có lỗi xảy ra khi cập nhật phòng ban");
+      toast.error("Đã có lỗi xảy ra khi cập nhật phòng ban");
     } finally {
       setLoading(false);
     }
