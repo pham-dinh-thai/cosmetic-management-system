@@ -4,6 +4,19 @@ import type { UserProfile } from "../store/useAuthStore";
 
 export type DepartmentCode = "sales" | "warehouse";
 
+export const SALES_EMPLOYEE_PAGES: EmployeePageKey[] = [
+  "orders",
+  "products",
+  "categories",
+  "pos",
+];
+
+export const WAREHOUSE_EMPLOYEE_PAGES: EmployeePageKey[] = [
+  "suppliers",
+  "purchase",
+  "inventory",
+];
+
 export function isAdmin(user: UserProfile | null): boolean {
   return user?.role === "admin";
 }
@@ -48,9 +61,9 @@ export function getAccessibleEmployeePages(
 
   switch (user?.departmentCode as DepartmentCode | undefined) {
     case "sales":
-      return ["products", "categories", "pos"];
+      return SALES_EMPLOYEE_PAGES;
     case "warehouse":
-      return ["suppliers", "purchase", "inventory"];
+      return WAREHOUSE_EMPLOYEE_PAGES;
     default:
       return [];
   }

@@ -34,6 +34,10 @@ const OrdersPage: React.FC = () => {
     setConfirmComplete,
     handleCompleteConfirm,
     handleCancelConfirm,
+    detailOrder,
+    setDetailOrder,
+    loadingDetail,
+    handleViewDetail,
   } = useOrders();
 
   const columns: Column<OrderReadModel>[] = useMemo(
@@ -78,7 +82,7 @@ const OrdersPage: React.FC = () => {
         className: 'text-right',
         render: (o) => (
           <div className="flex justify-end gap-2">
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" onClick={() => handleViewDetail(o)}>
               Chi tiết
             </Button>
             <Button
@@ -162,6 +166,105 @@ const OrdersPage: React.FC = () => {
         onCancel={() => setConfirmComplete({ isOpen: false, order: null })}
         isDestructive={false}
       />
+
+      {detailOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-[#fcfcf7] border border-[#1c3a13] rounded-2xl p-6 w-[90%] max-w-[720px] max-h-[85vh] overflow-y-auto shadow-2xl flex flex-col gap-6">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex flex-col gap-1">
+                <h3 className="text-[20px] text-[#1c3a13] font-medium">
+                  Chi tiết đơn hàng {detailOrder.detail.code}
+                </h3>
+                <p className="text-[13px] text-[#666666]">
+                  Khách hàng:{' '}
+                  <span className="font-medium text-[#1c3a13]">
+                    {detailOrder.order.customerName || 'Khách lẻ (Tại quầy)'}
+                  </span>
+                </p>
+              </div>
+              <span
+                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-[0.18em] ${statusMeta[detailOrder.detail.status as OrderStatus]?.className || 'bg-[#eeeee9] text-[#666666]'}`}
+              >
+                {statusMeta[detailOrder.detail.status as OrderStatus]?.label ||
+                  detailOrder.detail.status}
+              </span>
+            </div>
+
+            {loadingDetail ? (
+              <div className="space-y-2 animate-pulse">
+                <div className="h-[44px] rounded bg-[#eeeee9]" />
+                <div className="h-[44px] rounded bg-[#eeeee9]" />
+                <div className="h-[44px] rounded bg-[#eeeee9]" />
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-[13px]">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[#8a8a8a]">Hình thức</span>
+                    <span className="font-medium text-[#1c3a13]">
+                      {{ CASH: 'Tiền mặt', BANK_TRANSFER: 'Chuyển khoản', CARD: 'Thẻ' }[detailOrder.order.paymentMethod] || detailOrder.order.paymentMethod}
+                    </span>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[#8a8a8a]">Ngày tạo</span>
+                    <span className="font-medium text-[#1c3a13]">
+                      {(() => {
+                        const date = new Date(detailOrder.order.createdAt);
+                        return Number.isNaN(date.getTime()) ? detailOrder.order.createdAt : date.toLocaleString('vi-VN');
+                      })()}
+                    </span>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[#8a8a8a]">Số dòng</span>
+                    <span className="font-medium text-[#1c3a13]">
+                      {detailOrder.detail.lines.length}
+                    </span>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[#8a8a8a]">Tổng tiền</span>
+                    <span className="font-mono font-medium text-[#1c3a13]">
+                      {detailOrder.detail.totalAmount.toLocaleString('vi-VN')}₫
+                    </span>
+                  </div>
+                </div>
+
+                <div className="rounded-[12px] border border-[#eeeee9] overflow-hidden">
+                  <table className="w-full text-[13px]">
+                    <thead>
+                      <tr className="bg-[#f5f5ef] text-left text-[#8a8a8a]">
+                        <th className="px-4 py-2.5 font-medium">Sản phẩm (Variant)</th>
+                        <th className="px-4 py-2.5 font-medium text-right">Đơn giá</th>
+                        <th className="px-4 py-2.5 font-medium text-right">SL</th>
+                        <th className="px-4 py-2.5 font-medium text-right">Thành tiền</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {detailOrder.detail.lines.map((line) => (
+                        <tr key={line.id} className="border-t border-[#eeeee9]">
+                          <td className="px-4 py-2.5 font-mono text-[12px]">{line.variantId}</td>
+                          <td className="px-4 py-2.5 text-right font-mono">
+                            {line.unitPrice.toLocaleString('vi-VN')}₫
+                          </td>
+                          <td className="px-4 py-2.5 text-right">{line.quantity}</td>
+                          <td className="px-4 py-2.5 text-right font-mono font-medium">
+                            {line.subtotal.toLocaleString('vi-VN')}₫
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            )}
+
+            <div className="flex justify-end gap-3 pt-2">
+              <Button variant="outline" onClick={() => setDetailOrder(null)}>
+                Đóng
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
