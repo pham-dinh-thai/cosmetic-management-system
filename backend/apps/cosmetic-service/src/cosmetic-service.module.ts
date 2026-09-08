@@ -8,6 +8,11 @@ import { CosmeticVariant } from './infrastructure/entities/cosmetic-variant.enti
 import { CosmeticCategory } from './infrastructure/entities/cosmetic-category.entity';
 import { CosmeticsController } from './presentation/public/cosmetics/cosmetics.controller';
 import { InternalCosmeticsController } from './presentation/internal/cosmetics/cosmetics.controller';
+import {
+  StockReaderAdapter,
+  STOCK_READER_PORT,
+  type IStockReaderPort,
+} from './infrastructure/adapters/stock-reader.adapter';
 import { COSMETICS_REPOSITORY } from './domain/repositories/cosmetics.repository';
 import { MikroCosmeticsRepository } from './infrastructure/repositories/mikro-cosmetics.repository';
 import {
@@ -93,6 +98,11 @@ import {
   providers: [
     { provide: COSMETICS_REPOSITORY, useClass: MikroCosmeticsRepository },
     {
+      provide: STOCK_READER_PORT,
+      useFactory: (config: ConfigService) => new StockReaderAdapter(config),
+      inject: [ConfigService],
+    },
+    {
       provide: FindVariantByIdUseCase,
       useFactory: findVariantByIdUseCaseFactory,
       inject: [COSMETICS_REPOSITORY],
@@ -105,7 +115,7 @@ import {
     {
       provide: FindCosmeticByIdUseCase,
       useFactory: findCosmeticByIdUseCaseFactory,
-      inject: [COSMETICS_REPOSITORY],
+      inject: [COSMETICS_REPOSITORY, STOCK_READER_PORT],
     },
     {
       provide: FindAllCosmeticsUseCase,

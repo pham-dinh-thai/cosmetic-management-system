@@ -15,6 +15,8 @@ export class FindCosmeticByIdReadModel {
       price: number;
       costPrice: number | null;
       isActive: boolean;
+      quantity: number;
+      minStock: number;
     }[],
     public readonly categoryIds: string[],
     public readonly isActive: boolean,
