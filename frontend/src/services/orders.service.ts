@@ -43,16 +43,23 @@ export interface OrderReadModel {
   createdAt: string;
 }
 
-export interface OrderDetailReadModel extends OrderReadModel {
-  items: {
-    id: string;
-    variantId: string;
-    quantity: number;
-    unitPrice: number;
-    amount: number;
-    cosmeticName?: string;
-    variantName?: string;
-  }[];
+export interface OrderDetailLine {
+  id: string;
+  variantId: string;
+  quantity: number;
+  unitPrice: number;
+  subtotal: number;
+}
+
+export interface OrderDetailReadModel {
+  id: string;
+  code: string;
+  customerId: string;
+  status: OrderStatus;
+  totalAmount: number;
+  lines: OrderDetailLine[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 export const ordersService = {

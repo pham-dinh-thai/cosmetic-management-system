@@ -11,6 +11,7 @@ import {
 import NotFound from "../NotFound";
 
 import PosPage from "./routes/POS";
+import OrdersPage from "../Admin/routes/Orders";
 import ProductsPage from "../Admin/routes/Products";
 import AddProductPage from "../Admin/routes/AddProduct";
 import EditProductPage from "../Admin/routes/EditProduct";
@@ -28,6 +29,7 @@ import EditInventoryPage from "../Admin/routes/EditInventory";
 
 export type EmployeePageKey =
   | "pos"
+  | "orders"
   | "products"
   | "categories"
   | "suppliers"
@@ -35,6 +37,7 @@ export type EmployeePageKey =
   | "inventory";
 
 const getActiveKey = (pathname: string): EmployeePageKey => {
+  if (pathname.includes("/employee/orders")) return "orders";
   if (pathname.includes("/employee/products")) return "products";
   if (pathname.includes("/employee/categories")) return "categories";
   if (pathname.includes("/employee/suppliers")) return "suppliers";
@@ -45,6 +48,7 @@ const getActiveKey = (pathname: string): EmployeePageKey => {
 
 const PAGE_TITLES: Record<EmployeePageKey, string> = {
   pos: "Bán hàng",
+  orders: "Đơn hàng",
   products: "Sản phẩm",
   categories: "Danh mục",
   suppliers: "Nhà cung cấp",
@@ -58,18 +62,22 @@ const buildSections = (
 ): SidebarSection[] => {
   const sections: SidebarSection[] = [];
 
-  if (accessible.includes("products") || accessible.includes("categories")) {
+  const salesItems: SidebarSection["items"] = [];
+  if (accessible.includes("orders")) {
+    salesItems.push({ id: "orders", label: "Đơn hàng", active: active === "orders" });
+  }
+  if (accessible.includes("products")) {
+    salesItems.push({ id: "products", label: "Sản phẩm", active: active === "products" });
+  }
+  if (accessible.includes("categories")) {
+    salesItems.push({ id: "categories", label: "Danh mục", active: active === "categories" });
+  }
+
+  if (salesItems.length > 0) {
     sections.push({
-      id: "catalog",
-      title: "Sản phẩm",
-      items: [
-        ...(accessible.includes("products")
-          ? [{ id: "products", label: "Sản phẩm", active: active === "products" }]
-          : []),
-        ...(accessible.includes("categories")
-          ? [{ id: "categories", label: "Danh mục", active: active === "categories" }]
-          : []),
-      ],
+      id: "sales",
+      title: "Kinh doanh",
+      items: salesItems,
     });
   }
 
@@ -143,6 +151,7 @@ const Employee: React.FC = () => {
     >
       <Routes>
         <Route path="pos" element={<PosPage />} />
+        <Route path="orders" element={<OrdersPage />} />
         <Route path="products" element={<ProductsPage />} />
         <Route path="products/add" element={<AddProductPage />} />
         <Route path="products/:id/edit" element={<EditProductPage />} />
