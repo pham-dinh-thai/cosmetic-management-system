@@ -5,6 +5,7 @@ import { DataTable, type Column } from "../../../../components/ui/DataTable";
 import { purchaseOrdersService, openPurchaseReceiptPrint } from "../../../../services/purchase-orders.service";
 import { suppliersService } from "../../../../services/suppliers.service";
 import { productsService, type CosmeticDetail } from "../../../../services/products.service";
+import { useBasePath } from "../../../../lib/useBasePath";
 import { toast } from "sonner";
 
 interface EditableLine {
@@ -29,6 +30,7 @@ const newLine = (): EditableLine => ({
 
 const AddPurchaseOrderPage: React.FC = () => {
   const navigate = useNavigate();
+  const basePath = useBasePath();
 
   const [suppliers, setSuppliers] = useState<{ id: string; name: string }[]>([]);
   const [variantOptions, setVariantOptions] = useState<VariantOption[]>([]);
@@ -123,7 +125,7 @@ const AddPurchaseOrderPage: React.FC = () => {
     const created = await createOrder();
     if (!created) return;
     toast.success("Đã tạo phiếu nhập thành công");
-    navigate("/admin/purchase");
+    navigate(`${basePath}/purchase`);
   };
 
   const handlePrint = async () => {
@@ -262,7 +264,7 @@ const AddPurchaseOrderPage: React.FC = () => {
       </Card>
 
       <div className="flex justify-end gap-3 pt-4 border-t border-[#eeeee9]">
-        <Button variant="outline" onClick={() => navigate("/admin/purchase")}>
+        <Button variant="outline" onClick={() => navigate(`${basePath}/purchase`)}>
           Huỷ
         </Button>
         <Button variant="outline" onClick={handlePrint} disabled={saving || !supplierId}>

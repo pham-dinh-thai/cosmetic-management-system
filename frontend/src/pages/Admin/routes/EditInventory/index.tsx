@@ -4,10 +4,12 @@ import { PageHeader, Card, Input, Button } from "../../../../components/ui/Primi
 import { toast } from "sonner";
 import { productsService } from "../../../../services/products.service";
 import { inventoryApi } from "../Inventory/api";
+import { useBasePath } from "../../../../lib/useBasePath";
 
 const EditInventoryPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const basePath = useBasePath();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -76,7 +78,7 @@ const EditInventoryPage: React.FC = () => {
       }
       await inventoryApi.updateMinStock(id, minStock);
       toast.success("Cập nhật tồn kho thành công");
-      navigate("/admin/inventory");
+      navigate(`${basePath}/inventory`);
     } catch (error) {
       console.error(error);
       const message = (
@@ -151,7 +153,7 @@ const EditInventoryPage: React.FC = () => {
             </div>
 
             <div className="flex justify-end gap-3 pt-4 mt-2 border-t border-[#eeeee9]">
-              <Button type="button" variant="outline" onClick={() => navigate("/admin/inventory")}>
+              <Button type="button" variant="outline" onClick={() => navigate(`${basePath}/inventory`)}>
                 Hủy
               </Button>
               <Button type="submit" variant="primary" disabled={saving}>
