@@ -3,9 +3,11 @@ import { addProductApi } from "./api";
 import type { CategorySummary, CreateVariantPayload } from "./type";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { useBasePath } from "../../../../lib/useBasePath";
 
 export function useAddProduct() {
   const navigate = useNavigate();
+  const basePath = useBasePath();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [categories, setCategories] = useState<CategorySummary[]>([]);
@@ -124,7 +126,7 @@ export function useAddProduct() {
         })),
       });
       toast.success("Đã thêm sản phẩm thành công!");
-      navigate("/admin/products");
+      navigate(`${basePath}/products`);
     } catch (err: any) {
       const msg =
         err?.response?.data?.message || "Đã xảy ra lỗi khi tạo sản phẩm.";
@@ -149,6 +151,6 @@ export function useAddProduct() {
     addVariant,
     removeVariant,
     handleSubmit,
-    onBack: () => navigate("/admin/products"),
+    onBack: () => navigate(`${basePath}/products`),
   };
 }

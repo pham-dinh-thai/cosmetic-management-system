@@ -6,10 +6,12 @@ import { DataTable, type Column } from "../../../../components/ui/DataTable";
 import { ConfirmModal } from "../../../../components/ui/ConfirmModal";
 import { useInventory } from "./hook";
 import { inventoryApi } from "./api";
+import { useBasePath } from "../../../../lib/useBasePath";
 import type { InventoryItem } from "./type";
 
 const InventoryPage: React.FC = () => {
   const navigate = useNavigate();
+  const basePath = useBasePath();
   const { inventory, loading, q, setQ, reload } = useInventory();
 
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -36,7 +38,7 @@ const InventoryPage: React.FC = () => {
   };
 
   const openEdit = (i: InventoryItem) => {
-    navigate(`/admin/inventory/${i.id}/edit`);
+    navigate(`${basePath}/inventory/${i.id}/edit`);
   };
 
   const openDelete = (i: InventoryItem) => {
@@ -121,7 +123,7 @@ const InventoryPage: React.FC = () => {
         title="Quản lý tồn kho"
         description="Theo dõi số lượng sản phẩm lưu kho."
         actions={
-          <Button variant="primary" onClick={() => navigate("/admin/inventory/add")}>
+          <Button variant="primary" onClick={() => navigate(`${basePath}/inventory/add`)}>
             + Nhập kho
           </Button>
         }

@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { productDetailApi } from "./api";
+import { useBasePath } from "../../../../lib/useBasePath";
 import type { CosmeticDetail } from "./type";
 
 export function useProductDetail() {
   const { id } = useParams<{ id: string }>();
   const productId = id || "";
   const navigate = useNavigate();
+  const basePath = useBasePath();
 
   const [product, setProduct] = useState<CosmeticDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -44,6 +46,6 @@ export function useProductDetail() {
     product,
     loading,
     error,
-    onBack: () => navigate("/admin/products"),
+    onBack: () => navigate(`${basePath}/products`),
   };
 }

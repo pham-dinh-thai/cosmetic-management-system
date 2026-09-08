@@ -5,6 +5,7 @@ import { DataTable, type Column } from "../../../../components/ui/DataTable";
 import { ConfirmModal } from "../../../../components/ui/ConfirmModal";
 import { usePurchaseOrders } from "./hook";
 import { openPurchaseReceiptPrint } from "../../../../services/purchase-orders.service";
+import { useBasePath } from "../../../../lib/useBasePath";
 import type { PurchaseOrder } from "./type";
 
 const statusMeta: Record<
@@ -27,6 +28,7 @@ const statusMeta: Record<
 
 const PurchaseOrdersPage: React.FC = () => {
   const navigate = useNavigate();
+  const basePath = useBasePath();
   const { orders, loading, q, setQ, handleDeleteOrder } = usePurchaseOrders();
 
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -82,7 +84,7 @@ const PurchaseOrdersPage: React.FC = () => {
             <Button variant="outline" size="sm" onClick={() => openPurchaseReceiptPrint(o.id)}>
               In
             </Button>
-            <Button variant="outline" size="sm" onClick={() => navigate(`/admin/purchase/${o.id}/edit`)}>
+            <Button variant="outline" size="sm" onClick={() => navigate(`${basePath}/purchase/${o.id}/edit`)}>
               Sửa
             </Button>
             <Button variant="outline" size="sm" className="text-red-600 border-red-600 hover:bg-red-600 hover:text-white" disabled={o.status === "COMPLETED"} onClick={() => openDelete(o)}>
@@ -101,7 +103,7 @@ const PurchaseOrdersPage: React.FC = () => {
         eyebrow="Quản lý / Nhập hàng"
         title="Danh sách phiếu nhập hàng"
         description="Quản lý việc nhập thêm hàng hóa và bổ sung tồn kho mỹ phẩm."
-        actions={<Button variant="primary" onClick={() => navigate("/admin/purchase/add")}>+ Tạo phiếu nhập</Button>}
+        actions={<Button variant="primary" onClick={() => navigate(`${basePath}/purchase/add`)}>+ Tạo phiếu nhập</Button>}
       />
       <div className="max-w-md">
         <Input

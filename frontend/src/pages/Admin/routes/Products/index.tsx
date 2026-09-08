@@ -4,6 +4,7 @@ import { PageHeader, Button, Input, Select } from "../../../../components/ui/Pri
 import { DataTable, type Column } from "../../../../components/ui/DataTable";
 import { ConfirmModal } from "../../../../components/ui/ConfirmModal";
 import { useProducts } from "./hook";
+import { useBasePath } from "../../../../lib/useBasePath";
 import type { CosmeticSummary, StatusFilter } from "./type";
 
 const STATUS_OPTIONS = [
@@ -20,6 +21,7 @@ const SORT_OPTIONS = [
 
 const ProductsPage: React.FC = () => {
   const navigate = useNavigate();
+  const basePath = useBasePath();
   const {
     filtered,
     loading,
@@ -99,14 +101,14 @@ const ProductsPage: React.FC = () => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate(`/admin/products/${p.id}`)}
+              onClick={() => navigate(`${basePath}/products/${p.id}`)}
             >
               Xem chi tiết
             </Button>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => navigate(`/admin/products/${p.id}/edit`)}
+              onClick={() => navigate(`${basePath}/products/${p.id}/edit`)}
             >
               Sửa
             </Button>
@@ -123,7 +125,7 @@ const ProductsPage: React.FC = () => {
         ),
       },
     ],
-    [navigate, deletingId, setConfirmDelete],
+    [basePath, navigate, deletingId, setConfirmDelete],
   );
 
   return (
@@ -133,7 +135,7 @@ const ProductsPage: React.FC = () => {
         title="Danh sách sản phẩm"
         description="Danh mục mỹ phẩm Guardian — sữa rửa mặt, tinh chất, kem dưỡng và các sản phẩm chăm sóc da chuyên sâu."
         actions={
-          <Button variant="primary" onClick={() => navigate("/admin/products/add")}>
+          <Button variant="primary" onClick={() => navigate(`${basePath}/products/add`)}>
             + Thêm sản phẩm
           </Button>
         }

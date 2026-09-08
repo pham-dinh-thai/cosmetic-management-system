@@ -7,9 +7,11 @@ import { useSuppliers } from "./hook";
 import type { Supplier } from "./type";
 import { useAuthStore } from "../../../../store/useAuthStore";
 import { canWriteSuppliers } from "../../../../lib/permissions";
+import { useBasePath } from "../../../../lib/useBasePath";
 
 const SuppliersPage: React.FC = () => {
   const navigate = useNavigate();
+  const basePath = useBasePath();
   const user = useAuthStore((s) => s.user);
   const canWrite = canWriteSuppliers(user);
   const { suppliers, loading, q, setQ, handleDeleteSupplier } = useSuppliers();
@@ -18,11 +20,11 @@ const SuppliersPage: React.FC = () => {
   const [supplierToDelete, setSupplierToDelete] = useState<Supplier | null>(null);
 
   const openAdd = () => {
-    navigate("/admin/suppliers/add");
+    navigate(`${basePath}/suppliers/add`);
   };
 
   const openEdit = (s: Supplier) => {
-    navigate(`/admin/suppliers/${s.id}/edit`);
+    navigate(`${basePath}/suppliers/${s.id}/edit`);
   };
 
   const openDelete = (s: Supplier) => {

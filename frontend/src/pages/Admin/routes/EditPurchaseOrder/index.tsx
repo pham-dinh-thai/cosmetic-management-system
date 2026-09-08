@@ -4,6 +4,7 @@ import { PageHeader, Input, Button, Card, Select } from "../../../../components/
 import { DataTable, type Column } from "../../../../components/ui/DataTable";
 import { purchaseOrdersService, openPurchaseReceiptPrint } from "../../../../services/purchase-orders.service";
 import { suppliersService } from "../../../../services/suppliers.service";
+import { useBasePath } from "../../../../lib/useBasePath";
 import { toast } from "sonner";
 
 interface EditableLine {
@@ -22,6 +23,7 @@ const statusMeta: Record<string, { label: string; className: string }> = {
 const EditPurchaseOrderPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const basePath = useBasePath();
 
   const [fetching, setFetching] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -58,7 +60,7 @@ const EditPurchaseOrderPage: React.FC = () => {
       .catch((err) => {
         console.error(err);
         toast.error("Không thể tải thông tin phiếu nhập");
-        navigate("/admin/purchase");
+        navigate(`${basePath}/purchase`);
       })
       .finally(() => setFetching(false));
   }, [id, navigate]);
@@ -91,7 +93,7 @@ const EditPurchaseOrderPage: React.FC = () => {
         })),
       });
       toast.success("Đã cập nhật phiếu nhập thành công");
-      navigate("/admin/purchase");
+      navigate(`${basePath}/purchase`);
     } catch (error) {
       console.error(error);
       toast.error("Đã có lỗi xảy ra khi lưu phiếu nhập");
@@ -106,7 +108,7 @@ const EditPurchaseOrderPage: React.FC = () => {
     try {
       await purchaseOrdersService.cancelPurchaseOrder(id);
       toast.success("Đã hủy phiếu nhập");
-      navigate("/admin/purchase");
+      navigate(`${basePath}/purchase`);
     } catch (error) {
       console.error(error);
       toast.error("Không thể hủy phiếu này");
@@ -121,7 +123,7 @@ const EditPurchaseOrderPage: React.FC = () => {
     try {
       await purchaseOrdersService.completePurchaseOrder(id);
       toast.success("Đã nhập kho thành công");
-      navigate("/admin/purchase");
+      navigate(`${basePath}/purchase`);
     } catch (error) {
       console.error(error);
       toast.error("Không thể xác nhận nhập kho cho phiếu này");
@@ -244,7 +246,7 @@ const EditPurchaseOrderPage: React.FC = () => {
           </Button>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline" onClick={() => navigate("/admin/purchase")}>
+          <Button variant="outline" onClick={() => navigate(`${basePath}/purchase`)}>
             Huỷ
           </Button>
           <Button variant="outline" onClick={() => id && openPurchaseReceiptPrint(id)} disabled={!id}>

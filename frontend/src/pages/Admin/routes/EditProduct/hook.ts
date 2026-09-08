@@ -9,11 +9,13 @@ import type {
   UpdateVariantPayload,
 } from "./type";
 import { toast } from "sonner";
+import { useBasePath } from "../../../../lib/useBasePath";
 
 export function useEditProduct() {
   const { id } = useParams<{ id: string }>();
   const productId = id || "";
   const navigate = useNavigate();
+  const basePath = useBasePath();
 
   const [loading, setLoading] = useState(false);
   const [imageSaving, setImageSaving] = useState(false);
@@ -264,6 +266,6 @@ export function useEditProduct() {
     addNewVariantBox,
     removeNewVariantBox,
     saveNewVariant,
-    onBack: () => navigate("/admin/products"),
+    onBack: () => navigate(`${basePath}/products`),
   };
 }

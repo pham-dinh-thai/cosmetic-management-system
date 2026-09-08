@@ -4,10 +4,12 @@ import { PageHeader, Card, Input, Button, Select } from "../../../../components/
 import { toast } from "sonner";
 import { productsService, type CosmeticSummary, type CosmeticDetailVariant } from "../../../../services/products.service";
 import { inventoryApi } from "../Inventory/api";
+import { useBasePath } from "../../../../lib/useBasePath";
 
 const AddInventoryPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const basePath = useBasePath();
   const preselectedVariantId = (location.state as { variantId?: string } | null)?.variantId;
 
   const [products, setProducts] = useState<CosmeticSummary[]>([]);
@@ -57,7 +59,7 @@ const AddInventoryPage: React.FC = () => {
         await inventoryApi.updateMinStock(existing.id, minStock);
       }
       toast.success("Nhập kho thành công");
-      navigate("/admin/inventory");
+      navigate(`${basePath}/inventory`);
     } catch (error) {
       console.error(error);
       const message = (
@@ -140,7 +142,7 @@ const AddInventoryPage: React.FC = () => {
           </div>
 
           <div className="flex justify-end gap-3 pt-4 mt-2 border-t border-[#eeeee9]">
-            <Button type="button" variant="outline" onClick={() => navigate("/admin/inventory")}>
+            <Button type="button" variant="outline" onClick={() => navigate(`${basePath}/inventory`)}>
               Hủy
             </Button>
             <Button type="submit" variant="primary" disabled={saving}>

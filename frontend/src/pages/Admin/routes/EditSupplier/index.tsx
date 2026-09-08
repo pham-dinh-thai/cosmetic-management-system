@@ -2,12 +2,14 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { PageHeader, Input, Button, Card, Select } from "../../../../components/ui/Primitives";
 import { suppliersService } from "../../../../services/suppliers.service";
+import { useBasePath } from "../../../../lib/useBasePath";
 import type { Supplier } from "../Suppliers/type";
 import { toast } from "sonner";
 
 const EditSupplierPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const basePath = useBasePath();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [formData, setFormData] = useState<Partial<Supplier>>({
@@ -33,7 +35,7 @@ const EditSupplierPage: React.FC = () => {
         .catch(err => {
           console.error(err);
           toast.error("Không thể tải thông tin nhà cung cấp");
-          navigate("/admin/suppliers");
+          navigate(`${basePath}/suppliers`);
         })
         .finally(() => {
           setFetching(false);
@@ -57,7 +59,7 @@ const EditSupplierPage: React.FC = () => {
     try {
       await suppliersService.updateSupplier(id, formData);
       toast.success("Đã cập nhật nhà cung cấp thành công");
-      navigate("/admin/suppliers");
+      navigate(`${basePath}/suppliers`);
     } catch (error) {
       console.error(error);
       toast.error("Đã có lỗi xảy ra khi cập nhật nhà cung cấp");
@@ -150,7 +152,7 @@ const EditSupplierPage: React.FC = () => {
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-[#eeeee9]">
-            <Button type="button" variant="outline" onClick={() => navigate("/admin/suppliers")}>
+            <Button type="button" variant="outline" onClick={() => navigate(`${basePath}/suppliers`)}>
               Hủy
             </Button>
             <Button type="submit" variant="primary" disabled={loading}>
