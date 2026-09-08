@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
-import { ordersService, type OrderStatus, type OrderReadModel } from '../../../../services/orders.service';
+import { ordersService, type OrderReadModel } from '../../../../services/orders.service';
 import type { StatusFilter } from './type';
 
 export function useOrders() {
