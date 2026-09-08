@@ -49,6 +49,8 @@ export interface CosmeticDetailVariant {
   price: number;
   costPrice: number | null;
   isActive: boolean;
+  quantity: number;
+  minStock: number;
 }
 
 export interface CosmeticDetail {

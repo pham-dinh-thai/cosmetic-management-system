@@ -497,7 +497,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
                 >
                   <div className="flex flex-col">
                     <span className="text-[15px] font-medium text-[#1c3a13] mb-1">
-                      {v.name}
+                            {v.name}
                     </span>
                     <span className="text-[12px] text-[#666666]">
                       {[v.color, v.volume].filter(Boolean).join(" · ") || "Bản tiêu chuẩn"}
@@ -505,9 +505,16 @@ const ProductModal: React.FC<ProductModalProps> = ({
                   </div>
                   
                   <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-4">
-                    <span className="text-[15px] font-medium text-[#1c3a13] font-[var(--font-seed-sans-mono)]">
-                      {formatVND(v.price)}
-                    </span>
+                    <div className="flex flex-col items-end">
+                      <span className="text-[15px] font-medium text-[#1c3a13] font-[var(--font-seed-sans-mono)]">
+                        {formatVND(v.price)}
+                      </span>
+                      {v.quantity !== undefined && v.quantity <= v.minStock && (
+                        <span className="text-[11px] font-medium text-amber-600 mt-0.5">
+                          Sản phẩm đã hết hàng
+                        </span>
+                      )}
+                    </div>
                     <button
                       onClick={() =>
                         onAdd(
@@ -518,13 +525,18 @@ const ProductModal: React.FC<ProductModalProps> = ({
                             variantName: v.name,
                             imageUrl: cosmetic.imageUrl,
                             unitPrice: v.price,
+                            availableStock: v.quantity ?? 0,
+                            minStock: v.minStock ?? 0,
                           },
                           1,
                         )
                       }
-                      className="h-9 px-5 rounded-full bg-[#1c3a13] text-[#fcfcf7] text-[13px] font-medium whitespace-nowrap shrink-0 hover:bg-[#2a501d] active:scale-95 transition-all"
+                      disabled={v.quantity !== undefined && v.quantity <= v.minStock}
+                      className="h-9 px-5 rounded-full bg-[#1c3a13] text-[#fcfcf7] text-[13px] font-medium whitespace-nowrap shrink-0 hover:bg-[#2a501d] active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                     >
-                      Thêm vào đơn
+                      {v.quantity !== undefined && v.quantity <= v.minStock
+                        ? "Hết hàng"
+                        : "Thêm vào đơn"}
                     </button>
                   </div>
                 </li>

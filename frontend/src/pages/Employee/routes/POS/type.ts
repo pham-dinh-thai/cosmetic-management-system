@@ -10,6 +10,8 @@ export interface CartItem {
   imageUrl: string | null;
   unitPrice: number;
   quantity: number;
+  availableStock: number;
+  minStock: number;
 }
 
 export interface NewCustomerDraft {
