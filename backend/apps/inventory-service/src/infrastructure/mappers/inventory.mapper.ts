@@ -8,6 +8,8 @@ export class InventoryMapper {
       variantId: inventoryMikro.variantId,
       quantity: inventoryMikro.quantity,
       minStock: inventoryMikro.minStock ?? 0,
+      isActive: inventoryMikro.isActive ?? true,
+      createdBy: inventoryMikro.createdBy ?? undefined,
       expiryDate: inventoryMikro.expiryDate
         ? new Date(`${inventoryMikro.expiryDate}T00:00:00`)
         : undefined,

@@ -25,9 +25,12 @@ export interface CreatePurchaseOrderPayload {
 }
 
 export const purchaseOrdersService = {
-  async getPurchaseOrders(search?: string): Promise<PurchaseOrderDto[]> {
+  async getPurchaseOrders(search?: string, status?: string): Promise<PurchaseOrderDto[]> {
+    const params: Record<string, string> = {};
+    if (search) params.search = search;
+    if (status) params.status = status;
     const { data } = await api.get<PurchaseOrderDto[]>("/purchase-orders", {
-      params: search ? { search } : undefined,
+      params: Object.keys(params).length ? params : undefined,
     });
     return data;
   },

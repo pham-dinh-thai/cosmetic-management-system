@@ -4,6 +4,7 @@ import { PageHeader, Input, Button, Card, Select } from "../../../../components/
 import { DataTable, type Column } from "../../../../components/ui/DataTable";
 import { purchaseOrdersService, openPurchaseReceiptPrint } from "../../../../services/purchase-orders.service";
 import { suppliersService } from "../../../../services/suppliers.service";
+import { productsService, type CosmeticDetail } from "../../../../services/products.service";
 import { useBasePath } from "../../../../lib/useBasePath";
 import { toast } from "sonner";
 
@@ -28,6 +29,7 @@ const EditPurchaseOrderPage: React.FC = () => {
   const [fetching, setFetching] = useState(true);
   const [saving, setSaving] = useState(false);
   const [suppliers, setSuppliers] = useState<{ id: string; name: string }[]>([]);
+  const [variantLabels, setVariantLabels] = useState<Record<string, string>>({});
   const [supplierId, setSupplierId] = useState("");
   const [code, setCode] = useState("");
   const [status, setStatus] = useState("");
@@ -39,8 +41,19 @@ const EditPurchaseOrderPage: React.FC = () => {
     Promise.all([
       suppliersService.getSuppliers(),
       purchaseOrdersService.getPurchaseOrderById(id),
+      productsService.getCosmetics(),
     ])
-      .then(([supplierData, order]) => {
+      .then(async ([supplierData, order, cosmetics]) => {
+        const details = await Promise.all(
+          cosmetics.map((c) => productsService.getCosmeticById(c.id)),
+        );
+        const map: Record<string, string> = {};
+        details.forEach((d: CosmeticDetail) => {
+          d.variants.forEach((v) => {
+            map[v.id] = `${d.name} – ${v.name}`;
+          });
+        });
+        setVariantLabels(map);
         setSuppliers(supplierData.map((s) => ({ id: s.id, name: s.name })));
         setSupplierId(order.supplierId);
         setCode(order.code);
@@ -135,8 +148,12 @@ const EditPurchaseOrderPage: React.FC = () => {
   const columns: Column<EditableLine>[] = [
     {
       key: "variantId",
-      header: "Sản phẩm (variant)",
-      render: (l) => <span className="font-mono text-[12px] text-[#666666]">{l.variantId}</span>,
+      header: "Sản phẩm",
+      render: (l) => (
+        <span className="font-medium text-[#1c3a13]">
+          {variantLabels[l.variantId] || l.variantId}
+        </span>
+      ),
     },
     {
       key: "quantity",

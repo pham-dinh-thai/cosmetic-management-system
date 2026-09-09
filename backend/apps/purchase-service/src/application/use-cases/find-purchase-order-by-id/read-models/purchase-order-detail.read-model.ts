@@ -13,6 +13,7 @@ export class PurchaseOrderDetailReadModel {
     public readonly id: string,
     public readonly code: string,
     public readonly supplierId: string,
+    public readonly employeeId: string | null,
     public readonly status: string,
     public readonly totalAmount: number,
     public readonly lines: PurchaseOrderDetailLineReadModel[],
@@ -27,6 +28,7 @@ export class PurchaseOrderDetailReadModel {
       purchaseOrder.getId(),
       purchaseOrder.getCode(),
       purchaseOrder.getSupplierId(),
+      purchaseOrder.getEmployeeId() ?? null,
       purchaseOrder.getStatus(),
       purchaseOrder.getTotalAmount(),
       purchaseOrder.getLines().map((line) => ({

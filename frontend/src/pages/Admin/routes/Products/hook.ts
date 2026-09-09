@@ -10,11 +10,7 @@ export function useProducts() {
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<StatusFilter>("all");
   const [sort, setSort] = useState("newest");
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [confirmDelete, setConfirmDelete] = useState<{
-    isOpen: boolean;
-    product: CosmeticSummary | null;
-  }>({ isOpen: false, product: null });
+  const [togglingId, setTogglingId] = useState<string | null>(null);
 
   const loadProducts = useCallback(() => {
     productsApi
@@ -57,21 +53,30 @@ export function useProducts() {
     return list;
   }, [products, q, status, sort]);
 
-  const handleDeleteConfirm = async () => {
-    if (!confirmDelete.product) return;
-    const p = confirmDelete.product;
-    setConfirmDelete({ isOpen: false, product: null });
-    setDeletingId(p.id);
+  const handleToggleStatus = async (product: CosmeticSummary) => {
+    if (togglingId) return;
+    setTogglingId(product.id);
     try {
-      await productsApi.deleteCosmetic(p.id);
-      setProducts((prev) => prev.filter((item) => item.id !== p.id));
-      toast.success(`Đã xoá sản phẩm "${p.name}" thành công!`);
+      if (product.isActive) {
+        await productsApi.deactivateCosmetic(product.id);
+        toast.success(`Đã ngừng bán sản phẩm "${product.name}"`);
+      } else {
+        await productsApi.activateCosmetic(product.id);
+        toast.success(`Đã kích hoạt bán lại sản phẩm "${product.name}"`);
+      }
+      setProducts((prev) =>
+        prev.map((item) =>
+          item.id === product.id
+            ? { ...item, isActive: !product.isActive }
+            : item,
+        ),
+      );
     } catch (err: any) {
       toast.error(
-        err?.response?.data?.message || `Không thể xoá sản phẩm "${p.name}".`,
+        err?.response?.data?.message || `Không thể đổi trạng thái sản phẩm.`,
       );
     } finally {
-      setDeletingId(null);
+      setTogglingId(null);
     }
   };
 
@@ -86,9 +91,7 @@ export function useProducts() {
     setStatus,
     sort,
     setSort,
-    deletingId,
-    confirmDelete,
-    setConfirmDelete,
-    handleDeleteConfirm,
+    togglingId,
+    handleToggleStatus,
   };
 }

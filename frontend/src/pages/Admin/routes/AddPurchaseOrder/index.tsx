@@ -6,6 +6,7 @@ import { purchaseOrdersService, openPurchaseReceiptPrint } from "../../../../ser
 import { suppliersService } from "../../../../services/suppliers.service";
 import { productsService, type CosmeticDetail } from "../../../../services/products.service";
 import { useBasePath } from "../../../../lib/useBasePath";
+import { useAuthStore } from "../../../../store/useAuthStore";
 import { toast } from "sonner";
 
 interface EditableLine {
@@ -31,6 +32,11 @@ const newLine = (): EditableLine => ({
 const AddPurchaseOrderPage: React.FC = () => {
   const navigate = useNavigate();
   const basePath = useBasePath();
+  const currentUser = useAuthStore((s) => s.user);
+
+  const creatorName = [currentUser?.firstName, currentUser?.lastName]
+    .filter(Boolean)
+    .join(" ") || currentUser?.email || "-";
 
   const [suppliers, setSuppliers] = useState<{ id: string; name: string }[]>([]);
   const [variantOptions, setVariantOptions] = useState<VariantOption[]>([]);
@@ -230,6 +236,9 @@ const AddPurchaseOrderPage: React.FC = () => {
         </div>
         <div className="text-[14px] font-medium text-[#666666] shrink-0">
           Mã phiếu: <span className="text-[#1c3a13] ml-1">Tự động khi lưu</span>
+        </div>
+        <div className="text-[14px] text-[#666666] shrink-0">
+          Người tạo: <span className="text-[#1c3a13] ml-1">{creatorName}</span>
         </div>
         <div className="text-[14px] text-[#666666] shrink-0">
           Ngày: <span className="text-[#1c3a13] ml-1">{new Date().toLocaleDateString("vi-VN")}</span>

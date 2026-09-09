@@ -59,6 +59,14 @@ import {
   DeleteInventoryUseCase,
   deleteInventoryUseCaseFactory,
 } from './application/use-cases/delete-inventory/delete-inventory.use-case';
+import {
+  ActivateInventoryUseCase,
+  activateInventoryUseCaseFactory,
+} from './application/use-cases/activate-inventory/activate-inventory.use-case';
+import {
+  DeactivateInventoryUseCase,
+  deactivateInventoryUseCaseFactory,
+} from './application/use-cases/deactivate-inventory/deactivate-inventory.use-case';
 
 @Module({
   imports: [
@@ -151,6 +159,16 @@ import {
     {
       provide: DeleteInventoryUseCase,
       useFactory: deleteInventoryUseCaseFactory,
+      inject: [INVENTORY_REPOSITORY],
+    },
+    {
+      provide: ActivateInventoryUseCase,
+      useFactory: activateInventoryUseCaseFactory,
+      inject: [INVENTORY_REPOSITORY],
+    },
+    {
+      provide: DeactivateInventoryUseCase,
+      useFactory: deactivateInventoryUseCaseFactory,
       inject: [INVENTORY_REPOSITORY],
     },
   ],

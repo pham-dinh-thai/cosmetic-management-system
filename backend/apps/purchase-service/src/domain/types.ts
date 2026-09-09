@@ -53,6 +53,7 @@ export type FromPersistentPurchaseOrderLineProps = {
 export type CreatePurchaseOrderProps = {
   code: string;
   supplierId: string;
+  employeeId: string;
   lines: CreatePurchaseOrderLineProps[];
 };
 
@@ -60,6 +61,7 @@ export type FromPersistentPurchaseOrderProps = {
   id: string;
   code: string;
   supplierId: string;
+  employeeId?: string;
   status: PurchaseOrderStatus;
   totalAmount: number;
   lines: FromPersistentPurchaseOrderLineProps[];

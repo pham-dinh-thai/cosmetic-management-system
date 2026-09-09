@@ -77,6 +77,7 @@ export class MikroPurchaseOrdersRepository implements IPurchaseOrdersRepository 
     const entity = this.em.create(PurchaseOrder, {
       code: purchaseOrder.getCode(),
       supplierId: purchaseOrder.getSupplierId(),
+      employeeId: purchaseOrder.getEmployeeId(),
       status: purchaseOrder.getStatus(),
       totalAmount: purchaseOrder.getTotalAmount(),
     });

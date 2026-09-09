@@ -11,17 +11,21 @@ export interface IInventoryRepository {
     quantity: number,
     expiryDate?: Date,
     minStock?: number,
+    createdBy?: string,
   ): Promise<{ id: string }>;
   addStock(
     variantId: string,
     quantity: number,
     expiryDate?: Date,
     minStock?: number,
+    createdBy?: string,
   ): Promise<Inventory>;
   removeStock(variantId: string, quantity: number): Promise<Inventory>;
   adjust(id: string, adjustment: number): Promise<Inventory | null>;
   updateMinStock(id: string, minStock: number): Promise<Inventory | null>;
   delete(id: string): Promise<boolean>;
+  deactivate(id: string): Promise<Inventory | null>;
+  activate(id: string): Promise<Inventory | null>;
 }
 
 export const INVENTORY_REPOSITORY = 'IInventoryRepository';

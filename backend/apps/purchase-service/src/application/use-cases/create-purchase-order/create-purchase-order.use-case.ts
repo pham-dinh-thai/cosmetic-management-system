@@ -10,6 +10,7 @@ export class CreatePurchaseOrderUseCase {
 
   public async execute(
     request: ICreatePurchaseOrderRequest,
+    employeeId: string,
   ): Promise<{ id: string }> {
     const maxCodeSequence =
       await this.purchaseOrdersRepository.findMaxCodeSequence();
@@ -18,6 +19,7 @@ export class CreatePurchaseOrderUseCase {
     const purchaseOrder = PurchaseOrder.create({
       code: code.getValue(),
       supplierId: request.supplierId,
+      employeeId,
       lines: request.lines,
     });
 

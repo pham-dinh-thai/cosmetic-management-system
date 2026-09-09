@@ -2,7 +2,6 @@ import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageHeader, Button, Input, Select } from "../../../../components/ui/Primitives";
 import { DataTable, type Column } from "../../../../components/ui/DataTable";
-import { ConfirmModal } from "../../../../components/ui/ConfirmModal";
 import { useProducts } from "./hook";
 import { useBasePath } from "../../../../lib/useBasePath";
 import type { CosmeticSummary, StatusFilter } from "./type";
@@ -32,10 +31,8 @@ const ProductsPage: React.FC = () => {
     setStatus,
     sort,
     setSort,
-    deletingId,
-    confirmDelete,
-    setConfirmDelete,
-    handleDeleteConfirm,
+    togglingId,
+    handleToggleStatus,
   } = useProducts();
 
   const columns: Column<CosmeticSummary>[] = useMemo(
@@ -99,7 +96,7 @@ const ProductsPage: React.FC = () => {
         render: (p) => (
           <div className="flex items-center justify-end gap-2">
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
               onClick={() => navigate(`${basePath}/products/${p.id}`)}
             >
@@ -115,17 +112,16 @@ const ProductsPage: React.FC = () => {
             <Button
               variant="ghost"
               size="sm"
-              className="text-red-600 hover:bg-red-50/80"
-              disabled={deletingId === p.id}
-              onClick={() => setConfirmDelete({ isOpen: true, product: p })}
+              disabled={togglingId === p.id}
+              onClick={() => handleToggleStatus(p)}
             >
-              Xoá
+              {p.isActive ? "Ngừng bán" : "Kích hoạt"}
             </Button>
           </div>
         ),
       },
     ],
-    [basePath, navigate, deletingId, setConfirmDelete],
+    [basePath, navigate, togglingId, handleToggleStatus],
   );
 
   return (
@@ -187,17 +183,6 @@ const ProductsPage: React.FC = () => {
           empty="Không tìm thấy sản phẩm phù hợp"
         />
       )}
-
-      <ConfirmModal
-        isOpen={confirmDelete.isOpen}
-        title="Xác nhận xoá sản phẩm"
-        message={`Bạn có chắc chắn muốn xoá sản phẩm "${confirmDelete.product?.name}" (${confirmDelete.product?.code})? Hành động này không thể hoàn tác.`}
-        confirmText="Xoá sản phẩm"
-        cancelText="Hủy"
-        isDestructive={true}
-        onConfirm={handleDeleteConfirm}
-        onCancel={() => setConfirmDelete({ isOpen: false, product: null })}
-      />
     </div>
   );
 };

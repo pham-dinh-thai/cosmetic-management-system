@@ -1,5 +1,11 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsDateString, IsInt, IsOptional, IsUUID, Min } from 'class-validator';
+import {
+  IsDateString,
+  IsInt,
+  IsOptional,
+  IsUUID,
+  Min,
+} from 'class-validator';
 
 export class StockChangeRequest {
   @ApiProperty()
@@ -15,4 +21,9 @@ export class StockChangeRequest {
   @IsOptional()
   @IsDateString()
   expiryDate?: string;
+
+  @ApiPropertyOptional({ description: 'User id who created the stock record' })
+  @IsOptional()
+  @IsUUID('4')
+  createdBy?: string;
 }

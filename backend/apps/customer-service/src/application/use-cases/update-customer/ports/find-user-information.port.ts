@@ -4,6 +4,7 @@ export interface IFindUserInformationPort {
     lastName: string;
     gender: string;
     email?: string;
+    isActive?: boolean;
   }>;
 }
 

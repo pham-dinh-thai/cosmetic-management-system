@@ -33,6 +33,7 @@ export class MikroStockAdjustmentRepository implements IStockAdjustmentRepositor
           variantId: input.variantId,
           quantity: 0,
           ...(input.minStock !== undefined ? { minStock: input.minStock } : {}),
+          ...(input.createdBy ? { createdBy: input.createdBy } : {}),
           lastUpdatedAt: new Date(),
         });
         await em.flush();

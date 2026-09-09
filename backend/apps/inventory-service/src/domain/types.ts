@@ -13,6 +13,8 @@ export type CreateInventoryProps = {
   quantity: number;
   minStock?: number;
   expiryDate?: Date;
+  isActive?: boolean;
+  createdBy?: string;
 };
 
 export type FromPersistentInventoryProps = {
@@ -21,6 +23,8 @@ export type FromPersistentInventoryProps = {
   quantity: number;
   minStock: number;
   expiryDate?: Date;
+  isActive?: boolean;
+  createdBy?: string;
   lastUpdatedAt: Date;
   createdAt: Date;
   updatedAt: Date;

@@ -96,8 +96,11 @@ export class PurchaseOrdersController {
   @Post()
   public async create(
     @Body() request: CreatePurchaseOrderRequest,
+    @Req() httpRequest: Request,
   ): Promise<{ id: string }> {
-    return await this.createPurchaseOrderUseCase.execute(request);
+    const employeeId =
+      (httpRequest as unknown as { user?: { sub?: string } }).user?.sub ?? '';
+    return await this.createPurchaseOrderUseCase.execute(request, employeeId);
   }
 
   @Put(':id')

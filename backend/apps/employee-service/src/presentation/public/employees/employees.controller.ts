@@ -22,6 +22,8 @@ import { UpdateEmployeePositionRequest } from './requests/update-employee-positi
 import { FindAllEmployeesUseCase } from 'apps/employee-service/src/application/use-cases/find-employee/find-all/find-all-employees.use-case';
 import { FindAllEmployeeReadModel } from 'apps/employee-service/src/application/use-cases/find-employee/find-all/read-models/find-all-employee.read-model';
 import { DeleteEmployeeUseCase } from 'apps/employee-service/src/application/use-cases/delete-employee/delete-employee.use-case';
+import { ActivateEmployeeUseCase } from 'apps/employee-service/src/application/use-cases/activate-employee/activate-employee.use-case';
+import { DeactivateEmployeeUseCase } from 'apps/employee-service/src/application/use-cases/deactivate-employee/deactivate-employee.use-case';
 
 @Controller('employees')
 @UseGuards(AuthGuard, RolesGuard)
@@ -34,6 +36,8 @@ export class EmployeesController {
     private readonly updateEmployeePositionUseCase: UpdateEmployeePositionUseCase,
     private readonly findAllEmployeesUseCase: FindAllEmployeesUseCase,
     private readonly deleteEmployeeUseCase: DeleteEmployeeUseCase,
+    private readonly activateEmployeeUseCase: ActivateEmployeeUseCase,
+    private readonly deactivateEmployeeUseCase: DeactivateEmployeeUseCase,
   ) {}
 
   @Get()
@@ -74,5 +78,17 @@ export class EmployeesController {
   @Delete(':id')
   public async delete(@Param('id') id: string): Promise<void> {
     await this.deleteEmployeeUseCase.execute(id);
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Patch(':id/activate')
+  public async activate(@Param('id') id: string): Promise<void> {
+    await this.activateEmployeeUseCase.execute(id);
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Patch(':id/deactivate')
+  public async deactivate(@Param('id') id: string): Promise<void> {
+    await this.deactivateEmployeeUseCase.execute(id);
   }
 }

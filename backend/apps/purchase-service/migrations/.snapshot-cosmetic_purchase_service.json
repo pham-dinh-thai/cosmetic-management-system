@@ -22,7 +22,8 @@
           "default": null,
           "comment": null,
           "collation": null,
-          "enumItems": []
+          "enumItems": [],
+          "mappedType": "datetime"
         },
         "id": {
           "name": "id",
@@ -38,7 +39,8 @@
           "default": "gen_random_uuid()",
           "comment": null,
           "collation": null,
-          "enumItems": []
+          "enumItems": [],
+          "mappedType": "uuid"
         },
         "purchase_order_id": {
           "name": "purchase_order_id",
@@ -54,7 +56,8 @@
           "default": null,
           "comment": null,
           "collation": null,
-          "enumItems": []
+          "enumItems": [],
+          "mappedType": "uuid"
         },
         "quantity": {
           "name": "quantity",
@@ -65,12 +68,13 @@
           "nullable": false,
           "unique": false,
           "length": null,
-          "precision": 32,
-          "scale": 0,
+          "precision": null,
+          "scale": null,
           "default": "1",
           "comment": null,
           "collation": null,
-          "enumItems": []
+          "enumItems": [],
+          "mappedType": "integer"
         },
         "unit_price": {
           "name": "unit_price",
@@ -86,7 +90,8 @@
           "default": null,
           "comment": null,
           "collation": null,
-          "enumItems": []
+          "enumItems": [],
+          "mappedType": "decimal"
         },
         "updated_at": {
           "name": "updated_at",
@@ -102,7 +107,8 @@
           "default": null,
           "comment": null,
           "collation": null,
-          "enumItems": []
+          "enumItems": [],
+          "mappedType": "datetime"
         },
         "variant_id": {
           "name": "variant_id",
@@ -118,7 +124,8 @@
           "default": null,
           "comment": null,
           "collation": null,
-          "enumItems": []
+          "enumItems": [],
+          "mappedType": "string"
         }
       },
       "indexes": [
@@ -133,20 +140,7 @@
           "unique": true
         }
       ],
-      "checks": [
-        {
-          "name": "purchase_order_lines_quantity_check",
-          "expression": "quantity > 0",
-          "definition": "CHECK ((quantity > 0))",
-          "columnName": "quantity"
-        },
-        {
-          "name": "purchase_order_lines_unit_price_check",
-          "expression": "unit_price >= 0",
-          "definition": "CHECK ((unit_price >= (0)::numeric))",
-          "columnName": "unit_price"
-        }
-      ],
+      "checks": [],
       "triggers": [],
       "foreignKeys": {
         "purchase_order_lines_purchase_order_id_foreign": {
@@ -182,7 +176,8 @@
           "default": null,
           "comment": null,
           "collation": null,
-          "enumItems": []
+          "enumItems": [],
+          "mappedType": "string"
         },
         "created_at": {
           "name": "created_at",
@@ -198,7 +193,25 @@
           "default": null,
           "comment": null,
           "collation": null,
-          "enumItems": []
+          "enumItems": [],
+          "mappedType": "datetime"
+        },
+        "employee_id": {
+          "name": "employee_id",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": 255,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "collation": null,
+          "enumItems": [],
+          "mappedType": "string"
         },
         "id": {
           "name": "id",
@@ -214,7 +227,8 @@
           "default": "gen_random_uuid()",
           "comment": null,
           "collation": null,
-          "enumItems": []
+          "enumItems": [],
+          "mappedType": "uuid"
         },
         "status": {
           "name": "status",
@@ -234,7 +248,8 @@
             "PENDING",
             "COMPLETED",
             "CANCELLED"
-          ]
+          ],
+          "mappedType": "enum"
         },
         "supplier_id": {
           "name": "supplier_id",
@@ -250,7 +265,8 @@
           "default": null,
           "comment": null,
           "collation": null,
-          "enumItems": []
+          "enumItems": [],
+          "mappedType": "string"
         },
         "total_amount": {
           "name": "total_amount",
@@ -266,7 +282,8 @@
           "default": "0",
           "comment": null,
           "collation": null,
-          "enumItems": []
+          "enumItems": [],
+          "mappedType": "decimal"
         },
         "updated_at": {
           "name": "updated_at",
@@ -282,7 +299,8 @@
           "default": null,
           "comment": null,
           "collation": null,
-          "enumItems": []
+          "enumItems": [],
+          "mappedType": "datetime"
         }
       },
       "indexes": [
@@ -337,7 +355,8 @@
           "default": null,
           "comment": null,
           "collation": null,
-          "enumItems": []
+          "enumItems": [],
+          "mappedType": "datetime"
         },
         "employee_id": {
           "name": "employee_id",
@@ -353,7 +372,8 @@
           "default": null,
           "comment": null,
           "collation": null,
-          "enumItems": []
+          "enumItems": [],
+          "mappedType": "string"
         },
         "id": {
           "name": "id",
@@ -369,7 +389,8 @@
           "default": "gen_random_uuid()",
           "comment": null,
           "collation": null,
-          "enumItems": []
+          "enumItems": [],
+          "mappedType": "uuid"
         },
         "purchase_order_id": {
           "name": "purchase_order_id",
@@ -385,7 +406,8 @@
           "default": null,
           "comment": null,
           "collation": null,
-          "enumItems": []
+          "enumItems": [],
+          "mappedType": "uuid"
         },
         "quantity": {
           "name": "quantity",
@@ -396,12 +418,13 @@
           "nullable": false,
           "unique": false,
           "length": null,
-          "precision": 32,
-          "scale": 0,
+          "precision": null,
+          "scale": null,
           "default": "1",
           "comment": null,
           "collation": null,
-          "enumItems": []
+          "enumItems": [],
+          "mappedType": "integer"
         },
         "subtotal": {
           "name": "subtotal",
@@ -417,7 +440,8 @@
           "default": "0",
           "comment": null,
           "collation": null,
-          "enumItems": []
+          "enumItems": [],
+          "mappedType": "decimal"
         },
         "unit_price": {
           "name": "unit_price",
@@ -433,7 +457,8 @@
           "default": null,
           "comment": null,
           "collation": null,
-          "enumItems": []
+          "enumItems": [],
+          "mappedType": "decimal"
         },
         "updated_at": {
           "name": "updated_at",
@@ -449,7 +474,8 @@
           "default": null,
           "comment": null,
           "collation": null,
-          "enumItems": []
+          "enumItems": [],
+          "mappedType": "datetime"
         },
         "variant_id": {
           "name": "variant_id",
@@ -465,7 +491,8 @@
           "default": null,
           "comment": null,
           "collation": null,
-          "enumItems": []
+          "enumItems": [],
+          "mappedType": "string"
         }
       },
       "indexes": [
@@ -480,26 +507,7 @@
           "unique": true
         }
       ],
-      "checks": [
-        {
-          "name": "purchase_transactions_quantity_check",
-          "expression": "quantity > 0",
-          "definition": "CHECK ((quantity > 0))",
-          "columnName": "quantity"
-        },
-        {
-          "name": "purchase_transactions_subtotal_check",
-          "expression": "subtotal >= 0",
-          "definition": "CHECK ((subtotal >= (0)::numeric))",
-          "columnName": "subtotal"
-        },
-        {
-          "name": "purchase_transactions_unit_price_check",
-          "expression": "unit_price >= 0",
-          "definition": "CHECK ((unit_price >= (0)::numeric))",
-          "columnName": "unit_price"
-        }
-      ],
+      "checks": [],
       "triggers": [],
       "foreignKeys": {
         "purchase_transactions_purchase_order_id_foreign": {

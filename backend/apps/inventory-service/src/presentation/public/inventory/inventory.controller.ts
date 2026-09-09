@@ -33,6 +33,8 @@ import { AdjustInventoryRequest } from './requests/adjust-inventory.request';
 import { AddStockAdjustmentRequest } from './requests/add-stock-adjustment.request';
 import { UpdateInventoryMinStockRequest } from './requests/update-inventory-min-stock.request';
 import { UpdateInventoryMinStockUseCase } from 'apps/inventory-service/src/application/use-cases/update-inventory-min-stock/update-inventory-min-stock.use-case';
+import { ActivateInventoryUseCase } from 'apps/inventory-service/src/application/use-cases/activate-inventory/activate-inventory.use-case';
+import { DeactivateInventoryUseCase } from 'apps/inventory-service/src/application/use-cases/deactivate-inventory/deactivate-inventory.use-case';
 
 @Controller('inventory')
 export class InventoryController {
@@ -47,6 +49,8 @@ export class InventoryController {
     private readonly findExpiringInventoriesUseCase: FindExpiringInventoriesUseCase,
     private readonly findOverstockInventoriesUseCase: FindOverstockInventoriesUseCase,
     private readonly updateInventoryMinStockUseCase: UpdateInventoryMinStockUseCase,
+    private readonly activateInventoryUseCase: ActivateInventoryUseCase,
+    private readonly deactivateInventoryUseCase: DeactivateInventoryUseCase,
   ) {}
 
   @UseGuards(AuthGuard, OrgGuard)
@@ -171,5 +175,23 @@ export class InventoryController {
   public async remove(@Param('id') id: string): Promise<{ deleted: boolean }> {
     await this.deleteInventoryUseCase.execute(id);
     return { deleted: true };
+  }
+
+  @UseGuards(AuthGuard, OrgGuard)
+  @Roles(Role.Admin, Role.Employee)
+  @Departments('warehouse')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Patch(':id/deactivate')
+  public async deactivate(@Param('id') id: string): Promise<void> {
+    await this.deactivateInventoryUseCase.execute(id);
+  }
+
+  @UseGuards(AuthGuard, OrgGuard)
+  @Roles(Role.Admin, Role.Employee)
+  @Departments('warehouse')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Patch(':id/activate')
+  public async activate(@Param('id') id: string): Promise<void> {
+    await this.activateInventoryUseCase.execute(id);
   }
 }

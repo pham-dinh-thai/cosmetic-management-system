@@ -133,4 +133,12 @@ export const employeesService = {
   async deleteEmployee(id: string): Promise<void> {
     await api.delete<void>(`/employees/${id}`);
   },
+
+  async activateEmployee(id: string): Promise<void> {
+    await api.patch<void>(`/employees/${id}/activate`);
+  },
+
+  async deactivateEmployee(id: string): Promise<void> {
+    await api.patch<void>(`/employees/${id}/deactivate`);
+  },
 };

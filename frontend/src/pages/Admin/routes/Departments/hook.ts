@@ -20,14 +20,19 @@ export function useDepartments() {
     fetchDepartments();
   }, [fetchDepartments]);
 
-  const handleDeleteDepartment = async (id: string) => {
+  const handleToggleStatus = async (department: Department) => {
     try {
-      await departmentsService.deleteDepartment(id);
-      toast.success("Đã xoá phòng ban thành công");
+      if (department.isActive) {
+        await departmentsService.deactivateDepartment(department.id);
+        toast.success(`Đã vô hiệu hoá phòng ban "${department.name}"`);
+      } else {
+        await departmentsService.activateDepartment(department.id);
+        toast.success(`Đã kích hoạt lại phòng ban "${department.name}"`);
+      }
       fetchDepartments();
     } catch (error) {
       console.error(error);
-      toast.error("Lỗi khi xoá phòng ban");
+      toast.error("Lỗi khi đổi trạng thái phòng ban");
     }
   };
 
@@ -38,5 +43,11 @@ export function useDepartments() {
       d.code.toLowerCase().includes(q.toLowerCase()),
   );
 
-  return { departments: filtered, loading, q, setQ, handleDeleteDepartment };
+  return {
+    departments: filtered,
+    loading,
+    q,
+    setQ,
+    handleToggleStatus,
+  };
 }

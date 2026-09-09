@@ -11,11 +11,6 @@ export function useCategories() {
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<StatusFilter>("all");
 
-  const [confirmDelete, setConfirmDelete] = useState<{
-    isOpen: boolean;
-    category: CategorySummary | null;
-  }>({ isOpen: false, category: null });
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({ name: "" });
@@ -48,21 +43,6 @@ export function useCategories() {
       return true;
     });
   }, [categories, q, status]);
-
-  const handleDeleteConfirm = async () => {
-    if (!confirmDelete.category) return;
-    const cat = confirmDelete.category;
-    setConfirmDelete({ isOpen: false, category: null });
-    try {
-      await categoriesApi.deleteCategory(cat.id);
-      setCategories((prev) => prev.filter((item) => item.id !== cat.id));
-      toast.success(`Đã xoá danh mục "${cat.name}" thành công!`);
-    } catch (err: any) {
-      toast.error(
-        err?.response?.data?.message || `Không thể xoá danh mục "${cat.name}".`,
-      );
-    }
-  };
 
   const handleToggleStatus = async (cat: CategorySummary) => {
     try {
@@ -128,15 +108,12 @@ export function useCategories() {
     setQ,
     status,
     setStatus,
-    confirmDelete,
-    setConfirmDelete,
     isModalOpen,
     setIsModalOpen,
     editingId,
     formData,
     setFormData,
     isSubmitting,
-    handleDeleteConfirm,
     handleToggleStatus,
     openAddModal,
     openEditModal,

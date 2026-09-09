@@ -1,17 +1,13 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageHeader, Input, Button } from "../../../../components/ui/Primitives";
 import { DataTable, type Column } from "../../../../components/ui/DataTable";
-import { ConfirmModal } from "../../../../components/ui/ConfirmModal";
 import { useEmployees } from "./hook";
 import type { Employee } from "./type";
 
 const EmployeesPage: React.FC = () => {
   const navigate = useNavigate();
-  const { employees, loading, q, setQ, handleDeleteEmployee } = useEmployees();
-
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [employeeToDelete, setEmployeeToDelete] = useState<Employee | null>(null);
+  const { employees, loading, q, setQ, handleToggleStatus } = useEmployees();
 
   const openAdd = () => {
     navigate("/admin/employees/add");
@@ -19,19 +15,6 @@ const EmployeesPage: React.FC = () => {
 
   const openEdit = (e: Employee) => {
     navigate(`/admin/employees/${e.id}/edit`);
-  };
-
-  const openDelete = (e: Employee) => {
-    setEmployeeToDelete(e);
-    setIsConfirmOpen(true);
-  };
-
-  const onConfirmDelete = async () => {
-    if (employeeToDelete) {
-      await handleDeleteEmployee(employeeToDelete.id);
-    }
-    setIsConfirmOpen(false);
-    setEmployeeToDelete(null);
   };
 
   const columns = useMemo<Column<Employee>[]>(
@@ -67,14 +50,14 @@ const EmployeesPage: React.FC = () => {
             <Button variant="outline" size="sm" onClick={() => openEdit(e)}>
               Sửa
             </Button>
-            <Button variant="outline" size="sm" className="text-red-600 border-red-600 hover:bg-red-600 hover:text-white" onClick={() => openDelete(e)}>
-              Xóa
+            <Button variant="ghost" size="sm" onClick={() => handleToggleStatus(e)}>
+              {e.status === "ACTIVE" ? "Vô hiệu hoá" : "Kích hoạt"}
             </Button>
           </div>
         ),
       },
     ],
-    [],
+    [handleToggleStatus],
   );
 
   return (
@@ -97,15 +80,6 @@ const EmployeesPage: React.FC = () => {
       ) : (
         <DataTable columns={columns} rows={employees} rowKey={(e) => e.id} empty="Chưa có thông tin nhân viên" />
       )}
-
-      <ConfirmModal
-        isOpen={isConfirmOpen}
-        title="Xóa nhân viên"
-        message={`Bạn có chắc chắn muốn xóa nhân viên ${employeeToDelete?.name}? Hành động này không thể hoàn tác.`}
-        onConfirm={onConfirmDelete}
-        onCancel={() => setIsConfirmOpen(false)}
-        isDestructive={true}
-      />
     </div>
   );
 };

@@ -18,6 +18,7 @@ export interface PurchaseOrderReceipt {
   supplierId: string;
   supplierName: string;
   supplierAddress: string | null;
+  createdByName: string | null;
   totalAmount: number;
   lines: PurchaseOrderReceiptLine[];
   createdAt: Date | undefined;
@@ -37,10 +38,13 @@ export class PrintPurchaseOrderUseCase {
       throw new PurchaseOrderNotFoundException(id);
     }
 
-    const [supplier, variantNames] = await Promise.all([
+    const [supplier, variantNames, createdByName] = await Promise.all([
       this.receiptEnrichmentPort.getSupplierInfo(purchaseOrder.getSupplierId()),
       this.receiptEnrichmentPort.getVariantNames(
         purchaseOrder.getLines().map((line) => line.getVariantId()),
+      ),
+      this.receiptEnrichmentPort.getUserName(
+        purchaseOrder.getEmployeeId() ?? '',
       ),
     ]);
 
@@ -51,6 +55,7 @@ export class PrintPurchaseOrderUseCase {
       supplierId: purchaseOrder.getSupplierId(),
       supplierName: supplier?.name ?? purchaseOrder.getSupplierId(),
       supplierAddress: supplier?.address ?? null,
+      createdByName,
       totalAmount: purchaseOrder.getTotalAmount(),
       lines: purchaseOrder.getLines().map((line) => ({
         variantId: line.getVariantId(),

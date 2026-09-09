@@ -20,6 +20,7 @@ export function useCustomers() {
           phone: c.phone,
           email: c.email,
           address: c.address,
+          isActive: c.isActive ?? true,
           orders: 0,
         })),
       );
@@ -34,14 +35,19 @@ export function useCustomers() {
     fetchCustomers();
   }, [fetchCustomers]);
 
-  const handleDeleteCustomer = async (id: string) => {
+  const handleToggleStatus = async (customer: Customer) => {
     try {
-      await customersService.deleteCustomer(id);
-      toast.success("Đã xoá khách hàng thành công");
+      if (customer.isActive) {
+        await customersService.deactivateCustomer(customer.id);
+        toast.success(`Đã vô hiệu hoá khách hàng "${customer.name}"`);
+      } else {
+        await customersService.activateCustomer(customer.id);
+        toast.success(`Đã kích hoạt lại khách hàng "${customer.name}"`);
+      }
       fetchCustomers();
     } catch (error) {
       console.error(error);
-      toast.error("Lỗi khi xoá khách hàng");
+      toast.error("Lỗi khi đổi trạng thái khách hàng");
     }
   };
 
@@ -53,11 +59,11 @@ export function useCustomers() {
       c.code.toLowerCase().includes(q.toLowerCase()),
   );
 
-  return { 
-    customers: filtered, 
-    loading, 
-    q, 
-    setQ, 
-    handleDeleteCustomer 
+  return {
+    customers: filtered,
+    loading,
+    q,
+    setQ,
+    handleToggleStatus,
   };
 }

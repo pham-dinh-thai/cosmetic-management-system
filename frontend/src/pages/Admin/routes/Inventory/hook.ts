@@ -61,6 +61,22 @@ export function useInventory() {
     load();
   };
 
+  const handleToggleStatus = async (item: InventoryItem) => {
+    try {
+      if (item.isActive) {
+        await inventoryApi.deactivateInventory(item.id);
+        toast.success(`Đã vô hiệu hoá dòng tồn kho "${item.variantId}"`);
+      } else {
+        await inventoryApi.activateInventory(item.id);
+        toast.success(`Đã kích hoạt lại dòng tồn kho "${item.variantId}"`);
+      }
+      reload();
+    } catch (error) {
+      console.error(error);
+      toast.error("Lỗi khi đổi trạng thái tồn kho");
+    }
+  };
+
   const filtered = inventory.filter(
     (i) =>
       !q ||
@@ -68,5 +84,5 @@ export function useInventory() {
       (i.variantName || "").toLowerCase().includes(q.toLowerCase()),
   );
 
-  return { inventory: filtered, loading, q, setQ, reload };
+  return { inventory: filtered, loading, q, setQ, reload, handleToggleStatus };
 }

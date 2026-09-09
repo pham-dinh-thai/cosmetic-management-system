@@ -20,6 +20,7 @@ export class PurchaseOrdersMapper {
       id: entity.id,
       code: entity.code,
       supplierId: entity.supplierId,
+      employeeId: entity.employeeId ?? undefined,
       status: entity.status,
       totalAmount: entity.totalAmount,
       lines,

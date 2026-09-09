@@ -10,6 +10,7 @@ const PurchaseOrderSchema = defineEntity({
     id: p.uuid().primary().defaultRaw('gen_random_uuid()'),
     code: p.string().unique(),
     supplierId: p.string().fieldName('supplier_id'),
+    employeeId: p.string().fieldName('employee_id').nullable(),
     status: p.enum(PurchaseOrderStatus).default(PurchaseOrderStatus.PENDING),
     totalAmount: p
       .decimal('number')

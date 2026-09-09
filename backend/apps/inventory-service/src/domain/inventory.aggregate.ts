@@ -9,6 +9,8 @@ export class Inventory {
     private quantity: number,
     private minStock: number,
     private expiryDate: Date | undefined,
+    private isActive: boolean,
+    private createdBy: string | undefined,
     private lastUpdatedAt: Date,
     private readonly createdAt?: Date,
     private readonly updatedAt?: Date,
@@ -38,6 +40,8 @@ export class Inventory {
       props.quantity,
       props.minStock ?? 0,
       props.expiryDate,
+      props.isActive ?? true,
+      props.createdBy,
       now,
       now,
       now,
@@ -51,6 +55,8 @@ export class Inventory {
       props.quantity,
       props.minStock,
       props.expiryDate,
+      props.isActive ?? true,
+      props.createdBy,
       props.lastUpdatedAt,
       props.createdAt,
       props.updatedAt,
@@ -134,6 +140,24 @@ export class Inventory {
 
   public getMinStock(): number {
     return this.minStock;
+  }
+
+  public getIsActive(): boolean {
+    return this.isActive;
+  }
+
+  public getCreatedBy(): string | undefined {
+    return this.createdBy;
+  }
+
+  public deactivate(): void {
+    this.isActive = false;
+    this.lastUpdatedAt = new Date();
+  }
+
+  public activate(): void {
+    this.isActive = true;
+    this.lastUpdatedAt = new Date();
   }
 
   public updateMinStock(minStock: number): void {
