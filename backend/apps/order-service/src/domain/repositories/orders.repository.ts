@@ -12,6 +12,7 @@ export interface IOrdersRepository {
   findBestSellers(
     limit: number,
   ): Promise<{ variantId: string; quantitySold: number }[]>;
+  findVariantIdsWithOrders(variantIds: string[]): Promise<string[]>;
   create(order: Order): Promise<{ id: string }>;
   replaceLines(
     id: string,
