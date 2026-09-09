@@ -232,7 +232,9 @@ const Register: React.FC = () => {
                   <select
                     id="gender"
                     value={gender}
-                    onChange={(e) => setGender(e.target.value as RegisterGender | "")}
+                    onChange={(e) =>
+                      setGender(e.target.value as RegisterGender | "")
+                    }
                     className="w-full px-4 py-3 bg-white rounded-xl border border-zinc-200 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-[#2C221E] focus:ring-1 focus:ring-[#2C221E] transition-all"
                     required
                   >
@@ -253,7 +255,7 @@ const Register: React.FC = () => {
                     Địa chỉ Email
                   </label>
                   <input
-                    type="email"
+                    type="text"
                     id="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -356,11 +358,17 @@ const Register: React.FC = () => {
                     />
                     <span className="text-xs text-zinc-600 leading-tight">
                       Tôi đồng ý với{" "}
-                      <a href="#" className="underline text-zinc-900 font-medium hover:text-black">
+                      <a
+                        href="#"
+                        className="underline text-zinc-900 font-medium hover:text-black"
+                      >
                         Điều khoản Dịch vụ
                       </a>{" "}
                       và{" "}
-                      <a href="#" className="underline text-zinc-900 font-medium hover:text-black">
+                      <a
+                        href="#"
+                        className="underline text-zinc-900 font-medium hover:text-black"
+                      >
                         Chính sách Bảo mật
                       </a>{" "}
                       của Guardian.
@@ -404,8 +412,7 @@ const Register: React.FC = () => {
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
-                      >
-                      </svg>
+                      ></svg>
                     </>
                   )}
                 </button>
