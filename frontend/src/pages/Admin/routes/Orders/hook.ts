@@ -71,6 +71,7 @@ export function useOrders() {
   };
 
   const handleViewDetail = useCallback(async (order: OrderReadModel) => {
+    if (loadingDetail) return;
     try {
       setLoadingDetail(true);
       const detail = await ordersService.getOrderById(order.id);
@@ -80,6 +81,15 @@ export function useOrders() {
       toast.error('Lỗi khi tải chi tiết đơn hàng');
     } finally {
       setLoadingDetail(false);
+    }
+  }, [loadingDetail]);
+
+  const handlePrintOrder = useCallback(async (order: OrderReadModel) => {
+    try {
+      await ordersService.openOrderReceiptPrint(order);
+    } catch (error) {
+      console.error(error);
+      toast.error('Không thể mở giao diện in hóa đơn');
     }
   }, []);
 
@@ -106,5 +116,6 @@ export function useOrders() {
     setDetailOrder,
     loadingDetail,
     handleViewDetail,
+    handlePrintOrder,
   };
 }
