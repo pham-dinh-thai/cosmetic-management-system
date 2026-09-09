@@ -32,7 +32,6 @@ export interface ICosmeticsRepository {
       brand: string | null;
       origin: string | null;
       description: string | null;
-      imageUrl?: string | null;
       categoryIds?: string[];
     },
   ): Promise<Cosmetic | null>;

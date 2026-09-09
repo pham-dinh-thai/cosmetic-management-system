@@ -6,6 +6,6 @@ export class UpdateCosmeticImageRequest implements IUpdateCosmeticImageRequest {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  @MaxLength(500)
+  @MaxLength(500, { message: 'Độ dài file url không được dài quá 500 ký tự' })
   imageUrl!: string;
 }

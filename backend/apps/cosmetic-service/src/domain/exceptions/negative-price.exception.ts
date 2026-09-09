@@ -4,6 +4,6 @@ export class NegativePriceException extends BaseDomainException {
   public readonly statusCode = 400;
 
   public constructor(value: number) {
-    super(`Price cannot be negative: ${value}`);
+    super(`Giá mỹ phẩm không thể âm: ${value}`);
   }
 }

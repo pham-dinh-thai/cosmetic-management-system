@@ -12,30 +12,32 @@ import {
 export class AddVariantRequest implements IAddVariantRequest {
   @ApiProperty()
   @IsString()
-  @IsNotEmpty()
-  @MaxLength(255)
+  @IsNotEmpty({ message: 'Tên biến thể không được bỏ trống' })
+  @MaxLength(255, {
+    message: 'Không được dài quá 255 ký tự',
+  })
   name!: string;
 
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  @MaxLength(50)
+  @MaxLength(50, { message: 'Không được dài quá 50 ký tự' })
   color?: string;
 
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  @MaxLength(50)
+  @MaxLength(50, { message: 'Không được dài quá 50 ký tự' })
   volume?: string;
 
   @ApiProperty()
   @IsNumber()
-  @Min(0)
+  @Min(0, { message: 'Giá không thể nhỏ hơn 0' })
   price!: number;
 
   @ApiProperty({ required: false })
   @IsNumber()
   @IsOptional()
-  @Min(0)
+  @Min(0, { message: 'Giá không thể nhỏ hơn 0' })
   costPrice?: number;
 }

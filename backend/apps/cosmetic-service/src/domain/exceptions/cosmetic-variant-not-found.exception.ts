@@ -4,6 +4,6 @@ export class CosmeticVariantNotFoundException extends BaseDomainException {
   public readonly statusCode = 404;
 
   public constructor(id: string) {
-    super(`Cosmetic variant with id ${id} not found`);
+    super(`Biến thể mỹ phẩm id ${id} không tồn tại`);
   }
 }

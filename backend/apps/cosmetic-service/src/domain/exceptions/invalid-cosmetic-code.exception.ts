@@ -4,6 +4,6 @@ export class InvalidCosmeticCodeException extends BaseDomainException {
   public readonly statusCode = 400;
 
   public constructor(code: string) {
-    super(`Invalid cosmetic code: ${code}`);
+    super(`Code mỹ phẩm không hợp lệ: ${code}`);
   }
 }
