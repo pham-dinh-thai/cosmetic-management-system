@@ -31,9 +31,9 @@ export class RegisterRequest implements IRegisterRequest {
   gender!: RegisterGender;
 
   @ApiProperty()
-  @IsEmail()
-  @IsNotEmpty()
-  @MaxLength(255)
+  @IsEmail({}, { message: 'Email phải đúng định dạng' })
+  @IsNotEmpty({ message: 'Email không được để trống' })
+  @MaxLength(255, { message: 'Email dài quá ký tự cho phép' })
   email!: string;
 
   @ApiProperty()

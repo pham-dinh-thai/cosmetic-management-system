@@ -23,9 +23,7 @@ export class PosOrderUseCase {
     private readonly orderLoggerPort: IOrderLoggerPort,
   ) {}
 
-  public async execute(
-    request: IPosOrderRequest,
-  ): Promise<{
+  public async execute(request: IPosOrderRequest): Promise<{
     id: string;
     status: string;
     total: number;
