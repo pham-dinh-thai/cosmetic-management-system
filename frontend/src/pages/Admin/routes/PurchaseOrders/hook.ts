@@ -1,5 +1,4 @@
 import { useEffect, useState, useCallback } from "react";
-import { toast } from "sonner";
 import { purchaseOrdersService } from "../../../../services/purchase-orders.service";
 import { suppliersService } from "../../../../services/suppliers.service";
 import type { PurchaseOrder } from "./type";
@@ -47,17 +46,6 @@ export function usePurchaseOrders() {
     fetchOrders();
   }, [fetchOrders]);
 
-  const handleDeleteOrder = async (id: string) => {
-    try {
-      await purchaseOrdersService.deletePurchaseOrder(id);
-      toast.success("Đã xoá phiếu nhập thành công");
-      await fetchOrders();
-    } catch (error) {
-      console.error(error);
-      toast.error("Không thể xóa phiếu này. Chỉ xóa được phiếu đang chờ nhập kho hoặc đã hủy.");
-    }
-  };
-
   const filtered = orders.filter(
     (o) =>
       !q ||
@@ -65,5 +53,5 @@ export function usePurchaseOrders() {
       o.supplierName.toLowerCase().includes(q.toLowerCase()),
   );
 
-  return { orders: filtered, loading, q, setQ, handleDeleteOrder };
+  return { orders: filtered, loading, q, setQ };
 }

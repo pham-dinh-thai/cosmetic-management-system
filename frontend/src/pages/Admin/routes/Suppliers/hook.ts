@@ -32,14 +32,19 @@ export function useSuppliers() {
     fetchSuppliers();
   }, [fetchSuppliers]);
 
-  const handleDeleteSupplier = async (id: string) => {
+  const handleToggleStatus = async (supplier: Supplier) => {
     try {
-      await suppliersService.deleteSupplier(id);
-      toast.success("Đã xoá nhà cung cấp thành công");
+      if (supplier.isActive) {
+        await suppliersService.deactivateSupplier(supplier.id);
+        toast.success(`Đã vô hiệu hoá nhà cung cấp "${supplier.name}"`);
+      } else {
+        await suppliersService.activateSupplier(supplier.id);
+        toast.success(`Đã kích hoạt lại nhà cung cấp "${supplier.name}"`);
+      }
       fetchSuppliers();
     } catch (error) {
       console.error(error);
-      toast.error("Lỗi khi xoá nhà cung cấp");
+      toast.error("Lỗi khi đổi trạng thái nhà cung cấp");
     }
   };
 
@@ -51,5 +56,11 @@ export function useSuppliers() {
       s.code.toLowerCase().includes(q.toLowerCase()),
   );
 
-  return { suppliers: filtered, loading, q, setQ, handleDeleteSupplier };
+  return {
+    suppliers: filtered,
+    loading,
+    q,
+    setQ,
+    handleToggleStatus,
+  };
 }

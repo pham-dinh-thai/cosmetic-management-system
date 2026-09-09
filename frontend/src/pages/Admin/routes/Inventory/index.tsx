@@ -1,23 +1,15 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
 import { PageHeader, Input, Button, Kpi } from "../../../../components/ui/Primitives";
 import { DataTable, type Column } from "../../../../components/ui/DataTable";
-import { ConfirmModal } from "../../../../components/ui/ConfirmModal";
 import { useInventory } from "./hook";
-import { inventoryApi } from "./api";
 import { useBasePath } from "../../../../lib/useBasePath";
 import type { InventoryItem } from "./type";
 
 const InventoryPage: React.FC = () => {
   const navigate = useNavigate();
   const basePath = useBasePath();
-  const { inventory, loading, q, setQ, reload } = useInventory();
-
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [inventoryToDelete, setInventoryToDelete] =
-    useState<InventoryItem | null>(null);
-  const [deleting, setDeleting] = useState(false);
+  const { inventory, loading, q, setQ, handleToggleStatus } = useInventory();
 
   const totalProducts = useMemo(() => inventory.reduce((sum, item) => sum + item.quantity, 0), [inventory]);
   const lowStock = useMemo(() => inventory.filter(item => item.quantity > 0 && item.quantity <= item.minStock).length, [inventory]);
@@ -39,28 +31,6 @@ const InventoryPage: React.FC = () => {
 
   const openEdit = (i: InventoryItem) => {
     navigate(`${basePath}/inventory/${i.id}/edit`);
-  };
-
-  const openDelete = (i: InventoryItem) => {
-    setInventoryToDelete(i);
-    setIsConfirmOpen(true);
-  };
-
-  const onConfirmDelete = async () => {
-    if (!inventoryToDelete) return;
-    setDeleting(true);
-    try {
-      await inventoryApi.deleteInventory(inventoryToDelete.id);
-      toast.success("Đã xóa dòng tồn kho");
-      setIsConfirmOpen(false);
-      setInventoryToDelete(null);
-      reload();
-    } catch (error) {
-      console.error(error);
-      toast.error("Không thể xóa dòng tồn kho");
-    } finally {
-      setDeleting(false);
-    }
   };
 
   const columns = useMemo<Column<InventoryItem>[]>(
@@ -89,11 +59,33 @@ const InventoryPage: React.FC = () => {
         },
       },
       {
+        key: "isActive",
+        header: "Trạng thái",
+        render: (i) => (
+          <span
+            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-[0.18em] ${
+              i.isActive
+                ? "bg-[#e3ecd9] text-[#1c3a13]"
+                : "bg-[#eeeee9] text-[#666666]"
+            }`}
+          >
+            {i.isActive ? "Đang hoạt động" : "Vô hiệu hoá"}
+          </span>
+        ),
+      },
+      {
         key: "actions",
         header: <div className="text-right">Thao tác</div>,
         className: "text-right",
         render: (i) => (
           <div className="flex items-center justify-end gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate(`${basePath}/inventory/${i.id}`)}
+            >
+              Xem chi tiết
+            </Button>
             <Button
               variant="outline"
               size="sm"
@@ -102,18 +94,17 @@ const InventoryPage: React.FC = () => {
               Sửa
             </Button>
             <Button
-              variant="outline"
+              variant="ghost"
               size="sm"
-              className="text-red-600 border-red-200 hover:bg-red-50"
-              onClick={() => openDelete(i)}
+              onClick={() => handleToggleStatus(i)}
             >
-              Xóa
+              {i.isActive ? "Vô hiệu hoá" : "Kích hoạt"}
             </Button>
           </div>
         ),
       },
     ],
-    [navigate],
+    [basePath, navigate, handleToggleStatus],
   );
 
   return (
@@ -123,8 +114,8 @@ const InventoryPage: React.FC = () => {
         title="Quản lý tồn kho"
         description="Theo dõi số lượng sản phẩm lưu kho."
         actions={
-          <Button variant="primary" onClick={() => navigate(`${basePath}/inventory/add`)}>
-            + Nhập kho
+          <Button variant="primary" onClick={() => navigate(`${basePath}/inventory/import`)}>
+            Nhập kho từ phiếu nhập
           </Button>
         }
       />
@@ -170,22 +161,6 @@ const InventoryPage: React.FC = () => {
       ) : (
         <DataTable columns={columns} rows={inventory} rowKey={(i) => i.id} empty="Chưa có dữ liệu kho" />
       )}
-
-      <ConfirmModal
-        isOpen={isConfirmOpen}
-        title="Xóa dòng tồn kho"
-        message={`Bạn có chắc muốn xóa dòng tồn kho của "${inventoryToDelete?.productName || ""}" (${
-          inventoryToDelete?.variantName || inventoryToDelete?.variantId || ""
-        })? Hành động này không thể hoàn tác.`}
-        onConfirm={onConfirmDelete}
-        onCancel={() => {
-          setIsConfirmOpen(false);
-          setInventoryToDelete(null);
-        }}
-        confirmText={deleting ? "Đang xóa..." : "Xóa"}
-        cancelText="Hủy"
-        isDestructive
-      />
     </div>
   );
 };

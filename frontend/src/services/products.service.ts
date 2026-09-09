@@ -137,6 +137,14 @@ export const productsService = {
     await api.delete<void>(`/cosmetics/${id}`);
   },
 
+  async activateCosmetic(id: string): Promise<void> {
+    await api.patch<void>(`/cosmetics/${id}/activate`);
+  },
+
+  async deactivateCosmetic(id: string): Promise<void> {
+    await api.patch<void>(`/cosmetics/${id}/deactivate`);
+  },
+
   async uploadImage(file: File): Promise<{ imageUrl: string }> {
     const formData = new FormData();
     formData.append("image", file);

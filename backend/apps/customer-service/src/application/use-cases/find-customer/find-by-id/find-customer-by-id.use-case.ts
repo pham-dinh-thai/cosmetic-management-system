@@ -23,6 +23,7 @@ export class FindCustomerByIdUseCase {
       lastName: string;
       gender: string;
       email?: string;
+      isActive?: boolean;
     } | null = null;
 
     if (customer.getUserId()) {
@@ -51,6 +52,7 @@ export class FindCustomerByIdUseCase {
       userInfo?.email ?? '',
       customer.getPhone(),
       customer.getAddress(),
+      userInfo?.isActive ?? true,
       customer.getAddresses().map((a) => ({
         id: a.getId(),
         city: a.getCity(),

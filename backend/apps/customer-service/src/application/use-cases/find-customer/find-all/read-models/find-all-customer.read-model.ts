@@ -8,5 +8,6 @@ export class FindAllCustomerReadModel {
     public readonly email: string,
     public readonly phone: string,
     public readonly address: string,
+    public readonly isActive: boolean = true,
   ) {}
 }

@@ -20,6 +20,7 @@ export class InternalInventoryController {
       request.expiryDate
         ? new Date(`${request.expiryDate}T00:00:00`)
         : undefined,
+      request.createdBy,
     );
   }
 

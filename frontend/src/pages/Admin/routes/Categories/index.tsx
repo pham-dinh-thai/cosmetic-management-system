@@ -1,7 +1,6 @@
 import React, { useMemo } from "react";
 import { PageHeader, Button, Input, Select } from "../../../../components/ui/Primitives";
 import { DataTable, type Column } from "../../../../components/ui/DataTable";
-import { ConfirmModal } from "../../../../components/ui/ConfirmModal";
 import { useCategories } from "./hook";
 import type { CategorySummary, StatusFilter } from "./type";
 import { useAuthStore } from "../../../../store/useAuthStore";
@@ -25,15 +24,12 @@ const CategoriesPage: React.FC = () => {
     setQ,
     status,
     setStatus,
-    confirmDelete,
-    setConfirmDelete,
     isModalOpen,
     setIsModalOpen,
     editingId,
     formData,
     setFormData,
     isSubmitting,
-    handleDeleteConfirm,
     handleToggleStatus,
     openAddModal,
     openEditModal,
@@ -85,21 +81,13 @@ const CategoriesPage: React.FC = () => {
                 >
                   {c.isActive ? "Vô hiệu hoá" : "Kích hoạt"}
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-red-600 hover:bg-red-50/80"
-                  onClick={() => setConfirmDelete({ isOpen: true, category: c })}
-                >
-                  Xoá
-                </Button>
               </>
             )}
           </div>
         ),
       },
     ],
-    [openEditModal, handleToggleStatus, setConfirmDelete, canWrite],
+    [openEditModal, handleToggleStatus, canWrite],
   );
 
   return (
@@ -156,17 +144,6 @@ const CategoriesPage: React.FC = () => {
           empty="Không tìm thấy danh mục phù hợp"
         />
       )}
-
-      <ConfirmModal
-        isOpen={confirmDelete.isOpen}
-        title="Xác nhận xoá danh mục"
-        message={`Bạn có chắc chắn muốn xoá danh mục "${confirmDelete.category?.name}"? Hành động này không thể hoàn tác.`}
-        confirmText="Xoá danh mục"
-        cancelText="Hủy"
-        isDestructive={true}
-        onConfirm={handleDeleteConfirm}
-        onCancel={() => setConfirmDelete({ isOpen: false, category: null })}
-      />
 
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">

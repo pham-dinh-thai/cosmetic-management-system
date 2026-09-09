@@ -76,11 +76,13 @@ export class MikroInventoryRepository implements IInventoryRepository {
     quantity: number,
     expiryDate?: Date,
     minStock?: number,
+    createdBy?: string,
   ): Promise<{ id: string }> {
     const inventoryMikro = this.entityManager.create(InventoryMikro, {
       variantId,
       quantity,
       ...(minStock !== undefined ? { minStock } : {}),
+      ...(createdBy ? { createdBy } : {}),
       lastUpdatedAt: new Date(),
       ...(expiryDate ? { expiryDate: this.toDateString(expiryDate) } : {}),
     });
@@ -95,11 +97,12 @@ export class MikroInventoryRepository implements IInventoryRepository {
     quantity: number,
     expiryDate?: Date,
     minStock?: number,
+    createdBy?: string,
   ): Promise<Inventory> {
     const inventory = await this.findByVariantId(variantId);
 
     if (!inventory) {
-      await this.create(variantId, quantity, expiryDate, minStock);
+      await this.create(variantId, quantity, expiryDate, minStock, createdBy);
       const created = await this.findByVariantId(variantId);
 
       if (!created) {
@@ -232,5 +235,51 @@ export class MikroInventoryRepository implements IInventoryRepository {
     });
 
     return result > 0;
+  }
+
+  public async deactivate(id: string): Promise<Inventory | null> {
+    const inventory = await this.findById(id);
+
+    if (!inventory) {
+      return null;
+    }
+
+    inventory.deactivate();
+
+    const inventoryMikro = await this.entityManager.findOne(InventoryMikro, {
+      id,
+    });
+
+    if (!inventoryMikro) {
+      return null;
+    }
+
+    inventoryMikro.isActive = false;
+    await this.entityManager.flush();
+
+    return inventory;
+  }
+
+  public async activate(id: string): Promise<Inventory | null> {
+    const inventory = await this.findById(id);
+
+    if (!inventory) {
+      return null;
+    }
+
+    inventory.activate();
+
+    const inventoryMikro = await this.entityManager.findOne(InventoryMikro, {
+      id,
+    });
+
+    if (!inventoryMikro) {
+      return null;
+    }
+
+    inventoryMikro.isActive = true;
+    await this.entityManager.flush();
+
+    return inventory;
   }
 }

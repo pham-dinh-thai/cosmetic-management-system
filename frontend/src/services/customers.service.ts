@@ -31,6 +31,7 @@ export interface CustomerSummary {
   email: string;
   phone: string;
   address: string;
+  isActive?: boolean;
 }
 
 export interface CustomerDetail extends CustomerSummary {
@@ -101,5 +102,13 @@ export const customersService = {
 
   async deleteCustomer(id: string): Promise<void> {
     await api.delete<void>(`/customers/${id}`);
+  },
+
+  async activateCustomer(id: string): Promise<void> {
+    await api.patch<void>(`/customers/${id}/activate`);
+  },
+
+  async deactivateCustomer(id: string): Promise<void> {
+    await api.patch<void>(`/customers/${id}/deactivate`);
   },
 };

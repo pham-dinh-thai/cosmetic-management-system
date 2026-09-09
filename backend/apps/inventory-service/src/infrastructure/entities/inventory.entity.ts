@@ -10,6 +10,8 @@ const InventorySchema = defineEntity({
     quantity: p.integer().default(0),
     minStock: p.integer().default(0),
     expiryDate: p.date().nullable(),
+    isActive: p.boolean().default(true),
+    createdBy: p.uuid().nullable(),
     lastUpdatedAt: p.datetime().onCreate(() => new Date()),
     createdAt: p.datetime().onCreate(() => new Date()),
     updatedAt: p

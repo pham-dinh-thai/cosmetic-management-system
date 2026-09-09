@@ -12,9 +12,10 @@ export class PurchaseOrder {
     private readonly id: string,
     private readonly code: string,
     private readonly supplierId: string,
-    private status: PurchaseOrderStatus,
-    private totalAmount: number,
-    private readonly lines: PurchaseOrderLine[],
+    private readonly employeeId?: string,
+    private status: PurchaseOrderStatus = PurchaseOrderStatus.PENDING,
+    private totalAmount: number = 0,
+    private readonly lines: PurchaseOrderLine[] = [],
     private readonly createdAt?: Date,
     private readonly updatedAt?: Date,
   ) {}
@@ -26,6 +27,7 @@ export class PurchaseOrder {
       undefined as unknown as string,
       props.code,
       props.supplierId,
+      props.employeeId,
       PurchaseOrderStatus.PENDING,
       PurchaseOrder.calculateTotal(lines),
       lines,
@@ -39,6 +41,7 @@ export class PurchaseOrder {
       props.id,
       props.code,
       props.supplierId,
+      props.employeeId,
       props.status,
       props.totalAmount,
       props.lines.map((line) => PurchaseOrderLine.fromPersistent(line)),
@@ -106,6 +109,10 @@ export class PurchaseOrder {
 
   public getSupplierId(): string {
     return this.supplierId;
+  }
+
+  public getEmployeeId(): string | undefined {
+    return this.employeeId;
   }
 
   public getStatus(): PurchaseOrderStatus {

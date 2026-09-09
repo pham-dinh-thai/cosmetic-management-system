@@ -8,6 +8,7 @@ export class FindCustomerByIdReadModel {
     public readonly email: string,
     public readonly phone: string,
     public readonly address: string,
+    public readonly isActive: boolean = true,
     public readonly addresses: {
       id: string;
       city: string;

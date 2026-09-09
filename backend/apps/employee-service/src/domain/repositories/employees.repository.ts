@@ -18,6 +18,10 @@ export interface IEmployeesRepository {
   assignDepartment(employee: Employee): Promise<void>;
 
   updatePosition(employee: Employee): Promise<void>;
+
+  deactivate(id: string): Promise<void>;
+
+  activate(id: string): Promise<void>;
 }
 
 export const EMPLOYEES_REPOSITORY = 'IEmployeesRepository';

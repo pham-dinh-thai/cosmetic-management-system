@@ -45,7 +45,11 @@ export class CompletePurchaseOrderUseCase {
     await this.purchaseTransactionsRepository.saveMany(transactions);
 
     for (const line of purchaseOrder.getLines()) {
-      await this.addStockPort.execute(line.getVariantId(), line.getQuantity());
+      await this.addStockPort.execute(
+        line.getVariantId(),
+        line.getQuantity(),
+        employeeId,
+      );
     }
 
     return { id };

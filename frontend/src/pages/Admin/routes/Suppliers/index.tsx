@@ -1,8 +1,7 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageHeader, Input, Button } from "../../../../components/ui/Primitives";
 import { DataTable, type Column } from "../../../../components/ui/DataTable";
-import { ConfirmModal } from "../../../../components/ui/ConfirmModal";
 import { useSuppliers } from "./hook";
 import type { Supplier } from "./type";
 import { useAuthStore } from "../../../../store/useAuthStore";
@@ -14,10 +13,7 @@ const SuppliersPage: React.FC = () => {
   const basePath = useBasePath();
   const user = useAuthStore((s) => s.user);
   const canWrite = canWriteSuppliers(user);
-  const { suppliers, loading, q, setQ, handleDeleteSupplier } = useSuppliers();
-
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [supplierToDelete, setSupplierToDelete] = useState<Supplier | null>(null);
+  const { suppliers, loading, q, setQ, handleToggleStatus } = useSuppliers();
 
   const openAdd = () => {
     navigate(`${basePath}/suppliers/add`);
@@ -25,19 +21,6 @@ const SuppliersPage: React.FC = () => {
 
   const openEdit = (s: Supplier) => {
     navigate(`${basePath}/suppliers/${s.id}/edit`);
-  };
-
-  const openDelete = (s: Supplier) => {
-    setSupplierToDelete(s);
-    setIsConfirmOpen(true);
-  };
-
-  const onConfirmDelete = async () => {
-    if (supplierToDelete) {
-      await handleDeleteSupplier(supplierToDelete.id);
-    }
-    setIsConfirmOpen(false);
-    setSupplierToDelete(null);
   };
 
   const columns = useMemo<Column<Supplier>[]>(
@@ -73,8 +56,8 @@ const SuppliersPage: React.FC = () => {
                 <Button variant="outline" size="sm" onClick={() => openEdit(s)}>
                   Sửa
                 </Button>
-                <Button variant="outline" size="sm" className="text-red-600 border-red-600 hover:bg-red-600 hover:text-white" onClick={() => openDelete(s)}>
-                  Xóa
+                <Button variant="ghost" size="sm" onClick={() => handleToggleStatus(s)}>
+                  {s.isActive ? "Vô hiệu hoá" : "Kích hoạt"}
                 </Button>
               </>
             )}
@@ -82,7 +65,7 @@ const SuppliersPage: React.FC = () => {
         ),
       },
     ],
-    [canWrite],
+    [canWrite, handleToggleStatus],
   );
 
   return (
@@ -109,15 +92,6 @@ const SuppliersPage: React.FC = () => {
       ) : (
         <DataTable columns={columns} rows={suppliers} rowKey={(s) => s.id} empty="Chưa có nhà cung cấp" />
       )}
-
-      <ConfirmModal
-        isOpen={isConfirmOpen}
-        title="Xóa nhà cung cấp"
-        message={`Bạn có chắc chắn muốn xóa nhà cung cấp ${supplierToDelete?.name}? Hành động này không thể hoàn tác.`}
-        onConfirm={onConfirmDelete}
-        onCancel={() => setIsConfirmOpen(false)}
-        isDestructive={true}
-      />
     </div>
   );
 };

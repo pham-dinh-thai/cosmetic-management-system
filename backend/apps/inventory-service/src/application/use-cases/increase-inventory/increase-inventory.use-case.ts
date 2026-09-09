@@ -9,11 +9,14 @@ export class IncreaseInventoryUseCase {
     variantId: string,
     quantity: number,
     expiryDate?: Date,
+    createdBy?: string,
   ): Promise<{ variantId: string; quantity: number }> {
     const inventory = await this.inventoryRepository.addStock(
       variantId,
       quantity,
       expiryDate,
+      undefined,
+      createdBy,
     );
 
     return {

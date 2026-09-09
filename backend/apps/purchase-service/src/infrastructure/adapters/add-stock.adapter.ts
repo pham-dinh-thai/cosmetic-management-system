@@ -12,13 +12,21 @@ export class AddStockAdapter implements IAddStockPort {
     this.url = this.config.getOrThrow<string>('INVENTORY_SERVICE_URL');
   }
 
-  public async execute(variantId: string, quantity: number): Promise<void> {
+  public async execute(
+    variantId: string,
+    quantity: number,
+    createdBy?: string,
+  ): Promise<void> {
     const response = await fetch(
       `${this.url}/api/internal/inventory/purchase`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ variantId, quantity }),
+        body: JSON.stringify({
+          variantId,
+          quantity,
+          ...(createdBy ? { createdBy } : {}),
+        }),
       },
     );
 

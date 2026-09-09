@@ -148,6 +148,10 @@ export function renderPurchaseReceiptHtml(receipt: PurchaseOrderReceipt): string
           <div><strong>${escapeHtml(receipt.supplierName)}</strong></div>
           ${supplierAddress}
         </div>
+        <div>
+          <div class="muted">Người lập phiếu</div>
+          <div><strong>${escapeHtml(receipt.createdByName ?? '-')}</strong></div>
+        </div>
         <div class="right">
           <div class="muted">Ngày lập</div>
           <div><strong>${formatDate(receipt.createdAt)}</strong></div>

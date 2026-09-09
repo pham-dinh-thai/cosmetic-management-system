@@ -1,8 +1,7 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageHeader, Input, Button } from "../../../../components/ui/Primitives";
 import { DataTable, type Column } from "../../../../components/ui/DataTable";
-import { ConfirmModal } from "../../../../components/ui/ConfirmModal";
 import { usePurchaseOrders } from "./hook";
 import { openPurchaseReceiptPrint } from "../../../../services/purchase-orders.service";
 import { useBasePath } from "../../../../lib/useBasePath";
@@ -29,24 +28,7 @@ const statusMeta: Record<
 const PurchaseOrdersPage: React.FC = () => {
   const navigate = useNavigate();
   const basePath = useBasePath();
-  const { orders, loading, q, setQ, handleDeleteOrder } = usePurchaseOrders();
-
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [orderToDelete, setOrderToDelete] = useState<PurchaseOrder | null>(null);
-
-  const openDelete = (o: PurchaseOrder) => {
-    setOrderToDelete(o);
-    setIsConfirmOpen(true);
-  };
-
-  const onConfirmDelete = async () => {
-    const target = orderToDelete;
-    setIsConfirmOpen(false);
-    setOrderToDelete(null);
-    if (target) {
-      await handleDeleteOrder(target.id);
-    }
-  };
+  const { orders, loading, q, setQ } = usePurchaseOrders();
 
   const columns = useMemo<Column<PurchaseOrder>[]>(
     () => [
@@ -87,9 +69,6 @@ const PurchaseOrdersPage: React.FC = () => {
             <Button variant="outline" size="sm" onClick={() => navigate(`${basePath}/purchase/${o.id}/edit`)}>
               Sửa
             </Button>
-            <Button variant="outline" size="sm" className="text-red-600 border-red-600 hover:bg-red-600 hover:text-white" disabled={o.status === "COMPLETED"} onClick={() => openDelete(o)}>
-              Xóa
-            </Button>
           </div>
         ),
       },
@@ -117,15 +96,6 @@ const PurchaseOrdersPage: React.FC = () => {
       ) : (
         <DataTable columns={columns} rows={orders} rowKey={(o) => o.id} empty="Chưa có phiếu nhập hàng" />
       )}
-
-      <ConfirmModal
-        isOpen={isConfirmOpen}
-        title="Xóa phiếu nhập"
-        message={`Bạn có chắc chắn muốn xóa phiếu ${orderToDelete?.code}? Hành động này không thể hoàn tác.`}
-        onConfirm={onConfirmDelete}
-        onCancel={() => setIsConfirmOpen(false)}
-        isDestructive={true}
-      />
     </div>
   );
 };

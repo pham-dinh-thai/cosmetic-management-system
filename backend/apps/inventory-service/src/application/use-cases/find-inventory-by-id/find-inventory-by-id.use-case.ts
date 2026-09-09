@@ -19,6 +19,8 @@ export class FindInventoryByIdUseCase {
           inventory.getUpdatedAt(),
           inventory.getExpiryDate(),
           inventory.getMinStock(),
+          inventory.getIsActive(),
+          inventory.getCreatedBy(),
         )
       : null;
   }

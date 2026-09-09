@@ -1,17 +1,13 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageHeader, Input, Button } from "../../../../components/ui/Primitives";
 import { DataTable, type Column } from "../../../../components/ui/DataTable";
-import { ConfirmModal } from "../../../../components/ui/ConfirmModal";
 import { useDepartments } from "./hook";
 import type { Department } from "./type";
 
 const DepartmentsPage: React.FC = () => {
   const navigate = useNavigate();
-  const { departments, loading, q, setQ, handleDeleteDepartment } = useDepartments();
-
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [departmentToDelete, setDepartmentToDelete] = useState<Department | null>(null);
+  const { departments, loading, q, setQ, handleToggleStatus } = useDepartments();
 
   const openAdd = () => {
     navigate("/admin/departments/add");
@@ -19,19 +15,6 @@ const DepartmentsPage: React.FC = () => {
 
   const openEdit = (d: Department) => {
     navigate(`/admin/departments/${d.id}/edit`);
-  };
-
-  const openDelete = (d: Department) => {
-    setDepartmentToDelete(d);
-    setIsConfirmOpen(true);
-  };
-
-  const onConfirmDelete = async () => {
-    if (departmentToDelete) {
-      await handleDeleteDepartment(departmentToDelete.id);
-    }
-    setIsConfirmOpen(false);
-    setDepartmentToDelete(null);
   };
 
   const columns = useMemo<Column<Department>[]>(
@@ -62,14 +45,14 @@ const DepartmentsPage: React.FC = () => {
             <Button variant="outline" size="sm" onClick={() => openEdit(d)}>
               Sửa
             </Button>
-            <Button variant="outline" size="sm" className="text-red-600 border-red-600 hover:bg-red-600 hover:text-white" onClick={() => openDelete(d)}>
-              Xóa
+            <Button variant="ghost" size="sm" onClick={() => handleToggleStatus(d)}>
+              {d.isActive ? "Vô hiệu hoá" : "Kích hoạt"}
             </Button>
           </div>
         ),
       },
     ],
-    [],
+    [handleToggleStatus],
   );
 
   return (
@@ -92,15 +75,6 @@ const DepartmentsPage: React.FC = () => {
       ) : (
         <DataTable columns={columns} rows={departments} rowKey={(d) => d.id} empty="Chưa có phòng ban" />
       )}
-
-      <ConfirmModal
-        isOpen={isConfirmOpen}
-        title="Xóa phòng ban"
-        message={`Bạn có chắc chắn muốn xóa phòng ban ${departmentToDelete?.name}? Hành động này không thể hoàn tác.`}
-        onConfirm={onConfirmDelete}
-        onCancel={() => setIsConfirmOpen(false)}
-        isDestructive={true}
-      />
     </div>
   );
 };

@@ -60,6 +60,16 @@ import {
   RemovePhoneUseCase,
   removePhoneUseCaseFactory,
 } from './application/use-cases/remove-phone/remove-phone.use-case';
+import {
+  ActivateCustomerUseCase,
+  activateCustomerUseCaseFactory,
+} from './application/use-cases/activate-customer/activate-customer.use-case';
+import {
+  DeactivateCustomerUseCase,
+  deactivateCustomerUseCaseFactory,
+} from './application/use-cases/deactivate-customer/deactivate-customer.use-case';
+import { UPDATE_USER_ACTIVE_STATUS_PORT } from './application/use-cases/update-customer/ports/update-user-active-status.port';
+import { UpdateUserActiveStatusAdapter } from './infrastructure/adapters/update-user-active-status.adapter';
 import { PhoneValidationService } from './domain/services/phone-validation.service';
 
 @Module({
@@ -167,6 +177,22 @@ import { PhoneValidationService } from './domain/services/phone-validation.servi
       provide: RemovePhoneUseCase,
       useFactory: removePhoneUseCaseFactory,
       inject: [CUSTOMERS_REPOSITORY],
+    },
+    {
+      provide: UPDATE_USER_ACTIVE_STATUS_PORT,
+      useFactory: (config: ConfigService) =>
+        new UpdateUserActiveStatusAdapter(config),
+      inject: [ConfigService],
+    },
+    {
+      provide: ActivateCustomerUseCase,
+      useFactory: activateCustomerUseCaseFactory,
+      inject: [CUSTOMERS_REPOSITORY, UPDATE_USER_ACTIVE_STATUS_PORT],
+    },
+    {
+      provide: DeactivateCustomerUseCase,
+      useFactory: deactivateCustomerUseCaseFactory,
+      inject: [CUSTOMERS_REPOSITORY, UPDATE_USER_ACTIVE_STATUS_PORT],
     },
   ],
 })

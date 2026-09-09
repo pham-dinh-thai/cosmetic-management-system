@@ -8,5 +8,7 @@ export class InventoryReadModel {
     public readonly updatedAt: Date | undefined,
     public readonly expiryDate: Date | undefined,
     public readonly minStock: number,
+    public readonly isActive: boolean,
+    public readonly createdBy: string | undefined,
   ) {}
 }

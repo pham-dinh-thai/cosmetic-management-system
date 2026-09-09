@@ -5,6 +5,7 @@ import { Employee } from '../../domain/employee.aggregate';
 import { EmployeesMapper } from '../mappers/employees.mapper';
 import { Employee as EmployeeMikro } from '../entities/employee.entity';
 import { EMPLOYEE_CODE_PREFIX } from '../../domain/value-objects/employee-code.value-object';
+import { EmployeeStatus } from '../../domain/enums/employee-status.enum';
 import { maxSequenceFromCodes } from '@app/codes';
 
 @Injectable()
@@ -107,6 +108,22 @@ export class MikroEmployeesRepository implements IEmployeesRepository {
         position: employee.getPosition(),
         updatedAt: new Date(),
       },
+    );
+  }
+
+  public async deactivate(id: string): Promise<void> {
+    await this.entityManager.nativeUpdate(
+      EmployeeMikro,
+      { id },
+      { status: EmployeeStatus.INACTIVE, updatedAt: new Date() },
+    );
+  }
+
+  public async activate(id: string): Promise<void> {
+    await this.entityManager.nativeUpdate(
+      EmployeeMikro,
+      { id },
+      { status: EmployeeStatus.ACTIVE, updatedAt: new Date() },
     );
   }
 }

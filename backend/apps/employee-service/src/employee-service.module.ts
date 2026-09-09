@@ -55,6 +55,14 @@ import {
   FindAllEmployeesUseCase,
   findAllEmployeesUseCaseFactory,
 } from './application/use-cases/find-employee/find-all/find-all-employees.use-case';
+import {
+  ActivateEmployeeUseCase,
+  activateEmployeeUseCaseFactory,
+} from './application/use-cases/activate-employee/activate-employee.use-case';
+import {
+  DeactivateEmployeeUseCase,
+  deactivateEmployeeUseCaseFactory,
+} from './application/use-cases/deactivate-employee/deactivate-employee.use-case';
 
 @Module({
   imports: [
@@ -166,6 +174,16 @@ import {
       provide: FindAllEmployeesUseCase,
       useFactory: findAllEmployeesUseCaseFactory,
       inject: [EMPLOYEES_REPOSITORY, FIND_USER_INFORMATION_PORT, EMPLOYEE_LOGGER_PORT],
+    },
+    {
+      provide: ActivateEmployeeUseCase,
+      useFactory: activateEmployeeUseCaseFactory,
+      inject: [EMPLOYEES_REPOSITORY],
+    },
+    {
+      provide: DeactivateEmployeeUseCase,
+      useFactory: deactivateEmployeeUseCaseFactory,
+      inject: [EMPLOYEES_REPOSITORY],
     },
   ],
 })

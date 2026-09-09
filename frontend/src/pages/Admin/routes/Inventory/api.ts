@@ -8,8 +8,10 @@ interface InventoryDto {
   minStock: number;
   expiryDate: string | null;
   lastUpdatedAt: string;
+  isActive?: boolean;
   createdAt?: string | null;
   updatedAt?: string | null;
+  createdBy?: string | null;
 }
 
 export const inventoryApi = {
@@ -22,6 +24,10 @@ export const inventoryApi = {
       minStock: d.minStock ?? 0,
       expiryDate: d.expiryDate,
       lastUpdatedAt: d.lastUpdatedAt,
+      isActive: d.isActive ?? true,
+      createdAt: d.createdAt,
+      updatedAt: d.updatedAt,
+      createdBy: d.createdBy,
     }));
   },
 
@@ -35,6 +41,10 @@ export const inventoryApi = {
         minStock: data.minStock ?? 0,
         expiryDate: data.expiryDate,
         lastUpdatedAt: data.lastUpdatedAt,
+        isActive: data.isActive ?? true,
+        createdAt: data.createdAt,
+        updatedAt: data.updatedAt,
+        createdBy: data.createdBy,
       };
     } catch {
       return null;
@@ -50,6 +60,10 @@ export const inventoryApi = {
       minStock: data.minStock ?? 0,
       expiryDate: data.expiryDate,
       lastUpdatedAt: data.lastUpdatedAt,
+      isActive: data.isActive ?? true,
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt,
+      createdBy: data.createdBy,
     };
   },
 
@@ -79,5 +93,13 @@ export const inventoryApi = {
 
   async deleteInventory(id: string): Promise<void> {
     await api.delete(`/inventory/${id}`);
+  },
+
+  async activateInventory(id: string): Promise<void> {
+    await api.patch(`/inventory/${id}/activate`);
+  },
+
+  async deactivateInventory(id: string): Promise<void> {
+    await api.patch(`/inventory/${id}/deactivate`);
   },
 };

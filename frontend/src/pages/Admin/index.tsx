@@ -28,6 +28,8 @@ import EditPurchaseOrderPage from "./routes/EditPurchaseOrder";
 import InventoryPage from "./routes/Inventory";
 import AddInventoryPage from "./routes/AddInventory";
 import EditInventoryPage from "./routes/EditInventory";
+import InventoryDetailPage from "./routes/InventoryDetail";
+import ImportPurchaseOrderPage from "./routes/ImportPurchaseOrder";
 import OrdersPage from "./routes/Orders";
 
 export type AdminPageKey =
@@ -70,28 +72,30 @@ const ALL_SECTIONS: (active: AdminPageKey) => SidebarSection[] = (
   active,
 ) => [
   {
-    id: "general",
+    id: "sales",
     title: "Bán hàng",
-    items: [{ id: "orders", label: "Đơn hàng", active: active === "orders" }],
+    items: [
+      { id: "orders", label: "Đơn hàng", active: active === "orders" },
+      { id: "products", label: "Sản phẩm", active: active === "products" },
+      { id: "categories", label: "Danh mục", active: active === "categories" },
+    ],
   },
   {
-    id: "people",
-    title: "Đối tượng",
+    id: "warehouse",
+    title: "Kho",
+    items: [
+      { id: "suppliers", label: "Nhà cung cấp", active: active === "suppliers" },
+      { id: "purchase", label: "Nhập hàng", active: active === "purchase" },
+      { id: "inventory", label: "Kho", active: active === "inventory" },
+    ],
+  },
+  {
+    id: "management",
+    title: "Quản trị",
     items: [
       { id: "customers", label: "Khách hàng", active: active === "customers" },
       { id: "employees", label: "Nhân viên", active: active === "employees" },
       { id: "departments", label: "Phòng ban", active: active === "departments" },
-      { id: "suppliers", label: "Nhà cung cấp", active: active === "suppliers" },
-    ],
-  },
-  {
-    id: "catalog",
-    title: "Sản phẩm & Kho",
-    items: [
-      { id: "products", label: "Sản phẩm", active: active === "products" },
-      { id: "categories", label: "Danh mục", active: active === "categories" },
-      { id: "purchase", label: "Nhập hàng", active: active === "purchase" },
-      { id: "inventory", label: "Kho", active: active === "inventory" },
     ],
   },
 ];
@@ -144,8 +148,10 @@ const Admin: React.FC = () => {
         <Route path="purchase/add" element={<AddPurchaseOrderPage />} />
         <Route path="purchase/:id/edit" element={<EditPurchaseOrderPage />} />
         <Route path="inventory" element={<InventoryPage />} />
+        <Route path="inventory/import" element={<ImportPurchaseOrderPage />} />
         <Route path="inventory/add" element={<AddInventoryPage />} />
         <Route path="inventory/:id/edit" element={<EditInventoryPage />} />
+        <Route path="inventory/:id" element={<InventoryDetailPage />} />
         <Route path="*" element={<Navigate to="/admin/customers" replace />} />
       </Routes>
     </DashboardLayout>

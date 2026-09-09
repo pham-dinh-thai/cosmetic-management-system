@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Put,
   Query,
@@ -27,6 +28,8 @@ import { RemoveAddressUseCase } from 'apps/customer-service/src/application/use-
 import { AddPhoneUseCase } from 'apps/customer-service/src/application/use-cases/add-phone/add-phone.use-case';
 import { AddPhoneRequest } from './requests/add-phone.request';
 import { RemovePhoneUseCase } from 'apps/customer-service/src/application/use-cases/remove-phone/remove-phone.use-case';
+import { ActivateCustomerUseCase } from 'apps/customer-service/src/application/use-cases/activate-customer/activate-customer.use-case';
+import { DeactivateCustomerUseCase } from 'apps/customer-service/src/application/use-cases/deactivate-customer/deactivate-customer.use-case';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Roles(Role.Admin, Role.Employee)
@@ -42,6 +45,8 @@ export class CustomersController {
     private readonly removeAddressUseCase: RemoveAddressUseCase,
     private readonly addPhoneUseCase: AddPhoneUseCase,
     private readonly removePhoneUseCase: RemovePhoneUseCase,
+    private readonly activateCustomerUseCase: ActivateCustomerUseCase,
+    private readonly deactivateCustomerUseCase: DeactivateCustomerUseCase,
   ) {}
 
   @Get()
@@ -78,6 +83,18 @@ export class CustomersController {
   @Delete(':id')
   public async delete(@Param('id') id: string): Promise<void> {
     await this.deleteCustomerUseCase.execute(id);
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Patch(':id/activate')
+  public async activate(@Param('id') id: string): Promise<void> {
+    await this.activateCustomerUseCase.execute(id);
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Patch(':id/deactivate')
+  public async deactivate(@Param('id') id: string): Promise<void> {
+    await this.deactivateCustomerUseCase.execute(id);
   }
 
   @Post(':id/addresses')

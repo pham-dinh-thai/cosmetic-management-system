@@ -21,6 +21,7 @@ export class FindAllCustomersUseCase {
           lastName: string;
           gender: string;
           email?: string;
+          isActive?: boolean;
         } | null = null;
         try {
           userInfo = await this.findUserInformationPort.execute(
@@ -45,6 +46,7 @@ export class FindAllCustomersUseCase {
           userInfo?.email ?? '',
           customer.getPhone(),
           customer.getAddress(),
+          userInfo?.isActive ?? true,
         );
       }),
     );

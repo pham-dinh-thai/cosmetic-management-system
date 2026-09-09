@@ -55,14 +55,19 @@ export function useEmployees() {
     fetchEmployees();
   }, [fetchEmployees]);
 
-  const handleDeleteEmployee = async (id: string) => {
+  const handleToggleStatus = async (employee: Employee) => {
     try {
-      await employeesService.deleteEmployee(id);
-      toast.success("Đã xoá nhân viên thành công");
+      if (employee.status === "ACTIVE") {
+        await employeesService.deactivateEmployee(employee.id);
+        toast.success(`Đã vô hiệu hoá nhân viên "${employee.name}"`);
+      } else {
+        await employeesService.activateEmployee(employee.id);
+        toast.success(`Đã kích hoạt lại nhân viên "${employee.name}"`);
+      }
       fetchEmployees();
     } catch (error) {
       console.error(error);
-      toast.error("Lỗi khi xoá nhân viên");
+      toast.error("Lỗi khi đổi trạng thái nhân viên");
     }
   };
 
@@ -75,5 +80,11 @@ export function useEmployees() {
       (e.department || "").toLowerCase().includes(q.toLowerCase()),
   );
 
-  return { employees: filtered, loading, q, setQ, handleDeleteEmployee };
+  return {
+    employees: filtered,
+    loading,
+    q,
+    setQ,
+    handleToggleStatus,
+  };
 }

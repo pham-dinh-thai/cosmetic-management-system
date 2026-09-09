@@ -82,7 +82,7 @@ const OrdersPage: React.FC = () => {
         className: 'text-right',
         render: (o) => (
           <div className="flex justify-end gap-2">
-            <Button variant="ghost" size="sm" onClick={() => handleViewDetail(o)}>
+            <Button variant="outline" size="sm" onClick={() => handleViewDetail(o)}>
               Chi tiết
             </Button>
             <Button
@@ -94,9 +94,9 @@ const OrdersPage: React.FC = () => {
               Hoàn thành
             </Button>
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
-              className="text-red-600 hover:bg-red-50/80"
+              className="text-red-600 border-red-600 hover:bg-red-600 hover:text-white"
               disabled={o.status === 'CANCELLED' || o.status === 'COMPLETED'}
               onClick={() => setConfirmCancel({ isOpen: true, order: o })}
             >

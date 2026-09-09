@@ -18,6 +18,8 @@ import { FindUserByIdUseCase } from 'apps/user-service/src/application/use-cases
 import { FindUserByIdReadModel } from 'apps/user-service/src/application/use-cases/find-user/find-by-id/read-models/find-user-by-id.read-model';
 import { FindUserByEmailUseCase } from 'apps/user-service/src/application/use-cases/find-user/find-by-email/find-user-by-email.use-case';
 import { FindUserByEmailReadModel } from 'apps/user-service/src/application/use-cases/find-user/find-by-email/read-models/find-user-by-email.read-model';
+import { ActivateUserUseCase } from 'apps/user-service/src/application/use-cases/activate-user/activate-user.use-case';
+import { DeactivateUserUseCase } from 'apps/user-service/src/application/use-cases/deactivate-user/deactivate-user.use-case';
 
 @Controller('internal/users')
 export class InternalUsersController {
@@ -27,6 +29,8 @@ export class InternalUsersController {
     private readonly createUserUseCase: CreateUserUseCase,
     private readonly updateUserInformationUseCase: UpdateUserInformationUseCase,
     private readonly deleteUserUseCase: DeleteUserUseCase,
+    private readonly activateUserUseCase: ActivateUserUseCase,
+    private readonly deactivateUserUseCase: DeactivateUserUseCase,
   ) {}
 
   @Get('by-email/:email')
@@ -62,5 +66,17 @@ export class InternalUsersController {
   @Delete(':id')
   public async delete(@Param('id') id: string): Promise<void> {
     await this.deleteUserUseCase.execute(id);
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Patch(':id/activate')
+  public async activate(@Param('id') id: string): Promise<void> {
+    await this.activateUserUseCase.execute(id);
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Patch(':id/deactivate')
+  public async deactivate(@Param('id') id: string): Promise<void> {
+    await this.deactivateUserUseCase.execute(id);
   }
 }
