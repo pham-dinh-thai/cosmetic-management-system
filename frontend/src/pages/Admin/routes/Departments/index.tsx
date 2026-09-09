@@ -1,13 +1,19 @@
 import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { PageHeader, Input, Button } from "../../../../components/ui/Primitives";
+import { PageHeader, Input, Button, Select } from "../../../../components/ui/Primitives";
 import { DataTable, type Column } from "../../../../components/ui/DataTable";
-import { useDepartments } from "./hook";
+import { useDepartments, type DepartmentStatusFilter } from "./hook";
 import type { Department } from "./type";
+
+const STATUS_OPTIONS = [
+  { value: "active", label: "Đang hoạt động" },
+  { value: "inactive", label: "Đã vô hiệu hoá" },
+  { value: "all", label: "Tất cả" },
+];
 
 const DepartmentsPage: React.FC = () => {
   const navigate = useNavigate();
-  const { departments, loading, q, setQ, handleToggleStatus } = useDepartments();
+  const { departments, loading, q, setQ, status, setStatus, handleToggleStatus } = useDepartments();
 
   const openAdd = () => {
     navigate("/admin/departments/add");
@@ -45,7 +51,7 @@ const DepartmentsPage: React.FC = () => {
             <Button variant="outline" size="sm" onClick={() => openEdit(d)}>
               Sửa
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => handleToggleStatus(d)}>
+            <Button variant="outline" size="sm" onClick={() => handleToggleStatus(d)}>
               {d.isActive ? "Vô hiệu hoá" : "Kích hoạt"}
             </Button>
           </div>
@@ -63,12 +69,21 @@ const DepartmentsPage: React.FC = () => {
         description="Quản lý thông tin phòng ban."
         actions={<Button variant="primary" onClick={openAdd}>+ Thêm phòng ban</Button>}
       />
-      <div className="max-w-md">
-        <Input
-          placeholder="Tìm kiếm theo tên phòng ban, mã…"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-        />
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
+        <div className="md:col-span-7">
+          <Input
+            placeholder="Tìm kiếm theo tên phòng ban, mã…"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+          />
+        </div>
+        <div className="md:col-span-5">
+          <Select
+            value={status}
+            onChange={(e) => setStatus(e.target.value as DepartmentStatusFilter)}
+            options={STATUS_OPTIONS}
+          />
+        </div>
       </div>
       {loading ? (
         <div className="py-12 text-center text-[#666666]">Đang tải…</div>

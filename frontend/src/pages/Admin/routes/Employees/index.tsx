@@ -1,13 +1,19 @@
 import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { PageHeader, Input, Button } from "../../../../components/ui/Primitives";
+import { PageHeader, Input, Button, Select } from "../../../../components/ui/Primitives";
 import { DataTable, type Column } from "../../../../components/ui/DataTable";
-import { useEmployees } from "./hook";
+import { useEmployees, type EmployeeStatusFilter } from "./hook";
 import type { Employee } from "./type";
+
+const STATUS_OPTIONS = [
+  { value: "active", label: "Đang làm việc" },
+  { value: "inactive", label: "Đã nghỉ" },
+  { value: "all", label: "Tất cả" },
+];
 
 const EmployeesPage: React.FC = () => {
   const navigate = useNavigate();
-  const { employees, loading, q, setQ, handleToggleStatus } = useEmployees();
+  const { employees, loading, q, setQ, status, setStatus, handleToggleStatus } = useEmployees();
 
   const openAdd = () => {
     navigate("/admin/employees/add");
@@ -50,7 +56,7 @@ const EmployeesPage: React.FC = () => {
             <Button variant="outline" size="sm" onClick={() => openEdit(e)}>
               Sửa
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => handleToggleStatus(e)}>
+            <Button variant="outline" size="sm" onClick={() => handleToggleStatus(e)}>
               {e.status === "ACTIVE" ? "Vô hiệu hoá" : "Kích hoạt"}
             </Button>
           </div>
@@ -68,12 +74,21 @@ const EmployeesPage: React.FC = () => {
         description="Quản lý thông tin và tài khoản nhân viên trong hệ thống."
         actions={<Button variant="primary" onClick={openAdd}>+ Thêm nhân viên</Button>}
       />
-      <div className="max-w-md">
-        <Input
-          placeholder="Tìm kiếm theo tên, chức vụ, mã NV…"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-        />
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
+        <div className="md:col-span-7">
+          <Input
+            placeholder="Tìm kiếm theo tên, chức vụ, mã NV…"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+          />
+        </div>
+        <div className="md:col-span-5">
+          <Select
+            value={status}
+            onChange={(e) => setStatus(e.target.value as EmployeeStatusFilter)}
+            options={STATUS_OPTIONS}
+          />
+        </div>
       </div>
       {loading ? (
         <div className="py-12 text-center text-[#666666]">Đang tải…</div>

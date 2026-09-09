@@ -51,8 +51,12 @@ export class SuppliersController {
   @Get()
   public async findAll(
     @Query('search') search?: string,
+    @Query('includeInactive') includeInactive?: string,
   ): Promise<FindAllSupplierReadModel[]> {
-    return await this.findAllSuppliersUseCase.execute(search);
+    return await this.findAllSuppliersUseCase.execute(
+      search,
+      includeInactive === 'true',
+    );
   }
 
   @Get(':id')

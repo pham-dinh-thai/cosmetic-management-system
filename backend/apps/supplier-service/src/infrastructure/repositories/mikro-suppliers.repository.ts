@@ -11,8 +11,15 @@ import { maxSequenceFromCodes } from '@app/codes';
 export class MikroSuppliersRepository implements ISuppliersRepository {
   public constructor(private readonly entityManager: EntityManager) {}
 
-  public async findAll(search?: string): Promise<Supplier[]> {
-    const where: Record<string, unknown> = { isActive: true };
+  public async findAll(
+    search?: string,
+    includeInactive = false,
+  ): Promise<Supplier[]> {
+    const where: Record<string, unknown> = {};
+
+    if (!includeInactive) {
+      where.isActive = true;
+    }
 
     if (search) {
       where.$or = [

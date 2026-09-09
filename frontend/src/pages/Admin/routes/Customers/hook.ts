@@ -3,10 +3,13 @@ import { toast } from "sonner";
 import { customersService } from "../../../../services/customers.service";
 import type { Customer } from "./type";
 
+export type CustomerStatusFilter = "all" | "active" | "inactive";
+
 export function useCustomers() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
+  const [status, setStatus] = useState<CustomerStatusFilter>("active");
 
   const fetchCustomers = useCallback(() => {
     setLoading(true);
@@ -53,10 +56,13 @@ export function useCustomers() {
 
   const filtered = customers.filter(
     (c) =>
-      !q ||
-      c.name.toLowerCase().includes(q.toLowerCase()) ||
-      c.phone.includes(q) ||
-      c.code.toLowerCase().includes(q.toLowerCase()),
+      (status === "all" ||
+        (status === "active" && c.isActive) ||
+        (status === "inactive" && !c.isActive)) &&
+      (!q ||
+        c.name.toLowerCase().includes(q.toLowerCase()) ||
+        c.phone.includes(q) ||
+        c.code.toLowerCase().includes(q.toLowerCase())),
   );
 
   return {
@@ -64,6 +70,8 @@ export function useCustomers() {
     loading,
     q,
     setQ,
+    status,
+    setStatus,
     handleToggleStatus,
   };
 }

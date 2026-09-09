@@ -3,10 +3,13 @@ import { toast } from "sonner";
 import { departmentsService } from "../../../../services/departments.service";
 import type { Department } from "./type";
 
+export type DepartmentStatusFilter = "all" | "active" | "inactive";
+
 export function useDepartments() {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
+  const [status, setStatus] = useState<DepartmentStatusFilter>("active");
 
   const fetchDepartments = useCallback(() => {
     setLoading(true);
@@ -38,9 +41,12 @@ export function useDepartments() {
 
   const filtered = departments.filter(
     (d) =>
-      !q ||
-      d.name.toLowerCase().includes(q.toLowerCase()) ||
-      d.code.toLowerCase().includes(q.toLowerCase()),
+      (status === "all" ||
+        (status === "active" && d.isActive) ||
+        (status === "inactive" && !d.isActive)) &&
+      (!q ||
+        d.name.toLowerCase().includes(q.toLowerCase()) ||
+        d.code.toLowerCase().includes(q.toLowerCase())),
   );
 
   return {
@@ -48,6 +54,8 @@ export function useDepartments() {
     loading,
     q,
     setQ,
+    status,
+    setStatus,
     handleToggleStatus,
   };
 }

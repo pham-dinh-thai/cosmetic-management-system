@@ -1,7 +1,7 @@
 import { Supplier } from '../supplier.aggregate';
 
 export interface ISuppliersRepository {
-  findAll(search?: string): Promise<Supplier[]>;
+  findAll(search?: string, includeInactive?: boolean): Promise<Supplier[]>;
 
   findById(id: string): Promise<Supplier | null>;
 

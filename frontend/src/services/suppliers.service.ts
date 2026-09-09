@@ -21,9 +21,15 @@ export interface CreateSupplierPayload {
 }
 
 export const suppliersService = {
-  async getSuppliers(search?: string): Promise<SupplierSummary[]> {
+  async getSuppliers(
+    search?: string,
+    includeInactive?: boolean,
+  ): Promise<SupplierSummary[]> {
     const { data } = await api.get<SupplierSummary[]>("/suppliers", {
-      params: search ? { search } : undefined,
+      params: {
+        ...(search ? { search } : {}),
+        ...(includeInactive ? { includeInactive: "true" } : {}),
+      },
     });
     return data;
   },

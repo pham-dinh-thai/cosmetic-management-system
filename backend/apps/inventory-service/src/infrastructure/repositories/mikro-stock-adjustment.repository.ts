@@ -45,6 +45,13 @@ export class MikroStockAdjustmentRepository implements IStockAdjustmentRepositor
       inventoryMikro.quantity = inventory.getQuantity();
       inventoryMikro.lastUpdatedAt = inventory.getLastUpdatedAt();
 
+      // Older inventory rows may have been created before created_by was
+      // introduced. Preserve the first known author when the row is edited
+      // through a stock adjustment so the inventory detail can display it.
+      if (!inventoryMikro.createdBy && input.createdBy) {
+        inventoryMikro.createdBy = input.createdBy;
+      }
+
       const adjustmentMikro = em.create(StockAdjustmentMikro, {
         inventoryId: inventoryMikro.id,
         variantId: input.variantId,
