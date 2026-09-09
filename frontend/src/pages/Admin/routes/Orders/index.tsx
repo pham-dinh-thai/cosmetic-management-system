@@ -38,6 +38,7 @@ const OrdersPage: React.FC = () => {
     setDetailOrder,
     loadingDetail,
     handleViewDetail,
+    handlePrintOrder,
   } = useOrders();
 
   const columns: Column<OrderReadModel>[] = useMemo(
@@ -82,8 +83,11 @@ const OrdersPage: React.FC = () => {
         className: 'text-right',
         render: (o) => (
           <div className="flex justify-end gap-2">
-            <Button variant="outline" size="sm" onClick={() => handleViewDetail(o)}>
+            <Button variant="outline" size="sm" disabled={loadingDetail} onClick={() => handleViewDetail(o)}>
               Chi tiết
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => handlePrintOrder(o)}>
+              In
             </Button>
             <Button
               variant="outline"
@@ -106,7 +110,7 @@ const OrdersPage: React.FC = () => {
         ),
       },
     ],
-    [setConfirmCancel]
+    [handlePrintOrder, handleViewDetail, setConfirmCancel]
   );
 
   return (
@@ -258,6 +262,12 @@ const OrdersPage: React.FC = () => {
             )}
 
             <div className="flex justify-end gap-3 pt-2">
+              <Button
+                variant="primary"
+                onClick={() => handlePrintOrder(detailOrder.order)}
+              >
+                In hóa đơn
+              </Button>
               <Button variant="outline" onClick={() => setDetailOrder(null)}>
                 Đóng
               </Button>
