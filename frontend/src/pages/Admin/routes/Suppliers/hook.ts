@@ -3,14 +3,17 @@ import { toast } from "sonner";
 import { suppliersService } from "../../../../services/suppliers.service";
 import type { Supplier } from "./type";
 
+export type SupplierStatusFilter = "all" | "active" | "inactive";
+
 export function useSuppliers() {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
+  const [status, setStatus] = useState<SupplierStatusFilter>("active");
 
   const fetchSuppliers = useCallback(() => {
     setLoading(true);
-    suppliersService.getSuppliers().then((data) => {
+    suppliersService.getSuppliers(undefined, true).then((data) => {
       setSuppliers(
         data.map((s) => ({
           id: s.id,
@@ -50,10 +53,13 @@ export function useSuppliers() {
 
   const filtered = suppliers.filter(
     (s) =>
-      !q ||
-      s.name.toLowerCase().includes(q.toLowerCase()) ||
-      s.phone.includes(q) ||
-      s.code.toLowerCase().includes(q.toLowerCase()),
+      (status === "all" ||
+        (status === "active" && s.isActive) ||
+        (status === "inactive" && !s.isActive)) &&
+      (!q ||
+        s.name.toLowerCase().includes(q.toLowerCase()) ||
+        s.phone.includes(q) ||
+        s.code.toLowerCase().includes(q.toLowerCase())),
   );
 
   return {
@@ -61,6 +67,8 @@ export function useSuppliers() {
     loading,
     q,
     setQ,
+    status,
+    setStatus,
     handleToggleStatus,
   };
 }

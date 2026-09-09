@@ -8,7 +8,7 @@ export function useProducts() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [q, setQ] = useState("");
-  const [status, setStatus] = useState<StatusFilter>("all");
+  const [status, setStatus] = useState<StatusFilter>("active");
   const [sort, setSort] = useState("newest");
   const [togglingId, setTogglingId] = useState<string | null>(null);
 

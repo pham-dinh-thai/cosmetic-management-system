@@ -30,7 +30,7 @@ export const Button: React.FC<ButtonProps> = ({
 }) => (
   <button
     {...rest}
-    className={`inline-flex items-center justify-center gap-2 rounded-full font-medium tracking-[0.02em] transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${variantClass[variant]} ${sizeClass[size]} ${className}`}
+    className={`inline-flex items-center justify-center gap-2 rounded-full whitespace-nowrap font-medium tracking-[0.02em] transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${variantClass[variant]} ${sizeClass[size]} ${className}`}
   >
     {children}
   </button>

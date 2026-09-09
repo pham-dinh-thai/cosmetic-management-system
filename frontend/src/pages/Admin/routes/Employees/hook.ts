@@ -15,10 +15,13 @@ function mapPosition(position?: string): string {
   }
 }
 
+export type EmployeeStatusFilter = "all" | "active" | "inactive";
+
 export function useEmployees() {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
+  const [status, setStatus] = useState<EmployeeStatusFilter>("active");
 
   const fetchEmployees = useCallback(() => {
     setLoading(true);
@@ -73,11 +76,14 @@ export function useEmployees() {
 
   const filtered = employees.filter(
     (e) =>
-      !q ||
-      e.name.toLowerCase().includes(q.toLowerCase()) ||
-      e.code.toLowerCase().includes(q.toLowerCase()) ||
-      e.phone.includes(q) ||
-      (e.department || "").toLowerCase().includes(q.toLowerCase()),
+      (status === "all" ||
+        (status === "active" && e.status === "ACTIVE") ||
+        (status === "inactive" && e.status === "INACTIVE")) &&
+      (!q ||
+        e.name.toLowerCase().includes(q.toLowerCase()) ||
+        e.code.toLowerCase().includes(q.toLowerCase()) ||
+        e.phone.includes(q) ||
+        (e.department || "").toLowerCase().includes(q.toLowerCase())),
   );
 
   return {
@@ -85,6 +91,8 @@ export function useEmployees() {
     loading,
     q,
     setQ,
+    status,
+    setStatus,
     handleToggleStatus,
   };
 }

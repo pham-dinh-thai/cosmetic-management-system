@@ -7,9 +7,9 @@ import { useBasePath } from "../../../../lib/useBasePath";
 import type { CosmeticSummary, StatusFilter } from "./type";
 
 const STATUS_OPTIONS = [
-  { value: "all", label: "Tất cả trạng thái" },
   { value: "active", label: "Đang bán" },
   { value: "inactive", label: "Ngừng bán" },
+  { value: "all", label: "Tất cả" },
 ];
 
 const SORT_OPTIONS = [
@@ -110,7 +110,7 @@ const ProductsPage: React.FC = () => {
               Sửa
             </Button>
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
               disabled={togglingId === p.id}
               onClick={() => handleToggleStatus(p)}

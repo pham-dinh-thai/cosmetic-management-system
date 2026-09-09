@@ -27,7 +27,7 @@ const InventoryDetailPage: React.FC = () => {
           eyebrow="Quản lý / Tồn kho / Lỗi"
           title="Không tìm thấy phiếu kho"
           actions={
-            <Button variant="ghost" onClick={onBack}>
+            <Button variant="outline" onClick={onBack}>
               ← Trở về
             </Button>
           }
@@ -48,12 +48,12 @@ const InventoryDetailPage: React.FC = () => {
         actions={
           <>
             <Button
-              variant="ghost"
+              variant="outline"
               onClick={() => navigate(`${basePath}/inventory/${item.id}/edit`)}
             >
               Sửa
             </Button>
-            <Button variant="ghost" onClick={onBack}>
+            <Button variant="outline" onClick={onBack}>
               ← Trở về
             </Button>
           </>

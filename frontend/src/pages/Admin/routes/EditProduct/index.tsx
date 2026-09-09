@@ -40,7 +40,7 @@ const EditProductPage: React.FC = () => {
         title="Sửa thông tin sản phẩm"
         description="Quản lý thông tin chung, danh mục và các biến thể."
         actions={
-          <Button variant="ghost" onClick={onBack}>
+          <Button variant="outline" onClick={onBack}>
             ← Trở về
           </Button>
         }
@@ -149,7 +149,7 @@ const EditProductPage: React.FC = () => {
                         {v.isActive ? "Đang hoạt động" : "Đã vô hiệu hoá"}
                       </span>
                       <Button
-                        variant="ghost"
+                        variant="outline"
                         size="sm"
                         onClick={() => toggleVariantStatus(i)}
                       >

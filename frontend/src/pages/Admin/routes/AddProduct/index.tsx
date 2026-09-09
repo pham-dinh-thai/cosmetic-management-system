@@ -27,7 +27,7 @@ const AddProductPage: React.FC = () => {
         title="Thêm sản phẩm mới"
         description="Nhập thông tin chi tiết và các biến thể của mỹ phẩm."
         actions={
-          <Button variant="ghost" onClick={onBack}>
+          <Button variant="outline" onClick={onBack}>
             ← Trở về
           </Button>
         }

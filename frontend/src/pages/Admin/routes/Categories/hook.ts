@@ -9,7 +9,7 @@ export function useCategories() {
   const [error, setError] = useState<string | null>(null);
 
   const [q, setQ] = useState("");
-  const [status, setStatus] = useState<StatusFilter>("all");
+  const [status, setStatus] = useState<StatusFilter>("active");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);

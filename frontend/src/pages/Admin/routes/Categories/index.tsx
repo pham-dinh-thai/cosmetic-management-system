@@ -7,9 +7,9 @@ import { useAuthStore } from "../../../../store/useAuthStore";
 import { canWriteCatalog } from "../../../../lib/permissions";
 
 const STATUS_OPTIONS = [
-  { value: "all", label: "Tất cả trạng thái" },
   { value: "active", label: "Đang hoạt động" },
   { value: "inactive", label: "Đã vô hiệu hoá" },
+  { value: "all", label: "Tất cả" },
 ];
 
 const CategoriesPage: React.FC = () => {
@@ -75,7 +75,7 @@ const CategoriesPage: React.FC = () => {
                   Sửa
                 </Button>
                 <Button
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
                   onClick={() => handleToggleStatus(c)}
                 >

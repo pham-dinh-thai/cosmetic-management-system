@@ -1,15 +1,21 @@
 import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { PageHeader, Input, Button, Kpi } from "../../../../components/ui/Primitives";
+import { PageHeader, Input, Button, Kpi, Select } from "../../../../components/ui/Primitives";
 import { DataTable, type Column } from "../../../../components/ui/DataTable";
-import { useInventory } from "./hook";
+import { useInventory, type InventoryStatusFilter } from "./hook";
 import { useBasePath } from "../../../../lib/useBasePath";
 import type { InventoryItem } from "./type";
+
+const STATUS_OPTIONS = [
+  { value: "active", label: "Đang hoạt động" },
+  { value: "inactive", label: "Đã vô hiệu hoá" },
+  { value: "all", label: "Tất cả" },
+];
 
 const InventoryPage: React.FC = () => {
   const navigate = useNavigate();
   const basePath = useBasePath();
-  const { inventory, loading, q, setQ, handleToggleStatus } = useInventory();
+  const { inventory, loading, q, setQ, status, setStatus, handleToggleStatus } = useInventory();
 
   const totalProducts = useMemo(() => inventory.reduce((sum, item) => sum + item.quantity, 0), [inventory]);
   const lowStock = useMemo(() => inventory.filter(item => item.quantity > 0 && item.quantity <= item.minStock).length, [inventory]);
@@ -80,7 +86,7 @@ const InventoryPage: React.FC = () => {
         render: (i) => (
           <div className="flex items-center justify-end gap-2">
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
               onClick={() => navigate(`${basePath}/inventory/${i.id}`)}
             >
@@ -94,7 +100,7 @@ const InventoryPage: React.FC = () => {
               Sửa
             </Button>
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
               onClick={() => handleToggleStatus(i)}
             >
@@ -149,12 +155,21 @@ const InventoryPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="max-w-md">
-        <Input
-          placeholder="Tìm kiếm theo sản phẩm, mã biến thể…"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-        />
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-3 max-w-3xl">
+        <div className="md:col-span-7">
+          <Input
+            placeholder="Tìm kiếm theo sản phẩm, mã biến thể…"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+          />
+        </div>
+        <div className="md:col-span-5">
+          <Select
+            value={status}
+            onChange={(e) => setStatus(e.target.value as InventoryStatusFilter)}
+            options={STATUS_OPTIONS}
+          />
+        </div>
       </div>
       {loading ? (
         <div className="py-12 text-center text-[#666666]">Đang tải…</div>

@@ -16,7 +16,7 @@ const ProductDetailAdminPage: React.FC = () => {
           eyebrow="Quản lý / Sản phẩm / Lỗi"
           title="Không tìm thấy sản phẩm"
           actions={
-            <Button variant="ghost" onClick={onBack}>
+            <Button variant="outline" onClick={onBack}>
               ← Trở về
             </Button>
           }
@@ -35,7 +35,7 @@ const ProductDetailAdminPage: React.FC = () => {
         title={product.name}
         description={`Mã sản phẩm: ${product.code}`}
         actions={
-          <Button variant="ghost" onClick={onBack}>
+          <Button variant="outline" onClick={onBack}>
             ← Trở về
           </Button>
         }

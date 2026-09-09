@@ -6,8 +6,14 @@ export class FindAllSuppliersUseCase {
     private readonly suppliersRepository: ISuppliersRepository,
   ) {}
 
-  public async execute(search?: string): Promise<FindAllSupplierReadModel[]> {
-    const suppliers = await this.suppliersRepository.findAll(search);
+  public async execute(
+    search?: string,
+    includeInactive?: boolean,
+  ): Promise<FindAllSupplierReadModel[]> {
+    const suppliers = await this.suppliersRepository.findAll(
+      search,
+      includeInactive,
+    );
 
     return suppliers.map(
       (supplier) =>

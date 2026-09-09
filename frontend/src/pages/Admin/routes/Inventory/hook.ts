@@ -6,10 +6,13 @@ import { productsService } from "../../../../services/products.service";
 
 type VariantMeta = { productName: string; variantName: string };
 
+export type InventoryStatusFilter = "all" | "active" | "inactive";
+
 export function useInventory() {
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
+  const [status, setStatus] = useState<InventoryStatusFilter>("active");
 
   const load = async () => {
     try {
@@ -79,10 +82,22 @@ export function useInventory() {
 
   const filtered = inventory.filter(
     (i) =>
-      !q ||
-      (i.productName || "").toLowerCase().includes(q.toLowerCase()) ||
-      (i.variantName || "").toLowerCase().includes(q.toLowerCase()),
+      (status === "all" ||
+        (status === "active" && i.isActive) ||
+        (status === "inactive" && !i.isActive)) &&
+      (!q ||
+        (i.productName || "").toLowerCase().includes(q.toLowerCase()) ||
+        (i.variantName || "").toLowerCase().includes(q.toLowerCase())),
   );
 
-  return { inventory: filtered, loading, q, setQ, reload, handleToggleStatus };
+  return {
+    inventory: filtered,
+    loading,
+    q,
+    setQ,
+    status,
+    setStatus,
+    reload,
+    handleToggleStatus,
+  };
 }

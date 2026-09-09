@@ -129,6 +129,10 @@ export class MikroInventoryRepository implements IInventoryRepository {
     inventoryMikro.quantity = inventory.getQuantity();
     inventoryMikro.lastUpdatedAt = inventory.getLastUpdatedAt();
 
+    if (!inventoryMikro.createdBy && createdBy) {
+      inventoryMikro.createdBy = createdBy;
+    }
+
     if (expiryDate) {
       inventoryMikro.expiryDate = this.toDateString(expiryDate);
     }

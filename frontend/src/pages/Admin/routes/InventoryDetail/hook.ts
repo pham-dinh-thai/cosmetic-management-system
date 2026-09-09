@@ -5,12 +5,14 @@ import { productsService } from "../../../../services/products.service";
 import { employeesService, combineName } from "../../../../services/employees.service";
 import { useBasePath } from "../../../../lib/useBasePath";
 import type { InventoryItem } from "../Inventory/type";
+import { useAuthStore } from "../../../../store/useAuthStore";
 
 export function useInventoryDetail() {
   const { id } = useParams<{ id: string }>();
   const inventoryId = id || "";
   const navigate = useNavigate();
   const basePath = useBasePath();
+  const currentUser = useAuthStore((state) => state.user);
 
   const [item, setItem] = useState<InventoryItem | null>(null);
   const [loading, setLoading] = useState(true);
@@ -46,16 +48,24 @@ export function useInventoryDetail() {
 
         let createdByName = "";
         if (row.createdBy) {
+          if (currentUser?.id === row.createdBy) {
+            createdByName = combineName(
+              currentUser.firstName,
+              currentUser.lastName,
+            ) || currentUser.email;
+          }
+
           try {
             const employees = await employeesService.getEmployees();
             const creator = employees.find(
-              (e) => e.userId === row.createdBy,
+              (e) => e.userId === row.createdBy || e.id === row.createdBy,
             );
             createdByName = creator
               ? combineName(creator.firstName, creator.lastName)
-              : "";
+              : createdByName;
           } catch {
-            createdByName = "";
+            // The employee endpoint is admin-only. Keep the current user's
+            // local profile name when the lookup is not available.
           }
         }
 
@@ -77,7 +87,7 @@ export function useInventoryDetail() {
     return () => {
       cancelled = true;
     };
-  }, [inventoryId]);
+  }, [inventoryId, currentUser]);
 
   return {
     inventoryId,
