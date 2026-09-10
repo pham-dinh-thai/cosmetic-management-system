@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 import {
   ordersService,
+  openOrderReceiptPrint,
   type OrderDetailReadModel,
   type OrderReadModel,
 } from '../../../../services/orders.service';
@@ -85,12 +86,7 @@ export function useOrders() {
   }, [loadingDetail]);
 
   const handlePrintOrder = useCallback(async (order: OrderReadModel) => {
-    try {
-      await ordersService.openOrderReceiptPrint(order);
-    } catch (error) {
-      console.error(error);
-      toast.error('Không thể mở giao diện in hóa đơn');
-    }
+    await openOrderReceiptPrint(order.id);
   }, []);
 
   const filtered = orders.filter((o) => {

@@ -28,6 +28,10 @@ import {
   findVariantByIdUseCaseFactory,
 } from './application/use-cases/find-variant/find-by-id/find-variant-by-id.use-case';
 import {
+  FindVariantsByIdsUseCase,
+  findVariantsByIdsUseCaseFactory,
+} from './application/use-cases/find-variant/find-by-ids/find-variants-by-ids.use-case';
+import {
   FindAllCosmeticsUseCase,
   findAllCosmeticsUseCaseFactory,
 } from './application/use-cases/find-cosmetic/find-all/find-all-cosmetics.use-case';
@@ -105,6 +109,11 @@ import {
     {
       provide: FindVariantByIdUseCase,
       useFactory: findVariantByIdUseCaseFactory,
+      inject: [COSMETICS_REPOSITORY],
+    },
+    {
+      provide: FindVariantsByIdsUseCase,
+      useFactory: findVariantsByIdsUseCaseFactory,
       inject: [COSMETICS_REPOSITORY],
     },
     {

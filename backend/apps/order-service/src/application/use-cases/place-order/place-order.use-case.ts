@@ -1,5 +1,6 @@
 import { Order } from 'apps/order-service/src/domain/order.aggregate';
 import { IOrdersRepository } from 'apps/order-service/src/domain/repositories/orders.repository';
+import { OrderPaymentMethod } from 'apps/order-service/src/domain/types';
 import { OrderCode } from 'apps/order-service/src/domain/value-objects/order-code.value-object';
 import { IPlaceOrderRequest } from './place-order.request';
 import { IVariantsReaderPort } from './ports/variants-reader.port';
@@ -51,6 +52,7 @@ export class PlaceOrderUseCase {
     return Order.create({
       code: code.getValue(),
       customerId,
+      paymentMethod: OrderPaymentMethod.CASH,
       lines: pricedLines,
     });
   }

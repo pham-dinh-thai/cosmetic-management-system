@@ -25,6 +25,10 @@ import { VariantsReaderAdapter } from './infrastructure/adapters/variants-reader
 import { ReverseInventoryAdapter } from './infrastructure/adapters/reverse-inventory.adapter';
 import { DecreaseCartLineQuantityAdapter } from './infrastructure/adapters/decrease-cart-line-quantity.adapter';
 import { OrderLoggerAdapter } from './infrastructure/adapters/order-logger.adapter';
+import { VariantLabelReaderAdapter } from './infrastructure/adapters/variant-label-reader.adapter';
+import { EmployeeCodeReaderAdapter } from './infrastructure/adapters/employee-code-reader.adapter';
+import { VARIANT_LABEL_READER_PORT } from './application/use-cases/print-order/ports/variant-label-reader.port';
+import { EMPLOYEE_CODE_READER_PORT } from './application/use-cases/print-order/ports/employee-code-reader.port';
 import {
   FindAllOrdersUseCase,
   findAllOrdersUseCaseFactory,
@@ -33,6 +37,10 @@ import {
   FindOrderByIdUseCase,
   findOrderByIdUseCaseFactory,
 } from './application/use-cases/find-order-by-id/find-order-by-id.use-case';
+import {
+  PrintOrderUseCase,
+  printOrderUseCaseFactory,
+} from './application/use-cases/print-order/print-order.use-case';
 import {
   UpdateOrderUseCase,
   updateOrderUseCaseFactory,
@@ -125,6 +133,18 @@ import { ORDER_LOGGER_PORT } from './application/ports/employee-logger.port';
       inject: [ConfigService],
     },
     {
+      provide: VARIANT_LABEL_READER_PORT,
+      useFactory: (config: ConfigService) =>
+        new VariantLabelReaderAdapter(config),
+      inject: [ConfigService],
+    },
+    {
+      provide: EMPLOYEE_CODE_READER_PORT,
+      useFactory: (config: ConfigService) =>
+        new EmployeeCodeReaderAdapter(config),
+      inject: [ConfigService],
+    },
+    {
       provide: REVERSE_INVENTORY_PORT,
       useFactory: (config: ConfigService) =>
         new ReverseInventoryAdapter(config),
@@ -157,6 +177,15 @@ import { ORDER_LOGGER_PORT } from './application/ports/employee-logger.port';
       provide: FindOrderByIdUseCase,
       useFactory: findOrderByIdUseCaseFactory,
       inject: [ORDERS_REPOSITORY],
+    },
+    {
+      provide: PrintOrderUseCase,
+      useFactory: printOrderUseCaseFactory,
+      inject: [
+        ORDERS_REPOSITORY,
+        VARIANT_LABEL_READER_PORT,
+        EMPLOYEE_CODE_READER_PORT,
+      ],
     },
     {
       provide: UpdateOrderUseCase,

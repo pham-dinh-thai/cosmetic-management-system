@@ -347,4 +347,20 @@ export class MikroCosmeticsRepository implements ICosmeticsRepository {
       price: Number(variantMikro.price),
     };
   }
+
+  public async findVariantsByIds(
+    ids: string[],
+  ): Promise<{ id: string; name: string; cosmeticName: string }[]> {
+    const variantsMikro = await this.entityManager.find(
+      CosmeticVariantMikro,
+      { id: { $in: ids } },
+      { populate: ['cosmetic'] },
+    );
+
+    return variantsMikro.map((variantMikro) => ({
+      id: variantMikro.id,
+      name: variantMikro.name,
+      cosmeticName: variantMikro.cosmetic.name,
+    }));
+  }
 }

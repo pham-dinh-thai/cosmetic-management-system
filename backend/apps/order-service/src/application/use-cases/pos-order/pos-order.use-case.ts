@@ -45,6 +45,7 @@ export class PosOrderUseCase {
     const order = Order.create({
       code: code.getValue(),
       customerId: request.customerId ?? WALK_IN_CUSTOMER_ID,
+      paymentMethod: request.paymentMethod,
       lines: pricedLines,
     });
 

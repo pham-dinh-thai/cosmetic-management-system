@@ -62,6 +62,10 @@ export interface ICosmeticsRepository {
   findVariantById(
     variantId: string,
   ): Promise<{ id: string; name: string; price: number } | null>;
+
+  findVariantsByIds(
+    ids: string[],
+  ): Promise<{ id: string; name: string; cosmeticName: string }[]>;
 }
 
 export const COSMETICS_REPOSITORY = 'ICosmeticsRepository';

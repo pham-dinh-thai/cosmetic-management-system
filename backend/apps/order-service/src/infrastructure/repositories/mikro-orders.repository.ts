@@ -72,6 +72,7 @@ export class MikroOrdersRepository implements IOrdersRepository {
     const entity = this.em.create(Order, {
       code: order.getCode(),
       customerId: order.getCustomerId(),
+      paymentMethod: order.getPaymentMethod(),
       status: order.getStatus(),
       totalAmount: order.getTotalAmount(),
     });

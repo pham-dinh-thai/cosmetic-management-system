@@ -4,6 +4,7 @@ import {
   CreateOrderLineProps,
   CreateOrderProps,
   FromPersistentOrderProps,
+  OrderPaymentMethod,
   OrderStatus,
 } from './types';
 
@@ -12,6 +13,7 @@ export class Order {
     private readonly id: string,
     private readonly code: string,
     private readonly customerId: string,
+    private readonly paymentMethod: OrderPaymentMethod,
     private status: OrderStatus,
     private totalAmount: number,
     private readonly lines: OrderLine[],
@@ -26,6 +28,7 @@ export class Order {
       undefined as unknown as string,
       props.code,
       props.customerId,
+      props.paymentMethod,
       OrderStatus.PENDING,
       Order.calculateTotal(lines),
       lines,
@@ -37,6 +40,7 @@ export class Order {
       props.id,
       props.code,
       props.customerId,
+      props.paymentMethod,
       props.status,
       props.totalAmount,
       props.lines.map((line) => OrderLine.fromPersistent(line)),
@@ -104,6 +108,10 @@ export class Order {
 
   public getCustomerId(): string {
     return this.customerId;
+  }
+
+  public getPaymentMethod(): OrderPaymentMethod {
+    return this.paymentMethod;
   }
 
   public getStatus(): OrderStatus {
