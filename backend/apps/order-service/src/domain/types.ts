@@ -6,6 +6,15 @@ export const OrderStatus = {
 
 export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus];
 
+export const OrderPaymentMethod = {
+  CASH: 'CASH',
+  BANK_TRANSFER: 'BANK_TRANSFER',
+  CARD: 'CARD',
+} as const;
+
+export type OrderPaymentMethod =
+  (typeof OrderPaymentMethod)[keyof typeof OrderPaymentMethod];
+
 export type CreateOrderLineProps = {
   variantId: string;
   quantity: number;
@@ -25,6 +34,7 @@ export type FromPersistentOrderLineProps = {
 export type CreateOrderProps = {
   code: string;
   customerId: string;
+  paymentMethod: OrderPaymentMethod;
   lines: CreateOrderLineProps[];
 };
 
@@ -32,6 +42,7 @@ export type FromPersistentOrderProps = {
   id: string;
   code: string;
   customerId: string;
+  paymentMethod: OrderPaymentMethod;
   status: OrderStatus;
   totalAmount: number;
   lines: FromPersistentOrderLineProps[];

@@ -50,7 +50,6 @@ const ImportPurchaseOrderPage: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [minStock, setMinStock] = useState<number>(0);
-  const [viewingVariant, setViewingVariant] = useState("");
 
   useEffect(() => {
     Promise.all([
@@ -165,23 +164,6 @@ const ImportPurchaseOrderPage: React.FC = () => {
     }
   };
 
-  const viewInventoryDetail = async (line: ImportLine) => {
-    setViewingVariant(line.variantId);
-    try {
-      const item = await inventoryApi.findByVariant(line.variantId);
-      if (item) {
-        navigate(`${basePath}/inventory/${item.id}/edit`);
-        return;
-      }
-      toast.error(`Chưa có hàng tồn kho cho "${line.variantLabel}"`);
-    } catch (error) {
-      console.error(error);
-      toast.error("Không thể xem chi tiết tồn kho");
-    } finally {
-      setViewingVariant("");
-    }
-  };
-
   const columns: Column<ImportLine>[] = [
     {
       key: "variantLabel",
@@ -215,21 +197,6 @@ const ImportPurchaseOrderPage: React.FC = () => {
         <span className="font-mono font-medium text-[#1c3a13]">
           {l.subtotal.toLocaleString("vi-VN")}₫
         </span>
-      ),
-    },
-    {
-      key: "actions",
-      header: "",
-      className: "text-right w-40",
-      render: (l) => (
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={viewingVariant === l.variantId}
-          onClick={() => viewInventoryDetail(l)}
-        >
-          {viewingVariant === l.variantId ? "Đang tải..." : "Xem chi tiết tồn kho"}
-        </Button>
       ),
     },
   ];

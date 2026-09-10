@@ -10,12 +10,14 @@ import {
   Put,
   Query,
   Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
-import type { Request } from 'express';
+import type { Request, Response } from 'express';
 import { AuthGuard, Departments, OrgGuard, Role, Roles } from '@app/security';
 import { FindAllOrdersUseCase } from 'apps/order-service/src/application/use-cases/find-all-orders/find-all-orders.use-case';
 import { FindOrderByIdUseCase } from 'apps/order-service/src/application/use-cases/find-order-by-id/find-order-by-id.use-case';
+import { PrintOrderUseCase } from 'apps/order-service/src/application/use-cases/print-order/print-order.use-case';
 import { UpdateOrderUseCase } from 'apps/order-service/src/application/use-cases/update-order/update-order.use-case';
 import { CompleteOrderUseCase } from 'apps/order-service/src/application/use-cases/complete-order/complete-order.use-case';
 import { CancelOrderUseCase } from 'apps/order-service/src/application/use-cases/cancel-order/cancel-order.use-case';
@@ -26,6 +28,7 @@ import { OrderReadModel } from 'apps/order-service/src/application/use-cases/fin
 import { OrderTransactionReadModel } from 'apps/order-service/src/application/use-cases/find-order-transactions/read-models/order-transaction.read-model';
 import { OrderStatus } from 'apps/order-service/src/domain/types';
 import { UpdateOrderRequest } from './requests/update-order.request';
+import { renderOrderReceiptHtml } from './receipt-html';
 
 @UseGuards(AuthGuard, OrgGuard)
 @Roles(Role.Admin, Role.Employee)
@@ -35,6 +38,7 @@ export class OrdersController {
   public constructor(
     private readonly findAllOrdersUseCase: FindAllOrdersUseCase,
     private readonly findOrderByIdUseCase: FindOrderByIdUseCase,
+    private readonly printOrderUseCase: PrintOrderUseCase,
     private readonly updateOrderUseCase: UpdateOrderUseCase,
     private readonly completeOrderUseCase: CompleteOrderUseCase,
     private readonly cancelOrderUseCase: CancelOrderUseCase,
@@ -66,6 +70,19 @@ export class OrdersController {
       variantId,
       employeeId,
     });
+  }
+
+  @Get(':id/print')
+  public async print(
+    @Param('id') id: string,
+    @Req() request: Request,
+    @Res() response: Response,
+  ): Promise<void> {
+    const userId =
+      (request as unknown as { user?: { sub?: string } }).user?.sub ?? undefined;
+    const receipt = await this.printOrderUseCase.execute(id, userId);
+    response.setHeader('Content-Type', 'text/html; charset=utf-8');
+    response.send(renderOrderReceiptHtml(receipt));
   }
 
   @Get(':id')

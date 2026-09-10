@@ -13,6 +13,7 @@ export class OrderDetailReadModel {
     public readonly id: string,
     public readonly code: string,
     public readonly customerId: string,
+    public readonly paymentMethod: string,
     public readonly status: string,
     public readonly totalAmount: number,
     public readonly lines: OrderDetailLineReadModel[],
@@ -25,6 +26,7 @@ export class OrderDetailReadModel {
       order.getId(),
       order.getCode(),
       order.getCustomerId(),
+      order.getPaymentMethod(),
       order.getStatus(),
       order.getTotalAmount(),
       order.getLines().map((line) => ({

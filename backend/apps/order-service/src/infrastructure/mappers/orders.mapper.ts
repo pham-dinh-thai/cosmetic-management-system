@@ -20,6 +20,7 @@ export class OrdersMapper {
       id: entity.id,
       code: entity.code,
       customerId: entity.customerId,
+      paymentMethod: entity.paymentMethod,
       status: entity.status,
       totalAmount: entity.totalAmount,
       lines,

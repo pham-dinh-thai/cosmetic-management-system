@@ -1,7 +1,7 @@
 import { OptionalProps } from '@mikro-orm/core';
 import { defineEntity, p } from '@mikro-orm/postgresql';
 import { OrderLine } from './order-line.entity';
-import { OrderStatus } from '../../domain/types';
+import { OrderStatus, OrderPaymentMethod } from '../../domain/types';
 
 const OrderSchema = defineEntity({
   name: 'Order',
@@ -10,6 +10,7 @@ const OrderSchema = defineEntity({
     id: p.uuid().primary().defaultRaw('gen_random_uuid()'),
     code: p.string().unique(),
     customerId: p.string().fieldName('customer_id'),
+    paymentMethod: p.enum(OrderPaymentMethod).fieldName('payment_method').default(OrderPaymentMethod.CASH),
     status: p.enum(OrderStatus).default(OrderStatus.PENDING),
     totalAmount: p
       .decimal('number')
@@ -31,7 +32,7 @@ const OrderSchema = defineEntity({
 });
 
 export class Order extends OrderSchema.class {
-  [OptionalProps]?: 'status' | 'totalAmount' | 'createdAt' | 'updatedAt';
+  [OptionalProps]?: 'paymentMethod' | 'status' | 'totalAmount' | 'createdAt' | 'updatedAt';
 }
 
 OrderSchema.setClass(Order);

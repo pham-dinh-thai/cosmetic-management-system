@@ -17,6 +17,7 @@ export class FindEmployeeByUserIdUseCase {
 
     return new FindEmployeeByUserIdReadModel(
       employee.getId(),
+      employee.getCode(),
       employee.getDepartmentId(),
       employee.getPosition(),
       employee.getStatus(),
