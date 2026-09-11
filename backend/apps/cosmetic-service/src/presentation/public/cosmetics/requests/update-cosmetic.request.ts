@@ -12,32 +12,26 @@ export class UpdateCosmeticRequest implements IUpdateCosmeticRequest {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  @MaxLength(255)
+  @MaxLength(255, { message: 'Tên mỹ phẩm không được dài quá 255 ký tự' })
   name!: string;
 
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  @MaxLength(255)
+  @MaxLength(255, { message: 'Tên thương hiệu không được dài quá 255 ký tự' })
   brand?: string;
 
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  @MaxLength(255)
+  @MaxLength(255, { message: 'Xuất xứ không được dài quá 255 ký tự' })
   origin?: string;
 
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  @MaxLength(1000)
+  @MaxLength(1000, { message: 'Mô tả không được dài quá 1000 ký tự' })
   description?: string;
-
-  @ApiProperty({ required: false })
-  @IsString()
-  @IsOptional()
-  @MaxLength(500)
-  imageUrl?: string;
 
   @ApiProperty({ required: false })
   @IsArray()

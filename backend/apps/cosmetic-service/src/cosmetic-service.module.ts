@@ -13,6 +13,11 @@ import {
   STOCK_READER_PORT,
   type IStockReaderPort,
 } from './infrastructure/adapters/stock-reader.adapter';
+import {
+  OrdersReaderAdapter,
+  ORDERS_READER_PORT,
+  type IOrdersReaderPort,
+} from './infrastructure/adapters/orders-reader.adapter';
 import { COSMETICS_REPOSITORY } from './domain/repositories/cosmetics.repository';
 import { MikroCosmeticsRepository } from './infrastructure/repositories/mikro-cosmetics.repository';
 import {
@@ -107,6 +112,11 @@ import {
       inject: [ConfigService],
     },
     {
+      provide: ORDERS_READER_PORT,
+      useFactory: (config: ConfigService) => new OrdersReaderAdapter(config),
+      inject: [ConfigService],
+    },
+    {
       provide: FindVariantByIdUseCase,
       useFactory: findVariantByIdUseCaseFactory,
       inject: [COSMETICS_REPOSITORY],
@@ -154,7 +164,7 @@ import {
     {
       provide: DeleteCosmeticUseCase,
       useFactory: deleteCosmeticUseCaseFactory,
-      inject: [COSMETICS_REPOSITORY],
+      inject: [COSMETICS_REPOSITORY, ORDERS_READER_PORT],
     },
     {
       provide: AddVariantUseCase,

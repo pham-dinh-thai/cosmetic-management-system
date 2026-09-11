@@ -172,6 +172,27 @@ export class MikroOrdersRepository implements IOrdersRepository {
     }));
   }
 
+  public async findVariantIdsWithOrders(
+    variantIds: string[],
+  ): Promise<string[]> {
+    if (variantIds.length === 0) {
+      return [];
+    }
+
+    const rows = await this.em
+      .createQueryBuilder(OrderLine, 'ol')
+      .join('ol.order', 'o')
+      .select('ol.variantId')
+      .where({
+        'ol.variantId': { $in: variantIds },
+        'o.status': { $ne: OrderStatus.CANCELLED },
+      })
+      .distinct()
+      .execute();
+
+    return rows.map((row: Record<string, unknown>) => String(row.variantId));
+  }
+
   public async delete(id: string): Promise<OrderDomain | null> {
     const entity = await this.em.findOne(
       Order,
