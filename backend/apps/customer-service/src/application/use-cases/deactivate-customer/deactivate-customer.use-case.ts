@@ -23,4 +23,7 @@ export const deactivateCustomerUseCaseFactory = (
   customersRepository: ICustomersRepository,
   updateUserActiveStatusPort: IUpdateUserActiveStatusPort,
 ): DeactivateCustomerUseCase =>
-  new DeactivateCustomerUseCase(customersRepository, updateUserActiveStatusPort);
+  new DeactivateCustomerUseCase(
+    customersRepository,
+    updateUserActiveStatusPort,
+  );
