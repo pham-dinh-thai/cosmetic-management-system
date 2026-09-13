@@ -1,4 +1,6 @@
 import { Batch } from './entities/batch.entity';
+import { InactiveInventoryException } from './exceptions/inactive-inventory.exception';
+import { Stock } from './value-objects/stock.value-object';
 
 export type BatchProps = {
   id: string;
@@ -22,16 +24,33 @@ export type FromPersistentInventoryProps = {
   updatedAt: Date;
 };
 
+export type CreateInventoryProps = {
+  variantId: string;
+  minStock: number;
+};
+
 export class Inventory {
   private constructor(
     private readonly id: string,
     private readonly variantId: string,
     private readonly batches: Batch[],
-    private minStock: number,
+    private minStock: Stock,
     private isActive: boolean,
     private createdAt: Date,
     private updatedAt: Date,
   ) {}
+
+  public static create(props: CreateInventoryProps): Inventory {
+    return new Inventory(
+      undefined as unknown as string,
+      props.variantId,
+      [],
+      Stock.create(props.minStock),
+      true,
+      new Date(),
+      new Date(),
+    );
+  }
 
   public static fromPersistent(props: FromPersistentInventoryProps): Inventory {
     return new Inventory(
@@ -43,11 +62,20 @@ export class Inventory {
           inventoryId: props.id,
         });
       }),
-      props.minStock,
+      Stock.fromPersistent(props.minStock),
       props.isActive,
       props.createdAt,
       props.updatedAt,
     );
+  }
+
+  public updateMinStock(newMinStock: number): void {
+    if (!this.isActive) {
+      throw new InactiveInventoryException(this.id);
+    }
+
+    this.minStock = Stock.create(newMinStock);
+    this.updatedAt = new Date();
   }
 
   public activate(): void {
@@ -73,7 +101,7 @@ export class Inventory {
   }
 
   public getMinStock(): number {
-    return this.minStock;
+    return this.minStock.getValue();
   }
 
   public getIsActive(): boolean {

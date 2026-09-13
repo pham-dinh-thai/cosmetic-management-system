@@ -12,6 +12,22 @@ import {
   DeactivateInventoryUseCase,
   deactivateInventoryUseCaseFactory,
 } from './application/use-cases/deactivate-inventory/deactivate-inventory.use-case';
+import {
+  CreateInventoryUseCase,
+  createInventoryUseCaseFactory,
+} from './application/use-cases/create-inventory/create-inventory.use-case';
+import {
+  FindAllInventoriesUseCase,
+  findAllInventoriesUseCaseFactory,
+} from './application/use-cases/find-all-inventory/find-all-inventories.use-case';
+import {
+  FindInventoryByIdUseCase,
+  findInventoryByIdUseCaseFactory,
+} from './application/use-cases/find-inventory-by-id/find-inventory-by-id.use-case';
+import {
+  FindInventoryByVariantUseCase,
+  findInventoryByVariantUseCaseFactory,
+} from './application/use-cases/find-inventory-by-variant/find-inventory-by-variant.use-case';
 
 @Module({
   imports: [MikroOrmModule.forFeature([Inventory, Batch])],
@@ -30,11 +46,35 @@ import {
       useFactory: deactivateInventoryUseCaseFactory,
       inject: [INVENTORIES_REPOSITORY],
     },
+    {
+      provide: CreateInventoryUseCase,
+      useFactory: createInventoryUseCaseFactory,
+      inject: [INVENTORIES_REPOSITORY],
+    },
+    {
+      provide: FindAllInventoriesUseCase,
+      useFactory: findAllInventoriesUseCaseFactory,
+      inject: [INVENTORIES_REPOSITORY],
+    },
+    {
+      provide: FindInventoryByIdUseCase,
+      useFactory: findInventoryByIdUseCaseFactory,
+      inject: [INVENTORIES_REPOSITORY],
+    },
+    {
+      provide: FindInventoryByVariantUseCase,
+      useFactory: findInventoryByVariantUseCaseFactory,
+      inject: [INVENTORIES_REPOSITORY],
+    },
   ],
   exports: [
     INVENTORIES_REPOSITORY,
     ActivateInventoryUseCase,
     DeactivateInventoryUseCase,
+    CreateInventoryUseCase,
+    FindAllInventoriesUseCase,
+    FindInventoryByIdUseCase,
+    FindInventoryByVariantUseCase,
   ],
 })
 export class InventoriesModule {}
