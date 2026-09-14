@@ -32,6 +32,14 @@ import {
   AddBatchToInventoryUseCase,
   addBatchToInventoryUseCaseFactory,
 } from './application/use-cases/add-batch-to-inventory/add-batch-to-inventory.use-case';
+import {
+  DeactivateBatchOnInventoryUseCase,
+  deactivateBatchOnInventoryUseCaseFactory,
+} from './application/use-cases/deactivate-batch-on-inventory/deactivate-batch-on-inventory.use-case';
+import {
+  ActivateBatchOnInventoryUseCase,
+  activateBatchOnInventoryUseCaseFactory,
+} from './application/use-cases/activate-batch-on-inventory/activate-batch-on-inventory.use-case';
 
 @Module({
   imports: [MikroOrmModule.forFeature([Inventory, Batch])],
@@ -75,6 +83,16 @@ import {
       useFactory: addBatchToInventoryUseCaseFactory,
       inject: [INVENTORIES_REPOSITORY],
     },
+    {
+      provide: DeactivateBatchOnInventoryUseCase,
+      useFactory: deactivateBatchOnInventoryUseCaseFactory,
+      inject: [INVENTORIES_REPOSITORY],
+    },
+    {
+      provide: ActivateBatchOnInventoryUseCase,
+      useFactory: activateBatchOnInventoryUseCaseFactory,
+      inject: [INVENTORIES_REPOSITORY],
+    },
   ],
   exports: [
     INVENTORIES_REPOSITORY,
@@ -84,6 +102,9 @@ import {
     FindAllInventoriesUseCase,
     FindInventoryByIdUseCase,
     FindInventoryByVariantUseCase,
+    AddBatchToInventoryUseCase,
+    DeactivateBatchOnInventoryUseCase,
+    ActivateBatchOnInventoryUseCase,
   ],
 })
 export class InventoriesModule {}
