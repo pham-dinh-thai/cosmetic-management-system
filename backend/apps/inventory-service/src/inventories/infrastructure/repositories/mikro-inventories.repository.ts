@@ -125,6 +125,29 @@ export class MikroInventoriesRepository implements IInventoriesRepository {
     await this.entityManager.flush();
   }
 
+  public async updateBatchQuantities(batches: Batch[]): Promise<void> {
+    if (batches.length === 0) {
+      return;
+    }
+
+    for (const batch of batches) {
+      await this.entityManager.nativeUpdate(
+        BatchMikro,
+        { id: batch.getId() },
+        {
+          quantity: batch.getQuantity(),
+          updatedAt: batch.getUpdatedAt(),
+        },
+      );
+    }
+
+    await this.entityManager.nativeUpdate(
+      InventoryMikro,
+      { id: batches[0].getInventoryId() },
+      { updatedAt: new Date() },
+    );
+  }
+
   public async setBatchStatus(batch: Batch): Promise<void> {
     await this.entityManager.nativeUpdate(
       BatchMikro,

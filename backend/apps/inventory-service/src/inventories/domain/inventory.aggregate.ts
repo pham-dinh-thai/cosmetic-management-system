@@ -152,6 +152,24 @@ export class Inventory {
     return deducted;
   }
 
+  public adjustBatchStock(batchId: string, quantity: number): Batch {
+    if (!this.isActive) {
+      throw new InactiveInventoryException(this.id);
+    }
+
+    const batch = this.batches.find((batch) => batch.getId() === batchId);
+
+    if (!batch) {
+      throw new BatchNotFoundException('batchId', batchId);
+    }
+
+    batch.adjust(quantity);
+
+    this.updatedAt = new Date();
+
+    return batch;
+  }
+
   public activateBatch(batchId: string): Batch {
     const batch = this.batches.find((batch) => batch.getId() === batchId);
 

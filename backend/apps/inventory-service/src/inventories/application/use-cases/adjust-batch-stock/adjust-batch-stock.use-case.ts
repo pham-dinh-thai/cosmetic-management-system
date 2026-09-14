@@ -1,15 +1,16 @@
 import { InventoryNotFoundException } from '../../../domain/exceptions/inventory-not-found.exception';
 import { IInventoriesRepository } from '../../../domain/repositories/inventories.repository';
-import { IDecreaseBatchStockRequest } from './decrease-batch-stock.request';
+import { IAdjustBatchStockRequest } from './adjust-batch-stock.request';
 
-export class DecreaseBatchStockUseCase {
+export class AdjustBatchStockUseCase {
   public constructor(
     private readonly inventoriesRepository: IInventoriesRepository,
   ) {}
 
   public async execute(
     id: string,
-    request: IDecreaseBatchStockRequest,
+    batchId: string,
+    request: IAdjustBatchStockRequest,
   ): Promise<void> {
     const inventory = await this.inventoriesRepository.findById(id);
 
@@ -17,12 +18,12 @@ export class DecreaseBatchStockUseCase {
       throw new InventoryNotFoundException('id', id);
     }
 
-    const deducted = inventory.decreaseStock(request.requestedQuantity);
+    const batch = inventory.adjustBatchStock(batchId, request.adjustedQuantity);
 
-    await this.inventoriesRepository.updateBatchQuantities(deducted);
+    await this.inventoriesRepository.updateBatchQuantities([batch]);
   }
 }
 
-export const decreaseBatchStockUseCaseFactory = (
+export const adjustBatchStockUseCaseFactory = (
   inventoriesRepository: IInventoriesRepository,
-) => new DecreaseBatchStockUseCase(inventoriesRepository);
+) => new AdjustBatchStockUseCase(inventoriesRepository);

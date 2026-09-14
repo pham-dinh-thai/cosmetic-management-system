@@ -40,6 +40,14 @@ import {
   ActivateBatchOnInventoryUseCase,
   activateBatchOnInventoryUseCaseFactory,
 } from './application/use-cases/activate-batch-on-inventory/activate-batch-on-inventory.use-case';
+import {
+  DecreaseBatchStockUseCase,
+  decreaseBatchStockUseCaseFactory,
+} from './application/use-cases/decrease-batch-stock/decrease-batch-stock.use-case';
+import {
+  AdjustBatchStockUseCase,
+  adjustBatchStockUseCaseFactory,
+} from './application/use-cases/adjust-batch-stock/adjust-batch-stock.use-case';
 
 @Module({
   imports: [MikroOrmModule.forFeature([Inventory, Batch])],
@@ -91,6 +99,16 @@ import {
     {
       provide: ActivateBatchOnInventoryUseCase,
       useFactory: activateBatchOnInventoryUseCaseFactory,
+      inject: [INVENTORIES_REPOSITORY],
+    },
+    {
+      provide: DecreaseBatchStockUseCase,
+      useFactory: decreaseBatchStockUseCaseFactory,
+      inject: [INVENTORIES_REPOSITORY],
+    },
+    {
+      provide: AdjustBatchStockUseCase,
+      useFactory: adjustBatchStockUseCaseFactory,
       inject: [INVENTORIES_REPOSITORY],
     },
   ],

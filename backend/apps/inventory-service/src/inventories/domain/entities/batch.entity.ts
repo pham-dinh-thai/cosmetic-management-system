@@ -66,8 +66,18 @@ export class Batch {
     );
   }
 
+  public increase(quantity: number): void {
+    this.quantity = Stock.create(this.quantity.getValue() + quantity);
+    this.updatedAt = new Date();
+  }
+
   public decrease(quantity: number): void {
     this.quantity = Stock.create(this.quantity.getValue() - quantity);
+    this.updatedAt = new Date();
+  }
+
+  public adjust(quantity: number): void {
+    this.quantity = Stock.create(quantity);
     this.updatedAt = new Date();
   }
 
