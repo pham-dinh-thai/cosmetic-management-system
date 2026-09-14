@@ -23,6 +23,17 @@ export interface ExpiringBatchDto {
   updatedAt?: string | null;
 }
 
+export interface StockAdjustmentDto {
+  id: string;
+  batchId: string;
+  variantId: string;
+  adjustment: number;
+  reason: string;
+  note: string | null;
+  createdBy: string;
+  createdAt: string;
+}
+
 function mapInventory(d: InventoryDto): InventoryItem {
   return {
     id: d.id,
@@ -113,6 +124,27 @@ export const inventoryApi = {
   async getExpiringBatches(days = 30): Promise<ExpiringBatchDto[]> {
     const { data } = await api.get<ExpiringBatchDto[]>("/inventories/expiring", {
       params: { days },
+    });
+    return data;
+  },
+
+  async createStockAdjustment(payload: {
+    batchId: string;
+    adjustment: number;
+    reason: string;
+    note?: string;
+  }): Promise<{ id: string; batchId: string; variantId: string; quantity: number }> {
+    const { data } = await api.post("/inventories/stock-adjustments", payload);
+    return data;
+  },
+
+  async getStockAdjustments(query?: {
+    batchId?: string;
+    variantId?: string;
+    reason?: string;
+  }): Promise<StockAdjustmentDto[]> {
+    const { data } = await api.get<StockAdjustmentDto[]>("/inventories/stock-adjustments", {
+      params: query ?? {},
     });
     return data;
   },

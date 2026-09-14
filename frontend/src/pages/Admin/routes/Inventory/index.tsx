@@ -131,9 +131,14 @@ const InventoryPage: React.FC = () => {
         title="Quản lý tồn kho"
         description="Theo dõi số lượng sản phẩm lưu kho."
         actions={
-          <Button variant="primary" onClick={() => navigate(`${basePath}/inventory/import`)}>
-            Nhập kho từ phiếu nhập
-          </Button>
+          <div className="flex gap-3">
+            <Button variant="outline" onClick={() => navigate(`${basePath}/inventory/stock-adjustments`)}>
+              Xử lý tồn kho
+            </Button>
+            <Button variant="primary" onClick={() => navigate(`${basePath}/inventory/import`)}>
+              Nhập kho từ phiếu nhập
+            </Button>
+          </div>
         }
       />
       <div className="flex flex-col gap-4">
