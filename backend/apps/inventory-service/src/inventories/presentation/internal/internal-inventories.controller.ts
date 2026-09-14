@@ -1,7 +1,9 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { FindInventoryByVariantUseCase } from '../../application/use-cases/find-inventory-by-variant/find-inventory-by-variant.use-case';
 import { AddBatchToInventoryUseCase } from '../../application/use-cases/add-batch-to-inventory/add-batch-to-inventory.use-case';
+import { InternalReverseRequest } from './requests/internal-reverse.request';
 import { DecreaseBatchStockUseCase } from '../../application/use-cases/decrease-batch-stock/decrease-batch-stock.use-case';
+import { ReverseBatchStockUseCase } from '../../application/use-cases/reverse-batch-stock/reverse-batch-stock.use-case';
 import { InternalAddBatchRequest } from './requests/internal-add-batch.request';
 import { InternalSaleRequest } from './requests/internal-sale.request';
 
@@ -11,6 +13,7 @@ export class InternalInventoriesController {
     private readonly findInventoryByVariantUseCase: FindInventoryByVariantUseCase,
     private readonly addBatchToInventoryUseCase: AddBatchToInventoryUseCase,
     private readonly decreaseBatchStockUseCase: DecreaseBatchStockUseCase,
+    private readonly reverseBatchStockUseCase: ReverseBatchStockUseCase,
   ) {}
 
   @HttpCode(HttpStatus.CREATED)
@@ -56,6 +59,22 @@ export class InternalInventoriesController {
 
     await this.decreaseBatchStockUseCase.execute(inventory.id, {
       requestedQuantity: request.quantity,
+    });
+
+    return { variantId: request.variantId, quantity: request.quantity };
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('reverse')
+  public async reverse(
+    @Body() request: InternalReverseRequest,
+  ): Promise<{ variantId: string; quantity: number }> {
+    const inventory = await this.findInventoryByVariantUseCase.execute(
+      request.variantId,
+    );
+
+    await this.reverseBatchStockUseCase.execute(inventory.id, {
+      quantity: request.quantity,
     });
 
     return { variantId: request.variantId, quantity: request.quantity };

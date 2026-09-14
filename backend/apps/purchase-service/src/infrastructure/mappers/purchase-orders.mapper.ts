@@ -12,6 +12,7 @@ export class PurchaseOrdersMapper {
       variantId: line.variantId,
       quantity: line.quantity,
       unitPrice: line.unitPrice,
+      expiryDate: new Date(line.expiryDate),
       createdAt: line.createdAt,
       updatedAt: line.updatedAt,
     }));

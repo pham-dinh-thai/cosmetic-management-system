@@ -19,6 +19,7 @@ const PurchaseOrderLineSchema = defineEntity({
       .precision(12)
       .scale(2)
       .fieldName('unit_price'),
+    expiryDate: p.date(),
     createdAt: p
       .datetime()
       .fieldName('created_at')

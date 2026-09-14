@@ -38,6 +38,7 @@ export type CreatePurchaseOrderLineProps = {
   variantId: string;
   quantity: number;
   unitPrice: number;
+  expiryDate: Date;
 };
 
 export type FromPersistentPurchaseOrderLineProps = {
@@ -46,6 +47,7 @@ export type FromPersistentPurchaseOrderLineProps = {
   variantId: string;
   quantity: number;
   unitPrice: number;
+  expiryDate: Date;
   createdAt: Date;
   updatedAt: Date;
 };

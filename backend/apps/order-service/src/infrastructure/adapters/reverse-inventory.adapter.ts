@@ -11,7 +11,7 @@ export class ReverseInventoryAdapter implements IReverseInventoryPort {
 
   public async execute(variantId: string, quantity: number): Promise<void> {
     const response = await fetch(
-      `${this.url}/api/internal/inventory/purchase`,
+      `${this.url}/api/internal/inventories/reverse`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

@@ -2,6 +2,7 @@ import { Type } from 'class-transformer';
 import {
   ArrayMinSize,
   IsArray,
+  IsDateString,
   IsInt,
   IsNumber,
   IsOptional,
@@ -21,6 +22,10 @@ class UpdatePurchaseOrderLineRequest {
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0)
   unitPrice!: number;
+
+  @IsDateString()
+  @Type(() => Date)
+  expiryDate!: Date;
 }
 
 export class UpdatePurchaseOrderRequest {
