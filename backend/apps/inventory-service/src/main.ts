@@ -3,7 +3,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { InventoryServiceModule } from './inventory-service.module';
 import { INVENTORY_SERVICE_PORT } from 'constants/ports';
-import { DomainErrorFilter } from './presentation/filters/domain-error.filter';
+import { DomainErrorFilter } from './shared/filters/domain-error.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(InventoryServiceModule);

@@ -56,9 +56,16 @@ import {
   FindOverstockBatchesUseCase,
   findOverstockBatchesUseCaseFactory,
 } from './application/use-cases/find-overstock-batches/find-overstock-batches.use-case';
+import {
+  UpdateInventoryMinStockUseCase,
+  updateInventoryMinStockUseCaseFactory,
+} from './application/use-cases/update-inventory-min-stock/update-inventory-min-stock.use-case';
+import { InventoriesController } from './presentation/public/inventories.controller';
+import { InternalInventoriesController } from './presentation/internal/internal-inventories.controller';
 
 @Module({
   imports: [MikroOrmModule.forFeature([Inventory, Batch])],
+  controllers: [InventoriesController, InternalInventoriesController],
   providers: [
     {
       provide: INVENTORIES_REPOSITORY,
@@ -129,6 +136,11 @@ import {
       useFactory: findOverstockBatchesUseCaseFactory,
       inject: [INVENTORIES_REPOSITORY],
     },
+    {
+      provide: UpdateInventoryMinStockUseCase,
+      useFactory: updateInventoryMinStockUseCaseFactory,
+      inject: [INVENTORIES_REPOSITORY],
+    },
   ],
   exports: [
     INVENTORIES_REPOSITORY,
@@ -141,6 +153,11 @@ import {
     AddBatchToInventoryUseCase,
     DeactivateBatchOnInventoryUseCase,
     ActivateBatchOnInventoryUseCase,
+    DecreaseBatchStockUseCase,
+    AdjustBatchStockUseCase,
+    FindExpiringBatchesUseCase,
+    FindOverstockBatchesUseCase,
+    UpdateInventoryMinStockUseCase,
   ],
 })
 export class InventoriesModule {}

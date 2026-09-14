@@ -1,4 +1,4 @@
-import { BaseDomainException } from './base-domain-exception';
+import { BaseDomainException } from 'apps/inventory-service/src/shared/exceptions/base-domain-exception';
 
 export class InventoryNotFoundException extends BaseDomainException {
   public readonly statusCode = 404;

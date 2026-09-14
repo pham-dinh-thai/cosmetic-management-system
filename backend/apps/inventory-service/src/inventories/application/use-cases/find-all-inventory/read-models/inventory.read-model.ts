@@ -1,4 +1,4 @@
-import { Inventory } from '../../../domain/inventory.aggregate';
+import { Inventory } from '../../../../domain/inventory.aggregate';
 
 export class InventoryReadModel {
   public constructor(

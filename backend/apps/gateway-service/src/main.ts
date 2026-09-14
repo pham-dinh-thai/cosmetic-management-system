@@ -185,7 +185,8 @@ async function bootstrap() {
     createProxyMiddleware({
       target: process.env.INVENTORY_SERVICE_URL,
       changeOrigin: true,
-      pathFilter: (pathname) => /^\/api\/inventory(\/|$)/.test(pathname),
+      pathFilter: (pathname) =>
+        /^\/api\/(inventories|internal\/inventories)(\/|$)/.test(pathname),
     }),
   );
   app.use(

@@ -1,6 +1,6 @@
 import { InventoryNotFoundException } from '../../../domain/exceptions/inventory-not-found.exception';
 import { IInventoriesRepository } from '../../../domain/repositories/inventories.repository';
-import { InventoryReadModel } from './read-models/inventory.read-model';
+import { InventoryReadModel } from '../find-all-inventory/read-models/inventory.read-model';
 
 export class FindInventoryByVariantUseCase {
   public constructor(

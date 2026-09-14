@@ -1,7 +1,8 @@
 import { join } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import { defineConfig } from '@mikro-orm/postgresql';
-import { Inventory } from './src/infrastructure/entities/inventory.entity';
+import { Inventory } from './src/inventories/infrastructure/entities/inventory.entity';
+import { Batch } from './src/inventories/infrastructure/entities/batch.entity';
 
 loadEnv({ path: join(__dirname, '../../../.env') });
 
@@ -11,7 +12,7 @@ export default defineConfig({
   user: process.env.INVENTORY_DB_USER,
   password: process.env.INVENTORY_DB_PASSWORD,
   dbName: process.env.INVENTORY_DB_NAME,
-  entities: [Inventory],
+  entities: [Inventory, Batch],
   migrations: {
     path: join(__dirname, 'dist/migrations'),
     pathTs: join(__dirname, 'migrations'),

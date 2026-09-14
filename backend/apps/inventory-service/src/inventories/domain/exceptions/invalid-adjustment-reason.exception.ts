@@ -1,4 +1,4 @@
-import { BaseDomainException } from './base-domain-exception';
+import { BaseDomainException } from 'apps/inventory-service/src/shared/exceptions/base-domain-exception';
 
 export class InvalidAdjustmentReasonException extends BaseDomainException {
   public readonly statusCode = 400;
