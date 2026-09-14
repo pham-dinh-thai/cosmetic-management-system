@@ -29,6 +29,7 @@ import { StockAdjustmentsModule } from './stock-adjustments/stock-adjustments.mo
     }),
     MikroOrmModule.forFeature([Inventory, Batch, StockAdjustment]),
     JwtModule.registerAsync({
+      global: true,
       useFactory: (config: ConfigService) => ({
         secret: config.get<string>('JWT_ACCESS_SECRET'),
       }),
