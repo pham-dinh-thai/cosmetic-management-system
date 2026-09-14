@@ -108,25 +108,16 @@ export class Inventory {
 
     return batch;
   }
-
   public decreaseStock(quantity: number): Batch[] {
     if (!this.isActive) {
       throw new InactiveInventoryException(this.id);
     }
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const availableBatches = this.batches.filter(
-      (b) =>
-        b.getIsActive() &&
-        b.getExpiredDate().getTime() >= today.getTime(),
-    );
+    const availableBatches = this.batches.filter((b) => b.getIsActive());
     const totalStock = availableBatches.reduce(
       (sum, b) => sum + b.getQuantity(),
       0,
     );
-
     if (totalStock < quantity) {
       throw new InsufficientStockException(
         this.variantId,
