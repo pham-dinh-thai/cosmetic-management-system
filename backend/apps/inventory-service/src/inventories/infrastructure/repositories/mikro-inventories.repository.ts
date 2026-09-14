@@ -116,7 +116,33 @@ export class MikroInventoriesRepository implements IInventoriesRepository {
 
     this.entityManager.persist(batchMikro);
 
+    this.entityManager.nativeUpdate(
+      InventoryMikro,
+      { id },
+      { updatedAt: new Date() },
+    );
+
     await this.entityManager.flush();
+  }
+
+  public async setBatchStatus(batch: Batch): Promise<void> {
+    await this.entityManager.nativeUpdate(
+      BatchMikro,
+      { id: batch.getId() },
+      {
+        isActive: batch.getIsActive(),
+        updatedAt: batch.getUpdatedAt(),
+      },
+    );
+
+    await this.entityManager.nativeUpdate(
+      InventoryMikro,
+      { id: batch.getInventoryId() },
+      {
+        isActive: batch.getIsActive(),
+        updatedAt: batch.getUpdatedAt(),
+      },
+    );
   }
 
   private toDomain(inventoryMikro: InventoryMikro): Inventory {

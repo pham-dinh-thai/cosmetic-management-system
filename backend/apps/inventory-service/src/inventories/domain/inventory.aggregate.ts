@@ -1,4 +1,5 @@
 import { Batch } from './entities/batch.entity';
+import { BatchNotFoundException } from './exceptions/batch-not-found.exception';
 import { InactiveInventoryException } from './exceptions/inactive-inventory.exception';
 import { Stock } from './value-objects/stock.value-object';
 
@@ -67,6 +68,7 @@ export class Inventory {
       props.batches.map((batch) => {
         return Batch.fromPersistent({
           ...batch,
+          inventoryId: props.id,
         });
       }),
       Stock.fromPersistent(props.minStock),
@@ -92,6 +94,7 @@ export class Inventory {
 
     const batch = Batch.create({
       lotNumber: props.lotNumber,
+      inventoryId: this.id,
       supplierId: props.supplierId,
       quantity: props.quantity,
       expiredDate: props.expiredDate,
@@ -100,6 +103,32 @@ export class Inventory {
 
     this.batches.push(batch);
 
+    this.updatedAt = new Date();
+
+    return batch;
+  }
+
+  public activateBatch(batchId: string): Batch {
+    const batch = this.batches.find((batch) => batch.getId() === batchId);
+
+    if (!batch) {
+      throw new BatchNotFoundException('batchId', batchId);
+    }
+
+    batch.activate();
+    this.updatedAt = new Date();
+
+    return batch;
+  }
+
+  public deactivateBatch(batchId: string): Batch {
+    const batch = this.batches.find((batch) => batch.getId() === batchId);
+
+    if (!batch) {
+      throw new BatchNotFoundException('batchId', batchId);
+    }
+
+    batch.deactivate();
     this.updatedAt = new Date();
 
     return batch;

@@ -15,6 +15,8 @@ export interface IInventoriesRepository {
   setIsActive(inventory: Inventory): Promise<void>;
 
   addBatch(id: string, batch: Batch): Promise<void>;
+
+  setBatchStatus(batch: Batch): Promise<void>;
 }
 
 export const INVENTORIES_REPOSITORY = 'IInventoriesRepository';

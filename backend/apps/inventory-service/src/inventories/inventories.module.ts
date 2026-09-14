@@ -28,6 +28,10 @@ import {
   FindInventoryByVariantUseCase,
   findInventoryByVariantUseCaseFactory,
 } from './application/use-cases/find-inventory-by-variant/find-inventory-by-variant.use-case';
+import {
+  AddBatchToInventoryUseCase,
+  addBatchToInventoryUseCaseFactory,
+} from './application/use-cases/add-batch-to-inventory/add-batch-to-inventory.use-case';
 
 @Module({
   imports: [MikroOrmModule.forFeature([Inventory, Batch])],
@@ -64,6 +68,11 @@ import {
     {
       provide: FindInventoryByVariantUseCase,
       useFactory: findInventoryByVariantUseCaseFactory,
+      inject: [INVENTORIES_REPOSITORY],
+    },
+    {
+      provide: AddBatchToInventoryUseCase,
+      useFactory: addBatchToInventoryUseCaseFactory,
       inject: [INVENTORIES_REPOSITORY],
     },
   ],
