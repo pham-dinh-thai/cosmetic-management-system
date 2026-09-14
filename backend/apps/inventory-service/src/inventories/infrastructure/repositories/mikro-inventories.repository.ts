@@ -117,11 +117,7 @@ export class MikroInventoriesRepository implements IInventoriesRepository {
 
       em.persist(batchMikro);
 
-      await em.nativeUpdate(
-        InventoryMikro,
-        { id },
-        { updatedAt: new Date() },
-      );
+      await em.nativeUpdate(InventoryMikro, { id }, { updatedAt: new Date() });
     });
   }
 
