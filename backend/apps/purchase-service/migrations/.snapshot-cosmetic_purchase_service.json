@@ -22,8 +22,23 @@
           "default": null,
           "comment": null,
           "collation": null,
-          "enumItems": [],
-          "mappedType": "datetime"
+          "enumItems": []
+        },
+        "expiry_date": {
+          "name": "expiry_date",
+          "type": "date",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "collation": null,
+          "enumItems": []
         },
         "id": {
           "name": "id",
@@ -39,8 +54,7 @@
           "default": "gen_random_uuid()",
           "comment": null,
           "collation": null,
-          "enumItems": [],
-          "mappedType": "uuid"
+          "enumItems": []
         },
         "purchase_order_id": {
           "name": "purchase_order_id",
@@ -56,8 +70,7 @@
           "default": null,
           "comment": null,
           "collation": null,
-          "enumItems": [],
-          "mappedType": "uuid"
+          "enumItems": []
         },
         "quantity": {
           "name": "quantity",
@@ -68,13 +81,12 @@
           "nullable": false,
           "unique": false,
           "length": null,
-          "precision": null,
-          "scale": null,
+          "precision": 32,
+          "scale": 0,
           "default": "1",
           "comment": null,
           "collation": null,
-          "enumItems": [],
-          "mappedType": "integer"
+          "enumItems": []
         },
         "unit_price": {
           "name": "unit_price",
@@ -90,8 +102,7 @@
           "default": null,
           "comment": null,
           "collation": null,
-          "enumItems": [],
-          "mappedType": "decimal"
+          "enumItems": []
         },
         "updated_at": {
           "name": "updated_at",
@@ -107,8 +118,7 @@
           "default": null,
           "comment": null,
           "collation": null,
-          "enumItems": [],
-          "mappedType": "datetime"
+          "enumItems": []
         },
         "variant_id": {
           "name": "variant_id",
@@ -124,8 +134,7 @@
           "default": null,
           "comment": null,
           "collation": null,
-          "enumItems": [],
-          "mappedType": "string"
+          "enumItems": []
         }
       },
       "indexes": [
@@ -176,8 +185,7 @@
           "default": null,
           "comment": null,
           "collation": null,
-          "enumItems": [],
-          "mappedType": "string"
+          "enumItems": []
         },
         "created_at": {
           "name": "created_at",
@@ -193,8 +201,7 @@
           "default": null,
           "comment": null,
           "collation": null,
-          "enumItems": [],
-          "mappedType": "datetime"
+          "enumItems": []
         },
         "employee_id": {
           "name": "employee_id",
@@ -210,8 +217,7 @@
           "default": null,
           "comment": null,
           "collation": null,
-          "enumItems": [],
-          "mappedType": "string"
+          "enumItems": []
         },
         "id": {
           "name": "id",
@@ -227,8 +233,7 @@
           "default": "gen_random_uuid()",
           "comment": null,
           "collation": null,
-          "enumItems": [],
-          "mappedType": "uuid"
+          "enumItems": []
         },
         "status": {
           "name": "status",
@@ -248,8 +253,7 @@
             "PENDING",
             "COMPLETED",
             "CANCELLED"
-          ],
-          "mappedType": "enum"
+          ]
         },
         "supplier_id": {
           "name": "supplier_id",
@@ -265,8 +269,7 @@
           "default": null,
           "comment": null,
           "collation": null,
-          "enumItems": [],
-          "mappedType": "string"
+          "enumItems": []
         },
         "total_amount": {
           "name": "total_amount",
@@ -282,8 +285,7 @@
           "default": "0",
           "comment": null,
           "collation": null,
-          "enumItems": [],
-          "mappedType": "decimal"
+          "enumItems": []
         },
         "updated_at": {
           "name": "updated_at",
@@ -299,8 +301,7 @@
           "default": null,
           "comment": null,
           "collation": null,
-          "enumItems": [],
-          "mappedType": "datetime"
+          "enumItems": []
         }
       },
       "indexes": [
@@ -355,8 +356,7 @@
           "default": null,
           "comment": null,
           "collation": null,
-          "enumItems": [],
-          "mappedType": "datetime"
+          "enumItems": []
         },
         "employee_id": {
           "name": "employee_id",
@@ -372,8 +372,7 @@
           "default": null,
           "comment": null,
           "collation": null,
-          "enumItems": [],
-          "mappedType": "string"
+          "enumItems": []
         },
         "id": {
           "name": "id",
@@ -389,8 +388,7 @@
           "default": "gen_random_uuid()",
           "comment": null,
           "collation": null,
-          "enumItems": [],
-          "mappedType": "uuid"
+          "enumItems": []
         },
         "purchase_order_id": {
           "name": "purchase_order_id",
@@ -406,8 +404,7 @@
           "default": null,
           "comment": null,
           "collation": null,
-          "enumItems": [],
-          "mappedType": "uuid"
+          "enumItems": []
         },
         "quantity": {
           "name": "quantity",
@@ -418,13 +415,12 @@
           "nullable": false,
           "unique": false,
           "length": null,
-          "precision": null,
-          "scale": null,
+          "precision": 32,
+          "scale": 0,
           "default": "1",
           "comment": null,
           "collation": null,
-          "enumItems": [],
-          "mappedType": "integer"
+          "enumItems": []
         },
         "subtotal": {
           "name": "subtotal",
@@ -440,8 +436,7 @@
           "default": "0",
           "comment": null,
           "collation": null,
-          "enumItems": [],
-          "mappedType": "decimal"
+          "enumItems": []
         },
         "unit_price": {
           "name": "unit_price",
@@ -457,8 +452,7 @@
           "default": null,
           "comment": null,
           "collation": null,
-          "enumItems": [],
-          "mappedType": "decimal"
+          "enumItems": []
         },
         "updated_at": {
           "name": "updated_at",
@@ -474,8 +468,7 @@
           "default": null,
           "comment": null,
           "collation": null,
-          "enumItems": [],
-          "mappedType": "datetime"
+          "enumItems": []
         },
         "variant_id": {
           "name": "variant_id",
@@ -491,8 +484,7 @@
           "default": null,
           "comment": null,
           "collation": null,
-          "enumItems": [],
-          "mappedType": "string"
+          "enumItems": []
         }
       },
       "indexes": [
