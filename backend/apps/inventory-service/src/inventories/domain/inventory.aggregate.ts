@@ -114,7 +114,14 @@ export class Inventory {
       throw new InactiveInventoryException(this.id);
     }
 
-    const availableBatches = this.batches.filter((b) => b.getIsActive());
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const availableBatches = this.batches.filter(
+      (b) =>
+        b.getIsActive() &&
+        b.getExpiredDate().getTime() >= today.getTime(),
+    );
     const totalStock = availableBatches.reduce(
       (sum, b) => sum + b.getQuantity(),
       0,
