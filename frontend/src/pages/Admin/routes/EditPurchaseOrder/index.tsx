@@ -144,21 +144,6 @@ const EditPurchaseOrderPage: React.FC = () => {
     }
   };
 
-  const handleComplete = async () => {
-    if (!id) return;
-    setSaving(true);
-    try {
-      await purchaseOrdersService.completePurchaseOrder(id);
-      toast.success("Đã nhập kho thành công");
-      navigate(`${basePath}/purchase`);
-    } catch (error) {
-      console.error(error);
-      toast.error("Không thể xác nhận nhập kho cho phiếu này");
-    } finally {
-      setSaving(false);
-    }
-  };
-
   const columns: Column<EditableLine>[] = [
     {
       key: "variantId",
@@ -284,9 +269,6 @@ const EditPurchaseOrderPage: React.FC = () => {
 
       <div className="flex justify-between gap-3 pt-4 border-t border-[#eeeee9]">
         <div className="flex gap-3">
-          <Button variant="outline" onClick={handleComplete} disabled={saving || status !== "PENDING" || !id}>
-            Xác nhận nhập kho
-          </Button>
           <Button variant="outline" onClick={handleCancel} disabled={saving || status !== "PENDING" || !id}>
             Hủy phiếu
           </Button>
