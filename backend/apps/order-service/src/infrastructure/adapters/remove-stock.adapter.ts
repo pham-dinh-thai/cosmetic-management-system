@@ -11,7 +11,7 @@ export class RemoveStockAdapter implements IRemoveStockPort {
   }
 
   public async execute(variantId: string, quantity: number): Promise<void> {
-    const response = await fetch(`${this.url}/api/internal/inventory/sale`, {
+    const response = await fetch(`${this.url}/api/internal/inventories/sale`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ variantId, quantity }),
