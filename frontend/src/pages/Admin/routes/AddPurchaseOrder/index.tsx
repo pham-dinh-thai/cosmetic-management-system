@@ -14,6 +14,7 @@ interface EditableLine {
   variantId: string;
   quantity: number;
   unitPrice: number;
+  expiryDate: string;
 }
 
 interface VariantOption {
@@ -27,6 +28,7 @@ const newLine = (): EditableLine => ({
   variantId: "",
   quantity: 1,
   unitPrice: 0,
+  expiryDate: "",
 });
 
 const AddPurchaseOrderPage: React.FC = () => {
@@ -83,18 +85,31 @@ const AddPurchaseOrderPage: React.FC = () => {
           ...l,
           variantId,
           unitPrice: variant ? variant.price : l.unitPrice,
+          expiryDate: "",
         };
       }),
     );
   };
 
-  const handleLineChange = (
-    lineId: string,
-    field: "quantity" | "unitPrice",
-    value: number,
-  ) => {
+  const validLines = lines.filter(
+    (l) => l.variantId && l.quantity > 0 && l.expiryDate,
+  );
+
+  const handleQuantityChange = (lineId: string, value: number) => {
     setLines((prev) =>
-      prev.map((l) => (l.localId === lineId ? { ...l, [field]: value } : l)),
+      prev.map((l) => (l.localId === lineId ? { ...l, quantity: value } : l)),
+    );
+  };
+
+  const handleUnitPriceChange = (lineId: string, value: number) => {
+    setLines((prev) =>
+      prev.map((l) => (l.localId === lineId ? { ...l, unitPrice: value } : l)),
+    );
+  };
+
+  const handleExpiryDateChange = (lineId: string, value: string) => {
+    setLines((prev) =>
+      prev.map((l) => (l.localId === lineId ? { ...l, expiryDate: value } : l)),
     );
   };
 
@@ -103,9 +118,13 @@ const AddPurchaseOrderPage: React.FC = () => {
       toast.error("Vui lòng chọn nhà cung cấp");
       return null;
     }
-    const validLines = lines.filter((l) => l.variantId);
     if (validLines.length === 0) {
-      toast.error("Vui lòng thêm ít nhất một sản phẩm");
+      toast.error("Vui lòng thêm ít nhất một sản phẩm có hạn sử dụng");
+      return null;
+    }
+    const missingExpiry = lines.filter((l) => l.variantId && !l.expiryDate);
+    if (missingExpiry.length > 0) {
+      toast.error("Vui lòng nhập hạn sử dụng cho tất cả dòng sản phẩm");
       return null;
     }
     setSaving(true);
@@ -116,6 +135,7 @@ const AddPurchaseOrderPage: React.FC = () => {
           variantId: l.variantId,
           quantity: l.quantity,
           unitPrice: l.unitPrice,
+          expiryDate: l.expiryDate,
         })),
       });
     } catch (error) {
@@ -161,13 +181,13 @@ const AddPurchaseOrderPage: React.FC = () => {
     {
       key: "quantity",
       header: "SL",
-      className: "text-center w-32",
+      className: "text-center w-28",
       render: (l) => (
         <Input
           type="number"
           min={1}
           value={l.quantity}
-          onChange={(e) => handleLineChange(l.localId, "quantity", parseInt(e.target.value) || 0)}
+          onChange={(e) => handleQuantityChange(l.localId, parseInt(e.target.value) || 0)}
           className="text-center !px-2 !py-1.5"
           style={{ minWidth: "80px" }}
         />
@@ -176,15 +196,30 @@ const AddPurchaseOrderPage: React.FC = () => {
     {
       key: "unitPrice",
       header: "Đơn giá",
-      className: "text-right w-48",
+      className: "text-right w-40",
       render: (l) => (
         <Input
           type="number"
           min={0}
           value={l.unitPrice}
-          onChange={(e) => handleLineChange(l.localId, "unitPrice", parseInt(e.target.value) || 0)}
+          onChange={(e) => handleUnitPriceChange(l.localId, parseInt(e.target.value) || 0)}
           className="text-right !px-2 !py-1.5"
           style={{ minWidth: "120px" }}
+        />
+      ),
+    },
+    {
+      key: "expiryDate",
+      header: "Hạn sử dụng",
+      className: "w-48",
+      render: (l) => (
+        <Input
+          type="date"
+          value={l.expiryDate}
+          min={new Date().toISOString().slice(0, 10)}
+          onChange={(e) => handleExpiryDateChange(l.localId, e.target.value)}
+          className="!px-2 !py-1.5"
+          style={{ minWidth: "160px" }}
         />
       ),
     },

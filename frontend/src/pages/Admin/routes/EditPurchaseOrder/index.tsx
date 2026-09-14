@@ -13,6 +13,7 @@ interface EditableLine {
   variantId: string;
   quantity: number;
   unitPrice: number;
+  expiryDate: string;
 }
 
 const statusMeta: Record<string, { label: string; className: string }> = {
@@ -67,6 +68,7 @@ const EditPurchaseOrderPage: React.FC = () => {
             variantId: l.variantId,
             quantity: l.quantity,
             unitPrice: l.unitPrice,
+            expiryDate: l.expiryDate ? l.expiryDate.slice(0, 10) : "",
           })),
         );
       })
@@ -93,8 +95,19 @@ const EditPurchaseOrderPage: React.FC = () => {
     );
   };
 
+  const handleExpiryDateChange = (lineId: string, value: string) => {
+    setLines((prev) =>
+      prev.map((l) => (l.id === lineId ? { ...l, expiryDate: value } : l)),
+    );
+  };
+
   const handleSave = async () => {
     if (!id) return;
+    const missingExpiry = lines.filter((l) => !l.expiryDate);
+    if (missingExpiry.length > 0) {
+      toast.error("Vui lòng nhập hạn sử dụng cho tất cả dòng sản phẩm");
+      return;
+    }
     setSaving(true);
     try {
       await purchaseOrdersService.updatePurchaseOrder(id, {
@@ -103,6 +116,7 @@ const EditPurchaseOrderPage: React.FC = () => {
           variantId: l.variantId,
           quantity: l.quantity,
           unitPrice: l.unitPrice,
+          expiryDate: l.expiryDate,
         })),
       });
       toast.success("Đã cập nhật phiếu nhập thành công");
@@ -173,7 +187,7 @@ const EditPurchaseOrderPage: React.FC = () => {
     {
       key: "unitPrice",
       header: "Đơn giá",
-      className: "text-right w-48",
+      className: "text-right w-40",
       render: (l) => (
         <Input
           type="number"
@@ -182,6 +196,21 @@ const EditPurchaseOrderPage: React.FC = () => {
           onChange={(e) => handleLineChange(l.id, "unitPrice", parseInt(e.target.value) || 0)}
           className="text-right !px-2 !py-1.5"
           style={{ minWidth: "120px" }}
+        />
+      ),
+    },
+    {
+      key: "expiryDate",
+      header: "Hạn sử dụng",
+      className: "w-48",
+      render: (l) => (
+        <Input
+          type="date"
+          value={l.expiryDate}
+          min={new Date().toISOString().slice(0, 10)}
+          onChange={(e) => handleExpiryDateChange(l.id, e.target.value)}
+          className="!px-2 !py-1.5"
+          style={{ minWidth: "160px" }}
         />
       ),
     },

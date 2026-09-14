@@ -1,15 +1,21 @@
+export interface InventoryBatch {
+  id: string;
+  lotNumber: string;
+  supplierId: string;
+  quantity: number;
+  expiredDate: string;
+  isActive: boolean;
+}
+
 export interface InventoryItem {
   id: string;
   variantId: string;
   quantity: number;
   minStock: number;
-  expiryDate: string | null;
-  lastUpdatedAt: string;
   isActive: boolean;
   createdAt?: string | null;
   updatedAt?: string | null;
-  createdBy?: string | null;
-  createdByName?: string;
+  batches: InventoryBatch[];
   sku?: string;
   productName?: string;
   variantName?: string;

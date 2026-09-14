@@ -2,17 +2,14 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { inventoryApi } from "../Inventory/api";
 import { productsService } from "../../../../services/products.service";
-import { employeesService, combineName } from "../../../../services/employees.service";
 import { useBasePath } from "../../../../lib/useBasePath";
 import type { InventoryItem } from "../Inventory/type";
-import { useAuthStore } from "../../../../store/useAuthStore";
 
 export function useInventoryDetail() {
   const { id } = useParams<{ id: string }>();
   const inventoryId = id || "";
   const navigate = useNavigate();
   const basePath = useBasePath();
-  const currentUser = useAuthStore((state) => state.user);
 
   const [item, setItem] = useState<InventoryItem | null>(null);
   const [loading, setLoading] = useState(true);
@@ -46,31 +43,8 @@ export function useInventoryDetail() {
           productName = row.variantId;
         }
 
-        let createdByName = "";
-        if (row.createdBy) {
-          if (currentUser?.id === row.createdBy) {
-            createdByName = combineName(
-              currentUser.firstName,
-              currentUser.lastName,
-            ) || currentUser.email;
-          }
-
-          try {
-            const employees = await employeesService.getEmployees();
-            const creator = employees.find(
-              (e) => e.userId === row.createdBy || e.id === row.createdBy,
-            );
-            createdByName = creator
-              ? combineName(creator.firstName, creator.lastName)
-              : createdByName;
-          } catch {
-            // The employee endpoint is admin-only. Keep the current user's
-            // local profile name when the lookup is not available.
-          }
-        }
-
         if (!cancelled) {
-          setItem({ ...row, productName, variantName, createdByName });
+          setItem({ ...row, productName, variantName });
         }
       } catch (err) {
         if (!cancelled) {
@@ -87,7 +61,7 @@ export function useInventoryDetail() {
     return () => {
       cancelled = true;
     };
-  }, [inventoryId, currentUser]);
+  }, [inventoryId]);
 
   return {
     inventoryId,

@@ -17,7 +17,6 @@ const EditInventoryPage: React.FC = () => {
   const [variantLabel, setVariantLabel] = useState("");
   const [variantIdLabel, setVariantIdLabel] = useState("");
   const [quantity, setQuantity] = useState<number>(0);
-  const [originalQuantity, setOriginalQuantity] = useState<number>(0);
   const [minStock, setMinStock] = useState<number>(0);
   const [error, setError] = useState("");
 
@@ -29,7 +28,6 @@ const EditInventoryPage: React.FC = () => {
         const row = await inventoryApi.getById(id);
 
         setQuantity(row.quantity);
-        setOriginalQuantity(row.quantity);
         setMinStock(row.minStock);
         setVariantIdLabel(row.variantId);
 
@@ -62,10 +60,6 @@ const EditInventoryPage: React.FC = () => {
     e.preventDefault();
     if (!id) return;
 
-    if (quantity < 0) {
-      toast.error("Số lượng tồn không thể âm");
-      return;
-    }
     if (minStock < 0) {
       toast.error("Mức tồn tối thiểu không thể âm");
       return;
@@ -73,9 +67,6 @@ const EditInventoryPage: React.FC = () => {
 
     setSaving(true);
     try {
-      if (quantity !== originalQuantity) {
-        await inventoryApi.adjustInventory(id, quantity - originalQuantity);
-      }
       await inventoryApi.updateMinStock(id, minStock);
       toast.success("Cập nhật tồn kho thành công");
       navigate(`${basePath}/inventory`);
@@ -95,7 +86,7 @@ const EditInventoryPage: React.FC = () => {
       <PageHeader
         eyebrow="Quản lý / Tồn kho"
         title="Sửa tồn kho"
-        description="Cập nhật số lượng tồn và mức tồn tối thiểu."
+        description="Cập nhật mức tồn tối thiểu. Số lượng tồn theo dõi theo từng lô hàng."
       />
 
       <Card className="max-w-2xl">
@@ -125,15 +116,14 @@ const EditInventoryPage: React.FC = () => {
 
             <div className="flex flex-col gap-2">
               <label className="text-[12px] font-medium text-[#666666] uppercase tracking-[0.1em]">
-                Số lượng tồn *
+                Số lượng tồn hiện tại
               </label>
-              <Input
-                type="number"
-                min={0}
-                value={quantity || ""}
-                onChange={(e) => setQuantity(parseInt(e.target.value) || 0)}
-                required
-              />
+              <div className="text-[14px] text-[#1c3a13] font-medium">
+                {quantity.toLocaleString("vi-VN")} đơn vị
+              </div>
+              <p className="text-[11px] text-[#666666]">
+                Số lượng theo từng lô, thay đổi khi nhập kho hoặc bán hàng.
+              </p>
             </div>
 
             <div className="flex flex-col gap-2">

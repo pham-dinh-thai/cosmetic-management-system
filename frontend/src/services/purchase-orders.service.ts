@@ -5,6 +5,7 @@ export interface PurchaseOrderLineDto {
   variantId: string;
   quantity: number;
   unitPrice: number;
+  expiryDate: string;
   subtotal: number;
 }
 
@@ -21,7 +22,7 @@ export interface PurchaseOrderDto {
 
 export interface CreatePurchaseOrderPayload {
   supplierId: string;
-  lines: { variantId: string; quantity: number; unitPrice: number }[];
+  lines: { variantId: string; quantity: number; unitPrice: number; expiryDate: string }[];
 }
 
 export const purchaseOrdersService = {
