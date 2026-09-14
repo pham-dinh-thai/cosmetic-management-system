@@ -8,9 +8,8 @@ export class FindInventoryByVariantUseCase {
   ) {}
 
   public async execute(variantId: string): Promise<InventoryReadModel> {
-    const inventory = await this.inventoriesRepository.findByVariantId(
-      variantId,
-    );
+    const inventory =
+      await this.inventoriesRepository.findByVariantId(variantId);
 
     if (!inventory) {
       throw new InventoryNotFoundException('variantId', variantId);
