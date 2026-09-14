@@ -2,6 +2,8 @@ export interface IAddStockPort {
   execute(
     variantId: string,
     quantity: number,
+    supplierId: string,
+    expiredDate: Date,
     createdBy?: string,
   ): Promise<void>;
 }

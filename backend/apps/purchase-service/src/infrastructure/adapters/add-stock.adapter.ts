@@ -15,16 +15,20 @@ export class AddStockAdapter implements IAddStockPort {
   public async execute(
     variantId: string,
     quantity: number,
+    supplierId: string,
+    expiredDate: Date,
     createdBy?: string,
   ): Promise<void> {
     const response = await fetch(
-      `${this.url}/api/internal/inventory/purchase`,
+      `${this.url}/api/internal/inventories/purchase`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           variantId,
           quantity,
+          supplierId,
+          expiredDate: expiredDate.toISOString().slice(0, 10),
           ...(createdBy ? { createdBy } : {}),
         }),
       },

@@ -11,6 +11,7 @@ export class PurchaseOrderLine {
     private readonly variantId: string,
     private readonly quantity: number,
     private readonly unitPrice: number,
+    private readonly expiryDate: Date,
     private readonly createdAt?: Date,
     private readonly updatedAt?: Date,
   ) {}
@@ -34,6 +35,7 @@ export class PurchaseOrderLine {
       props.variantId,
       props.quantity,
       props.unitPrice,
+      props.expiryDate,
     );
   }
 
@@ -46,6 +48,7 @@ export class PurchaseOrderLine {
       props.variantId,
       props.quantity,
       props.unitPrice,
+      props.expiryDate,
       props.createdAt,
       props.updatedAt,
     );
@@ -73,5 +76,9 @@ export class PurchaseOrderLine {
 
   public getUnitPrice(): number {
     return this.unitPrice;
+  }
+
+  public getExpiryDate(): Date {
+    return this.expiryDate;
   }
 }

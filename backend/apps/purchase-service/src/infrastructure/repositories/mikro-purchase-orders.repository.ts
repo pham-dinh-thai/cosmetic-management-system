@@ -91,6 +91,7 @@ export class MikroPurchaseOrdersRepository implements IPurchaseOrdersRepository 
         variantId: line.getVariantId(),
         quantity: line.getQuantity(),
         unitPrice: line.getUnitPrice(),
+        expiryDate: line.getExpiryDate().toISOString().slice(0, 10),
       });
       this.em.persist(lineEntity);
       entity.lines.add(lineEntity);
@@ -125,6 +126,7 @@ export class MikroPurchaseOrdersRepository implements IPurchaseOrdersRepository 
         variantId: line.variantId,
         quantity: line.quantity,
         unitPrice: line.unitPrice,
+        expiryDate: line.expiryDate.toISOString().slice(0, 10),
       });
       this.em.persist(lineEntity);
       entity.lines.add(lineEntity);

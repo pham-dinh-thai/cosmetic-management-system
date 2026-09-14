@@ -48,6 +48,8 @@ export class CompletePurchaseOrderUseCase {
       await this.addStockPort.execute(
         line.getVariantId(),
         line.getQuantity(),
+        purchaseOrder.getSupplierId(),
+        line.getExpiryDate(),
         employeeId,
       );
     }
