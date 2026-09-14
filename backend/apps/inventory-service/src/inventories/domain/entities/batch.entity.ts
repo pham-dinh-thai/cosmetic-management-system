@@ -1,7 +1,14 @@
+export type CreateBatchProps = {
+  lotNumber: string;
+  supplierId: string;
+  quantity: number;
+  expiredDate: Date;
+  createdBy: string;
+};
+
 export type FromPersistentBatchProps = {
   id: string;
   lotNumber: string;
-  inventoryId: string;
   supplierId: string;
   quantity: number;
   expiredDate: Date;
@@ -15,7 +22,6 @@ export class Batch {
   private constructor(
     private readonly id: string,
     private readonly lotNumber: string,
-    private readonly inventoryId: string,
     private readonly supplierId: string,
     private quantity: number,
     private readonly expiredDate: Date,
@@ -25,11 +31,24 @@ export class Batch {
     private readonly updatedAt: Date,
   ) {}
 
+  public static create(props: CreateBatchProps): Batch {
+    return new Batch(
+      undefined as unknown as string,
+      props.lotNumber,
+      props.supplierId,
+      props.quantity,
+      props.expiredDate,
+      true,
+      props.createdBy,
+      new Date(),
+      new Date(),
+    );
+  }
+
   public static fromPersistent(props: FromPersistentBatchProps): Batch {
     return new Batch(
       props.id,
       props.lotNumber,
-      props.inventoryId,
       props.supplierId,
       props.quantity,
       props.expiredDate,
@@ -46,10 +65,6 @@ export class Batch {
 
   public getLotNumber(): string {
     return this.lotNumber;
-  }
-
-  public getInventoryId(): string {
-    return this.inventoryId;
   }
 
   public getSupplierId(): string {

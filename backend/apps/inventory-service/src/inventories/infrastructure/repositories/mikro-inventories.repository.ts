@@ -3,6 +3,8 @@ import { IInventoriesRepository } from '../../domain/repositories/inventories.re
 import { EntityManager } from '@mikro-orm/postgresql';
 import { Inventory as InventoryMikro } from '../entities/inventory.entity';
 import { Inventory } from '../../domain/inventory.aggregate';
+import { Batch as BatchMikro } from '../entities/batch.entity';
+import { Batch } from '../../domain/entities/batch.entity';
 
 @Injectable()
 export class MikroInventoriesRepository implements IInventoriesRepository {
@@ -97,6 +99,24 @@ export class MikroInventoriesRepository implements IInventoriesRepository {
         updatedAt: inventory.getUpdatedAt(),
       },
     );
+  }
+
+  public async addBatch(id: string, batch: Batch): Promise<void> {
+    const batchMikro = this.entityManager.create(BatchMikro, {
+      lotNumber: batch.getLotNumber(),
+      supplierId: batch.getSupplierId(),
+      inventory: this.entityManager.getReference(InventoryMikro, id),
+      quantity: batch.getQuantity(),
+      expiryDate: batch.getExpiredDate().toISOString().slice(0, 10),
+      isActive: batch.getIsActive(),
+      createdBy: batch.getCreatedBy(),
+      createdAt: batch.getCreatedAt(),
+      updatedAt: batch.getUpdatedAt(),
+    });
+
+    this.entityManager.persist(batchMikro);
+
+    await this.entityManager.flush();
   }
 
   private toDomain(inventoryMikro: InventoryMikro): Inventory {

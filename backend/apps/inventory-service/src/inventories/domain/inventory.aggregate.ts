@@ -29,6 +29,14 @@ export type CreateInventoryProps = {
   minStock: number;
 };
 
+export type AddBatchProps = {
+  lotNumber: string;
+  supplierId: string;
+  quantity: number;
+  expiredDate: Date;
+  createdBy: string;
+};
+
 export class Inventory {
   private constructor(
     private readonly id: string,
@@ -59,7 +67,6 @@ export class Inventory {
       props.batches.map((batch) => {
         return Batch.fromPersistent({
           ...batch,
-          inventoryId: props.id,
         });
       }),
       Stock.fromPersistent(props.minStock),
@@ -78,6 +85,26 @@ export class Inventory {
     this.updatedAt = new Date();
   }
 
+  public addBatch(props: AddBatchProps): Batch {
+    if (!this.isActive) {
+      throw new InactiveInventoryException(this.id);
+    }
+
+    const batch = Batch.create({
+      lotNumber: props.lotNumber,
+      supplierId: props.supplierId,
+      quantity: props.quantity,
+      expiredDate: props.expiredDate,
+      createdBy: props.createdBy,
+    });
+
+    this.batches.push(batch);
+
+    this.updatedAt = new Date();
+
+    return batch;
+  }
+
   public activate(): void {
     this.isActive = true;
     this.updatedAt = new Date();
@@ -86,6 +113,15 @@ export class Inventory {
   public deactivate(): void {
     this.isActive = false;
     this.updatedAt = new Date();
+  }
+
+  public createNextLotNumber(): string {
+    const maxSeq = this.batches.reduce((max, batch) => {
+      const seq = Number(batch.getLotNumber().split('-').pop());
+      return Number.isFinite(seq) && seq > max ? seq : max;
+    }, 0);
+
+    return `LOT-${this.variantId}-${maxSeq + 1}`;
   }
 
   public getId(): string {
