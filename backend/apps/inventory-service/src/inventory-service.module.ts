@@ -5,7 +5,9 @@ import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { PostgreSqlDriver } from '@mikro-orm/postgresql';
 import { Inventory } from './inventories/infrastructure/entities/inventory.entity';
 import { Batch } from './inventories/infrastructure/entities/batch.entity';
+import { StockAdjustment } from './stock-adjustments/infrastructure/entities/stock-adjustment.entity';
 import { InventoriesModule } from './inventories/inventories.module';
+import { StockAdjustmentsModule } from './stock-adjustments/stock-adjustments.module';
 
 @Module({
   imports: [
@@ -21,11 +23,11 @@ import { InventoriesModule } from './inventories/inventories.module';
         user: config.get<string>('INVENTORY_DB_USER'),
         password: config.get<string>('INVENTORY_DB_PASSWORD'),
         dbName: config.get<string>('INVENTORY_DB_NAME'),
-        entities: [Inventory, Batch],
+        entities: [Inventory, Batch, StockAdjustment],
       }),
       inject: [ConfigService],
     }),
-    MikroOrmModule.forFeature([Inventory, Batch]),
+    MikroOrmModule.forFeature([Inventory, Batch, StockAdjustment]),
     JwtModule.registerAsync({
       useFactory: (config: ConfigService) => ({
         secret: config.get<string>('JWT_ACCESS_SECRET'),
@@ -33,6 +35,7 @@ import { InventoriesModule } from './inventories/inventories.module';
       inject: [ConfigService],
     }),
     InventoriesModule,
+    StockAdjustmentsModule,
   ],
 })
 export class InventoryServiceModule {}

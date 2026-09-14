@@ -43,6 +43,24 @@ export class MikroInventoriesRepository implements IInventoriesRepository {
     return this.toDomain(inventoryMikro);
   }
 
+  public async findByBatchId(batchId: string): Promise<Inventory | null> {
+    const inventoryMikro = await this.entityManager.findOne(
+      InventoryMikro,
+      {
+        batches: { id: batchId },
+      },
+      {
+        populate: ['batches'],
+      },
+    );
+
+    if (!inventoryMikro) {
+      return null;
+    }
+
+    return this.toDomain(inventoryMikro);
+  }
+
   public async findByVariantId(variantId: string): Promise<Inventory | null> {
     const inventoryMikro = await this.entityManager.findOne(
       InventoryMikro,

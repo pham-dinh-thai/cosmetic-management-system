@@ -6,7 +6,7 @@ export class InsufficientStockException extends BaseDomainException {
 
   public constructor(variantId: string, requested: number, available: number) {
     super(
-      `Insufficient stock for variant "${variantId}": requested ${requested}, available ${available}`,
+      `Không đủ tồn kho cho variant "${variantId}": yêu cầu ${requested}, hiện có ${available}`,
     );
   }
 }

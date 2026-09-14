@@ -8,6 +8,8 @@ export interface IInventoriesRepository {
 
   findByVariantId(variantId: string): Promise<Inventory | null>;
 
+  findByBatchId(batchId: string): Promise<Inventory | null>;
+
   create(inventory: Inventory): Promise<void>;
 
   updateMinStock(inventory: Inventory): Promise<void>;

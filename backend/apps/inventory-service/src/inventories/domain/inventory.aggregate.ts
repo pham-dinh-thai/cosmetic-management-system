@@ -3,6 +3,7 @@ import { BatchNotFoundException } from './exceptions/batch-not-found.exception';
 import { InactiveInventoryException } from './exceptions/inactive-inventory.exception';
 import { InsufficientStockException } from './exceptions/insufficient-stock.exception';
 import { Stock } from './value-objects/stock.value-object';
+import { StockCanNotBeNegativeException } from './exceptions/stock-can-not-be-negative.exception';
 
 export type BatchProps = {
   id: string;
@@ -169,6 +170,29 @@ export class Inventory {
     }
 
     batch.increase(quantity);
+    this.updatedAt = new Date();
+
+    return batch;
+  }
+
+  public applyStockAdjustment(batchId: string, delta: number): Batch {
+    if (!this.isActive) {
+      throw new InactiveInventoryException(this.id);
+    }
+
+    const batch = this.batches.find((batch) => batch.getId() === batchId);
+
+    if (!batch) {
+      throw new BatchNotFoundException('batchId', batchId);
+    }
+
+    const nextQuantity = batch.getQuantity() + delta;
+
+    if (nextQuantity < 0) {
+      throw new StockCanNotBeNegativeException();
+    }
+
+    batch.adjust(nextQuantity);
     this.updatedAt = new Date();
 
     return batch;
