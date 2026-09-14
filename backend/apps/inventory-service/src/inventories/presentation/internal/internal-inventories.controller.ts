@@ -1,6 +1,8 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { FindInventoryByVariantUseCase } from '../../application/use-cases/find-inventory-by-variant/find-inventory-by-variant.use-case';
 import { AddBatchToInventoryUseCase } from '../../application/use-cases/add-batch-to-inventory/add-batch-to-inventory.use-case';
+import { CreateInventoryUseCase } from '../../application/use-cases/create-inventory/create-inventory.use-case';
+import { InventoryNotFoundException } from '../../domain/exceptions/inventory-not-found.exception';
 import { InternalReverseRequest } from './requests/internal-reverse.request';
 import { DecreaseBatchStockUseCase } from '../../application/use-cases/decrease-batch-stock/decrease-batch-stock.use-case';
 import { ReverseBatchStockUseCase } from '../../application/use-cases/reverse-batch-stock/reverse-batch-stock.use-case';
@@ -12,6 +14,7 @@ export class InternalInventoriesController {
   public constructor(
     private readonly findInventoryByVariantUseCase: FindInventoryByVariantUseCase,
     private readonly addBatchToInventoryUseCase: AddBatchToInventoryUseCase,
+    private readonly createInventoryUseCase: CreateInventoryUseCase,
     private readonly decreaseBatchStockUseCase: DecreaseBatchStockUseCase,
     private readonly reverseBatchStockUseCase: ReverseBatchStockUseCase,
   ) {}
@@ -21,9 +24,25 @@ export class InternalInventoriesController {
   public async purchase(
     @Body() request: InternalAddBatchRequest,
   ): Promise<{ variantId: string; quantity: number; lotNumber: string }> {
-    const inventory = await this.findInventoryByVariantUseCase.execute(
-      request.variantId,
-    );
+    let inventory: { id: string };
+
+    try {
+      inventory = await this.findInventoryByVariantUseCase.execute(
+        request.variantId,
+      );
+    } catch (error) {
+      if (!(error instanceof InventoryNotFoundException)) {
+        throw error;
+      }
+
+      await this.createInventoryUseCase.execute({
+        variantId: request.variantId,
+        minStock: 0,
+      });
+      inventory = await this.findInventoryByVariantUseCase.execute(
+        request.variantId,
+      );
+    }
 
     await this.addBatchToInventoryUseCase.execute(
       inventory.id,
