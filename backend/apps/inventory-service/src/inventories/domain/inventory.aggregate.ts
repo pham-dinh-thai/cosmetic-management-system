@@ -1,6 +1,7 @@
 import { Batch } from './entities/batch.entity';
 import { BatchNotFoundException } from './exceptions/batch-not-found.exception';
 import { InactiveInventoryException } from './exceptions/inactive-inventory.exception';
+import { InsufficientStockException } from './exceptions/insufficient-stock.exception';
 import { Stock } from './value-objects/stock.value-object';
 
 export type BatchProps = {
@@ -106,6 +107,49 @@ export class Inventory {
     this.updatedAt = new Date();
 
     return batch;
+  }
+
+  public decreaseStock(quantity: number): Batch[] {
+    if (!this.isActive) {
+      throw new InactiveInventoryException(this.id);
+    }
+
+    const availableBatches = this.batches.filter((b) => b.getIsActive());
+    const totalStock = availableBatches.reduce(
+      (sum, b) => sum + b.getQuantity(),
+      0,
+    );
+
+    if (totalStock < quantity) {
+      throw new InsufficientStockException(
+        this.variantId,
+        quantity,
+        totalStock,
+      );
+    }
+
+    let remaining = quantity;
+    const deducted: Batch[] = [];
+
+    const sorted = [...availableBatches].sort(
+      (a, b) => a.getExpiredDate().getTime() - b.getExpiredDate().getTime(),
+    );
+
+    for (const batch of sorted) {
+      if (remaining <= 0) {
+        break;
+      }
+
+      const take = Math.min(batch.getQuantity(), remaining);
+      batch.decrease(take);
+      remaining -= take;
+
+      deducted.push(batch);
+    }
+
+    this.updatedAt = new Date();
+
+    return deducted;
   }
 
   public activateBatch(batchId: string): Batch {

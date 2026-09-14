@@ -2,7 +2,7 @@ import { StockCanNotBeNegativeException } from '../exceptions/stock-can-not-be-n
 import { StockMustBeIntegerException } from '../exceptions/stock-must-be-integer.exception';
 
 export class Stock {
-  private constructor(private readonly value: number) {}
+  private constructor(private value: number) {}
 
   public static create(value: number): Stock {
     if (value < 0) {

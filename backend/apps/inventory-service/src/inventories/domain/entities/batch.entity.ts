@@ -1,3 +1,5 @@
+import { Stock } from '../value-objects/stock.value-object';
+
 export type CreateBatchProps = {
   lotNumber: string;
   inventoryId: string;
@@ -26,7 +28,7 @@ export class Batch {
     private readonly lotNumber: string,
     private readonly inventoryId: string,
     private readonly supplierId: string,
-    private quantity: number,
+    private quantity: Stock,
     private readonly expiredDate: Date,
     private isActive: boolean,
     private readonly createdBy: string,
@@ -40,7 +42,7 @@ export class Batch {
       props.lotNumber,
       props.inventoryId,
       props.supplierId,
-      props.quantity,
+      Stock.create(props.quantity),
       props.expiredDate,
       true,
       props.createdBy,
@@ -55,13 +57,18 @@ export class Batch {
       props.lotNumber,
       props.inventoryId,
       props.supplierId,
-      props.quantity,
+      Stock.fromPersistent(props.quantity),
       props.expiredDate,
       props.isActive,
       props.createdBy,
       props.createdAt,
       props.updatedAt,
     );
+  }
+
+  public decrease(quantity: number): void {
+    this.quantity = Stock.create(this.quantity.getValue() - quantity);
+    this.updatedAt = new Date();
   }
 
   public activate(): void {
@@ -91,7 +98,7 @@ export class Batch {
   }
 
   public getQuantity(): number {
-    return this.quantity;
+    return this.quantity.getValue();
   }
 
   public getExpiredDate(): Date {
