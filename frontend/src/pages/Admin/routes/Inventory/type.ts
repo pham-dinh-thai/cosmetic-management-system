@@ -2,6 +2,7 @@ export interface InventoryBatch {
   id: string;
   lotNumber: string;
   supplierId: string;
+  supplierName?: string;
   quantity: number;
   expiredDate: string;
   isActive: boolean;

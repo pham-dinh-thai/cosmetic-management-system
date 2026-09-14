@@ -90,4 +90,12 @@ export const inventoryApi = {
   async deactivateInventory(id: string): Promise<void> {
     await api.patch(`/inventories/${id}/deactivate`);
   },
+
+  async activateBatch(id: string, batchId: string): Promise<void> {
+    await api.patch(`/inventories/${id}/batches/${batchId}/activate`);
+  },
+
+  async deactivateBatch(id: string, batchId: string): Promise<void> {
+    await api.patch(`/inventories/${id}/batches/${batchId}/deactivate`);
+  },
 };

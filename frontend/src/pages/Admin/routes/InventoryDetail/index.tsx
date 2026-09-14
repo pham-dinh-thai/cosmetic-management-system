@@ -19,7 +19,7 @@ const isExpired = (iso: string): boolean => {
 };
 
 const InventoryDetailPage: React.FC = () => {
-  const { item, loading, error, onBack } = useInventoryDetail();
+  const { item, loading, error, saving, handleToggleBatch, onBack } = useInventoryDetail();
   const navigate = useNavigate();
   const basePath = useBasePath();
 
@@ -56,6 +56,11 @@ const InventoryDetailPage: React.FC = () => {
       render: (b) => <span className="font-mono text-[12px] break-all">{b.lotNumber}</span>,
     },
     {
+      key: "supplierName",
+      header: "Nhà cung cấp",
+      render: (b) => <span>{b.supplierName || "—"}</span>,
+    },
+    {
       key: "quantity",
       header: "Số lượng",
       className: "text-center",
@@ -84,6 +89,21 @@ const InventoryDetailPage: React.FC = () => {
         >
           {b.isActive ? "Đang hoạt động" : "Vô hiệu hoá"}
         </span>
+      ),
+    },
+    {
+      key: "actions",
+      header: <div className="text-right">Thao tác</div>,
+      className: "text-right",
+      render: (b) => (
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={saving}
+          onClick={() => handleToggleBatch(b)}
+        >
+          {b.isActive ? "Vô hiệu hoá" : "Kích hoạt"}
+        </Button>
       ),
     },
   ];
