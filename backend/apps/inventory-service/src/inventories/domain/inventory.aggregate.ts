@@ -108,6 +108,7 @@ export class Inventory {
 
     return batch;
   }
+
   public decreaseStock(quantity: number): Batch[] {
     if (!this.isActive) {
       throw new InactiveInventoryException(this.id);
@@ -118,6 +119,7 @@ export class Inventory {
       (sum, b) => sum + b.getQuantity(),
       0,
     );
+
     if (totalStock < quantity) {
       throw new InsufficientStockException(
         this.variantId,
