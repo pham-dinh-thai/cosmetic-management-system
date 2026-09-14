@@ -9,10 +9,15 @@ import {
   type IPosOrderRequest,
   type PosOrderPaymentMethod,
 } from './pos-order.request';
+import { BatchDeduction } from 'apps/order-service/src/domain/ports/remove-stock.port';
 
 export const WALK_IN_CUSTOMER_ID = '00000000-0000-0000-0000-000000000001';
 
-type StockDeduction = { variantId: string; quantity: number };
+type StockDeduction = {
+  variantId: string;
+  quantity: number;
+  deductions: BatchDeduction[];
+};
 
 export class PosOrderUseCase {
   public constructor(
@@ -68,7 +73,7 @@ export class PosOrderUseCase {
 
     try {
       for (const line of order.getLines()) {
-        await this.removeStockPort.execute(
+        const batchDeductions = await this.removeStockPort.execute(
           line.getVariantId(),
           line.getQuantity(),
         );
@@ -76,6 +81,7 @@ export class PosOrderUseCase {
         deducted.push({
           variantId: line.getVariantId(),
           quantity: line.getQuantity(),
+          deductions: batchDeductions,
         });
       }
     } catch (error) {
@@ -92,7 +98,11 @@ export class PosOrderUseCase {
         `Reverse inventory - variant: ${line.variantId} - quantity: ${line.quantity}`,
       );
 
-      await this.reverseInventoryPort.execute(line.variantId, line.quantity);
+      await this.reverseInventoryPort.execute(
+        line.variantId,
+        line.quantity,
+        line.deductions,
+      );
     }
   }
 }

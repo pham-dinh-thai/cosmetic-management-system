@@ -8,8 +8,13 @@ import { IRemoveStockPort } from 'apps/order-service/src/domain/ports/remove-sto
 import { IReverseInventoryPort } from './ports/reverse-inventory.port';
 import { IDecreaseCartLineQuantityPort } from './ports/decrease-cart-line-quantity.port';
 import { IOrderLoggerPort } from '../../ports/employee-logger.port';
+import { BatchDeduction } from 'apps/order-service/src/domain/ports/remove-stock.port';
 
-type StockDeduction = { variantId: string; quantity: number };
+type StockDeduction = {
+  variantId: string;
+  quantity: number;
+  deductions: BatchDeduction[];
+};
 
 export class PlaceOrderUseCase {
   public constructor(
@@ -62,7 +67,7 @@ export class PlaceOrderUseCase {
 
     try {
       for (const line of order.getLines()) {
-        await this.removeStockPort.execute(
+        const batchDeductions = await this.removeStockPort.execute(
           line.getVariantId(),
           line.getQuantity(),
         );
@@ -70,6 +75,7 @@ export class PlaceOrderUseCase {
         deducted.push({
           variantId: line.getVariantId(),
           quantity: line.getQuantity(),
+          deductions: batchDeductions,
         });
       }
     } catch (error) {
@@ -86,7 +92,11 @@ export class PlaceOrderUseCase {
         `Reverse inventory - variant: ${line.variantId} - quantity: ${line.quantity}`,
       );
 
-      await this.reverseInventoryPort.execute(line.variantId, line.quantity);
+      await this.reverseInventoryPort.execute(
+        line.variantId,
+        line.quantity,
+        line.deductions,
+      );
     }
   }
 

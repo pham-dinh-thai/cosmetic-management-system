@@ -2,6 +2,11 @@ import { InventoryNotFoundException } from '../../../domain/exceptions/inventory
 import { IInventoriesRepository } from '../../../domain/repositories/inventories.repository';
 import { IDecreaseBatchStockRequest } from './decrease-batch-stock.request';
 
+export type BatchDeductionDTO = {
+  batchId: string;
+  quantity: number;
+};
+
 export class DecreaseBatchStockUseCase {
   public constructor(
     private readonly inventoriesRepository: IInventoriesRepository,
@@ -10,7 +15,7 @@ export class DecreaseBatchStockUseCase {
   public async execute(
     id: string,
     request: IDecreaseBatchStockRequest,
-  ): Promise<void> {
+  ): Promise<BatchDeductionDTO[]> {
     const inventory = await this.inventoriesRepository.findById(id);
 
     if (!inventory) {
@@ -19,7 +24,14 @@ export class DecreaseBatchStockUseCase {
 
     const deducted = inventory.decreaseStock(request.requestedQuantity);
 
-    await this.inventoriesRepository.updateBatchQuantities(deducted);
+    await this.inventoriesRepository.updateBatchQuantities(
+      deducted.map((d) => d.batch),
+    );
+
+    return deducted.map((d) => ({
+      batchId: d.batch.getId(),
+      quantity: d.quantity,
+    }));
   }
 }
 

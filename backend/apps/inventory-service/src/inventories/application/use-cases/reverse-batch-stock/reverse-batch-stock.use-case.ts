@@ -1,8 +1,13 @@
 import { InventoryNotFoundException } from '../../../domain/exceptions/inventory-not-found.exception';
 import { IInventoriesRepository } from '../../../domain/repositories/inventories.repository';
 
-export type IReverseBatchStockRequest = {
+export type BatchDeductionDTO = {
+  batchId: string;
   quantity: number;
+};
+
+export type IReverseBatchStockRequest = {
+  deductions: BatchDeductionDTO[];
 };
 
 export class ReverseBatchStockUseCase {
@@ -20,9 +25,11 @@ export class ReverseBatchStockUseCase {
       throw new InventoryNotFoundException('id', id);
     }
 
-    const increased = inventory.increaseStock(request.quantity);
+    const batches = request.deductions.map((d) =>
+      inventory.increaseBatch(d.batchId, d.quantity),
+    );
 
-    await this.inventoriesRepository.updateBatchQuantities(increased);
+    await this.inventoriesRepository.updateBatchQuantities(batches);
   }
 }
 

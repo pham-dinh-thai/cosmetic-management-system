@@ -39,6 +39,11 @@ export type AddBatchProps = {
   createdBy: string;
 };
 
+export type BatchDeduction = {
+  batch: Batch;
+  quantity: number;
+};
+
 export class Inventory {
   private constructor(
     private readonly id: string,
@@ -109,7 +114,7 @@ export class Inventory {
     return batch;
   }
 
-  public decreaseStock(quantity: number): Batch[] {
+  public decreaseStock(quantity: number): BatchDeduction[] {
     if (!this.isActive) {
       throw new InactiveInventoryException(this.id);
     }
@@ -129,7 +134,7 @@ export class Inventory {
     }
 
     let remaining = quantity;
-    const deducted: Batch[] = [];
+    const deducted: BatchDeduction[] = [];
 
     const sorted = [...availableBatches].sort(
       (a, b) => a.getExpiredDate().getTime() - b.getExpiredDate().getTime(),
@@ -144,7 +149,7 @@ export class Inventory {
       batch.decrease(take);
       remaining -= take;
 
-      deducted.push(batch);
+      deducted.push({ batch, quantity: take });
     }
 
     this.updatedAt = new Date();
@@ -152,38 +157,21 @@ export class Inventory {
     return deducted;
   }
 
-  public increaseStock(quantity: number): Batch[] {
+  public increaseBatch(batchId: string, quantity: number): Batch {
     if (!this.isActive) {
       throw new InactiveInventoryException(this.id);
     }
 
-    const activeBatches = this.batches.filter((batch) => batch.getIsActive());
+    const batch = this.batches.find((batch) => batch.getId() === batchId);
 
-    if (activeBatches.length === 0) {
-      throw new BatchNotFoundException('variantId', this.variantId);
+    if (!batch) {
+      throw new BatchNotFoundException('batchId', batchId);
     }
 
-    const sorted = [...activeBatches].sort(
-      (a, b) => b.getExpiredDate().getTime() - a.getExpiredDate().getTime(),
-    );
-
-    const increased: Batch[] = [];
-    let remaining = quantity;
-
-    for (const batch of sorted) {
-      if (remaining <= 0) {
-        break;
-      }
-
-      batch.increase(remaining);
-      remaining = 0;
-
-      increased.push(batch);
-    }
-
+    batch.increase(quantity);
     this.updatedAt = new Date();
 
-    return increased;
+    return batch;
   }
 
   public adjustBatchStock(batchId: string, quantity: number): Batch {

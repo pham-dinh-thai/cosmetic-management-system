@@ -50,18 +50,25 @@ export class InternalInventoriesController {
 
   @HttpCode(HttpStatus.OK)
   @Post('sale')
-  public async sale(
-    @Body() request: InternalSaleRequest,
-  ): Promise<{ variantId: string; quantity: number }> {
+  public async sale(@Body() request: InternalSaleRequest): Promise<{
+    variantId: string;
+    quantity: number;
+    deductions: { batchId: string; quantity: number }[];
+  }> {
     const inventory = await this.findInventoryByVariantUseCase.execute(
       request.variantId,
     );
 
-    await this.decreaseBatchStockUseCase.execute(inventory.id, {
-      requestedQuantity: request.quantity,
-    });
+    const deductions = await this.decreaseBatchStockUseCase.execute(
+      inventory.id,
+      { requestedQuantity: request.quantity },
+    );
 
-    return { variantId: request.variantId, quantity: request.quantity };
+    return {
+      variantId: request.variantId,
+      quantity: request.quantity,
+      deductions,
+    };
   }
 
   @HttpCode(HttpStatus.OK)
@@ -74,7 +81,7 @@ export class InternalInventoriesController {
     );
 
     await this.reverseBatchStockUseCase.execute(inventory.id, {
-      quantity: request.quantity,
+      deductions: request.deductions,
     });
 
     return { variantId: request.variantId, quantity: request.quantity };

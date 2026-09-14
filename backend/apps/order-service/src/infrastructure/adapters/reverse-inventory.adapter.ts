@@ -1,5 +1,6 @@
 import { InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { BatchDeduction } from '../../domain/ports/remove-stock.port';
 import { IReverseInventoryPort } from '../../application/use-cases/place-order/ports/reverse-inventory.port';
 
 export class ReverseInventoryAdapter implements IReverseInventoryPort {
@@ -9,13 +10,17 @@ export class ReverseInventoryAdapter implements IReverseInventoryPort {
     this.url = this.config.getOrThrow<string>('INVENTORY_SERVICE_URL');
   }
 
-  public async execute(variantId: string, quantity: number): Promise<void> {
+  public async execute(
+    variantId: string,
+    quantity: number,
+    deductions: BatchDeduction[],
+  ): Promise<void> {
     const response = await fetch(
       `${this.url}/api/internal/inventories/reverse`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ variantId, quantity }),
+        body: JSON.stringify({ variantId, quantity, deductions }),
       },
     );
 

@@ -1,7 +1,9 @@
-import { InternalServerErrorException } from '@nestjs/common';
+import {
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InsufficientStockException } from '../../domain/exceptions/insufficient-stock.exception';
-import { IRemoveStockPort } from '../../domain/ports/remove-stock.port';
+import { BatchDeduction, IRemoveStockPort } from '../../domain/ports/remove-stock.port';
 
 export class RemoveStockAdapter implements IRemoveStockPort {
   private readonly url: string;
@@ -10,7 +12,10 @@ export class RemoveStockAdapter implements IRemoveStockPort {
     this.url = this.config.getOrThrow<string>('INVENTORY_SERVICE_URL');
   }
 
-  public async execute(variantId: string, quantity: number): Promise<void> {
+  public async execute(
+    variantId: string,
+    quantity: number,
+  ): Promise<BatchDeduction[]> {
     const response = await fetch(`${this.url}/api/internal/inventories/sale`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -18,7 +23,10 @@ export class RemoveStockAdapter implements IRemoveStockPort {
     });
 
     if (response.ok) {
-      return;
+      const body = (await response.json()) as {
+        deductions: { batchId: string; quantity: number }[];
+      };
+      return body.deductions;
     }
 
     if (response.status === 409) {
