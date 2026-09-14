@@ -102,27 +102,27 @@ export class MikroInventoriesRepository implements IInventoriesRepository {
   }
 
   public async addBatch(id: string, batch: Batch): Promise<void> {
-    const batchMikro = this.entityManager.create(BatchMikro, {
-      lotNumber: batch.getLotNumber(),
-      supplierId: batch.getSupplierId(),
-      inventory: this.entityManager.getReference(InventoryMikro, id),
-      quantity: batch.getQuantity(),
-      expiryDate: batch.getExpiredDate().toISOString().slice(0, 10),
-      isActive: batch.getIsActive(),
-      createdBy: batch.getCreatedBy(),
-      createdAt: batch.getCreatedAt(),
-      updatedAt: batch.getUpdatedAt(),
+    await this.entityManager.transactional(async (em) => {
+      const batchMikro = em.create(BatchMikro, {
+        lotNumber: batch.getLotNumber(),
+        supplierId: batch.getSupplierId(),
+        inventory: em.getReference(InventoryMikro, id),
+        quantity: batch.getQuantity(),
+        expiryDate: batch.getExpiredDate().toISOString().slice(0, 10),
+        isActive: batch.getIsActive(),
+        createdBy: batch.getCreatedBy(),
+        createdAt: batch.getCreatedAt(),
+        updatedAt: batch.getUpdatedAt(),
+      });
+
+      em.persist(batchMikro);
+
+      await em.nativeUpdate(
+        InventoryMikro,
+        { id },
+        { updatedAt: new Date() },
+      );
     });
-
-    this.entityManager.persist(batchMikro);
-
-    await this.entityManager.nativeUpdate(
-      InventoryMikro,
-      { id },
-      { updatedAt: new Date() },
-    );
-
-    await this.entityManager.flush();
   }
 
   public async updateBatchQuantities(batches: Batch[]): Promise<void> {
@@ -130,42 +130,46 @@ export class MikroInventoriesRepository implements IInventoriesRepository {
       return;
     }
 
-    for (const batch of batches) {
-      await this.entityManager.nativeUpdate(
-        BatchMikro,
-        { id: batch.getId() },
-        {
-          quantity: batch.getQuantity(),
-          updatedAt: batch.getUpdatedAt(),
-        },
-      );
-    }
+    await this.entityManager.transactional(async (em) => {
+      for (const batch of batches) {
+        await em.nativeUpdate(
+          BatchMikro,
+          { id: batch.getId() },
+          {
+            quantity: batch.getQuantity(),
+            updatedAt: batch.getUpdatedAt(),
+          },
+        );
+      }
 
-    await this.entityManager.nativeUpdate(
-      InventoryMikro,
-      { id: batches[0].getInventoryId() },
-      { updatedAt: new Date() },
-    );
+      await em.nativeUpdate(
+        InventoryMikro,
+        { id: batches[0].getInventoryId() },
+        { updatedAt: new Date() },
+      );
+    });
   }
 
   public async setBatchStatus(batch: Batch): Promise<void> {
-    await this.entityManager.nativeUpdate(
-      BatchMikro,
-      { id: batch.getId() },
-      {
-        isActive: batch.getIsActive(),
-        updatedAt: batch.getUpdatedAt(),
-      },
-    );
+    await this.entityManager.transactional(async (em) => {
+      await em.nativeUpdate(
+        BatchMikro,
+        { id: batch.getId() },
+        {
+          isActive: batch.getIsActive(),
+          updatedAt: batch.getUpdatedAt(),
+        },
+      );
 
-    await this.entityManager.nativeUpdate(
-      InventoryMikro,
-      { id: batch.getInventoryId() },
-      {
-        isActive: batch.getIsActive(),
-        updatedAt: batch.getUpdatedAt(),
-      },
-    );
+      await em.nativeUpdate(
+        InventoryMikro,
+        { id: batch.getInventoryId() },
+        {
+          isActive: batch.getIsActive(),
+          updatedAt: batch.getUpdatedAt(),
+        },
+      );
+    });
   }
 
   private toDomain(inventoryMikro: InventoryMikro): Inventory {
