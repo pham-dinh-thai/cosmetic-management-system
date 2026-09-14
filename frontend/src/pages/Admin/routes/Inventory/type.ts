@@ -23,4 +23,5 @@ export interface InventoryItem {
   minThreshold?: number;
   location?: string;
   price?: number;
+  costPrice?: number | null;
 }

@@ -12,6 +12,17 @@ interface InventoryDto {
   batches: InventoryBatch[];
 }
 
+export interface ExpiringBatchDto {
+  id: string;
+  inventoryId: string;
+  variantId: string;
+  lotNumber: string;
+  supplierId: string;
+  quantity: number;
+  expiredDate: string;
+  updatedAt?: string | null;
+}
+
 function mapInventory(d: InventoryDto): InventoryItem {
   return {
     id: d.id,
@@ -97,5 +108,12 @@ export const inventoryApi = {
 
   async deactivateBatch(id: string, batchId: string): Promise<void> {
     await api.patch(`/inventories/${id}/batches/${batchId}/deactivate`);
+  },
+
+  async getExpiringBatches(days = 30): Promise<ExpiringBatchDto[]> {
+    const { data } = await api.get<ExpiringBatchDto[]>("/inventories/expiring", {
+      params: { days },
+    });
+    return data;
   },
 };

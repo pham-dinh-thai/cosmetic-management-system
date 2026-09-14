@@ -12,16 +12,27 @@ const STATUS_OPTIONS = [
   { value: "all", label: "Tất cả" },
 ];
 
+const expiringDate = (iso: string): string => {
+  const date = new Date(iso);
+  return Number.isNaN(date.getTime()) ? iso : date.toLocaleDateString("vi-VN");
+};
+
 const InventoryPage: React.FC = () => {
   const navigate = useNavigate();
   const basePath = useBasePath();
-  const { inventory, loading, q, setQ, status, setStatus, handleToggleStatus } = useInventory();
+  const { inventory, expiring, loading, q, setQ, status, setStatus, handleToggleStatus } = useInventory();
 
   const totalProducts = useMemo(() => inventory.reduce((sum, item) => sum + item.quantity, 0), [inventory]);
   const lowStock = useMemo(() => inventory.filter(item => item.quantity > 0 && item.quantity <= item.minStock).length, [inventory]);
   const outOfStock = useMemo(() => inventory.filter(item => item.quantity === 0).length, [inventory]);
   const totalValue = useMemo(
-    () => inventory.reduce((sum, item) => sum + item.quantity * (item.price || 0), 0),
+    () =>
+      inventory.reduce(
+        (sum, item) =>
+          sum +
+          item.quantity * (item.costPrice ?? item.price ?? 0),
+        0,
+      ),
     [inventory],
   );
 
@@ -154,6 +165,69 @@ const InventoryPage: React.FC = () => {
           />
         </div>
       </div>
+
+      {expiring.length > 0 && (
+        <div className="bg-[#f3f0d9] border border-[#e0d9a8] rounded-[16px] p-5 flex flex-col gap-3">
+          <div className="flex items-center justify-between gap-4">
+            <h3 className="text-[14px] font-medium text-[#8a7f3c]">
+              {expiring.length} lô hàng sắp hết hạn trong 30 ngày tới
+            </h3>
+            <span className="text-[11px] text-[#9f995b]">HSD sắp nhất trước</span>
+          </div>
+          <div className="overflow-x-auto">
+            <DataTable
+              columns={[
+                {
+                  key: "productName",
+                  header: "Sản phẩm",
+                  render: (l) => (
+                    <span className="font-medium text-[#1c3a13]">{l.productName}</span>
+                  ),
+                },
+                {
+                  key: "variantName",
+                  header: "Phân loại",
+                  render: (l) => <span className="text-[#666666]">{l.variantName || "—"}</span>,
+                },
+                {
+                  key: "lotNumber",
+                  header: "Mã lô",
+                  render: (l) => <span className="font-mono text-[12px]">{l.lotNumber}</span>,
+                },
+                {
+                  key: "supplierName",
+                  header: "Nhà cung cấp",
+                  render: (l) => <span>{l.supplierName || "—"}</span>,
+                },
+                {
+                  key: "quantity",
+                  header: "Còn lại",
+                  className: "text-center",
+                  render: (l) => <span>{l.quantity.toLocaleString("vi-VN")}</span>,
+                },
+                {
+                  key: "expiredDate",
+                  header: "Hết hạn",
+                  className: "text-right",
+                  render: (l) => (
+                    <span className="font-medium text-[#b04747]">{expiringDate(l.expiredDate)}</span>
+                  ),
+                },
+              ]}
+              rows={expiring}
+              rowKey={(l) => l.id}
+            />
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => expiring[0] && navigate(`${basePath}/inventory/${expiring[0].inventoryId}`)}
+            className="self-end"
+          >
+            Xem chi tiết kho
+          </Button>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-3 max-w-3xl">
         <div className="md:col-span-7">

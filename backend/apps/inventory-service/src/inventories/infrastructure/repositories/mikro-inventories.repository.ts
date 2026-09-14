@@ -178,10 +178,7 @@ export class MikroInventoriesRepository implements IInventoriesRepository {
       await em.nativeUpdate(
         InventoryMikro,
         { id: batch.getInventoryId() },
-        {
-          isActive: batch.getIsActive(),
-          updatedAt: batch.getUpdatedAt(),
-        },
+        { updatedAt: batch.getUpdatedAt() },
       );
     });
   }
