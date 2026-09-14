@@ -48,6 +48,14 @@ import {
   AdjustBatchStockUseCase,
   adjustBatchStockUseCaseFactory,
 } from './application/use-cases/adjust-batch-stock/adjust-batch-stock.use-case';
+import {
+  FindExpiringBatchesUseCase,
+  findExpiringBatchesUseCaseFactory,
+} from './application/use-cases/find-expiring-batches/find-expiring-batches.use-case';
+import {
+  FindOverstockBatchesUseCase,
+  findOverstockBatchesUseCaseFactory,
+} from './application/use-cases/find-overstock-batches/find-overstock-batches.use-case';
 
 @Module({
   imports: [MikroOrmModule.forFeature([Inventory, Batch])],
@@ -109,6 +117,16 @@ import {
     {
       provide: AdjustBatchStockUseCase,
       useFactory: adjustBatchStockUseCaseFactory,
+      inject: [INVENTORIES_REPOSITORY],
+    },
+    {
+      provide: FindExpiringBatchesUseCase,
+      useFactory: findExpiringBatchesUseCaseFactory,
+      inject: [INVENTORIES_REPOSITORY],
+    },
+    {
+      provide: FindOverstockBatchesUseCase,
+      useFactory: findOverstockBatchesUseCaseFactory,
       inject: [INVENTORIES_REPOSITORY],
     },
   ],
