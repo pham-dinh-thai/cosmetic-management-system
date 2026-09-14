@@ -63,7 +63,7 @@ const EditEmployeePage: React.FC = () => {
         .catch(err => {
           console.error(err);
           toast.error("Không thể tải thông tin nhân viên");
-          navigate("/admin/employees");
+          navigate("/resources/employees");
         })
         .finally(() => {
           setFetching(false);
@@ -94,7 +94,7 @@ const EditEmployeePage: React.FC = () => {
           .join(" "),
       });
       toast.success("Đã cập nhật nhân viên thành công");
-      navigate("/admin/employees");
+      navigate("/resources/employees");
     } catch (error) {
       console.error(error);
       toast.error("Đã có lỗi xảy ra khi cập nhật nhân viên");
@@ -292,7 +292,7 @@ const EditEmployeePage: React.FC = () => {
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-[#eeeee9]">
-            <Button type="button" variant="outline" onClick={() => navigate("/admin/employees")}>
+            <Button type="button" variant="outline" onClick={() => navigate("/resources/employees")}>
               Hủy
             </Button>
             <Button type="submit" variant="primary" disabled={loading}>

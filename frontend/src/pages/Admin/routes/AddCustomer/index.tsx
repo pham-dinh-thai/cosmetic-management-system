@@ -40,7 +40,7 @@ const AddCustomerPage: React.FC = () => {
         password,
       });
       toast.success("Đã thêm khách hàng");
-      navigate("/admin/customers");
+      navigate("/resources/customers");
     } catch (error) {
       console.error(error);
       toast.error("Đã có lỗi xảy ra khi thêm khách hàng");
@@ -153,7 +153,7 @@ const AddCustomerPage: React.FC = () => {
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-[#eeeee9]">
-            <Button type="button" variant="outline" onClick={() => navigate("/admin/customers")}>
+            <Button type="button" variant="outline" onClick={() => navigate("/resources/customers")}>
               Hủy
             </Button>
             <Button type="submit" variant="primary" disabled={loading}>

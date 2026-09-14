@@ -1,18 +1,29 @@
-import type { AdminPageKey } from "../pages/Admin";
-import type { EmployeePageKey } from "../pages/Employee";
+import type { ResourcePageKey } from "./resourcePath";
 import type { UserProfile } from "../store/useAuthStore";
 
 export type DepartmentCode = "sales" | "warehouse";
 
-export const SALES_EMPLOYEE_PAGES: EmployeePageKey[] = [
+export const SALES_EMPLOYEE_PAGES: ResourcePageKey[] = [
   "orders",
   "products",
   "categories",
   "pos",
 ];
 
-export const WAREHOUSE_EMPLOYEE_PAGES: EmployeePageKey[] = [
+export const WAREHOUSE_EMPLOYEE_PAGES: ResourcePageKey[] = [
   "suppliers",
+  "purchase",
+  "inventory",
+];
+
+export const ADMIN_PAGES: ResourcePageKey[] = [
+  "orders",
+  "customers",
+  "employees",
+  "departments",
+  "suppliers",
+  "products",
+  "categories",
   "purchase",
   "inventory",
 ];
@@ -35,18 +46,9 @@ export function canWriteSuppliers(user: UserProfile | null): boolean {
 
 export function getAccessibleAdminPages(
   user: UserProfile | null,
-): AdminPageKey[] {
+): ResourcePageKey[] {
   if (isAdmin(user)) {
-    return [
-      "customers",
-      "employees",
-      "departments",
-      "suppliers",
-      "products",
-      "categories",
-      "purchase",
-      "inventory",
-    ];
+    return ADMIN_PAGES;
   }
 
   return [];
@@ -54,7 +56,7 @@ export function getAccessibleAdminPages(
 
 export function getAccessibleEmployeePages(
   user: UserProfile | null,
-): EmployeePageKey[] {
+): ResourcePageKey[] {
   if (isAdmin(user)) {
     return [];
   }
@@ -71,15 +73,15 @@ export function getAccessibleEmployeePages(
 
 export function getEmployeeLandingPath(user: UserProfile | null): string {
   if (isAdmin(user)) {
-    return "/admin/customers";
+    return "/customers";
   }
   switch (user?.departmentCode as DepartmentCode | undefined) {
     case "sales":
-      return "/employee/products";
+      return "/products";
     case "warehouse":
-      return "/employee/suppliers";
+      return "/suppliers";
     default:
-      return "/employee/pos";
+      return "/pos";
   }
 }
 
