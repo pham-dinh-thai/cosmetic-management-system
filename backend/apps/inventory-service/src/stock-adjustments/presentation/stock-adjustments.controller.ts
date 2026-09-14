@@ -18,7 +18,7 @@ import { StockAdjustmentReadModel } from '../application/use-cases/find-stock-ad
 import { CreateStockAdjustmentRequest } from './requests/create-stock-adjustment.request';
 import { FindStockAdjustmentsQuery } from './requests/find-stock-adjustments.query';
 
-@Controller('inventories/stock-adjustments')
+@Controller('stock-adjustments')
 export class StockAdjustmentsController {
   public constructor(
     private readonly adjustBatchStockWithReasonUseCase: AdjustBatchStockWithReasonUseCase,

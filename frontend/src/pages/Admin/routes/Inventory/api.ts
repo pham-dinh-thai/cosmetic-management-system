@@ -134,7 +134,7 @@ export const inventoryApi = {
     reason: string;
     note?: string;
   }): Promise<{ id: string; batchId: string; variantId: string; quantity: number }> {
-    const { data } = await api.post("/inventories/stock-adjustments", payload);
+    const { data } = await api.post("/stock-adjustments", payload);
     return data;
   },
 
@@ -143,7 +143,7 @@ export const inventoryApi = {
     variantId?: string;
     reason?: string;
   }): Promise<StockAdjustmentDto[]> {
-    const { data } = await api.get<StockAdjustmentDto[]>("/inventories/stock-adjustments", {
+    const { data } = await api.get<StockAdjustmentDto[]>("/stock-adjustments", {
       params: query ?? {},
     });
     return data;
