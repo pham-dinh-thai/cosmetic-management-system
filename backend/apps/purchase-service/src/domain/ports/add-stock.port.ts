@@ -1,3 +1,7 @@
+export type StockOperationResult = {
+  batchId: string;
+};
+
 export interface IAddStockPort {
   execute(
     variantId: string,
@@ -5,6 +9,10 @@ export interface IAddStockPort {
     supplierId: string,
     expiredDate: Date,
     createdBy?: string,
+  ): Promise<StockOperationResult>;
+  reverse(
+    variantId: string,
+    deductions: { batchId: string; quantity: number }[],
   ): Promise<void>;
 }
 

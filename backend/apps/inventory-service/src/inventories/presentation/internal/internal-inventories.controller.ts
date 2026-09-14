@@ -23,7 +23,12 @@ export class InternalInventoriesController {
   @Post('purchase')
   public async purchase(
     @Body() request: InternalAddBatchRequest,
-  ): Promise<{ variantId: string; quantity: number; lotNumber: string }> {
+  ): Promise<{
+    variantId: string;
+    quantity: number;
+    lotNumber: string;
+    batchId: string;
+  }> {
     let inventory: { id: string };
 
     try {
@@ -64,6 +69,7 @@ export class InternalInventoriesController {
       variantId: request.variantId,
       quantity: request.quantity,
       lotNumber: batch.lotNumber,
+      batchId: batch.id,
     };
   }
 

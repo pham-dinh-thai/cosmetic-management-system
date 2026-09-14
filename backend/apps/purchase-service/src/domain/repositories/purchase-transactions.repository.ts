@@ -7,6 +7,7 @@ export interface IPurchaseTransactionsRepository {
     variantId?: string;
     employeeId?: string;
   }): Promise<PurchaseTransaction[]>;
+  existsByPurchaseOrderId(purchaseOrderId: string): Promise<boolean>;
 }
 
 export const PURCHASE_TRANSACTIONS_REPOSITORY =
