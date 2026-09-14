@@ -116,7 +116,7 @@ export class MikroInventoriesRepository implements IInventoriesRepository {
 
     this.entityManager.persist(batchMikro);
 
-    this.entityManager.nativeUpdate(
+    await this.entityManager.nativeUpdate(
       InventoryMikro,
       { id },
       { updatedAt: new Date() },

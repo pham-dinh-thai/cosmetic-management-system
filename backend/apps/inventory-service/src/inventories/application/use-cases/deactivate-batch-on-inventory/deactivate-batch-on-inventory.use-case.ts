@@ -14,6 +14,8 @@ export class DeactivateBatchOnInventoryUseCase {
     }
 
     const batch = inventory.deactivateBatch(batchId);
+
+    await this.inventoriesRepository.setBatchStatus(batch);
   }
 }
 
