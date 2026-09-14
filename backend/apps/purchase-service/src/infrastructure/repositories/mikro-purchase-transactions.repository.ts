@@ -53,4 +53,13 @@ export class MikroPurchaseTransactionsRepository implements IPurchaseTransaction
 
     return entities.map((entity) => PurchaseTransactionMapper.toDomain(entity));
   }
+
+  public async existsByPurchaseOrderId(
+    purchaseOrderId: string,
+  ): Promise<boolean> {
+    const count = await this.em.count(PurchaseTransaction, {
+      purchaseOrder: { id: purchaseOrderId },
+    });
+    return count > 0;
+  }
 }

@@ -43,7 +43,7 @@ const EditCustomerPage: React.FC = () => {
         .catch(err => {
           console.error(err);
           toast.error("Không thể tải thông tin khách hàng");
-          navigate("/admin/customers");
+          navigate("/resources/customers");
         })
         .finally(() => {
           setFetching(false);
@@ -73,7 +73,7 @@ const EditCustomerPage: React.FC = () => {
         address: formData.address,
       });
       toast.success("Đã cập nhật khách hàng");
-      navigate("/admin/customers");
+      navigate("/resources/customers");
     } catch (error) {
       console.error(error);
       toast.error("Đã có lỗi xảy ra khi cập nhật khách hàng");
@@ -172,7 +172,7 @@ const EditCustomerPage: React.FC = () => {
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-[#eeeee9]">
-            <Button type="button" variant="outline" onClick={() => navigate("/admin/customers")}>
+            <Button type="button" variant="outline" onClick={() => navigate("/resources/customers")}>
               Hủy
             </Button>
             <Button type="submit" variant="primary" disabled={loading}>

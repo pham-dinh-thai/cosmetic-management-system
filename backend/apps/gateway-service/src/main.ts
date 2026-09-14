@@ -186,7 +186,9 @@ async function bootstrap() {
       target: process.env.INVENTORY_SERVICE_URL,
       changeOrigin: true,
       pathFilter: (pathname) =>
-        /^\/api\/(inventories|internal\/inventories)(\/|$)/.test(pathname),
+        /^\/api\/(inventories|internal\/inventories|stock-adjustments)(\/|$)/.test(
+          pathname,
+        ),
     }),
   );
   app.use(

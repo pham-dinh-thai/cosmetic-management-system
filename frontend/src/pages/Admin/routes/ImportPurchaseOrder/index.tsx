@@ -24,6 +24,7 @@ interface ImportLine {
   quantity: number;
   unitPrice: number;
   subtotal: number;
+  expiryDate: string | null;
 }
 
 function formatDate(iso: string): string {
@@ -114,6 +115,7 @@ const ImportPurchaseOrderPage: React.FC = () => {
               quantity: l.quantity,
               unitPrice: l.unitPrice,
               subtotal: l.subtotal,
+              expiryDate: l.expiryDate ? l.expiryDate.slice(0, 10) : null,
             })),
           );
         })
@@ -143,11 +145,24 @@ const ImportPurchaseOrderPage: React.FC = () => {
     }
     setSaving(true);
     try {
+      const missingVariants = lines
+        .map((l) => l.variantId)
+        .filter((v) => v && v.length > 0);
+
+      const uniqVariants = [...new Set(missingVariants)];
+
+      for (const variantId of uniqVariants) {
+        const existing = await inventoryApi.findByVariant(variantId);
+        if (!existing) {
+          await inventoryApi.createInventory(variantId, minStock);
+        }
+      }
+
       await purchaseOrdersService.completePurchaseOrder(selectedOrderId);
 
       if (minStock > 0) {
-        for (const line of lines) {
-          const item = await inventoryApi.findByVariant(line.variantId);
+        for (const variantId of uniqVariants) {
+          const item = await inventoryApi.findByVariant(variantId);
           if (item) {
             await inventoryApi.updateMinStock(item.id, minStock);
           }
@@ -180,6 +195,12 @@ const ImportPurchaseOrderPage: React.FC = () => {
       header: "SL",
       className: "text-center w-24",
       render: (l) => <span>{l.quantity}</span>,
+    },
+    {
+      key: "expiryDate",
+      header: "HSD",
+      className: "text-center w-28",
+      render: (l) => <span>{l.expiryDate ? formatDate(l.expiryDate) : "—"}</span>,
     },
     {
       key: "unitPrice",

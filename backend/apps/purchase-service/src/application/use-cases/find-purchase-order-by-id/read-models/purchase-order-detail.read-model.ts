@@ -5,6 +5,7 @@ export type PurchaseOrderDetailLineReadModel = {
   variantId: string;
   quantity: number;
   unitPrice: number;
+  expiryDate: Date;
   subtotal: number;
 };
 
@@ -36,6 +37,7 @@ export class PurchaseOrderDetailReadModel {
         variantId: line.getVariantId(),
         quantity: line.getQuantity(),
         unitPrice: line.getUnitPrice(),
+        expiryDate: line.getExpiryDate(),
         subtotal: line.getSubtotal(),
       })),
       purchaseOrder.getCreatedAt() ?? new Date(),

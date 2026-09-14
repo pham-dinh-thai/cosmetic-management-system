@@ -16,11 +16,11 @@ const DepartmentsPage: React.FC = () => {
   const { departments, loading, q, setQ, status, setStatus, handleToggleStatus } = useDepartments();
 
   const openAdd = () => {
-    navigate("/admin/departments/add");
+    navigate("/resources/departments/add");
   };
 
   const openEdit = (d: Department) => {
-    navigate(`/admin/departments/${d.id}/edit`);
+    navigate(`/resources/departments/${d.id}/edit`);
   };
 
   const columns = useMemo<Column<Department>[]>(

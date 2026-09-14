@@ -16,11 +16,11 @@ const CustomersPage: React.FC = () => {
   const { customers, loading, q, setQ, status, setStatus, handleToggleStatus } = useCustomers();
 
   const openAdd = () => {
-    navigate("/admin/customers/add");
+    navigate("/resources/customers/add");
   };
 
   const openEdit = (c: Customer) => {
-    navigate(`/admin/customers/${c.id}/edit`);
+    navigate(`/resources/customers/${c.id}/edit`);
   };
 
   const columns = useMemo<Column<Customer>[]>(

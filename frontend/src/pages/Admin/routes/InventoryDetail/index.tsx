@@ -1,18 +1,25 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { PageHeader, Button, Card } from "../../../../components/ui/Primitives";
+import { DataTable, type Column } from "../../../../components/ui/DataTable";
 import { useInventoryDetail } from "./hook";
 import { useBasePath } from "../../../../lib/useBasePath";
+import type { InventoryBatch } from "../Inventory/type";
 
 const formatDate = (iso?: string | null): string => {
   if (!iso) return "—";
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return iso;
-  return date.toLocaleString("vi-VN");
+  return date.toLocaleDateString("vi-VN");
+};
+
+const isExpired = (iso: string): boolean => {
+  const date = new Date(iso);
+  return !Number.isNaN(date.getTime()) && date.getTime() < Date.now();
 };
 
 const InventoryDetailPage: React.FC = () => {
-  const { item, loading, error, onBack } = useInventoryDetail();
+  const { item, loading, error, saving, handleToggleBatch, onBack } = useInventoryDetail();
   const navigate = useNavigate();
   const basePath = useBasePath();
 
@@ -38,6 +45,68 @@ const InventoryDetailPage: React.FC = () => {
       </div>
     );
   }
+
+  const activeBatches = item.batches.filter((b) => b.isActive);
+  const expiredCount = activeBatches.filter((b) => isExpired(b.expiredDate)).length;
+
+  const batchColumns: Column<InventoryBatch>[] = [
+    {
+      key: "lotNumber",
+      header: "Mã lô",
+      render: (b) => <span className="font-mono text-[12px] break-all">{b.lotNumber}</span>,
+    },
+    {
+      key: "supplierName",
+      header: "Nhà cung cấp",
+      render: (b) => <span>{b.supplierName || "—"}</span>,
+    },
+    {
+      key: "quantity",
+      header: "Số lượng",
+      className: "text-center",
+      render: (b) => <span>{b.quantity.toLocaleString("vi-VN")}</span>,
+    },
+    {
+      key: "expiredDate",
+      header: "Hạn sử dụng",
+      render: (b) => (
+        <span className={isExpired(b.expiredDate) ? "text-[#b04747] font-medium" : ""}>
+          {formatDate(b.expiredDate)}
+          {isExpired(b.expiredDate) ? " (đã hết hạn)" : ""}
+        </span>
+      ),
+    },
+    {
+      key: "isActive",
+      header: "Trạng thái",
+      render: (b) => (
+        <span
+          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-[0.18em] ${
+            b.isActive
+              ? "bg-[#e3ecd9] text-[#1c3a13]"
+              : "bg-[#eeeee9] text-[#666666]"
+          }`}
+        >
+          {b.isActive ? "Đang hoạt động" : "Vô hiệu hoá"}
+        </span>
+      ),
+    },
+    {
+      key: "actions",
+      header: <div className="text-right">Thao tác</div>,
+      className: "text-right",
+      render: (b) => (
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={saving}
+          onClick={() => handleToggleBatch(b)}
+        >
+          {b.isActive ? "Vô hiệu hoá" : "Kích hoạt"}
+        </Button>
+      ),
+    },
+  ];
 
   return (
     <div className="flex flex-col gap-8 pb-16">
@@ -85,18 +154,9 @@ const InventoryDetailPage: React.FC = () => {
               </div>
               <div className="flex flex-col gap-1">
                 <span className="text-[10px] font-medium text-[#666666] uppercase tracking-[0.1em]">
-                  Người lập phiếu
-                </span>
-                <span className="text-[18px] font-medium text-[#1c3a13]">
-                  {item.createdByName ||
-                    (item.createdBy ? item.createdBy : "—")}
-                </span>
-              </div>
-              <div className="flex flex-col gap-1">
-                <span className="text-[10px] font-medium text-[#666666] uppercase tracking-[0.1em]">
                   Số lượng tồn
                 </span>
-                <span className="text-[18px] font-[var(--font-seed-sans-mono)] font-medium text-[#1c3a13]">
+                <span className="text-[18px] font-medium text-[#1c3a13]">
                   {item.quantity.toLocaleString("vi-VN")} đơn vị
                 </span>
               </div>
@@ -104,32 +164,24 @@ const InventoryDetailPage: React.FC = () => {
                 <span className="text-[10px] font-medium text-[#666666] uppercase tracking-[0.1em]">
                   Mức tồn tối thiểu
                 </span>
-                <span className="text-[18px] font-[var(--font-seed-sans-mono)] font-medium text-[#1c3a13]">
+                <span className="text-[18px] font-medium text-[#1c3a13]">
                   {item.minStock.toLocaleString("vi-VN")} đơn vị
                 </span>
               </div>
               <div className="flex flex-col gap-1">
                 <span className="text-[10px] font-medium text-[#666666] uppercase tracking-[0.1em]">
-                  Hạn sử dụng
+                  Số lô đang hoạt động
                 </span>
                 <span className="text-[18px] font-medium text-[#1c3a13]">
-                  {item.expiryDate ? formatDate(item.expiryDate) : "—"}
+                  {activeBatches.length} lô
                 </span>
               </div>
               <div className="flex flex-col gap-1">
                 <span className="text-[10px] font-medium text-[#666666] uppercase tracking-[0.1em]">
-                  Cập nhật lần cuối
+                  Lô đã hết hạn
                 </span>
-                <span className="text-[18px] font-medium text-[#1c3a13]">
-                  {formatDate(item.lastUpdatedAt)}
-                </span>
-              </div>
-              <div className="flex flex-col gap-1">
-                <span className="text-[10px] font-medium text-[#666666] uppercase tracking-[0.1em]">
-                  Ngày tạo
-                </span>
-                <span className="text-[18px] font-medium text-[#1c3a13]">
-                  {formatDate(item.createdAt)}
+                <span className="text-[18px] font-medium text-[#b04747]">
+                  {expiredCount} lô
                 </span>
               </div>
               <div className="flex flex-col gap-1">
@@ -140,7 +192,29 @@ const InventoryDetailPage: React.FC = () => {
                   {formatDate(item.updatedAt)}
                 </span>
               </div>
+              <div className="flex flex-col gap-1">
+                <span className="text-[10px] font-medium text-[#666666] uppercase tracking-[0.1em]">
+                  Ngày tạo
+                </span>
+                <span className="text-[18px] font-medium text-[#1c3a13]">
+                  {formatDate(item.createdAt)}
+                </span>
+              </div>
             </div>
+          </Card>
+
+          <Card className="overflow-hidden !p-0">
+            <div className="p-6 pb-2">
+              <h2 className="text-[20px] text-[#1c3a13]" style={{ fontWeight: 350 }}>
+                Các lô hàng
+              </h2>
+            </div>
+            <DataTable
+              columns={batchColumns}
+              rows={item.batches}
+              rowKey={(b) => b.id}
+              empty="Chưa có lô hàng nào"
+            />
           </Card>
         </div>
 
@@ -167,7 +241,7 @@ const InventoryDetailPage: React.FC = () => {
               <span className="text-[12px] font-medium text-[#666666] uppercase tracking-[0.1em]">
                 Mã phiếu
               </span>
-              <span className="font-[var(--font-seed-sans-mono)] text-[12px] text-[#1c3a13]">
+              <span className="font-mono text-[12px] text-[#1c3a13]">
                 {item.variantId}
               </span>
             </div>

@@ -2,7 +2,7 @@ import { Type } from 'class-transformer';
 import {
   ArrayMinSize,
   IsArray,
-  IsDateString,
+  IsDate,
   IsInt,
   IsNumber,
   IsUUID,
@@ -22,8 +22,8 @@ class CreatePurchaseOrderLineRequest {
   @Min(0)
   unitPrice!: number;
 
-  @IsDateString()
   @Type(() => Date)
+  @IsDate()
   expiryDate!: Date;
 }
 

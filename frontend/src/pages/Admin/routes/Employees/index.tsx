@@ -16,11 +16,11 @@ const EmployeesPage: React.FC = () => {
   const { employees, loading, q, setQ, status, setStatus, handleToggleStatus } = useEmployees();
 
   const openAdd = () => {
-    navigate("/admin/employees/add");
+    navigate("/resources/employees/add");
   };
 
   const openEdit = (e: Employee) => {
-    navigate(`/admin/employees/${e.id}/edit`);
+    navigate(`/resources/employees/${e.id}/edit`);
   };
 
   const columns = useMemo<Column<Employee>[]>(

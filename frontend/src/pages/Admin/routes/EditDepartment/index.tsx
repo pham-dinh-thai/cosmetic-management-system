@@ -29,7 +29,7 @@ const EditDepartmentPage: React.FC = () => {
         .catch(err => {
           console.error(err);
           toast.error("Không thể tải thông tin phòng ban");
-          navigate("/admin/departments");
+          navigate("/resources/departments");
         })
         .finally(() => {
           setFetching(false);
@@ -53,7 +53,7 @@ const EditDepartmentPage: React.FC = () => {
     try {
       await departmentsService.updateDepartment(id, formData);
       toast.success("Đã cập nhật phòng ban thành công");
-      navigate("/admin/departments");
+      navigate("/resources/departments");
     } catch (error) {
       console.error(error);
       toast.error("Đã có lỗi xảy ra khi cập nhật phòng ban");
@@ -121,7 +121,7 @@ const EditDepartmentPage: React.FC = () => {
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-[#eeeee9]">
-            <Button type="button" variant="outline" onClick={() => navigate("/admin/departments")}>
+            <Button type="button" variant="outline" onClick={() => navigate("/resources/departments")}>
               Hủy
             </Button>
             <Button type="submit" variant="primary" disabled={loading}>

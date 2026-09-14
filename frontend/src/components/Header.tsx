@@ -1,6 +1,9 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/useAuth';
+import { useAuthStore } from '../store/useAuthStore';
+import { getEmployeeLandingPath } from '../lib/permissions';
+import { isResourcePath } from '../lib/resourcePath';
 import { productsService, type CategorySummary } from '../services/products.service';
 import { ordersService, type BestSellerItem } from '../services/orders.service';
 
@@ -90,9 +93,7 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
   };
 
   const isRegisterPage = location.pathname === '/register';
-  const isAdminPage =
-    location.pathname.startsWith('/admin') ||
-    location.pathname.startsWith('/employee');
+  const isAdminPage = isResourcePath(location.pathname);
 
   const bestSellerProducts = bestSellers
     .map((b) => {
@@ -445,7 +446,7 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
                     </Link>
                     {role === 'admin' && (
                       <Link
-                        to="/admin"
+                        to={getEmployeeLandingPath(useAuthStore.getState().user)}
                         onClick={() => setIsProfileMenuOpen(false)}
                         className="flex items-center gap-3 px-4 py-3 text-[14px] font-medium text-[#1c3a13] hover:bg-[#eeeee9] transition-colors"
                       >
@@ -458,7 +459,7 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
                     )}
                     {role === 'employee' && (
                       <Link
-                        to="/employee"
+                        to={getEmployeeLandingPath(useAuthStore.getState().user)}
                         onClick={() => setIsProfileMenuOpen(false)}
                         className="flex items-center gap-3 px-4 py-3 text-[14px] font-medium text-[#1c3a13] hover:bg-[#eeeee9] transition-colors"
                       >
