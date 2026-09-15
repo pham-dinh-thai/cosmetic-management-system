@@ -30,7 +30,6 @@ const EditDepartmentPage: React.FC = () => {
   const [formData, setFormData] = useState<Partial<Department>>({
     code: "",
     name: "",
-    isActive: true,
   });
 
   useEffect(() => {
@@ -43,7 +42,6 @@ const EditDepartmentPage: React.FC = () => {
           setFormData({
             code: data.code || "",
             name: data.name || "",
-            isActive: data.isActive,
             managerId: data.managerId || null,
           });
           setManagerOptions(
@@ -73,13 +71,10 @@ const EditDepartmentPage: React.FC = () => {
   }, [id, navigate]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: name === "isActive" ? value === "true" : value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleAssignManager = async (employeeId: string) => {
@@ -160,23 +155,6 @@ const EditDepartmentPage: React.FC = () => {
                 value={formData.name || ""}
                 onChange={handleChange}
                 placeholder="Ví dụ: Phòng Kinh doanh"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
-                Trạng thái
-              </label>
-              <Select
-                name="isActive"
-                value={formData.isActive ? "true" : "false"}
-                onChange={handleChange}
-                options={[
-                  { value: "true", label: "Đang hoạt động" },
-                  { value: "false", label: "Tạm ngưng" },
-                ]}
               />
             </div>
           </div>
