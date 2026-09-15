@@ -114,7 +114,7 @@ const AddEmployeePage: React.FC = () => {
                 name="firstName"
                 value={formData.firstName}
                 onChange={handleChange}
-                placeholder="Ví dụ: Nguyễn Văn"
+                placeholder="Nhập họ và tên đệm..."
               />
             </div>
             <div className="flex flex-col gap-1.5">
@@ -125,7 +125,7 @@ const AddEmployeePage: React.FC = () => {
                 name="lastName"
                 value={formData.lastName}
                 onChange={handleChange}
-                placeholder="Ví dụ: A"
+                placeholder="Nhập tên riêng..."
               />
             </div>
           </div>
@@ -141,7 +141,7 @@ const AddEmployeePage: React.FC = () => {
                 maxLength={10}
                 value={formData.phone || ""}
                 onChange={handleChange}
-                placeholder="Ví dụ: 0912345678"
+                placeholder="Nhập số điện thoại..."
               />
             </div>
             <div className="flex flex-col gap-1.5">
@@ -154,7 +154,7 @@ const AddEmployeePage: React.FC = () => {
                 required
                 value={formData.email || ""}
                 onChange={handleChange}
-                placeholder="Ví dụ: nguyenvana@guardian.com"
+                placeholder="Nhập email..."
               />
             </div>
           </div>
@@ -281,7 +281,7 @@ const AddEmployeePage: React.FC = () => {
               name="address"
               value={formData.address || ""}
               onChange={handleChange}
-              placeholder="Ví dụ: 123 Đường ABC, Quận X"
+              placeholder="Nhập địa chỉ..."
             />
           </div>
 

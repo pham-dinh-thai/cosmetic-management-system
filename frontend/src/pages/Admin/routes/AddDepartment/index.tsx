@@ -58,7 +58,7 @@ const AddDepartmentPage: React.FC = () => {
                 maxLength={10}
                 value={formData.code || ""}
                 onChange={handleChange}
-                placeholder="Ví dụ: PB-011"
+                placeholder="Nhập mã phòng ban..."
               />
             </div>
             <div className="flex flex-col gap-1.5">
@@ -70,7 +70,7 @@ const AddDepartmentPage: React.FC = () => {
                 required
                 value={formData.name || ""}
                 onChange={handleChange}
-                placeholder="Ví dụ: Phòng Kinh doanh"
+                placeholder="Nhập tên phòng ban..."
               />
             </div>
           </div>
