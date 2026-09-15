@@ -55,6 +55,8 @@ export class EmployeeReaderAdapter implements IEmployeeReaderPort {
       data.position as Position,
       data.phone,
       data.address,
+      data.firstName,
+      data.lastName,
     );
   }
 }

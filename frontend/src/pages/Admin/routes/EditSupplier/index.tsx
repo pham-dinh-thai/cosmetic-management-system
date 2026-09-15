@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { PageHeader, Input, Button, Card, Select } from "../../../../components/ui/Primitives";
+import { PageHeader, Input, Button, Card } from "../../../../components/ui/Primitives";
 import { suppliersService } from "../../../../services/suppliers.service";
 import { useBasePath } from "../../../../lib/useBasePath";
 import type { Supplier } from "../Suppliers/type";
@@ -17,7 +17,6 @@ const EditSupplierPage: React.FC = () => {
     phone: "",
     email: "",
     address: "",
-    isActive: true,
   });
 
   useEffect(() => {
@@ -29,7 +28,6 @@ const EditSupplierPage: React.FC = () => {
             phone: data.phone || "",
             email: data.email || "",
             address: data.address || "",
-            isActive: data.isActive,
           });
         })
         .catch(err => {
@@ -43,12 +41,9 @@ const EditSupplierPage: React.FC = () => {
     }
   }, [id, navigate]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ 
-      ...prev, 
-      [name]: name === "isActive" ? value === "true" : value 
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -118,23 +113,6 @@ const EditSupplierPage: React.FC = () => {
                 value={formData.email || ""}
                 onChange={handleChange}
                 placeholder="Ví dụ: contact@abc.vn"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
-                Trạng thái
-              </label>
-              <Select
-                name="isActive"
-                value={formData.isActive ? "true" : "false"}
-                onChange={handleChange}
-                options={[
-                  { value: "true", label: "Đang hoạt động" },
-                  { value: "false", label: "Ngừng HĐ" },
-                ]}
               />
             </div>
           </div>

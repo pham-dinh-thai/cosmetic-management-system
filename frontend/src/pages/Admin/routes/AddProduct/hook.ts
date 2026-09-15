@@ -122,7 +122,7 @@ export function useAddProduct() {
           price: Number(v.price),
           color: v.color || undefined,
           volume: v.volume || undefined,
-          costPrice: v.costPrice ? Number(v.costPrice) : undefined,
+          costPrice: Number(v.costPrice),
         })),
       });
       toast.success("Đã thêm sản phẩm thành công!");

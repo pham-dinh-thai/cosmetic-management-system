@@ -1,6 +1,7 @@
 import { SupplierNotFoundException } from '../../../domain/exceptions/supplier-not-found.exception';
 import { DuplicateSupplierEmailException } from '../../../domain/exceptions/duplicate-supplier-email.exception';
 import { type ISuppliersRepository } from '../../../domain/repositories/suppliers.repository';
+import { Phone } from '../../../domain/value-objects/phone.value-object';
 
 export class UpdateSupplierUseCase {
   public constructor(
@@ -23,6 +24,10 @@ export class UpdateSupplierUseCase {
       if (duplicate) {
         throw new DuplicateSupplierEmailException(data.email);
       }
+    }
+
+    if (data.phone !== undefined) {
+      Phone.create(data.phone);
     }
 
     await this.suppliersRepository.update(id, {

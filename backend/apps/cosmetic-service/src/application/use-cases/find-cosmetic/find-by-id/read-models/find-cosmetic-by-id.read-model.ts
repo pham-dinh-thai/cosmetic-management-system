@@ -13,7 +13,7 @@ export class FindCosmeticByIdReadModel {
       color: string | null;
       volume: string | null;
       price: number;
-      costPrice: number | null;
+      costPrice: number;
       isActive: boolean;
       quantity: number;
       minStock: number;

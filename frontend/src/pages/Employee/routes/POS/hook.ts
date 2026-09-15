@@ -92,13 +92,21 @@ export function usePosPage() {
 
   const filteredProducts = useMemo(() => {
     const k = search.trim().toLowerCase();
-    if (!k) return products;
-    return products.filter(
-      (p) =>
-        p.name.toLowerCase().includes(k) ||
-        p.code.toLowerCase().includes(k) ||
-        (p.brand ?? "").toLowerCase().includes(k),
-    );
+    const base = products
+      .filter((p) => {
+        if (!k) return true;
+        return (
+          p.name.toLowerCase().includes(k) ||
+          p.code.toLowerCase().includes(k) ||
+          (p.brand ?? "").toLowerCase().includes(k)
+        );
+      })
+      .sort((a, b) => {
+        const aStock = a.totalStock > 0 ? 1 : 0;
+        const bStock = b.totalStock > 0 ? 1 : 0;
+        return bStock - aStock;
+      });
+    return base;
   }, [products, search]);
 
   const total = useMemo(

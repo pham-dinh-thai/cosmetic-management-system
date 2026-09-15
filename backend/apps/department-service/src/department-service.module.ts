@@ -77,12 +77,12 @@ import { EmployeeReaderAdapter } from './infrastructure/adapters/employee-reader
     {
       provide: FindAllDepartmentUseCase,
       useFactory: findAllDepartmentUseCaseFactory,
-      inject: [DEPARTMENTS_REPOSITORY],
+      inject: [DEPARTMENTS_REPOSITORY, EMPLOYEE_READER_PORT],
     },
     {
       provide: FindDepartmentByIdUseCase,
       useFactory: findDepartmentByIdUseCaseFactory,
-      inject: [DEPARTMENTS_REPOSITORY],
+      inject: [DEPARTMENTS_REPOSITORY, EMPLOYEE_READER_PORT],
     },
     UpdateDepartmentUseCase,
     {

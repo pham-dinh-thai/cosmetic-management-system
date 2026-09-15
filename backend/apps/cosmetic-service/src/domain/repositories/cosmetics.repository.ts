@@ -5,7 +5,7 @@ export type CreateVariantData = {
   color: string | null;
   volume: string | null;
   price: number;
-  costPrice: number | null;
+  costPrice: number;
 };
 
 export type UpdateVariantData = {
@@ -13,7 +13,7 @@ export type UpdateVariantData = {
   color: string | null;
   volume: string | null;
   price: number;
-  costPrice: number | null;
+  costPrice: number;
 };
 
 export interface ICosmeticsRepository {

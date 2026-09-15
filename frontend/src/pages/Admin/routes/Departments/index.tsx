@@ -51,6 +51,21 @@ const DepartmentsPage: React.FC = () => {
         ),
       },
       {
+        key: "manager",
+        header: "Trưởng phòng",
+        render: (d) =>
+          d.manager ? (
+            <div className="flex flex-col">
+              <span className="text-[#1c3a13]">{d.manager.name}</span>
+              <span className="text-[12px] text-[#666666] font-mono">
+                {d.manager.code}
+              </span>
+            </div>
+          ) : (
+            <span className="text-[#999999]">—</span>
+          ),
+      },
+      {
         key: "isActive",
         header: "Trạng thái",
         render: (d) => (

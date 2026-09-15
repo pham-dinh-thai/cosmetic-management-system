@@ -8,6 +8,7 @@ export class FindAllCosmeticReadModel {
     public readonly description: string | null,
     public readonly imageUrl: string | null,
     public readonly variantCount: number,
+    public readonly totalStock: number,
     public readonly isActive: boolean,
     public readonly createdAt: Date | undefined,
     public readonly updatedAt: Date | undefined,

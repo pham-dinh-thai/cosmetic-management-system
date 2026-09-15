@@ -76,7 +76,12 @@ const PosPage: React.FC = () => {
                   onClick={() => s.openProduct(p.id)}
                   className="text-left rounded-[16px] bg-[#fcfcf7] border border-[#eeeee9] hover:border-[#1c3a13] transition-colors overflow-hidden flex flex-col"
                 >
-                  <div className="aspect-square w-full bg-[#eeeee9] flex items-center justify-center overflow-hidden">
+                  <div className="aspect-square w-full bg-[#eeeee9] flex items-center justify-center overflow-hidden relative">
+                    {p.totalStock === 0 && (
+                      <span className="absolute top-2 right-2 z-10 inline-flex items-center px-2.5 py-1 rounded-full bg-[#1c3a13] text-[#fcfcf7] text-[10px] font-medium uppercase tracking-[0.12em]">
+                        Hết hàng
+                      </span>
+                    )}
                     {p.imageUrl ? (
                       <img
                         src={p.imageUrl}

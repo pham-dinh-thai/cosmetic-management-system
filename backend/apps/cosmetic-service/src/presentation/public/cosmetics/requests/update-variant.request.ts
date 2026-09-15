@@ -33,9 +33,8 @@ export class UpdateVariantRequest implements IUpdateVariantRequest {
   @Min(0, { message: 'Giá không được nhỏ hơn 0' })
   price!: number;
 
-  @ApiProperty({ required: false })
+  @ApiProperty()
   @IsNumber()
-  @IsOptional()
-  @Min(0, { message: 'Giá không được nhỏ hơn 0' })
-  costPrice?: number;
+  @Min(0, { message: 'Giá vốn không được nhỏ hơn 0' })
+  costPrice!: number;
 }

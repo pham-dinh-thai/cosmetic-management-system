@@ -13,7 +13,7 @@ const CosmeticVariantSchema = defineEntity({
     color: p.string().nullable(),
     volume: p.string().nullable(),
     price: p.decimal('number').precision(12).scale(2),
-    costPrice: p.decimal('number').precision(12).scale(2).nullable(),
+    costPrice: p.decimal('number').precision(12).scale(2),
     isActive: p.boolean().default(true),
     createdAt: p.datetime().onCreate(() => new Date()),
     updatedAt: p

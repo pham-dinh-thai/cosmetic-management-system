@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post } from '@nestjs/common';
 import { FindInventoryByVariantUseCase } from '../../application/use-cases/find-inventory-by-variant/find-inventory-by-variant.use-case';
 import { AddBatchToInventoryUseCase } from '../../application/use-cases/add-batch-to-inventory/add-batch-to-inventory.use-case';
 import { CreateInventoryUseCase } from '../../application/use-cases/create-inventory/create-inventory.use-case';
@@ -71,6 +71,18 @@ export class InternalInventoriesController {
       lotNumber: batch.lotNumber,
       batchId: batch.id,
     };
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Get('by-variant/:variantId')
+  public async byVariant(
+    @Param('variantId') variantId: string,
+  ): Promise<{ quantity: number; minStock: number }> {
+    const inventory = await this.findInventoryByVariantUseCase.execute(
+      variantId,
+    );
+
+    return { quantity: inventory.quantity, minStock: inventory.minStock };
   }
 
   @HttpCode(HttpStatus.OK)

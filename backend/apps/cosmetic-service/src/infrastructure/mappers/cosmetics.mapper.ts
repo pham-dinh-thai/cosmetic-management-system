@@ -18,7 +18,7 @@ export class CosmeticsMapper {
         color: variant.color ?? null,
         volume: variant.volume ?? null,
         price: variant.price,
-        costPrice: variant.costPrice ?? null,
+        costPrice: variant.costPrice,
         isActive: variant.isActive,
         createdAt: variant.createdAt,
         updatedAt: variant.updatedAt,

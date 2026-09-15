@@ -14,7 +14,9 @@ export class DepartmentsReaderAdapter implements IDepartmentsReaderPort {
     this.baseUrl = url;
   }
 
-  public async findById(id: string): Promise<{ id: string } | null> {
+  public async findById(
+    id: string,
+  ): Promise<{ id: string; managerId: string | null } | null> {
     const response = await fetch(
       `${this.baseUrl}/api/internal/departments/${id}`,
     );
@@ -33,6 +35,12 @@ export class DepartmentsReaderAdapter implements IDepartmentsReaderPort {
     const text = await response.text();
     const body: unknown = text ? JSON.parse(text) : null;
 
-    return body as { id: string } | null;
+    if (!body) {
+      return null;
+    }
+
+    const data = body as { id: string; managerId?: string | null };
+
+    return { id: data.id, managerId: data.managerId ?? null };
   }
 }

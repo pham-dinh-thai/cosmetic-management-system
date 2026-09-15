@@ -1,5 +1,6 @@
 import { CreateSupplierProps, FromPersistentSupplierProps } from './types';
 import { SupplierCode } from './value-objects/supplier-code.value-object';
+import { Phone } from './value-objects/phone.value-object';
 
 export class Supplier {
   public constructor(
@@ -7,11 +8,11 @@ export class Supplier {
     private readonly code: SupplierCode,
     private name: string,
     private email: string,
-    private phone: string | null,
+    private phone: Phone | null,
     private address: string | null,
     private isActive: boolean,
     private readonly createdAt?: Date,
-    private readonly updatedAt?: Date,
+    private updatedAt?: Date,
   ) {}
 
   public static create(props: CreateSupplierProps): Supplier {
@@ -20,7 +21,7 @@ export class Supplier {
       SupplierCode.fromPersistent(props.code),
       props.name,
       props.email,
-      props.phone,
+      props.phone ? Phone.create(props.phone) : null,
       props.address,
       true,
     );
@@ -32,7 +33,7 @@ export class Supplier {
       SupplierCode.fromPersistent(props.code),
       props.name,
       props.email,
-      props.phone,
+      props.phone ? Phone.fromPersistent(props.phone) : null,
       props.address,
       props.isActive,
       props.createdAt,
@@ -42,10 +43,12 @@ export class Supplier {
 
   public deactivate(): void {
     this.isActive = false;
+    this.updatedAt = new Date();
   }
 
   public activate(): void {
     this.isActive = true;
+    this.updatedAt = new Date();
   }
 
   public getId(): string {
@@ -65,7 +68,7 @@ export class Supplier {
   }
 
   public getPhone(): string | null {
-    return this.phone;
+    return this.phone?.getValue() ?? null;
   }
 
   public getAddress(): string | null {

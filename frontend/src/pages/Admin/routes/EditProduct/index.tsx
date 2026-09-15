@@ -306,7 +306,7 @@ const EditProductPage: React.FC = () => {
                     </div>
                     <div className="flex flex-col gap-2 md:col-span-6">
                       <label className="text-[12px] font-medium text-[#1c3a13] uppercase tracking-[0.1em]">
-                        Giá gốc
+                        Giá gốc *
                       </label>
                       <Input
                         type="number"
@@ -316,6 +316,7 @@ const EditProductPage: React.FC = () => {
                           handleNewVariantChange(i, "costPrice", e.target.value)
                         }
                         className="font-[var(--font-seed-sans-mono)]"
+                        required
                       />
                     </div>
                   </div>
