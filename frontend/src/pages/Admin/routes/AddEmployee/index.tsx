@@ -210,20 +210,6 @@ const AddEmployeePage: React.FC = () => {
                 Admin cũng là nhân viên, chỉ khác quyền quản trị.
               </p>
             </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
-                Trạng thái
-              </label>
-              <Select
-                name="status"
-                value={formData.status || "ACTIVE"}
-                onChange={handleChange}
-                options={[
-                  { value: "ACTIVE", label: "Đang làm việc" },
-                  { value: "INACTIVE", label: "Đã nghỉ" },
-                ]}
-              />
-            </div>
           </div>
 
           <div className="flex flex-col gap-1.5">
