@@ -1,4 +1,6 @@
+import React, { useState, useMemo, useEffect } from "react";
 import type { ReactNode } from "react";
+import { Button } from "./Primitives";
 
 export interface Column<T> {
   key: string;
@@ -12,6 +14,8 @@ interface DataTableProps<T> {
   rows: T[];
   empty?: ReactNode;
   rowKey: (row: T) => string;
+  pageSize?: number;
+  showPagination?: boolean;
 }
 
 export function DataTable<T>({
@@ -19,57 +23,101 @@ export function DataTable<T>({
   rows,
   empty,
   rowKey,
+  pageSize = 5,
+  showPagination = true,
 }: DataTableProps<T>) {
+  const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [rows]);
+
+  const totalPages = Math.ceil(rows.length / pageSize) || 1;
+
+  const paginatedRows = useMemo(() => {
+    if (!showPagination) return rows;
+    const start = (currentPage - 1) * pageSize;
+    return rows.slice(start, start + pageSize);
+  }, [rows, currentPage, pageSize, showPagination]);
+
   return (
-    <div className="rounded-[16px] border border-[#eeeee9] overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full text-left">
-          <thead>
-            <tr className="bg-[#eeeee9]">
-              {columns.map((c) => (
-                <th
-                  key={c.key}
-                  className={`px-5 py-3 text-[10px] font-medium uppercase tracking-[0.22em] text-[#666666] ${c.className ?? ""}`}
-                >
-                  {c.header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={columns.length}
-                  className="px-5 py-12 text-center text-[14px] text-[#666666]"
-                >
-                  {empty ?? "Chưa có dữ liệu"}
-                </td>
+    <div className="flex flex-col gap-4">
+      <div className="rounded-[16px] border border-[#eeeee9] overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="bg-[#eeeee9]">
+                {columns.map((c) => (
+                  <th
+                    key={c.key}
+                    className={`px-5 py-3 text-[10px] font-medium uppercase tracking-[0.22em] text-[#666666] ${c.className ?? ""}`}
+                  >
+                    {c.header}
+                  </th>
+                ))}
               </tr>
-            ) : (
-              rows.map((row, i) => (
-                <tr
-                  key={rowKey(row)}
-                  className={
-                    i % 2 === 0
-                      ? "bg-[#fcfcf7]"
-                      : "bg-[#fcfcf7]"
-                  }
-                >
-                  {columns.map((c) => (
-                    <td
-                      key={c.key}
-                      className={`px-5 py-4 text-[14px] text-[#1c3a13] border-t border-[#eeeee9] ${c.className ?? ""}`}
-                    >
-                      {c.render(row)}
-                    </td>
-                  ))}
+            </thead>
+            <tbody>
+              {paginatedRows.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={columns.length}
+                    className="px-5 py-12 text-center text-[14px] text-[#666666]"
+                  >
+                    {empty ?? "Chưa có dữ liệu"}
+                  </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                paginatedRows.map((row, i) => (
+                  <tr
+                    key={rowKey(row)}
+                    className={
+                      i % 2 === 0
+                        ? "bg-[#fcfcf7]"
+                        : "bg-[#fcfcf7]"
+                    }
+                  >
+                    {columns.map((c) => (
+                      <td
+                        key={c.key}
+                        className={`px-5 py-4 text-[14px] text-[#1c3a13] border-t border-[#eeeee9] ${c.className ?? ""}`}
+                      >
+                        {c.render(row)}
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
+      
+      {showPagination && rows.length > pageSize && (
+        <div className="flex items-center justify-between px-2">
+          <span className="text-[14px] text-[#666666]">
+            Trang {currentPage} / {totalPages}
+          </span>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(p => p - 1)}
+            >
+              Trước
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage(p => p + 1)}
+            >
+              Tiếp
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
