@@ -22,6 +22,7 @@ const PAGE_TITLES: Record<ResourcePageKey, string> = {
   categories: "Danh mục",
   purchase: "Nhập hàng",
   inventory: "Kho",
+  "stock-adjustments": "Điều chỉnh kho",
   pos: "Bán hàng",
 };
 
@@ -44,6 +45,11 @@ const ADMIN_SECTIONS: (active: ResourcePageKey) => SidebarSection[] = (
       { id: "suppliers", label: "Nhà cung cấp", active: active === "suppliers" },
       { id: "purchase", label: "Nhập hàng", active: active === "purchase" },
       { id: "inventory", label: "Kho", active: active === "inventory" },
+      {
+        id: "stock-adjustments",
+        label: "Điều chỉnh kho",
+        active: active === "stock-adjustments",
+      },
     ],
   },
   {
@@ -85,7 +91,8 @@ const buildEmployeeSections = (
   if (
     accessible.includes("suppliers") ||
     accessible.includes("purchase") ||
-    accessible.includes("inventory")
+    accessible.includes("inventory") ||
+    accessible.includes("stock-adjustments")
   ) {
     sections.push({
       id: "warehouse",
@@ -99,6 +106,15 @@ const buildEmployeeSections = (
           : []),
         ...(accessible.includes("inventory")
           ? [{ id: "inventory", label: "Kho", active: active === "inventory" }]
+          : []),
+        ...(accessible.includes("stock-adjustments")
+          ? [
+              {
+                id: "stock-adjustments",
+                label: "Điều chỉnh kho",
+                active: active === "stock-adjustments",
+              },
+            ]
           : []),
       ],
     });

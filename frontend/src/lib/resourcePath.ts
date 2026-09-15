@@ -8,6 +8,7 @@ export type ResourcePageKey =
   | "categories"
   | "purchase"
   | "inventory"
+  | "stock-adjustments"
   | "pos";
 
 const RESOURCE_PREFIXES: [string, ResourcePageKey][] = [
@@ -20,6 +21,7 @@ const RESOURCE_PREFIXES: [string, ResourcePageKey][] = [
   ["/categories", "categories"],
   ["/purchase", "purchase"],
   ["/inventory", "inventory"],
+  ["/stock-adjustments", "stock-adjustments"],
   ["/pos", "pos"],
 ];
 

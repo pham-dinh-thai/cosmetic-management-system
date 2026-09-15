@@ -97,8 +97,8 @@ function App() {
             <Route path="/purchase/:id/edit" element={<EditPurchaseOrderPage />} />
             <Route path="/inventory" element={<InventoryPage />} />
             <Route path="/inventory/import" element={<ImportPurchaseOrderPage />} />
-            <Route path="/inventory/stock-adjustments" element={<StockAdjustmentsPage />} />
-            <Route path="/inventory/stock-adjustments/history" element={<StockAdjustmentsHistoryPage />} />
+            <Route path="/stock-adjustments" element={<StockAdjustmentsPage />} />
+            <Route path="/stock-adjustments/history" element={<StockAdjustmentsHistoryPage />} />
             <Route path="/inventory/add" element={<AddInventoryPage />} />
             <Route path="/inventory/:id/edit" element={<EditInventoryPage />} />
             <Route path="/inventory/:id" element={<InventoryDetailPage />} />

@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { PageHeader, Input, Button, Card, Select } from "../../../../components/ui/Primitives";
+import {
+  PageHeader,
+  Input,
+  Button,
+  Card,
+  Select,
+} from "../../../../components/ui/Primitives";
 import { departmentsService } from "../../../../services/departments.service";
 import type { Department } from "../Departments/type";
 import { toast } from "sonner";
@@ -18,18 +24,19 @@ const EditDepartmentPage: React.FC = () => {
 
   useEffect(() => {
     if (id) {
-      departmentsService.getDepartmentById(id)
-        .then(data => {
+      departmentsService
+        .getDepartmentById(id)
+        .then((data) => {
           setFormData({
             code: data.code || "",
             name: data.name || "",
             isActive: data.isActive,
           });
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err);
           toast.error("Không thể tải thông tin phòng ban");
-          navigate("/resources/departments");
+          navigate("/departments");
         })
         .finally(() => {
           setFetching(false);
@@ -37,23 +44,25 @@ const EditDepartmentPage: React.FC = () => {
     }
   }, [id, navigate]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ 
-      ...prev, 
-      [name]: name === "isActive" ? value === "true" : value 
+    setFormData((prev) => ({
+      ...prev,
+      [name]: name === "isActive" ? value === "true" : value,
     }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!id) return;
-    
+
     setLoading(true);
     try {
       await departmentsService.updateDepartment(id, formData);
       toast.success("Đã cập nhật phòng ban thành công");
-      navigate("/resources/departments");
+      navigate("/departments");
     } catch (error) {
       console.error(error);
       toast.error("Đã có lỗi xảy ra khi cập nhật phòng ban");
@@ -63,7 +72,11 @@ const EditDepartmentPage: React.FC = () => {
   };
 
   if (fetching) {
-    return <div className="py-12 text-center text-[#666666]">Đang tải thông tin phòng ban…</div>;
+    return (
+      <div className="py-12 text-center text-[#666666]">
+        Đang tải thông tin phòng ban…
+      </div>
+    );
   }
 
   return (
@@ -121,7 +134,11 @@ const EditDepartmentPage: React.FC = () => {
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-[#eeeee9]">
-            <Button type="button" variant="outline" onClick={() => navigate("/resources/departments")}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate("/departments")}
+            >
               Hủy
             </Button>
             <Button type="submit" variant="primary" disabled={loading}>

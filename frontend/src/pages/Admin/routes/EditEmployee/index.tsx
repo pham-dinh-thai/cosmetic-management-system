@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { PageHeader, Input, Button, Card, Select } from "../../../../components/ui/Primitives";
+import {
+  PageHeader,
+  Input,
+  Button,
+  Card,
+  Select,
+} from "../../../../components/ui/Primitives";
 import { employeesService } from "../../../../services/employees.service";
 import { departmentsService } from "../../../../services/departments.service";
 import type { Department } from "../Departments/type";
@@ -35,8 +41,9 @@ const EditEmployeePage: React.FC = () => {
 
   useEffect(() => {
     if (id) {
-      employeesService.getEmployeeById(id)
-        .then(data => {
+      employeesService
+        .getEmployeeById(id)
+        .then((data) => {
           const fullName = (data.name || "").trim();
           const lastSpaceIndex = fullName.lastIndexOf(" ");
           const nameParts =
@@ -57,13 +64,15 @@ const EditEmployeePage: React.FC = () => {
             departmentId: data.departmentId || "",
             position: data.position || "",
             status: (data.status as Employee["status"]) || "ACTIVE",
-            hiredAt: data.hiredAt ? new Date(data.hiredAt).toISOString().split('T')[0] : "",
+            hiredAt: data.hiredAt
+              ? new Date(data.hiredAt).toISOString().split("T")[0]
+              : "",
           });
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err);
           toast.error("Không thể tải thông tin nhân viên");
-          navigate("/resources/employees");
+          navigate("/employees");
         })
         .finally(() => {
           setFetching(false);
@@ -71,7 +80,9 @@ const EditEmployeePage: React.FC = () => {
     }
   }, [id, navigate]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -94,7 +105,7 @@ const EditEmployeePage: React.FC = () => {
           .join(" "),
       });
       toast.success("Đã cập nhật nhân viên thành công");
-      navigate("/resources/employees");
+      navigate("/employees");
     } catch (error) {
       console.error(error);
       toast.error("Đã có lỗi xảy ra khi cập nhật nhân viên");
@@ -103,7 +114,10 @@ const EditEmployeePage: React.FC = () => {
     }
   };
 
-  const departmentOptions = departments.map((d) => ({ value: d.id, label: d.name }));
+  const departmentOptions = departments.map((d) => ({
+    value: d.id,
+    label: d.name,
+  }));
   const currentInOptions = departmentOptions.some(
     (o) => o.value === formData.departmentId,
   );
@@ -134,11 +148,18 @@ const EditEmployeePage: React.FC = () => {
   );
   const allPositionOptions =
     formData.position && !currentPositionInOptions
-      ? [...positionOptions, { value: formData.position, label: formData.position }]
+      ? [
+          ...positionOptions,
+          { value: formData.position, label: formData.position },
+        ]
       : positionOptions;
 
   if (fetching) {
-    return <div className="py-12 text-center text-[#666666]">Đang tải thông tin nhân viên…</div>;
+    return (
+      <div className="py-12 text-center text-[#666666]">
+        Đang tải thông tin nhân viên…
+      </div>
+    );
   }
 
   return (
@@ -174,7 +195,7 @@ const EditEmployeePage: React.FC = () => {
               />
             </div>
           </div>
-          
+
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
               <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
@@ -292,7 +313,11 @@ const EditEmployeePage: React.FC = () => {
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-[#eeeee9]">
-            <Button type="button" variant="outline" onClick={() => navigate("/resources/employees")}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate("/employees")}
+            >
               Hủy
             </Button>
             <Button type="submit" variant="primary" disabled={loading}>

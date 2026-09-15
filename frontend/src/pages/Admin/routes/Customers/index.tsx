@@ -1,6 +1,11 @@
 import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { PageHeader, Input, Button, Select } from "../../../../components/ui/Primitives";
+import {
+  PageHeader,
+  Input,
+  Button,
+  Select,
+} from "../../../../components/ui/Primitives";
 import { DataTable, type Column } from "../../../../components/ui/DataTable";
 import { useCustomers, type CustomerStatusFilter } from "./hook";
 import type { Customer } from "./type";
@@ -13,24 +18,53 @@ const STATUS_OPTIONS = [
 
 const CustomersPage: React.FC = () => {
   const navigate = useNavigate();
-  const { customers, loading, q, setQ, status, setStatus, handleToggleStatus } = useCustomers();
+  const { customers, loading, q, setQ, status, setStatus, handleToggleStatus } =
+    useCustomers();
 
   const openAdd = () => {
-    navigate("/resources/customers/add");
+    navigate("/customers/add");
   };
 
   const openEdit = (c: Customer) => {
-    navigate(`/resources/customers/${c.id}/edit`);
+    navigate(`/customers/${c.id}/edit`);
   };
 
   const columns = useMemo<Column<Customer>[]>(
     () => [
-      { key: "code", header: "Mã KH", render: (c) => <span className="font-mono text-[12px]">{c.code}</span> },
-      { key: "name", header: "Họ và tên", render: (c) => <span className="font-medium text-[#1c3a13]">{c.name}</span> },
-      { key: "phone", header: "Số điện thoại", render: (c) => <span className="text-[#666666]">{c.phone}</span> },
-      { key: "email", header: "Email", render: (c) => <span className="text-[#666666]">{c.email}</span> },
-      { key: "address", header: "Địa chỉ", render: (c) => <span className="text-[#666666]">{c.address || "-"}</span> },
-      { key: "orders", header: "Số đơn hàng", render: (c) => <span className="text-[#666666]">{c.orders}</span> },
+      {
+        key: "code",
+        header: "Mã KH",
+        render: (c) => <span className="font-mono text-[12px]">{c.code}</span>,
+      },
+      {
+        key: "name",
+        header: "Họ và tên",
+        render: (c) => (
+          <span className="font-medium text-[#1c3a13]">{c.name}</span>
+        ),
+      },
+      {
+        key: "phone",
+        header: "Số điện thoại",
+        render: (c) => <span className="text-[#666666]">{c.phone}</span>,
+      },
+      {
+        key: "email",
+        header: "Email",
+        render: (c) => <span className="text-[#666666]">{c.email}</span>,
+      },
+      {
+        key: "address",
+        header: "Địa chỉ",
+        render: (c) => (
+          <span className="text-[#666666]">{c.address || "-"}</span>
+        ),
+      },
+      {
+        key: "orders",
+        header: "Số đơn hàng",
+        render: (c) => <span className="text-[#666666]">{c.orders}</span>,
+      },
       {
         key: "isActive",
         header: "Trạng thái",
@@ -55,7 +89,11 @@ const CustomersPage: React.FC = () => {
             <Button variant="outline" size="sm" onClick={() => openEdit(c)}>
               Sửa
             </Button>
-            <Button variant="outline" size="sm" onClick={() => handleToggleStatus(c)}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleToggleStatus(c)}
+            >
               {c.isActive ? "Vô hiệu hoá" : "Kích hoạt"}
             </Button>
           </div>
@@ -96,7 +134,12 @@ const CustomersPage: React.FC = () => {
       {loading ? (
         <div className="py-12 text-center text-[#666666]">Đang tải…</div>
       ) : (
-        <DataTable columns={columns} rows={customers} rowKey={(c) => c.id} empty="Chưa có thông tin khách hàng" />
+        <DataTable
+          columns={columns}
+          rows={customers}
+          rowKey={(c) => c.id}
+          empty="Chưa có thông tin khách hàng"
+        />
       )}
     </div>
   );

@@ -14,6 +14,7 @@ export const WAREHOUSE_EMPLOYEE_PAGES: ResourcePageKey[] = [
   "suppliers",
   "purchase",
   "inventory",
+  "stock-adjustments",
 ];
 
 export const ADMIN_PAGES: ResourcePageKey[] = [
@@ -26,6 +27,7 @@ export const ADMIN_PAGES: ResourcePageKey[] = [
   "categories",
   "purchase",
   "inventory",
+  "stock-adjustments",
 ];
 
 export function isAdmin(user: UserProfile | null): boolean {

@@ -1,6 +1,11 @@
 import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { PageHeader, Input, Button, Select } from "../../../../components/ui/Primitives";
+import {
+  PageHeader,
+  Input,
+  Button,
+  Select,
+} from "../../../../components/ui/Primitives";
 import { DataTable, type Column } from "../../../../components/ui/DataTable";
 import { useDepartments, type DepartmentStatusFilter } from "./hook";
 import type { Department } from "./type";
@@ -13,20 +18,38 @@ const STATUS_OPTIONS = [
 
 const DepartmentsPage: React.FC = () => {
   const navigate = useNavigate();
-  const { departments, loading, q, setQ, status, setStatus, handleToggleStatus } = useDepartments();
+  const {
+    departments,
+    loading,
+    q,
+    setQ,
+    status,
+    setStatus,
+    handleToggleStatus,
+  } = useDepartments();
 
   const openAdd = () => {
-    navigate("/resources/departments/add");
+    navigate("/departments/add");
   };
 
   const openEdit = (d: Department) => {
-    navigate(`/resources/departments/${d.id}/edit`);
+    navigate(`/departments/${d.id}/edit`);
   };
 
   const columns = useMemo<Column<Department>[]>(
     () => [
-      { key: "code", header: "Mã PB", render: (d) => <span className="font-mono text-[12px]">{d.code}</span> },
-      { key: "name", header: "Tên phòng ban", render: (d) => <span className="font-medium text-[#1c3a13]">{d.name}</span> },
+      {
+        key: "code",
+        header: "Mã PB",
+        render: (d) => <span className="font-mono text-[12px]">{d.code}</span>,
+      },
+      {
+        key: "name",
+        header: "Tên phòng ban",
+        render: (d) => (
+          <span className="font-medium text-[#1c3a13]">{d.name}</span>
+        ),
+      },
       {
         key: "isActive",
         header: "Trạng thái",
@@ -51,7 +74,11 @@ const DepartmentsPage: React.FC = () => {
             <Button variant="outline" size="sm" onClick={() => openEdit(d)}>
               Sửa
             </Button>
-            <Button variant="outline" size="sm" onClick={() => handleToggleStatus(d)}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleToggleStatus(d)}
+            >
               {d.isActive ? "Vô hiệu hoá" : "Kích hoạt"}
             </Button>
           </div>
@@ -67,7 +94,11 @@ const DepartmentsPage: React.FC = () => {
         eyebrow="Quản lý / Phòng ban"
         title="Danh sách phòng ban"
         description="Quản lý thông tin phòng ban."
-        actions={<Button variant="primary" onClick={openAdd}>+ Thêm phòng ban</Button>}
+        actions={
+          <Button variant="primary" onClick={openAdd}>
+            + Thêm phòng ban
+          </Button>
+        }
       />
       <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
         <div className="md:col-span-7">
@@ -80,7 +111,9 @@ const DepartmentsPage: React.FC = () => {
         <div className="md:col-span-5">
           <Select
             value={status}
-            onChange={(e) => setStatus(e.target.value as DepartmentStatusFilter)}
+            onChange={(e) =>
+              setStatus(e.target.value as DepartmentStatusFilter)
+            }
             options={STATUS_OPTIONS}
           />
         </div>
@@ -88,7 +121,12 @@ const DepartmentsPage: React.FC = () => {
       {loading ? (
         <div className="py-12 text-center text-[#666666]">Đang tải…</div>
       ) : (
-        <DataTable columns={columns} rows={departments} rowKey={(d) => d.id} empty="Chưa có phòng ban" />
+        <DataTable
+          columns={columns}
+          rows={departments}
+          rowKey={(d) => d.id}
+          empty="Chưa có phòng ban"
+        />
       )}
     </div>
   );
