@@ -268,16 +268,17 @@ const AddProductPage: React.FC = () => {
 
                 <div className="flex flex-col gap-2 md:col-span-6">
                   <label className="text-[12px] font-medium text-[#666666] uppercase tracking-[0.1em]">
-                    Giá gốc (tuỳ chọn)
+                    Giá gốc *
                   </label>
                   <Input
                     type="number"
                     min={0}
-                    value={variant.costPrice || ""}
+                    value={variant.costPrice}
                     onChange={(e) =>
                       handleVariantChange(index, "costPrice", e.target.value)
                     }
                     className="font-[var(--font-seed-sans-mono)]"
+                    required
                   />
                 </div>
               </div>

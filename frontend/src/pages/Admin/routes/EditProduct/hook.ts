@@ -184,7 +184,7 @@ export function useEditProduct() {
       const payload: UpdateVariantPayload = {
         name: v.name,
         price: Number(v.price),
-        costPrice: v.costPrice ? Number(v.costPrice) : undefined,
+        costPrice: Number(v.costPrice),
         volume: v.volume || undefined,
         color: v.color || undefined,
       };
@@ -212,7 +212,7 @@ export function useEditProduct() {
   };
 
   const addNewVariantBox = () => {
-    setNewVariants([...newVariants, { name: "", price: 0 }]);
+    setNewVariants([...newVariants, { name: "", price: 0, costPrice: 0 }]);
   };
 
   const removeNewVariantBox = (index: number) => {
@@ -229,7 +229,7 @@ export function useEditProduct() {
       const payload: CreateVariantPayload = {
         name: v.name,
         price: Number(v.price),
-        costPrice: v.costPrice ? Number(v.costPrice) : undefined,
+        costPrice: Number(v.costPrice),
         volume: v.volume || undefined,
         color: v.color || undefined,
       };

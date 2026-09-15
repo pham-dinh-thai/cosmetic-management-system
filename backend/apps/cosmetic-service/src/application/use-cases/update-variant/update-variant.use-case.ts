@@ -1,8 +1,6 @@
 import { IUpdateVariantRequest } from './update-variant.request';
 import { CosmeticVariantNotFoundException } from '../../../domain/exceptions/cosmetic-variant-not-found.exception';
-import { NegativePriceException } from '../../../domain/exceptions/negative-price.exception';
 import { type ICosmeticsRepository } from '../../../domain/repositories/cosmetics.repository';
-import { CostPriceCanNotBeHigherThanPriceException } from 'apps/cosmetic-service/src/domain/exceptions/cost-price-can-not-be-higher-than-price.exception';
 
 export class UpdateVariantUseCase {
   public constructor(
@@ -13,23 +11,12 @@ export class UpdateVariantUseCase {
     variantId: string,
     request: IUpdateVariantRequest,
   ): Promise<void> {
-    if (
-      request.price < 0 ||
-      (request.costPrice !== undefined && request.costPrice < 0)
-    ) {
-      throw new NegativePriceException(request.price);
-    }
-
-    if (request.costPrice !== undefined && request.costPrice > request.price) {
-      throw new CostPriceCanNotBeHigherThanPriceException();
-    }
-
     const updated = await this.cosmeticsRepository.updateVariant(variantId, {
       name: request.name,
       color: request.color ?? null,
       volume: request.volume ?? null,
       price: request.price,
-      costPrice: request.costPrice ?? null,
+      costPrice: request.costPrice,
     });
 
     if (!updated) {

@@ -29,7 +29,7 @@ export interface CreateVariantPayload {
   color?: string;
   volume?: string;
   price: number;
-  costPrice?: number;
+  costPrice: number;
 }
 
 export interface CreateCosmeticPayload {
@@ -48,7 +48,7 @@ export interface CosmeticDetailVariant {
   color: string | null;
   volume: string | null;
   price: number;
-  costPrice: number | null;
+  costPrice: number;
   isActive: boolean;
   quantity: number;
   minStock: number;
@@ -83,7 +83,7 @@ export interface UpdateVariantPayload {
   color?: string;
   volume?: string;
   price: number;
-  costPrice?: number;
+  costPrice: number;
 }
 
 export const productsService = {
