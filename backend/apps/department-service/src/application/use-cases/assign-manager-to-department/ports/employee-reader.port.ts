@@ -12,6 +12,8 @@ export class FindEmployeeByIdReadModel {
     public readonly position: Position,
     public readonly phone?: string,
     public readonly address?: string,
+    public readonly firstName?: string,
+    public readonly lastName?: string,
   ) {}
 }
 

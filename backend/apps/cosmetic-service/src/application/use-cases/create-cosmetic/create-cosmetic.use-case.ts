@@ -27,7 +27,7 @@ export class CreateCosmeticUseCase {
         color: variant.color ?? null,
         volume: variant.volume ?? null,
         price: variant.price,
-        costPrice: variant.costPrice ?? null,
+        costPrice: variant.costPrice,
       })),
       categoryIds: request.categoryIds,
     });

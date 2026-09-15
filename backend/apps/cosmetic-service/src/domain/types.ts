@@ -3,7 +3,7 @@ export type CreateVariantProps = {
   color: string | null;
   volume: string | null;
   price: number;
-  costPrice: number | null;
+  costPrice: number;
 };
 
 export type CreateCosmeticProps = {
@@ -24,7 +24,7 @@ export type FromPersistentVariantProps = {
   color: string | null;
   volume: string | null;
   price: number;
-  costPrice: number | null;
+  costPrice: number;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;

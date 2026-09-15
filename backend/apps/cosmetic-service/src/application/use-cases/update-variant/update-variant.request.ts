@@ -3,5 +3,5 @@ export interface IUpdateVariantRequest {
   color?: string;
   volume?: string;
   price: number;
-  costPrice?: number;
+  costPrice: number;
 }

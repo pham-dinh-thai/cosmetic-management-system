@@ -31,7 +31,7 @@ export class StockReaderAdapter implements IStockReaderPort {
       variantIds.map(async (variantId) => {
         try {
           const response = await fetch(
-            `${this.url}/api/inventory/by-variant/${variantId}`,
+            `${this.url}/api/internal/inventories/by-variant/${variantId}`,
           );
 
           if (!response.ok) {

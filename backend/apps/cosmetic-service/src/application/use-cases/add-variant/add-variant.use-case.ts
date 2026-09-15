@@ -12,10 +12,7 @@ export class AddVariantUseCase {
     cosmeticId: string,
     request: IAddVariantRequest,
   ): Promise<{ id: string }> {
-    if (
-      request.price < 0 ||
-      (request.costPrice !== undefined && request.costPrice < 0)
-    ) {
+    if (request.price < 0 || request.costPrice < 0) {
       throw new NegativePriceException(request.price);
     }
 
@@ -30,7 +27,7 @@ export class AddVariantUseCase {
       color: request.color ?? null,
       volume: request.volume ?? null,
       price: request.price,
-      costPrice: request.costPrice ?? null,
+      costPrice: request.costPrice,
     });
   }
 }

@@ -139,7 +139,7 @@ import {
     {
       provide: FindAllCosmeticsUseCase,
       useFactory: findAllCosmeticsUseCaseFactory,
-      inject: [COSMETICS_REPOSITORY],
+      inject: [COSMETICS_REPOSITORY, STOCK_READER_PORT],
     },
     {
       provide: UpdateCosmeticUseCase,

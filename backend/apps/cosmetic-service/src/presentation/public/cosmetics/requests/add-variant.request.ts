@@ -35,9 +35,8 @@ export class AddVariantRequest implements IAddVariantRequest {
   @Min(0, { message: 'Giá không thể nhỏ hơn 0' })
   price!: number;
 
-  @ApiProperty({ required: false })
+  @ApiProperty()
   @IsNumber()
-  @IsOptional()
-  @Min(0, { message: 'Giá không thể nhỏ hơn 0' })
-  costPrice?: number;
+  @Min(0, { message: 'Giá vốn không thể nhỏ hơn 0' })
+  costPrice!: number;
 }

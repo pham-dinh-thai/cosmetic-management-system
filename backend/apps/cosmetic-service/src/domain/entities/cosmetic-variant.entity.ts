@@ -1,3 +1,4 @@
+import { CostPriceCanNotBeHigherThanPriceException } from '../exceptions/cost-price-can-not-be-higher-than-price.exception';
 import { NegativePriceException } from '../exceptions/negative-price.exception';
 import { CreateVariantProps, FromPersistentVariantProps } from '../types';
 
@@ -9,15 +10,20 @@ export class CosmeticVariant {
     private color: string | null,
     private volume: string | null,
     private price: number,
-    private costPrice: number | null,
+    private costPrice: number,
     private isActive: boolean,
     private readonly createdAt?: Date,
     private readonly updatedAt?: Date,
   ) {}
 
   public static create(props: CreateVariantProps): CosmeticVariant {
-    this.validatePrice(props.price);
-    this.validatePrice(props.costPrice);
+    if (props.price < 0 || props.costPrice < 0) {
+      throw new NegativePriceException(props.price);
+    }
+
+    if (props.costPrice > props.price) {
+      throw new CostPriceCanNotBeHigherThanPriceException();
+    }
 
     return new CosmeticVariant(
       undefined as unknown as string,
@@ -48,12 +54,6 @@ export class CosmeticVariant {
     );
   }
 
-  private static validatePrice(value: number | null): void {
-    if (value !== null && value < 0) {
-      throw new NegativePriceException(value);
-    }
-  }
-
   public getId(): string {
     return this.id;
   }
@@ -78,7 +78,7 @@ export class CosmeticVariant {
     return this.price;
   }
 
-  public getCostPrice(): number | null {
+  public getCostPrice(): number {
     return this.costPrice;
   }
 

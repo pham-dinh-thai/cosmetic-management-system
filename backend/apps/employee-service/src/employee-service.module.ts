@@ -158,12 +158,16 @@ import {
     {
       provide: UpdateEmployeePositionUseCase,
       useFactory: updateEmployeePositionUseCaseFactory,
-      inject: [EMPLOYEES_REPOSITORY],
+      inject: [EMPLOYEES_REPOSITORY, DEPARTMENTS_READER_PORT],
     },
     {
       provide: FindEmployeeByIdUseCase,
       useFactory: findEmployeeByIdUseCaseFactory,
-      inject: [EMPLOYEES_REPOSITORY],
+      inject: [
+        EMPLOYEES_REPOSITORY,
+        FIND_USER_INFORMATION_PORT,
+        EMPLOYEE_LOGGER_PORT,
+      ],
     },
     {
       provide: FindEmployeeByUserIdUseCase,

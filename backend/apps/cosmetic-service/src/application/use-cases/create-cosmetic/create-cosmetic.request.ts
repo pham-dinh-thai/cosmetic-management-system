@@ -3,7 +3,7 @@ export interface ICreateVariantRequest {
   color?: string;
   volume?: string;
   price: number;
-  costPrice?: number;
+  costPrice: number;
 }
 
 export interface ICreateCosmeticRequest {
