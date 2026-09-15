@@ -94,6 +94,7 @@ export function usePosPage() {
     const k = search.trim().toLowerCase();
     const base = products
       .filter((p) => {
+        if (p.isActive === false) return false;
         if (!k) return true;
         return (
           p.name.toLowerCase().includes(k) ||
@@ -137,7 +138,7 @@ export function usePosPage() {
     (item: Omit<CartItem, "quantity">, qty: number) => {
       if (qty <= 0) return;
 
-      const sellable = Math.max(0, item.availableStock - item.minStock);
+      const sellable = Math.max(0, item.availableStock);
 
       const alreadyInCart =
         cart.find((c) => c.variantId === item.variantId)?.quantity ?? 0;
@@ -170,10 +171,8 @@ export function usePosPage() {
         const item = prev.find((c) => c.variantId === variantId);
         if (!item) return prev;
 
-        const sellable = Math.max(0, item.availableStock - item.minStock);
-
-        if (qty > sellable) {
-          toast.warning("Sản phẩm đã hết hàng");
+        if (qty > item.availableStock) {
+          toast.warning("Số lượng vượt quá tồn kho");
           return prev;
         }
 

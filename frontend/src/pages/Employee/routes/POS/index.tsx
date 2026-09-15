@@ -514,7 +514,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
                       <span className="text-[15px] font-medium text-[#1c3a13] font-[var(--font-seed-sans-mono)]">
                         {formatVND(v.price)}
                       </span>
-                      {v.quantity !== undefined && v.quantity <= v.minStock && (
+                      {v.quantity !== undefined && v.quantity <= 0 && (
                         <span className="text-[11px] font-medium text-amber-600 mt-0.5">
                           Sản phẩm đã hết hàng
                         </span>
@@ -536,10 +536,10 @@ const ProductModal: React.FC<ProductModalProps> = ({
                           1,
                         )
                       }
-                      disabled={v.quantity !== undefined && v.quantity <= v.minStock}
+                      disabled={v.quantity !== undefined && v.quantity <= 0}
                       className="h-9 px-5 rounded-full bg-[#1c3a13] text-[#fcfcf7] text-[13px] font-medium whitespace-nowrap shrink-0 hover:bg-[#2a501d] active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                     >
-                      {v.quantity !== undefined && v.quantity <= v.minStock
+                      {v.quantity !== undefined && v.quantity <= 0
                         ? "Hết hàng"
                         : "Thêm vào đơn"}
                     </button>
