@@ -8,14 +8,25 @@ import {
   Select,
 } from "../../../../components/ui/Primitives";
 import { departmentsService } from "../../../../services/departments.service";
+import {
+  employeesService,
+  combineName,
+} from "../../../../services/employees.service";
 import type { Department } from "../Departments/type";
 import { toast } from "sonner";
+
+interface ManagerOption {
+  id: string;
+  code: string;
+  name: string;
+}
 
 const EditDepartmentPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const [managerOptions, setManagerOptions] = useState<ManagerOption[]>([]);
   const [formData, setFormData] = useState<Partial<Department>>({
     code: "",
     name: "",
@@ -24,14 +35,31 @@ const EditDepartmentPage: React.FC = () => {
 
   useEffect(() => {
     if (id) {
-      departmentsService
-        .getDepartmentById(id)
-        .then((data) => {
+      Promise.all([
+        departmentsService.getDepartmentById(id),
+        employeesService.getEmployees(),
+      ])
+        .then(([data, employees]) => {
           setFormData({
             code: data.code || "",
             name: data.name || "",
             isActive: data.isActive,
+            managerId: data.managerId || null,
           });
+          setManagerOptions(
+            employees
+              .filter(
+                (e) =>
+                  e.departmentId === id &&
+                  e.position === "manager" &&
+                  e.status === "ACTIVE",
+              )
+              .map((e) => ({
+                id: e.id,
+                code: e.code,
+                name: combineName(e.firstName, e.lastName),
+              })),
+          );
         })
         .catch((err) => {
           console.error(err);
@@ -52,6 +80,26 @@ const EditDepartmentPage: React.FC = () => {
       ...prev,
       [name]: name === "isActive" ? value === "true" : value,
     }));
+  };
+
+  const handleAssignManager = async (employeeId: string) => {
+    if (!id) return;
+    setLoading(true);
+    try {
+      await departmentsService.assignManager(id, employeeId || null);
+      setFormData((prev) => ({ ...prev, managerId: employeeId || null }));
+      toast.success(
+        employeeId
+          ? "Đã gán trưởng phòng thành công"
+          : "Đã xoá trưởng phòng",
+      );
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message || "Đã có lỗi xảy ra khi gán trưởng phòng",
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -131,6 +179,26 @@ const EditDepartmentPage: React.FC = () => {
                 ]}
               />
             </div>
+          </div>
+
+          <div className="flex flex-col gap-1.5 border-t border-[#eeeee9] pt-4">
+            <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
+              Trưởng phòng
+            </label>
+            <Select
+              value={formData.managerId || ""}
+              onChange={(e) => handleAssignManager(e.target.value)}
+              options={[
+                { value: "", label: "— Chưa có trưởng phòng —" },
+                ...managerOptions.map((m) => ({
+                  value: m.id,
+                  label: `${m.name} (${m.code})`,
+                })),
+              ]}
+            />
+            <p className="text-[12px] text-[#666666]">
+              Chỉ hiển thị nhân viên giữ chức vụ Quản lý trong phòng ban này.
+            </p>
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-[#eeeee9]">

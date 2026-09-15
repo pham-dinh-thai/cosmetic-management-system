@@ -69,6 +69,13 @@ export const departmentsService = {
     }
   },
 
+  async assignManager(
+    id: string,
+    employeeId: string | null,
+  ): Promise<void> {
+    await api.patch<void>(`/departments/${id}/manager`, { employeeId });
+  },
+
   async deleteDepartment(id: string): Promise<void> {
     await api.delete<void>(`/departments/${id}`);
   },
