@@ -9,6 +9,7 @@ export interface CosmeticSummary {
   description: string | null;
   imageUrl: string | null;
   variantCount: number;
+  totalStock: number;
   isActive: boolean;
   createdAt?: string;
   updatedAt?: string;
