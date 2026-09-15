@@ -120,7 +120,7 @@ const Overview: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2">
+        <Card className="lg:col-span-2 flex flex-col">
           <div className="flex items-end justify-between flex-wrap gap-4 mb-8">
             <div>
               <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-[#666666]">
@@ -149,27 +149,49 @@ const Overview: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex items-end gap-3 h-56">
-            {data.revenueByDay.map((d) => (
-              <div key={d.key} className="flex-1 flex flex-col items-center gap-3">
-                <div className="w-full flex-1 flex items-end">
-                  <div
-                    className="w-full rounded-t-md bg-[#1c3a13] transition-all"
-                    style={{
-                      height:
-                        maxDay === 0
-                          ? "8px"
-                          : `${(d.value / maxDay) * 100}%`,
-                      minHeight: "8px",
-                    }}
-                    title={overviewApi.formatVnd(d.value)}
-                  />
+          <div className="mt-auto w-full pt-8">
+            <div className="relative w-full h-[280px] mb-4">
+              {[0, 0.25, 0.5, 0.75, 1].map((tick) => (
+                <div 
+                  key={tick} 
+                  className="absolute left-0 right-0 flex items-center text-[10px] text-[#888] pointer-events-none"
+                  style={{ 
+                    bottom: `${tick * 100}%`, 
+                    transform: 'translateY(50%)' 
+                  }}
+                >
+                  <span className="w-14 text-right pr-2 shrink-0 bg-[#fcfcf7] relative z-10 whitespace-nowrap">
+                    {maxDay === 0 && tick > 0 ? "" : formatCompact(maxDay * tick)}
+                  </span>
+                  <div className="w-full h-px border-t border-dashed border-[#dcdcd7] absolute top-1/2 left-0 -translate-y-1/2 z-0" />
                 </div>
-                <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-[#666666]">
-                  {d.label}
-                </span>
+              ))}
+
+              <div className="absolute inset-0 left-14 flex items-stretch gap-3 z-10">
+                {data.revenueByDay.map((d) => (
+                  <div key={d.key} className="flex-1 relative group cursor-pointer">
+                    <div
+                      className="absolute bottom-0 w-full rounded-t-[4px] bg-[#1c3a13] transition-all group-hover:bg-[#757c5d]"
+                      style={{
+                        height: d.value === 0 || maxDay === 0 ? "0px" : `${(d.value / maxDay) * 100}%`,
+                        minHeight: d.value === 0 || maxDay === 0 ? "0px" : "4px",
+                      }}
+                      title={overviewApi.formatVnd(d.value)}
+                    />
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
+
+            <div className="flex items-center gap-3 pl-14 text-[#666666]">
+              {data.revenueByDay.map((d) => (
+                <div key={d.key} className="flex-1 text-center">
+                  <span className="text-[10px] font-medium uppercase tracking-[0.18em]">
+                    {d.label}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </Card>
 
