@@ -54,7 +54,7 @@ const AddProductPage: React.FC = () => {
                 name="name"
                 value={productData.name}
                 onChange={handleProductChange}
-                placeholder="Ví dụ: Sữa rửa mặt vi sinh DS-01"
+                placeholder="Nhập tên sản phẩm"
                 required
               />
             </div>
@@ -67,7 +67,7 @@ const AddProductPage: React.FC = () => {
                 name="brand"
                 value={productData.brand}
                 onChange={handleProductChange}
-                placeholder="Ví dụ: Guardian"
+                placeholder="Nhập thương hiệu"
               />
             </div>
 
@@ -79,7 +79,7 @@ const AddProductPage: React.FC = () => {
                 name="origin"
                 value={productData.origin}
                 onChange={handleProductChange}
-                placeholder="Ví dụ: Việt Nam"
+                placeholder="Nhập xuất xứ"
               />
             </div>
 
@@ -219,7 +219,7 @@ const AddProductPage: React.FC = () => {
                     onChange={(e) =>
                       handleVariantChange(index, "name", e.target.value)
                     }
-                    placeholder="VD: Mặc định / 50ml / Màu Xanh"
+                    placeholder="Nhập tên phân loại"
                     required
                   />
                 </div>
@@ -233,7 +233,7 @@ const AddProductPage: React.FC = () => {
                     onChange={(e) =>
                       handleVariantChange(index, "volume", e.target.value)
                     }
-                    placeholder="VD: 50ml"
+                    placeholder="Nhập dung tích"
                   />
                 </div>
 
@@ -246,7 +246,7 @@ const AddProductPage: React.FC = () => {
                     onChange={(e) =>
                       handleVariantChange(index, "color", e.target.value)
                     }
-                    placeholder="VD: Xanh rêu"
+                    placeholder="Nhập màu sắc"
                   />
                 </div>
 

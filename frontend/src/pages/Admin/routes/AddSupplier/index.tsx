@@ -59,7 +59,7 @@ const AddSupplierPage: React.FC = () => {
               required
               value={formData.name || ""}
               onChange={handleChange}
-              placeholder="Ví dụ: Công ty Cổ phần Mỹ phẩm ABC"
+              placeholder="Nhập tên nhà cung cấp..."
             />
           </div>
           
@@ -73,7 +73,7 @@ const AddSupplierPage: React.FC = () => {
                 required
                 value={formData.phone || ""}
                 onChange={handleChange}
-                placeholder="Ví dụ: 02838321456"
+                placeholder="Nhập số điện thoại..."
               />
             </div>
             <div className="flex flex-col gap-1.5">
@@ -86,7 +86,7 @@ const AddSupplierPage: React.FC = () => {
                 required
                 value={formData.email || ""}
                 onChange={handleChange}
-                placeholder="Ví dụ: contact@abc.vn"
+                placeholder="Nhập email..."
               />
             </div>
           </div>
@@ -116,7 +116,7 @@ const AddSupplierPage: React.FC = () => {
               name="address"
               value={formData.address || ""}
               onChange={handleChange}
-              placeholder="Ví dụ: 123 Đường ABC, Quận X, TP.HCM"
+              placeholder="Nhập địa chỉ..."
             />
           </div>
 
