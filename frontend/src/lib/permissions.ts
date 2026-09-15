@@ -18,6 +18,7 @@ export const WAREHOUSE_EMPLOYEE_PAGES: ResourcePageKey[] = [
 ];
 
 export const ADMIN_PAGES: ResourcePageKey[] = [
+  "overview",
   "orders",
   "customers",
   "employees",
@@ -75,7 +76,7 @@ export function getAccessibleEmployeePages(
 
 export function getEmployeeLandingPath(user: UserProfile | null): string {
   if (isAdmin(user)) {
-    return "/customers";
+    return "/overview";
   }
   switch (user?.departmentCode as DepartmentCode | undefined) {
     case "sales":

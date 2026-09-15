@@ -106,6 +106,10 @@ export function useAddProduct() {
         setError("Giá bán biến thể không hợp lệ.");
         return;
       }
+      if (Number(v.costPrice) > Number(v.price)) {
+        setError("Giá gốc không được cao hơn giá bán.");
+        return;
+      }
     }
 
     setLoading(true);

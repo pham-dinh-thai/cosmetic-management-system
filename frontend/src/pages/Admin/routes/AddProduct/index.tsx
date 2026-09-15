@@ -280,6 +280,11 @@ const AddProductPage: React.FC = () => {
                     className="font-[var(--font-seed-sans-mono)]"
                     required
                   />
+                  {Number(variant.costPrice) > Number(variant.price) && (
+                    <p className="text-[12px] text-red-600 font-medium">
+                      Giá gốc đang cao hơn giá bán — vui lòng kiểm tra lại.
+                    </p>
+                  )}
                 </div>
               </div>
             </Card>

@@ -13,6 +13,7 @@ import { getActiveKey, type ResourcePageKey } from "../../lib/resourcePath";
 import NotFound from "../NotFound";
 
 const PAGE_TITLES: Record<ResourcePageKey, string> = {
+  overview: "Tổng quan",
   orders: "Đơn hàng",
   customers: "Khách hàng",
   employees: "Nhân viên",
@@ -29,6 +30,13 @@ const PAGE_TITLES: Record<ResourcePageKey, string> = {
 const ADMIN_SECTIONS: (active: ResourcePageKey) => SidebarSection[] = (
   active,
 ) => [
+  {
+    id: "overview-group",
+    title: "Tổng quan",
+    items: [
+      { id: "overview", label: "Bảng điều khiển", active: active === "overview" },
+    ],
+  },
   {
     id: "sales",
     title: "Bán hàng",
