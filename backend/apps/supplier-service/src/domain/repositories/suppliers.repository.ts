@@ -21,11 +21,9 @@ export interface ISuppliersRepository {
     },
   ): Promise<Supplier | null>;
 
-  activate(id: string): Promise<Supplier | null>;
-
-  deactivate(id: string): Promise<Supplier | null>;
-
   delete(id: string): Promise<Supplier | null>;
+
+  setIsActive(supplier: Supplier): Promise<void>;
 }
 
 export const SUPPLIERS_REPOSITORY = 'ISuppliersRepository';
