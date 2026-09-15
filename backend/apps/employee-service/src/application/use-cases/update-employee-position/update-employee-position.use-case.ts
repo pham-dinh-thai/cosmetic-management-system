@@ -25,10 +25,7 @@ export class UpdateEmployeePositionUseCase {
         ? await this.departmentsReaderPort.findById(employee.getDepartmentId())
         : null;
 
-      if (
-        department?.managerId &&
-        department.managerId !== employee.getId()
-      ) {
+      if (department?.managerId && department.managerId !== employee.getId()) {
         throw new DepartmentAlreadyHasManagerException(
           employee.getDepartmentId(),
         );
