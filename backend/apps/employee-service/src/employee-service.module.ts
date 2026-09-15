@@ -163,7 +163,11 @@ import {
     {
       provide: FindEmployeeByIdUseCase,
       useFactory: findEmployeeByIdUseCaseFactory,
-      inject: [EMPLOYEES_REPOSITORY],
+      inject: [
+        EMPLOYEES_REPOSITORY,
+        FIND_USER_INFORMATION_PORT,
+        EMPLOYEE_LOGGER_PORT,
+      ],
     },
     {
       provide: FindEmployeeByUserIdUseCase,

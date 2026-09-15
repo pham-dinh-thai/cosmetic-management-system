@@ -6,6 +6,12 @@ interface DepartmentDto {
   code: string;
   name: string;
   managerId: string | null;
+  manager: {
+    id: string;
+    code: string;
+    name: string;
+    position: string;
+  } | null;
   isActive: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -16,6 +22,14 @@ const toDepartment = (dto: DepartmentDto): Department => ({
   code: dto.code,
   name: dto.name,
   managerId: dto.managerId ?? null,
+  manager: dto.manager
+    ? {
+        id: dto.manager.id,
+        code: dto.manager.code,
+        name: dto.manager.name,
+        position: dto.manager.position,
+      }
+    : null,
   isActive: dto.isActive,
   createdAt: dto.createdAt,
   updatedAt: dto.updatedAt,
