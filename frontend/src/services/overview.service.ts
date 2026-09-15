@@ -4,20 +4,22 @@ export interface Order {
   id: string;
   code: string;
   customerId: string;
+  paymentMethod: string;
   status: string;
   totalAmount: number;
   createdAt: string;
 }
 
-export interface OrderTransaction {
+export interface OrderLine {
   id: string;
-  orderId: string;
   variantId: string;
   quantity: number;
   unitPrice: number;
   subtotal: number;
-  employeeId: string;
-  createdAt: string;
+}
+
+export interface OrderDetail extends Order {
+  lines: OrderLine[];
 }
 
 export interface InventoryItem {
@@ -108,13 +110,13 @@ export const overviewService = {
     return data;
   },
 
-  async getTransactions(): Promise<OrderTransaction[]> {
-    const { data } = await api.get<OrderTransaction[]>("/orders/transactions");
+  async getOrderDetail(id: string): Promise<OrderDetail> {
+    const { data } = await api.get<OrderDetail>(`/orders/${id}`);
     return data;
   },
 
   async getInventory(): Promise<InventoryItem[]> {
-    const { data } = await api.get<InventoryItem[]>("/inventory");
+    const { data } = await api.get<InventoryItem[]>("/inventories");
     return data;
   },
 
@@ -131,8 +133,7 @@ export const overviewService = {
   },
 
   async fetchOverview(): Promise<OverviewData> {
-    const [transactions, orders, inventory, cosmetics] = await Promise.all([
-      this.getTransactions(),
+    const [orders, inventory, cosmetics] = await Promise.all([
       this.getOrders(),
       this.getInventory(),
       this.getCosmeticDetails(),
@@ -142,20 +143,32 @@ export const overviewService = {
     const todayStart = startOfDay(now);
     const yesterdayStart = startOfDay(daysAgo(1, now));
 
-    const sumRange = (items: { createdAt: string; subtotal: number }[], start: Date, end: Date) =>
+    const completedOrders = orders.filter(
+      (o) => o.status === "COMPLETED",
+    );
+
+    const sumInRange = (
+      items: { createdAt: string; totalAmount: number }[],
+      start: Date,
+      end: Date,
+    ) =>
       items
         .filter(
           (item) =>
             new Date(item.createdAt).getTime() >= start.getTime() &&
             new Date(item.createdAt).getTime() < end.getTime(),
         )
-        .reduce((sum, item) => sum + item.subtotal, 0);
+        .reduce((sum, item) => sum + Number(item.totalAmount), 0);
 
-    const revenueToday = transactions
-      .filter((t) => isSameDay(new Date(t.createdAt), now))
-      .reduce((sum, t) => sum + t.subtotal, 0);
+    const revenueToday = completedOrders
+      .filter((o) => isSameDay(new Date(o.createdAt), now))
+      .reduce((sum, o) => sum + Number(o.totalAmount), 0);
 
-    const revenueYesterday = sumRange(transactions, yesterdayStart, todayStart);
+    const revenueYesterday = sumInRange(
+      completedOrders,
+      yesterdayStart,
+      todayStart,
+    );
 
     const ordersToday = orders.filter((o) =>
       isSameDay(new Date(o.createdAt), now),
@@ -167,14 +180,14 @@ export const overviewService = {
         new Date(o.createdAt).getTime() < todayStart.getTime(),
     ).length;
 
-    const revenueThisMonth = transactions
-      .filter((t) => isSameMonth(new Date(t.createdAt), now))
-      .reduce((sum, t) => sum + t.subtotal, 0);
+    const revenueThisMonth = completedOrders
+      .filter((o) => isSameMonth(new Date(o.createdAt), now))
+      .reduce((sum, o) => sum + Number(o.totalAmount), 0);
 
     const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const revenueLastMonth = transactions
-      .filter((t) => isSameMonth(new Date(t.createdAt), prevMonth))
-      .reduce((sum, t) => sum + t.subtotal, 0);
+    const revenueLastMonth = completedOrders
+      .filter((o) => isSameMonth(new Date(o.createdAt), prevMonth))
+      .reduce((sum, o) => sum + Number(o.totalAmount), 0);
 
     const totalStockUnits = inventory.reduce(
       (sum, item) => sum + item.quantity,
@@ -189,9 +202,9 @@ export const overviewService = {
     const revenueByDay: OverviewData["revenueByDay"] = [];
     for (let i = 6; i >= 0; i--) {
       const day = daysAgo(i, now);
-      const value = transactions
-        .filter((t) => isSameDay(new Date(t.createdAt), day))
-        .reduce((sum, t) => sum + t.subtotal, 0);
+      const value = completedOrders
+        .filter((o) => isSameDay(new Date(o.createdAt), day))
+        .reduce((sum, o) => sum + Number(o.totalAmount), 0);
       revenueByDay.push({
         key: day.toISOString().slice(0, 10),
         label: VN_DAYS[day.getDay()],
@@ -210,18 +223,22 @@ export const overviewService = {
       }
     }
 
+    const lineDetails = await Promise.all(
+      completedOrders.map((o) => this.getOrderDetail(o.id)),
+    );
+
     const byVariant = new Map<
       string,
       { quantity: number; subtotal: number }
     >();
-    for (const t of transactions) {
-      const current = byVariant.get(t.variantId) ?? {
+    for (const line of lineDetails.flatMap((d) => d.lines)) {
+      const current = byVariant.get(line.variantId) ?? {
         quantity: 0,
         subtotal: 0,
       };
-      current.quantity += t.quantity;
-      current.subtotal += t.subtotal;
-      byVariant.set(t.variantId, current);
+      current.quantity += line.quantity;
+      current.subtotal += Number(line.subtotal);
+      byVariant.set(line.variantId, current);
     }
 
     const topProducts: TopProduct[] = [...byVariant.entries()]
