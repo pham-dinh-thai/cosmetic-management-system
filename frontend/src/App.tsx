@@ -18,6 +18,7 @@ const AdminSuppliersWrite: React.FC<{ children: React.ReactNode }> = ({ children
   return canWriteSuppliers(user) ? <>{children}</> : <NotFound />;
 };
 
+import OverviewPage from "./pages/Admin/routes/Overview";
 import CustomersPage from "./pages/Admin/routes/Customers";
 import AddCustomerPage from "./pages/Admin/routes/AddCustomer";
 import EditCustomerPage from "./pages/Admin/routes/EditCustomer";
@@ -73,6 +74,7 @@ function App() {
               </RoleRoute>
             }
           >
+            <Route path="/overview" element={<OverviewPage />} />
             <Route path="/pos" element={<PosPage />} />
             <Route path="/orders" element={<OrdersPage />} />
             <Route path="/customers" element={<CustomersPage />} />

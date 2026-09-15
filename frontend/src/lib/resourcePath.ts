@@ -1,4 +1,5 @@
 export type ResourcePageKey =
+  | "overview"
   | "orders"
   | "customers"
   | "employees"
@@ -12,6 +13,7 @@ export type ResourcePageKey =
   | "pos";
 
 const RESOURCE_PREFIXES: [string, ResourcePageKey][] = [
+  ["/overview", "overview"],
   ["/orders", "orders"],
   ["/customers", "customers"],
   ["/employees", "employees"],
