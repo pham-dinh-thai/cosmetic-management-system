@@ -1,54 +1,29 @@
 import { InvalidPhoneNumberException } from '../exceptions/invalid-phone-number.exception';
-import { CreatePhoneProps, FromPersistentPhoneProps } from './types';
 
 export class Phone {
   /**
-   * Vietnamese mobile phone number only (landline 02x not supported).
-   * Must start with 03, 05, 07, 08, 09 and have exactly 10 digits total.
+   * Vietnamese phone number:
+   * - Mobile: must start with 03, 05, 07, 08, 09 and have exactly 10 digits.
+   * - Landline (02x) and legacy 11-digit numbers: start with 0 and have exactly 11 digits.
    */
-  private static readonly VIETNAM_PHONE_REGEX = /^(03|05|07|08|09)[0-9]{8}$/;
+  private static readonly VIETNAM_PHONE_REGEX =
+    /^((03|05|07|08|09)[0-9]{8}|0[0-9]{10})$/;
 
-  public constructor(private readonly value: string) {}
+  private constructor(private readonly value: string) {}
 
-  public static create(props: CreatePhoneProps): Phone {
-    if (!this.VIETNAM_PHONE_REGEX.test(props.phone)) {
-      throw new InvalidPhoneNumberException(props.phone);
+  public static create(value: string): Phone {
+    if (!this.VIETNAM_PHONE_REGEX.test(value)) {
+      throw new InvalidPhoneNumberException(value);
     }
 
-    return new Phone(
-      undefined as unknown as string,
-      props.customerId,
-      props.phone,
-    );
+    return new Phone(value);
   }
 
-  public static fromPersistent(props: FromPersistentPhoneProps): Phone {
-    return new Phone(
-      props.id,
-      props.customerId,
-      props.phone,
-      props.createdAt,
-      props.updatedAt,
-    );
+  public static fromPersistent(value: string): Phone {
+    return new Phone(value);
   }
 
-  public getId(): string {
-    return this.id;
-  }
-
-  public getCustomerId(): string {
-    return this.customerId;
-  }
-
-  public getPhone(): string {
-    return this.phone;
-  }
-
-  public getCreatedAt(): Date | undefined {
-    return this.createdAt;
-  }
-
-  public getUpdatedAt(): Date | undefined {
-    return this.updatedAt;
+  public getValue(): string {
+    return this.value;
   }
 }

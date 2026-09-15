@@ -7,11 +7,15 @@ export class ActivateSupplierUseCase {
   ) {}
 
   public async execute(id: string): Promise<void> {
-    const supplier = await this.suppliersRepository.activate(id);
+    const supplier = await this.suppliersRepository.findById(id);
 
     if (!supplier) {
       throw new SupplierNotFoundException(id);
     }
+
+    supplier.activate();
+
+    await this.suppliersRepository.setIsActive(supplier);
   }
 }
 

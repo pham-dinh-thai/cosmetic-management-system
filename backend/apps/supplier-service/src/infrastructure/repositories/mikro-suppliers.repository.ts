@@ -108,36 +108,6 @@ export class MikroSuppliersRepository implements ISuppliersRepository {
     return SuppliersMapper.toDomain(supplierMikro);
   }
 
-  public async activate(id: string): Promise<Supplier | null> {
-    const supplierMikro = await this.entityManager.findOne(SupplierMikro, {
-      id,
-    });
-
-    if (!supplierMikro) {
-      return null;
-    }
-
-    supplierMikro.isActive = true;
-    await this.entityManager.flush();
-
-    return SuppliersMapper.toDomain(supplierMikro);
-  }
-
-  public async deactivate(id: string): Promise<Supplier | null> {
-    const supplierMikro = await this.entityManager.findOne(SupplierMikro, {
-      id,
-    });
-
-    if (!supplierMikro) {
-      return null;
-    }
-
-    supplierMikro.isActive = false;
-    await this.entityManager.flush();
-
-    return SuppliersMapper.toDomain(supplierMikro);
-  }
-
   public async delete(id: string): Promise<Supplier | null> {
     const supplierMikro = await this.entityManager.findOne(SupplierMikro, {
       id,
@@ -153,5 +123,16 @@ export class MikroSuppliersRepository implements ISuppliersRepository {
     await this.entityManager.flush();
 
     return supplier;
+  }
+
+  public async setIsActive(supplier: Supplier): Promise<void> {
+    await this.entityManager.nativeUpdate(
+      SupplierMikro,
+      { id: supplier.getId() },
+      {
+        isActive: supplier.getIsActive(),
+        updatedAt: supplier.getUpdatedAt(),
+      },
+    );
   }
 }
