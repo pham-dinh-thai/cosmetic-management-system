@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { PageHeader, Input, Button, Card, Select } from "../../../../components/ui/Primitives";
+import {
+  PageHeader,
+  Input,
+  Button,
+  Card,
+  Select,
+} from "../../../../components/ui/Primitives";
 import { customersService } from "../../../../services/customers.service";
 import { toast } from "sonner";
 
@@ -20,8 +26,9 @@ const EditCustomerPage: React.FC = () => {
 
   useEffect(() => {
     if (id) {
-      customersService.getCustomerById(id)
-        .then(data => {
+      customersService
+        .getCustomerById(id)
+        .then((data) => {
           const fullName = (data.name || "").trim();
           const lastSpaceIndex = fullName.lastIndexOf(" ");
           const nameParts =
@@ -40,10 +47,10 @@ const EditCustomerPage: React.FC = () => {
             address: data.address || "",
           });
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err);
           toast.error("Không thể tải thông tin khách hàng");
-          navigate("/resources/customers");
+          navigate("/customers");
         })
         .finally(() => {
           setFetching(false);
@@ -51,7 +58,9 @@ const EditCustomerPage: React.FC = () => {
     }
   }, [id, navigate]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -73,7 +82,7 @@ const EditCustomerPage: React.FC = () => {
         address: formData.address,
       });
       toast.success("Đã cập nhật khách hàng");
-      navigate("/resources/customers");
+      navigate("/customers");
     } catch (error) {
       console.error(error);
       toast.error("Đã có lỗi xảy ra khi cập nhật khách hàng");
@@ -83,7 +92,11 @@ const EditCustomerPage: React.FC = () => {
   };
 
   if (fetching) {
-    return <div className="py-12 text-center text-[#666666]">Đang tải thông tin khách hàng…</div>;
+    return (
+      <div className="py-12 text-center text-[#666666]">
+        Đang tải thông tin khách hàng…
+      </div>
+    );
   }
 
   return (
@@ -172,7 +185,11 @@ const EditCustomerPage: React.FC = () => {
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-[#eeeee9]">
-            <Button type="button" variant="outline" onClick={() => navigate("/resources/customers")}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate("/customers")}
+            >
               Hủy
             </Button>
             <Button type="submit" variant="primary" disabled={loading}>

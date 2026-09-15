@@ -103,7 +103,7 @@ const StockAdjustmentsHistoryPage: React.FC = () => {
         actions={
           <Button
             variant="outline"
-            onClick={() => navigate(`${basePath}/inventory/stock-adjustments`)}
+            onClick={() => navigate(`${basePath}/stock-adjustments`)}
           >
             ← Điều chỉnh tồn kho
           </Button>

@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { PageHeader, Input, Button, Card, Select } from "../../../../components/ui/Primitives";
+import {
+  PageHeader,
+  Input,
+  Button,
+  Card,
+  Select,
+} from "../../../../components/ui/Primitives";
 import { customersService } from "../../../../services/customers.service";
 import { toast } from "sonner";
 
@@ -16,7 +22,9 @@ const AddCustomerPage: React.FC = () => {
     address: "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -40,7 +48,7 @@ const AddCustomerPage: React.FC = () => {
         password,
       });
       toast.success("Đã thêm khách hàng");
-      navigate("/resources/customers");
+      navigate("/customers");
     } catch (error) {
       console.error(error);
       toast.error("Đã có lỗi xảy ra khi thêm khách hàng");
@@ -153,7 +161,11 @@ const AddCustomerPage: React.FC = () => {
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-[#eeeee9]">
-            <Button type="button" variant="outline" onClick={() => navigate("/resources/customers")}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate("/customers")}
+            >
               Hủy
             </Button>
             <Button type="submit" variant="primary" disabled={loading}>

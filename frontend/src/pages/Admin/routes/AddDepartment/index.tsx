@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { PageHeader, Input, Button, Card } from "../../../../components/ui/Primitives";
+import {
+  PageHeader,
+  Input,
+  Button,
+  Card,
+} from "../../../../components/ui/Primitives";
 import { departmentsService } from "../../../../services/departments.service";
 import type { Department } from "../Departments/type";
 import { toast } from "sonner";
@@ -24,7 +29,7 @@ const AddDepartmentPage: React.FC = () => {
     try {
       await departmentsService.createDepartment(formData);
       toast.success("Đã thêm phòng ban thành công");
-      navigate("/resources/departments");
+      navigate("/departments");
     } catch (error) {
       console.error(error);
       toast.error("Đã có lỗi xảy ra khi thêm phòng ban");
@@ -71,7 +76,11 @@ const AddDepartmentPage: React.FC = () => {
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-[#eeeee9]">
-            <Button type="button" variant="outline" onClick={() => navigate("/resources/departments")}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate("/departments")}
+            >
               Hủy
             </Button>
             <Button type="submit" variant="primary" disabled={loading}>

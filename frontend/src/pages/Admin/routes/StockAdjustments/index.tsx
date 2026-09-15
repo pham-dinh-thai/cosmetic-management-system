@@ -145,18 +145,18 @@ const StockAdjustmentsPage: React.FC = () => {
     <div className="flex flex-col gap-8 max-w-[1000px] mx-auto">
       <PageHeader
         eyebrow="Quản lý / Kho"
-        title="Xử lý tồn kho"
+        title="Điều chỉnh tồn kho"
         description="Điều chỉnh số lượng lô hàng (hư hỏng, lỗi, hết hạn, tồn dư)."
         actions={
           <div className="flex gap-3">
             <Button
               variant="outline"
-              onClick={() => navigate(`${basePath}/inventory/stock-adjustments/history`)}
+              onClick={() => navigate(`${basePath}/stock-adjustments/history`)}
             >
               Lịch sử điều chỉnh
             </Button>
             <Button variant="outline" onClick={() => navigate(`${basePath}/inventory`)}>
-              ← Về tồn kho
+              ← Về kho
             </Button>
           </div>
         }

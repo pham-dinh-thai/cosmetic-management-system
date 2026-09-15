@@ -86,7 +86,7 @@ const AddEmployeePage: React.FC = () => {
         roleId,
       });
       toast.success("Đã thêm nhân viên thành công");
-      navigate("/resources/employees");
+      navigate("/employees");
     } catch (error) {
       console.error(error);
       const message = extractApiMessage(error);
@@ -289,7 +289,7 @@ const AddEmployeePage: React.FC = () => {
             <Button
               type="button"
               variant="outline"
-              onClick={() => navigate("/resources/employees")}
+              onClick={() => navigate("/employees")}
             >
               Hủy
             </Button>
