@@ -1,6 +1,6 @@
 import { OrderTransaction } from '../../../domain/entities/order-transaction.entity';
 import { OrderNotFoundException } from '../../../domain/exceptions/order-not-found.exception';
-import { IPublishOrderCompletedPort } from '../../../domain/ports/publish-order-completed.port';
+import { ICreateInvoicePort } from '../../../domain/ports/create-invoice.port';
 import { IOrdersRepository } from '../../../domain/repositories/orders.repository';
 import { IOrderTransactionsRepository } from '../../../domain/repositories/order-transactions.repository';
 
@@ -8,7 +8,7 @@ export class CompleteOrderUseCase {
   public constructor(
     private readonly ordersRepository: IOrdersRepository,
     private readonly orderTransactionsRepository: IOrderTransactionsRepository,
-    private readonly publishOrderCompletedPort: IPublishOrderCompletedPort,
+    private readonly createInvoicePort: ICreateInvoicePort,
   ) {}
 
   public async execute(
@@ -44,13 +44,13 @@ export class CompleteOrderUseCase {
 
     await this.orderTransactionsRepository.saveMany(transactions);
 
-    await this.publishOrderCompletedPort.execute({
-      event: 'order.completed',
+    await this.createInvoicePort.execute({
       orderId: order.getId(),
       code: order.getCode(),
       customerId: order.getCustomerId(),
       totalAmount: order.getTotalAmount(),
-      occurredAt: new Date().toISOString(),
+      paid: false,
+      employeeId,
     });
 
     return { id };
@@ -60,10 +60,10 @@ export class CompleteOrderUseCase {
 export const completeOrderUseCaseFactory = (
   ordersRepository: IOrdersRepository,
   orderTransactionsRepository: IOrderTransactionsRepository,
-  publishOrderCompletedPort: IPublishOrderCompletedPort,
+  createInvoicePort: ICreateInvoicePort,
 ): CompleteOrderUseCase =>
   new CompleteOrderUseCase(
     ordersRepository,
     orderTransactionsRepository,
-    publishOrderCompletedPort,
+    createInvoicePort,
   );

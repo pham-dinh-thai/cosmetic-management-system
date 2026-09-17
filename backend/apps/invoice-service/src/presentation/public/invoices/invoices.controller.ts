@@ -10,7 +10,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard, Role, Roles, RolesGuard } from '@app/security';
+import { AuthGuard, Departments, OrgGuard, Role, Roles } from '@app/security';
 import { FindAllInvoicesUseCase } from 'apps/invoice-service/src/application/use-cases/find-all-invoices/find-all-invoices.use-case';
 import { FindInvoiceByIdUseCase } from 'apps/invoice-service/src/application/use-cases/find-invoice-by-id/find-invoice-by-id.use-case';
 import { RecordPaymentUseCase } from 'apps/invoice-service/src/application/use-cases/record-payment/record-payment.use-case';
@@ -23,8 +23,9 @@ import {
   UpdateInvoiceRequest,
 } from './requests/invoice.requests';
 
-@UseGuards(AuthGuard, RolesGuard)
-@Roles(Role.Admin)
+@UseGuards(AuthGuard, OrgGuard)
+@Roles(Role.Admin, Role.Employee)
+@Departments('accounting', 'accountant')
 @Controller('invoices')
 export class InvoicesController {
   public constructor(

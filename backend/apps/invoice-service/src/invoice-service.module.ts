@@ -4,13 +4,14 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { PostgreSqlDriver } from '@mikro-orm/postgresql';
-import { RabbitmqModule } from '@app/rabbitmq';
 import { Invoice } from './infrastructure/entities/invoice.entity';
 import { InvoicesController } from './presentation/public/invoices/invoices.controller';
+import { InternalInvoicesController } from './presentation/internal/invoices/internal-invoices.controller';
 import { DomainErrorFilter } from './presentation/filters/domain-error.filter';
 import { INVOICES_REPOSITORY } from './domain/repositories/invoices.repository';
+import { CREATE_RECEIPT_PORT } from './domain/ports/create-receipt.port';
 import { MikroInvoicesRepository } from './infrastructure/repositories/mikro-invoices.repository';
-import { OrderCompletedConsumer } from './infrastructure/events/order-completed.consumer';
+import { CreateReceiptAdapter } from './infrastructure/adapters/create-receipt.adapter';
 import {
   CreateInvoiceFromOrderUseCase,
   createInvoiceFromOrderUseCaseFactory,
@@ -42,7 +43,6 @@ import {
       envFilePath: '../.env',
       isGlobal: true,
     }),
-    RabbitmqModule,
     MikroOrmModule.forRootAsync({
       driver: PostgreSqlDriver,
       useFactory: (config: ConfigService) => ({
@@ -64,7 +64,7 @@ import {
       inject: [ConfigService],
     }),
   ],
-  controllers: [InvoicesController],
+  controllers: [InvoicesController, InternalInvoicesController],
   providers: [
     {
       provide: APP_FILTER,
@@ -75,9 +75,14 @@ import {
       useClass: MikroInvoicesRepository,
     },
     {
+      provide: CREATE_RECEIPT_PORT,
+      useFactory: (config: ConfigService) => new CreateReceiptAdapter(config),
+      inject: [ConfigService],
+    },
+    {
       provide: CreateInvoiceFromOrderUseCase,
       useFactory: createInvoiceFromOrderUseCaseFactory,
-      inject: [INVOICES_REPOSITORY],
+      inject: [INVOICES_REPOSITORY, CREATE_RECEIPT_PORT],
     },
     {
       provide: FindAllInvoicesUseCase,
@@ -92,7 +97,7 @@ import {
     {
       provide: RecordPaymentUseCase,
       useFactory: recordPaymentUseCaseFactory,
-      inject: [INVOICES_REPOSITORY],
+      inject: [INVOICES_REPOSITORY, CREATE_RECEIPT_PORT],
     },
     {
       provide: UpdateInvoiceUseCase,
@@ -104,7 +109,6 @@ import {
       useFactory: deleteInvoiceUseCaseFactory,
       inject: [INVOICES_REPOSITORY],
     },
-    OrderCompletedConsumer,
   ],
 })
 export class InvoiceServiceModule {}

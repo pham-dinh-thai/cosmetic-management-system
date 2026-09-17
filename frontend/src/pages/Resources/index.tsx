@@ -24,6 +24,9 @@ const PAGE_TITLES: Record<ResourcePageKey, string> = {
   purchase: "Nhập hàng",
   inventory: "Kho",
   "stock-adjustments": "Điều chỉnh kho",
+  receipts: "Phiếu thu",
+  payments: "Phiếu chi",
+  invoices: "Công nợ",
   pos: "Bán hàng",
 };
 
@@ -58,6 +61,15 @@ const ADMIN_SECTIONS: (active: ResourcePageKey) => SidebarSection[] = (
         label: "Điều chỉnh kho",
         active: active === "stock-adjustments",
       },
+    ],
+  },
+  {
+    id: "accounting",
+    title: "Thu chi",
+    items: [
+      { id: "invoices", label: "Công nợ", active: active === "invoices" },
+      { id: "receipts", label: "Phiếu thu", active: active === "receipts" },
+      { id: "payments", label: "Phiếu chi", active: active === "payments" },
     ],
   },
   {
@@ -133,6 +145,28 @@ const buildEmployeeSections = (
       id: "sales",
       title: "Bán hàng",
       items: [{ id: "pos", label: "Tạo hoá đơn", active: active === "pos" }],
+    });
+  }
+
+  if (
+    accessible.includes("receipts") ||
+    accessible.includes("payments") ||
+    accessible.includes("invoices")
+  ) {
+    sections.push({
+      id: "accounting",
+      title: "Thu chi",
+      items: [
+        ...(accessible.includes("invoices")
+          ? [{ id: "invoices", label: "Công nợ", active: active === "invoices" }]
+          : []),
+        ...(accessible.includes("receipts")
+          ? [{ id: "receipts", label: "Phiếu thu", active: active === "receipts" }]
+          : []),
+        ...(accessible.includes("payments")
+          ? [{ id: "payments", label: "Phiếu chi", active: active === "payments" }]
+          : []),
+      ],
     });
   }
 

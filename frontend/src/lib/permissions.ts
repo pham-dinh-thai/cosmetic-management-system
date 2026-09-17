@@ -1,7 +1,11 @@
 import type { ResourcePageKey } from "./resourcePath";
 import type { UserProfile } from "../store/useAuthStore";
 
-export type DepartmentCode = "sales" | "warehouse";
+export type DepartmentCode =
+  | "sales"
+  | "warehouse"
+  | "accounting"
+  | "accountant";
 
 export const SALES_EMPLOYEE_PAGES: ResourcePageKey[] = [
   "orders",
@@ -17,6 +21,12 @@ export const WAREHOUSE_EMPLOYEE_PAGES: ResourcePageKey[] = [
   "stock-adjustments",
 ];
 
+export const ACCOUNTING_EMPLOYEE_PAGES: ResourcePageKey[] = [
+  "receipts",
+  "payments",
+  "invoices",
+];
+
 export const ADMIN_PAGES: ResourcePageKey[] = [
   "overview",
   "orders",
@@ -29,6 +39,9 @@ export const ADMIN_PAGES: ResourcePageKey[] = [
   "purchase",
   "inventory",
   "stock-adjustments",
+  "receipts",
+  "payments",
+  "invoices",
 ];
 
 export function isAdmin(user: UserProfile | null): boolean {
@@ -69,6 +82,9 @@ export function getAccessibleEmployeePages(
       return SALES_EMPLOYEE_PAGES;
     case "warehouse":
       return WAREHOUSE_EMPLOYEE_PAGES;
+    case "accounting":
+    case "accountant":
+      return ACCOUNTING_EMPLOYEE_PAGES;
     default:
       return [];
   }
@@ -83,6 +99,9 @@ export function getEmployeeLandingPath(user: UserProfile | null): string {
       return "/products";
     case "warehouse":
       return "/suppliers";
+    case "accounting":
+    case "accountant":
+      return "/receipts";
     default:
       return "/pos";
   }
@@ -97,6 +116,9 @@ export function getEmployeeRoleTitle(user: UserProfile | null): string {
       return "Nhân viên Sales";
     case "warehouse":
       return "Nhân viên Kho";
+    case "accounting":
+    case "accountant":
+      return "Nhân viên Kế toán";
     default:
       return "Employee";
   }

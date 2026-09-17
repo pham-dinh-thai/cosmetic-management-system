@@ -126,15 +126,6 @@
         "tsConfigPath": "apps/purchase-service/tsconfig.app.json"
       }
     },
-    "rabbitmq": {
-      "type": "library",
-      "root": "libs/rabbitmq",
-      "entryFile": "index",
-      "sourceRoot": "libs/rabbitmq/src",
-      "compilerOptions": {
-        "tsConfigPath": "libs/rabbitmq/tsconfig.lib.json"
-      }
-    },
     "security": {
       "type": "library",
       "root": "libs/security",
@@ -169,6 +160,15 @@
       "sourceRoot": "apps/storage-service/src",
       "compilerOptions": {
         "tsConfigPath": "apps/storage-service/tsconfig.app.json"
+      }
+    },
+    "receipt-service": {
+      "type": "application",
+      "root": "apps/receipt-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/receipt-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/receipt-service/tsconfig.app.json"
       }
     }
   }

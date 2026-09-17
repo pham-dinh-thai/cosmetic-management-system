@@ -1,7 +1,7 @@
 -- ============================================================================
 -- HE THONG QUAN LY MY PHAM - SCRIPT CO SO DU LIEU (SCHEMA)
 -- Backend: NestJS + MikroORM + PostgreSQL
--- File nay mo ta TOAN BO cau truc 13 database nghiep vu (I..XII):
+-- File nay mo ta TOAN BO cau truc 13 database nghiep vu (I..XIII):
 --   Primary Key, Foreign Key, Unique constraint, Check constraint, Not Null, Default.
 -- ============================================================================
 
@@ -457,4 +457,55 @@ ALTER TABLE ONLY public.invoices
 
 ALTER TABLE ONLY public.invoices
     ADD CONSTRAINT invoices_pkey PRIMARY KEY (id);
+
+-- ============================================================================
+-- XIII. THU CHI (RECEIPT / PAYMENT)
+-- Database: cosmetic_receipt_service
+-- ============================================================================
+
+CREATE TABLE public.receipts (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    code character varying(255) NOT NULL,
+    amount numeric(12,2) DEFAULT 0 NOT NULL,
+    source text DEFAULT 'MANUAL'::text NOT NULL,
+    invoice_id character varying(255),
+    customer_id character varying(255),
+    note character varying(255),
+    employee_id character varying(255),
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    CONSTRAINT receipts_amount_check CHECK ((amount >= (0)::numeric)),
+    CONSTRAINT receipts_source_check CHECK ((source = ANY (ARRAY['MANUAL'::text, 'AUTO_INVOICE_PAYMENT'::text])))
+);
+
+CREATE TABLE public.payments (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    code character varying(255) NOT NULL,
+    amount numeric(12,2) DEFAULT 0 NOT NULL,
+    category text DEFAULT 'OTHER'::text NOT NULL,
+    source text DEFAULT 'MANUAL'::text NOT NULL,
+    purchase_order_id character varying(255),
+    supplier_id character varying(255),
+    note character varying(255),
+    employee_id character varying(255),
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    CONSTRAINT payments_amount_check CHECK ((amount >= (0)::numeric)),
+    CONSTRAINT payments_category_check CHECK ((category = ANY (ARRAY['SUPPLIER'::text, 'SALARY'::text, 'INFRASTRUCTURE'::text, 'MATERIAL'::text, 'OTHER'::text]))),
+    CONSTRAINT payments_source_check CHECK ((source = ANY (ARRAY['MANUAL'::text, 'AUTO_PURCHASE'::text])))
+);
+
+-- ---- Constraints (PRIMARY KEY, UNIQUE, FOREIGN KEY) ----
+
+ALTER TABLE ONLY public.receipts
+    ADD CONSTRAINT receipts_code_unique UNIQUE (code);
+
+ALTER TABLE ONLY public.receipts
+    ADD CONSTRAINT receipts_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.payments
+    ADD CONSTRAINT payments_code_unique UNIQUE (code);
+
+ALTER TABLE ONLY public.payments
+    ADD CONSTRAINT payments_pkey PRIMARY KEY (id);
 

@@ -4,7 +4,7 @@ Hệ thống quản lý bán mỹ phẩm theo kiến trúc **microservices**:
 
 - **Backend**: NestJS + MikroORM (PostgreSQL).
 - **Frontend**: React 19 + Vite + Tailwind CSS.
-- **Hạ tầng**: Docker Compose (PostgreSQL 16, RabbitMQ, Nginx proxy).
+- **Hạ tầng**: Docker Compose (PostgreSQL 16, Nginx proxy). Các service giao tiếp nội bộ bằng **orchestration (HTTP call)**.
 
 ## Cấu trúc thư mục
 
@@ -24,7 +24,8 @@ backend/                 # toàn bộ backend (monorepo NestJS)
     inventory-service/   # Tồn kho / lô
     purchase-service/    # Phiếu nhập
     order-service/       # Đơn hàng
-    invoice-service/     # Hóa đơn
+    invoice-service/     # Hóa đơn (công nợ)
+    receipt-service/     # Thu chi (phiếu thu / phiếu chi)
     basket-service/      # Giỏ hàng
     storage-service/     # Upload file
 frontend/                # React app
@@ -35,6 +36,18 @@ docs/                    # Tài liệu kiến trúc
 docker-compose.yaml      # Định nghĩa toàn bộ hệ thống
 .env.example             # Mẫu biến môi trường
 ```
+
+## Chức năng chính
+
+- **Đăng nhập / phân quyền**: xác thực JWT, vai trò Admin/Employee/Customer, phân quyền theo **phòng ban** (`sales`, `warehouse`, `accounting`).
+- **Danh mục**: khách hàng, nhân viên, phòng ban, nhà cung cấp, sản phẩm, danh mục mỹ phẩm.
+- **Mua hàng**: phiếu nhập, chi tiết phiếu nhập, nhập kho theo lô, hoàn tất phiếu nhập và **tự động sinh phiếu chi**.
+- **Bán hàng**: POS tạo hóa đơn, chi tiết đơn hàng, hóa đơn & **công nợ**.
+- **Kho**: tồn kho theo lô, điều chỉnh kho, lịch sử điều chỉnh.
+- **Thu chi** (`receipt-service`): **phiếu thu** và **phiếu chi**.
+  - Phiếu thu: nhập thủ công hoặc **tự động sinh khi khách thanh toán hóa đơn** (ghi nhận công nợ).
+  - Phiếu chi: nhập thủ công (phân loại `supplier`, `salary`, `infrastructure`, `material`, `other`) hoặc **tự động sinh khi hoàn tất phiếu nhập**.
+- **Báo cáo**: doanh thu, tồn kho, tổng quan.
 
 ## Yêu cầu
 
@@ -72,7 +85,7 @@ docker-compose.yaml      # Định nghĩa toàn bộ hệ thống
    ```
 
    Luồng khởi động được tự động hóa:
-   - `postgres` khởi tạo 14 user/database theo `.env`.
+   - `postgres` khởi tạo 15 user/database theo `.env`.
    - `sync-users` đồng bộ quyền (GRANT) giữa các database.
    - `migration` chạy MikroORM migrations cho từng service.
    - Các service backend + `gateway-service` + `frontend` + `nginx` lần lượt đi lên.
@@ -118,10 +131,9 @@ docker compose logs -f cosmetic-service   # xem log 1 service
 | Ứng dụng web        | http://localhost/                          |
 | API Gateway         | http://localhost:3000                      |
 | Swagger API         | http://localhost:3000/api/docs             |
-| RabbitMQ Management | http://localhost:15672 (`guest` / `guest`) |
 | PostgreSQL          | `localhost:5432`                           |
 
-Các service backend cũng được expose trực tiếp trên cổng riêng (3001–3015), tuy nhiên mọi luồng chuẩn nên đi qua Gateway (`/api/...` trên cổng 3000 hoặc 80).
+Các service backend cũng được expose trực tiếp trên cổng riêng (3001–3016), tuy nhiên mọi luồng chuẩn nên đi qua Gateway (`/api/...` trên cổng 3000 hoặc 80).
 
 ## Phát triển local (dev mode)
 
