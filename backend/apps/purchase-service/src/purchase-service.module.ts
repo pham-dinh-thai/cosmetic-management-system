@@ -10,9 +10,11 @@ import { PurchaseOrdersController } from './presentation/public/purchase-orders/
 import { DomainErrorFilter } from './presentation/filters/domain-error.filter';
 import { PURCHASE_ORDERS_REPOSITORY } from './domain/repositories/purchase-orders.repository';
 import { ADD_STOCK_PORT } from './domain/ports/add-stock.port';
+import { CREATE_PAYMENT_PORT } from './domain/ports/create-payment.port';
 import { RECEIPT_ENRICHMENT_PORT } from './domain/ports/receipt-enrichment.port';
 import { MikroPurchaseOrdersRepository } from './infrastructure/repositories/mikro-purchase-orders.repository';
 import { AddStockAdapter } from './infrastructure/adapters/add-stock.adapter';
+import { CreatePaymentAdapter } from './infrastructure/adapters/create-payment.adapter';
 import { ReceiptEnrichmentAdapter } from './infrastructure/adapters/receipt-enrichment.adapter';
 import {
   CreatePurchaseOrderUseCase,
@@ -101,6 +103,11 @@ import { PurchaseTransaction } from './infrastructure/entities/purchase-transact
       inject: [ConfigService],
     },
     {
+      provide: CREATE_PAYMENT_PORT,
+      useFactory: (config: ConfigService) => new CreatePaymentAdapter(config),
+      inject: [ConfigService],
+    },
+    {
       provide: PURCHASE_ORDERS_REPOSITORY,
       useClass: MikroPurchaseOrdersRepository,
     },
@@ -135,6 +142,7 @@ import { PurchaseTransaction } from './infrastructure/entities/purchase-transact
         PURCHASE_ORDERS_REPOSITORY,
         ADD_STOCK_PORT,
         PURCHASE_TRANSACTIONS_REPOSITORY,
+        CREATE_PAYMENT_PORT,
       ],
     },
     {

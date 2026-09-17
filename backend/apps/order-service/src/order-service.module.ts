@@ -4,7 +4,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { PostgreSqlDriver } from '@mikro-orm/postgresql';
-import { RabbitmqModule, RabbitmqService } from '@app/rabbitmq';
 import { Order } from './infrastructure/entities/order.entity';
 import { OrderLine } from './infrastructure/entities/order-line.entity';
 import { OrderTransaction } from './infrastructure/entities/order-transaction.entity';
@@ -17,11 +16,11 @@ import { DomainErrorFilter } from './presentation/filters/domain-error.filter';
 import { ORDERS_REPOSITORY } from './domain/repositories/orders.repository';
 import { ORDER_TRANSACTIONS_REPOSITORY } from './domain/repositories/order-transactions.repository';
 import { REMOVE_STOCK_PORT } from './domain/ports/remove-stock.port';
-import { PUBLISH_ORDER_COMPLETED_PORT } from './domain/ports/publish-order-completed.port';
+import { CREATE_INVOICE_PORT } from './domain/ports/create-invoice.port';
 import { MikroOrdersRepository } from './infrastructure/repositories/mikro-orders.repository';
 import { MikroOrderTransactionsRepository } from './infrastructure/repositories/mikro-order-transactions.repository';
 import { RemoveStockAdapter } from './infrastructure/adapters/remove-stock.adapter';
-import { OrderCompletedPublisherAdapter } from './infrastructure/adapters/order-completed-publisher.adapter';
+import { CreateInvoiceAdapter } from './infrastructure/adapters/create-invoice.adapter';
 import { VariantsReaderAdapter } from './infrastructure/adapters/variants-reader.adapter';
 import { ReverseInventoryAdapter } from './infrastructure/adapters/reverse-inventory.adapter';
 import { DecreaseCartLineQuantityAdapter } from './infrastructure/adapters/decrease-cart-line-quantity.adapter';
@@ -89,7 +88,6 @@ import { ORDER_LOGGER_PORT } from './application/ports/employee-logger.port';
       envFilePath: '../.env',
       isGlobal: true,
     }),
-    RabbitmqModule,
     MikroOrmModule.forRootAsync({
       driver: PostgreSqlDriver,
       useFactory: (config: ConfigService) => ({
@@ -128,10 +126,9 @@ import { ORDER_LOGGER_PORT } from './application/ports/employee-logger.port';
       inject: [ConfigService],
     },
     {
-      provide: PUBLISH_ORDER_COMPLETED_PORT,
-      useFactory: (rabbitmq: RabbitmqService) =>
-        new OrderCompletedPublisherAdapter(rabbitmq),
-      inject: [RabbitmqService],
+      provide: CREATE_INVOICE_PORT,
+      useFactory: (config: ConfigService) => new CreateInvoiceAdapter(config),
+      inject: [ConfigService],
     },
     {
       provide: VARIANT_READER_PORT,
@@ -204,7 +201,7 @@ import { ORDER_LOGGER_PORT } from './application/ports/employee-logger.port';
       inject: [
         ORDERS_REPOSITORY,
         ORDER_TRANSACTIONS_REPOSITORY,
-        PUBLISH_ORDER_COMPLETED_PORT,
+        CREATE_INVOICE_PORT,
       ],
     },
     {
@@ -228,6 +225,7 @@ import { ORDER_LOGGER_PORT } from './application/ports/employee-logger.port';
         REMOVE_STOCK_PORT,
         REVERSE_INVENTORY_PORT,
         ORDER_LOGGER_PORT,
+        CREATE_INVOICE_PORT,
       ],
     },
     {

@@ -1,6 +1,7 @@
 import { PurchaseTransaction } from '../../../domain/entities/purchase-transaction.entity';
 import { PurchaseOrderNotFoundException } from '../../../domain/exceptions/purchase-order-not-found.exception';
 import { IAddStockPort } from '../../../domain/ports/add-stock.port';
+import { ICreatePaymentPort } from '../../../domain/ports/create-payment.port';
 import { IPurchaseOrdersRepository } from '../../../domain/repositories/purchase-orders.repository';
 import { IPurchaseTransactionsRepository } from '../../../domain/repositories/purchase-transactions.repository';
 
@@ -9,6 +10,7 @@ export class CompletePurchaseOrderUseCase {
     private readonly purchaseOrdersRepository: IPurchaseOrdersRepository,
     private readonly addStockPort: IAddStockPort,
     private readonly purchaseTransactionsRepository: IPurchaseTransactionsRepository,
+    private readonly createPaymentPort: ICreatePaymentPort,
   ) {}
 
   public async execute(
@@ -25,6 +27,13 @@ export class CompletePurchaseOrderUseCase {
       purchaseOrder.getStatus() === 'COMPLETED' &&
       (await this.purchaseTransactionsRepository.existsByPurchaseOrderId(id))
     ) {
+      await this.createPaymentIfNeeded(
+        purchaseOrder.getId(),
+        purchaseOrder.getSupplierId(),
+        purchaseOrder.getTotalAmount(),
+        employeeId,
+      );
+
       return { id };
     }
 
@@ -94,7 +103,32 @@ export class CompletePurchaseOrderUseCase {
       throw error;
     }
 
+    await this.createPaymentIfNeeded(
+      purchaseOrder.getId(),
+      purchaseOrder.getSupplierId(),
+      purchaseOrder.getTotalAmount(),
+      employeeId,
+    );
+
     return { id };
+  }
+
+  private async createPaymentIfNeeded(
+    purchaseOrderId: string,
+    supplierId: string,
+    totalAmount: number,
+    employeeId: string,
+  ): Promise<void> {
+    if (totalAmount <= 0) {
+      return;
+    }
+
+    await this.createPaymentPort.execute({
+      purchaseOrderId,
+      supplierId,
+      amount: totalAmount,
+      employeeId,
+    });
   }
 }
 
@@ -102,9 +136,11 @@ export const completePurchaseOrderUseCaseFactory = (
   purchaseOrdersRepository: IPurchaseOrdersRepository,
   addStockPort: IAddStockPort,
   purchaseTransactionsRepository: IPurchaseTransactionsRepository,
+  createPaymentPort: ICreatePaymentPort,
 ): CompletePurchaseOrderUseCase =>
   new CompletePurchaseOrderUseCase(
     purchaseOrdersRepository,
     addStockPort,
     purchaseTransactionsRepository,
+    createPaymentPort,
   );

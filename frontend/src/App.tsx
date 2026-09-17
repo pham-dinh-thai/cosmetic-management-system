@@ -46,6 +46,9 @@ import InventoryDetailPage from "./pages/Admin/routes/InventoryDetail";
 import ImportPurchaseOrderPage from "./pages/Admin/routes/ImportPurchaseOrder";
 import StockAdjustmentsPage from "./pages/Admin/routes/StockAdjustments";
 import StockAdjustmentsHistoryPage from "./pages/Admin/routes/StockAdjustmentsHistory";
+import ReceiptsPage from "./pages/Admin/routes/Receipts";
+import PaymentsPage from "./pages/Admin/routes/Payments";
+import InvoicesPage from "./pages/Admin/routes/Invoices";
 import OrdersPage from "./pages/Admin/routes/Orders";
 import PosPage from "./pages/Employee/routes/POS";
 
@@ -101,6 +104,9 @@ function App() {
             <Route path="/inventory/import" element={<ImportPurchaseOrderPage />} />
             <Route path="/stock-adjustments" element={<StockAdjustmentsPage />} />
             <Route path="/stock-adjustments/history" element={<StockAdjustmentsHistoryPage />} />
+            <Route path="/receipts" element={<ReceiptsPage />} />
+            <Route path="/payments" element={<PaymentsPage />} />
+            <Route path="/invoices" element={<InvoicesPage />} />
             <Route path="/inventory/add" element={<AddInventoryPage />} />
             <Route path="/inventory/:id/edit" element={<EditInventoryPage />} />
             <Route path="/inventory/:id" element={<InventoryDetailPage />} />

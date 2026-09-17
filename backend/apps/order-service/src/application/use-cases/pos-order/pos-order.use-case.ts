@@ -1,6 +1,7 @@
 import { Order } from 'apps/order-service/src/domain/order.aggregate';
 import { IOrdersRepository } from 'apps/order-service/src/domain/repositories/orders.repository';
 import { IRemoveStockPort } from 'apps/order-service/src/domain/ports/remove-stock.port';
+import { ICreateInvoicePort } from 'apps/order-service/src/domain/ports/create-invoice.port';
 import { OrderCode } from 'apps/order-service/src/domain/value-objects/order-code.value-object';
 import type { IOrderLoggerPort } from '../../ports/employee-logger.port';
 import type { IVariantsReaderPort } from '../place-order/ports/variants-reader.port';
@@ -26,6 +27,7 @@ export class PosOrderUseCase {
     private readonly removeStockPort: IRemoveStockPort,
     private readonly reverseInventoryPort: IReverseInventoryPort,
     private readonly orderLoggerPort: IOrderLoggerPort,
+    private readonly createInvoicePort: ICreateInvoicePort,
   ) {}
 
   public async execute(request: IPosOrderRequest): Promise<{
@@ -59,6 +61,14 @@ export class PosOrderUseCase {
     await this.deductStock(order);
 
     const { id } = await this.ordersRepository.create(order);
+
+    await this.createInvoicePort.execute({
+      orderId: id,
+      code: order.getCode(),
+      customerId: order.getCustomerId(),
+      totalAmount: order.getTotalAmount(),
+      paid: true,
+    });
 
     return {
       id,
@@ -113,6 +123,7 @@ export const posOrderUseCaseFactory = (
   removeStockPort: IRemoveStockPort,
   reverseInventoryPort: IReverseInventoryPort,
   orderLoggerPort: IOrderLoggerPort,
+  createInvoicePort: ICreateInvoicePort,
 ): PosOrderUseCase =>
   new PosOrderUseCase(
     ordersRepository,
@@ -120,4 +131,5 @@ export const posOrderUseCaseFactory = (
     removeStockPort,
     reverseInventoryPort,
     orderLoggerPort,
+    createInvoicePort,
   );

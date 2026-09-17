@@ -48,6 +48,9 @@ services:
       BASKET_DB_USER: ${BASKET_DB_USER}
       BASKET_DB_PASSWORD: ${BASKET_DB_PASSWORD}
       BASKET_DB_NAME: ${BASKET_DB_NAME}
+      RECEIPT_DB_USER: ${RECEIPT_DB_USER}
+      RECEIPT_DB_PASSWORD: ${RECEIPT_DB_PASSWORD}
+      RECEIPT_DB_NAME: ${RECEIPT_DB_NAME}
     ports:
       - "5432:5432"
     volumes:
@@ -106,6 +109,9 @@ services:
       INVOICE_DB_NAME: ${INVOICE_DB_NAME}
       INVOICE_DB_USER: ${INVOICE_DB_USER}
       INVOICE_DB_PASSWORD: ${INVOICE_DB_PASSWORD}
+      RECEIPT_DB_NAME: ${RECEIPT_DB_NAME}
+      RECEIPT_DB_USER: ${RECEIPT_DB_USER}
+      RECEIPT_DB_PASSWORD: ${RECEIPT_DB_PASSWORD}
     volumes:
       - ./docker/postgres/sync-users.sh:/scripts/sync-users.sh:ro
     depends_on:
@@ -188,6 +194,11 @@ services:
       BASKET_DB_USER: ${BASKET_DB_USER}
       BASKET_DB_PASSWORD: ${BASKET_DB_PASSWORD}
       BASKET_DB_NAME: ${BASKET_DB_NAME}
+      RECEIPT_DB_HOST: ${RECEIPT_DB_HOST}
+      RECEIPT_DB_PORT: "${RECEIPT_DB_PORT}"
+      RECEIPT_DB_USER: ${RECEIPT_DB_USER}
+      RECEIPT_DB_PASSWORD: ${RECEIPT_DB_PASSWORD}
+      RECEIPT_DB_NAME: ${RECEIPT_DB_NAME}
     volumes:
       - ./docker/postgres/migrate.sh:/scripts/migrate.sh:ro
     depends_on:
@@ -219,18 +230,6 @@ services:
     depends_on:
       migration:
         condition: service_completed_successfully
-
-  rabbitmq:
-    image: rabbitmq:3-management-alpine
-    container_name: cosmetic-rabbitmq
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    healthcheck:
-      test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
 
   authentication-service:
     image: cosmetic-management-system-backend
@@ -425,6 +424,7 @@ services:
       SUPPLIER_SERVICE_URL: ${SUPPLIER_SERVICE_URL}
       COSMETIC_SERVICE_URL: ${COSMETIC_SERVICE_URL}
       USER_SERVICE_URL: ${USER_SERVICE_URL}
+      RECEIPT_SERVICE_URL: ${RECEIPT_SERVICE_URL}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
     ports:
       - "3011:3011"
@@ -446,15 +446,13 @@ services:
       COSMETIC_SERVICE_URL: ${COSMETIC_SERVICE_URL}
       EMPLOYEE_SERVICE_URL: ${EMPLOYEE_SERVICE_URL}
       BASKET_SERVICE_URL: ${BASKET_SERVICE_URL}
-      RABBITMQ_URL: ${RABBITMQ_URL}
+      INVOICE_SERVICE_URL: ${INVOICE_SERVICE_URL}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
     ports:
       - "3012:3012"
     depends_on:
       migration:
         condition: service_completed_successfully
-      rabbitmq:
-        condition: service_healthy
 
   invoice-service:
     image: cosmetic-management-system-backend
@@ -466,15 +464,30 @@ services:
       INVOICE_DB_USER: ${INVOICE_DB_USER}
       INVOICE_DB_PASSWORD: ${INVOICE_DB_PASSWORD}
       INVOICE_DB_NAME: ${INVOICE_DB_NAME}
-      RABBITMQ_URL: ${RABBITMQ_URL}
+      RECEIPT_SERVICE_URL: ${RECEIPT_SERVICE_URL}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
     ports:
       - "3013:3013"
     depends_on:
       migration:
         condition: service_completed_successfully
-      rabbitmq:
-        condition: service_healthy
+
+  receipt-service:
+    image: cosmetic-management-system-backend
+    pull_policy: never
+    command: ["node", "dist/apps/receipt-service/main.js"]
+    environment:
+      RECEIPT_DB_HOST: ${RECEIPT_DB_HOST}
+      RECEIPT_DB_PORT: "${RECEIPT_DB_PORT}"
+      RECEIPT_DB_USER: ${RECEIPT_DB_USER}
+      RECEIPT_DB_PASSWORD: ${RECEIPT_DB_PASSWORD}
+      RECEIPT_DB_NAME: ${RECEIPT_DB_NAME}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+    ports:
+      - "3016:3016"
+    depends_on:
+      migration:
+        condition: service_completed_successfully
 
   basket-service:
     image: cosmetic-management-system-backend
@@ -514,6 +527,7 @@ services:
       PURCHASE_SERVICE_URL: ${PURCHASE_SERVICE_URL}
       ORDER_SERVICE_URL: ${ORDER_SERVICE_URL}
       INVOICE_SERVICE_URL: ${INVOICE_SERVICE_URL}
+      RECEIPT_SERVICE_URL: ${RECEIPT_SERVICE_URL}
       BASKET_SERVICE_URL: ${BASKET_SERVICE_URL}
       STORAGE_SERVICE_URL: ${STORAGE_SERVICE_URL}
     ports:
@@ -529,6 +543,7 @@ services:
       - purchase-service
       - order-service
       - invoice-service
+      - receipt-service
       - basket-service
 
   frontend:
