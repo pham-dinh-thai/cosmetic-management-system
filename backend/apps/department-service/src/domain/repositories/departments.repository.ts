@@ -18,6 +18,9 @@ export interface IDepartmentsRepository {
   activate(id: string): Promise<void>;
 
   assignManager(department: Department): Promise<void>;
+
+  /** Xóa trưởng phòng ở tất cả phòng ban đang quản lý bởi employeeId. */
+  removeManagerByEmployee(employeeId: string): Promise<void>;
 }
 
 export const DEPARTMENTS_REPOSITORY = 'IDepartmentsRepository';

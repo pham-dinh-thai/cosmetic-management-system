@@ -58,6 +58,10 @@ export class Department {
     this.managerId = props.employeeId;
   }
 
+  public removeManager(): void {
+    this.managerId = undefined;
+  }
+
   public getId(): string {
     return this.id;
   }

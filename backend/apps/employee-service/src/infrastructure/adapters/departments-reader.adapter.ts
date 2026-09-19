@@ -16,7 +16,7 @@ export class DepartmentsReaderAdapter implements IDepartmentsReaderPort {
 
   public async findById(
     id: string,
-  ): Promise<{ id: string; managerId: string | null } | null> {
+  ): Promise<{ id: string; managerId: string | null; isActive: boolean } | null> {
     const response = await fetch(
       `${this.baseUrl}/api/internal/departments/${id}`,
     );
@@ -39,8 +39,16 @@ export class DepartmentsReaderAdapter implements IDepartmentsReaderPort {
       return null;
     }
 
-    const data = body as { id: string; managerId?: string | null };
+    const data = body as {
+      id: string;
+      managerId?: string | null;
+      isActive?: boolean;
+    };
 
-    return { id: data.id, managerId: data.managerId ?? null };
+    return {
+      id: data.id,
+      managerId: data.managerId ?? null,
+      isActive: data.isActive ?? true,
+    };
   }
 }

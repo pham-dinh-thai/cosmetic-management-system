@@ -3,11 +3,13 @@ import { IUpdateEmployeePositionRequest } from './update-employee-position.reque
 import { EmployeeNotFoundException } from 'apps/employee-service/src/domain/exceptions/employee-not-found.exception';
 import { DepartmentAlreadyHasManagerException } from 'apps/employee-service/src/domain/exceptions/department-already-has-manager.exception';
 import { IDepartmentsReaderPort } from 'apps/employee-service/src/application/ports/departments-reader.port';
+import { IDepartmentManagerPort } from 'apps/employee-service/src/application/ports/department-manager.port';
 
 export class UpdateEmployeePositionUseCase {
   public constructor(
     private readonly employeesRepository: IEmployeesRepository,
     private readonly departmentsReaderPort: IDepartmentsReaderPort,
+    private readonly departmentManagerPort: IDepartmentManagerPort,
   ) {}
 
   public async execute(
@@ -35,11 +37,22 @@ export class UpdateEmployeePositionUseCase {
     employee.updatePosition(request.position);
 
     await this.employeesRepository.updatePosition(employee);
+
+    // Nhân viên không còn là manager (hoặc bị giáng chức) thì không được
+    // giữ vai trò trưởng phòng.
+    if (request.position !== 'manager') {
+      await this.departmentManagerPort.unassignManager(employee.getId());
+    }
   }
 }
 
 export const updateEmployeePositionUseCaseFactory = (
   employeesRepository: IEmployeesRepository,
   departmentsReaderPort: IDepartmentsReaderPort,
+  departmentManagerPort: IDepartmentManagerPort,
 ) =>
-  new UpdateEmployeePositionUseCase(employeesRepository, departmentsReaderPort);
+  new UpdateEmployeePositionUseCase(
+    employeesRepository,
+    departmentsReaderPort,
+    departmentManagerPort,
+  );

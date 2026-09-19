@@ -127,7 +127,12 @@ import { PhoneValidationService } from './domain/services/phone-validation.servi
     {
       provide: CreateCustomerUseCase,
       useFactory: createCustomerUseCaseFactory,
-      inject: [CREATE_USER_PORT, CUSTOMERS_REPOSITORY, DELETE_USER_PORT],
+      inject: [
+        CREATE_USER_PORT,
+        CUSTOMERS_REPOSITORY,
+        DELETE_USER_PORT,
+        PhoneValidationService,
+      ],
     },
     {
       provide: UpdateCustomerUseCase,
@@ -136,6 +141,7 @@ import { PhoneValidationService } from './domain/services/phone-validation.servi
         CUSTOMERS_REPOSITORY,
         UPDATE_USER_INFORMATION_PORT,
         FIND_USER_INFORMATION_PORT,
+        PhoneValidationService,
       ],
     },
     {

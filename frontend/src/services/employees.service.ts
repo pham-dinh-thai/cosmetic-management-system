@@ -103,6 +103,8 @@ export const employeesService = {
       departmentId?: string;
       position?: string;
       gender?: string;
+      previousDepartmentId?: string;
+      previousPosition?: string;
     },
   ): Promise<void> {
     const { firstName, lastName } = splitName(payload.name || "");
@@ -117,13 +119,18 @@ export const employeesService = {
       address: payload.address || undefined,
     });
 
-    if (payload.departmentId) {
+    // Chỉ gọi PATCH khi giá trị thực sự thay đổi, tránh gửi lệnh thừa
+    // (ví dụ: đổi chức vụ manager -> manager) gây lỗi hiểu lầm.
+    if (
+      payload.departmentId &&
+      payload.departmentId !== payload.previousDepartmentId
+    ) {
       await api.patch<void>(`/employees/${id}/department`, {
         departmentId: payload.departmentId,
       });
     }
 
-    if (payload.position) {
+    if (payload.position && payload.position !== payload.previousPosition) {
       await api.patch<void>(`/employees/${id}/position`, {
         position: payload.position,
       });

@@ -8,6 +8,7 @@ import {
   Select,
 } from "../../../../components/ui/Primitives";
 import { customersService } from "../../../../services/customers.service";
+import { isValidMobilePhone } from "../../../../lib/validators";
 import { toast } from "sonner";
 
 const AddCustomerPage: React.FC = () => {
@@ -35,6 +36,12 @@ const AddCustomerPage: React.FC = () => {
     e.preventDefault();
     if (!formData.firstName.trim() || !formData.lastName.trim()) {
       toast.error("Vui lòng nhập đầy đủ họ và tên đệm lẫn tên riêng");
+      return;
+    }
+    if (formData.phone.trim() && !isValidMobilePhone(formData.phone)) {
+      toast.error(
+        "Số điện thoại không hợp lệ (phải là 10 số, bắt đầu 03/05/07/08/09)",
+      );
       return;
     }
     setLoading(true);
@@ -114,6 +121,8 @@ const AddCustomerPage: React.FC = () => {
             <Input
               name="phone"
               required
+              maxLength={10}
+              inputMode="numeric"
               value={formData.phone}
               onChange={handleChange}
               placeholder="Nhập số điện thoại..."

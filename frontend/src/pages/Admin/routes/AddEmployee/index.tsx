@@ -11,6 +11,7 @@ import { employeesService } from "../../../../services/employees.service";
 import { departmentsService } from "../../../../services/departments.service";
 import type { Department } from "../Departments/type";
 import type { Employee } from "../Employees/type";
+import { isValidMobilePhone } from "../../../../lib/validators";
 import { toast } from "sonner";
 
 function extractApiMessage(error: unknown): string | null {
@@ -72,12 +73,18 @@ const AddEmployeePage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.firstName.trim() && !formData.lastName.trim()) {
+      toast.error("Vui lòng nhập họ hoặc tên");
+      return;
+    }
+    if ((formData.phone || "").trim() && !isValidMobilePhone(formData.phone || "")) {
+      toast.error(
+        "Số điện thoại không hợp lệ (phải là 10 số, bắt đầu 03/05/07/08/09)",
+      );
+      return;
+    }
     setLoading(true);
     try {
-      if (!formData.firstName.trim() && !formData.lastName.trim()) {
-        toast.error("Vui lòng nhập họ hoặc tên");
-        return;
-      }
       const { firstName, lastName, ...rest } = formData;
       await employeesService.createEmployee({
         ...rest,
