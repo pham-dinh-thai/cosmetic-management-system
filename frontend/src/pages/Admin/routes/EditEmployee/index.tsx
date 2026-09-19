@@ -12,6 +12,7 @@ import { departmentsService } from "../../../../services/departments.service";
 import type { Department } from "../Departments/type";
 import type { Employee } from "../Employees/type";
 import { isValidMobilePhone } from "../../../../lib/validators";
+import { friendlyErrorMessage } from "../../../../lib/apiError";
 import { toast } from "sonner";
 
 const EditEmployeePage: React.FC = () => {
@@ -20,6 +21,8 @@ const EditEmployeePage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [departments, setDepartments] = useState<Department[]>([]);
+  const [initialDepartmentId, setInitialDepartmentId] = useState("");
+  const [initialPosition, setInitialPosition] = useState("");
   const [formData, setFormData] = useState<
     Partial<Employee> & { firstName: string; lastName: string }
   >({
@@ -69,6 +72,8 @@ const EditEmployeePage: React.FC = () => {
               ? new Date(data.hiredAt).toISOString().split("T")[0]
               : "",
           });
+          setInitialDepartmentId(data.departmentId || "");
+          setInitialPosition(data.position || "");
         })
         .catch((err) => {
           console.error(err);
@@ -110,12 +115,16 @@ const EditEmployeePage: React.FC = () => {
         name: [formData.firstName.trim(), formData.lastName.trim()]
           .filter(Boolean)
           .join(" "),
+        previousDepartmentId: initialDepartmentId,
+        previousPosition: initialPosition,
       });
       toast.success("Đã cập nhật nhân viên thành công");
       navigate("/employees");
     } catch (error) {
       console.error(error);
-      toast.error("Đã có lỗi xảy ra khi cập nhật nhân viên");
+      toast.error(
+        friendlyErrorMessage(error, "Đã có lỗi xảy ra khi cập nhật nhân viên"),
+      );
     } finally {
       setLoading(false);
     }
