@@ -11,6 +11,7 @@ import { employeesService } from "../../../../services/employees.service";
 import { departmentsService } from "../../../../services/departments.service";
 import type { Department } from "../Departments/type";
 import type { Employee } from "../Employees/type";
+import { isValidMobilePhone } from "../../../../lib/validators";
 import { toast } from "sonner";
 
 const EditEmployeePage: React.FC = () => {
@@ -95,6 +96,12 @@ const EditEmployeePage: React.FC = () => {
       toast.error("Vui lòng nhập họ hoặc tên");
       return;
     }
+    if ((formData.phone || "").trim() && !isValidMobilePhone(formData.phone || "")) {
+      toast.error(
+        "Số điện thoại không hợp lệ (phải là 10 số, bắt đầu 03/05/07/08/09)",
+      );
+      return;
+    }
 
     setLoading(true);
     try {
@@ -114,12 +121,17 @@ const EditEmployeePage: React.FC = () => {
     }
   };
 
-  const departmentOptions = departments.map((d) => ({
-    value: d.id,
-    label: d.name,
-  }));
+  const departmentOptions = departments
+    .filter((d) => d.isActive)
+    .map((d) => ({
+      value: d.id,
+      label: d.name,
+    }));
   const currentInOptions = departmentOptions.some(
     (o) => o.value === formData.departmentId,
+  );
+  const currentDepartment = departments.find(
+    (d) => d.id === formData.departmentId,
   );
   const allDepartmentOptions =
     formData.departmentId && !currentInOptions
@@ -127,7 +139,7 @@ const EditEmployeePage: React.FC = () => {
           ...departmentOptions,
           {
             value: formData.departmentId,
-            label: formData.departmentId,
+            label: currentDepartment ? currentDepartment.name : "Phòng ban đã đóng",
           },
         ]
       : departmentOptions;

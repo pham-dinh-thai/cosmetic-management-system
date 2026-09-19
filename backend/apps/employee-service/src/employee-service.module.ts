@@ -16,6 +16,8 @@ import {
 } from './application/use-cases/create-employee/create-employee.use-case';
 import { DEPARTMENTS_READER_PORT } from './application/ports/departments-reader.port';
 import { DepartmentsReaderAdapter } from './infrastructure/adapters/departments-reader.adapter';
+import { DEPARTMENT_MANAGER_PORT } from './application/ports/department-manager.port';
+import { DepartmentManagerAdapter } from './infrastructure/adapters/department-manager.adapter';
 import { UPDATE_USER_INFORMATION_PORT } from './application/use-cases/update-employee-information/ports/update-user-information.port';
 import { UpdateUserInformationAdapter } from './infrastructure/adapters/update-user-information.adapter';
 import { FIND_USER_INFORMATION_PORT } from './application/use-cases/update-employee-information/ports/find-user-information.port';
@@ -101,6 +103,12 @@ import {
         new DepartmentsReaderAdapter(config),
       inject: [ConfigService],
     },
+    {
+      provide: DEPARTMENT_MANAGER_PORT,
+      useFactory: (config: ConfigService) =>
+        new DepartmentManagerAdapter(config),
+      inject: [ConfigService],
+    },
     { provide: EMPLOYEES_REPOSITORY, useClass: MikroEmployeesRepository },
     {
       provide: CreateEmployeeUseCase,
@@ -148,17 +156,25 @@ import {
     {
       provide: AssignDepartmentToEmployeeUseCase,
       useFactory: assignDepartmentToEmployeeUseCaseFactory,
-      inject: [EMPLOYEES_REPOSITORY, DEPARTMENTS_READER_PORT],
+      inject: [
+        EMPLOYEES_REPOSITORY,
+        DEPARTMENTS_READER_PORT,
+        DEPARTMENT_MANAGER_PORT,
+      ],
     },
     {
       provide: DeleteEmployeeUseCase,
       useFactory: deleteEmployeeUseCaseFactory,
-      inject: [EMPLOYEES_REPOSITORY, DELETE_USER_PORT, EMPLOYEE_LOGGER_PORT],
+      inject: [EMPLOYEES_REPOSITORY, DELETE_USER_PORT, EMPLOYEE_LOGGER_PORT, DEPARTMENT_MANAGER_PORT],
     },
     {
       provide: UpdateEmployeePositionUseCase,
       useFactory: updateEmployeePositionUseCaseFactory,
-      inject: [EMPLOYEES_REPOSITORY, DEPARTMENTS_READER_PORT],
+      inject: [
+        EMPLOYEES_REPOSITORY,
+        DEPARTMENTS_READER_PORT,
+        DEPARTMENT_MANAGER_PORT,
+      ],
     },
     {
       provide: FindEmployeeByIdUseCase,
@@ -187,7 +203,7 @@ import {
     {
       provide: DeactivateEmployeeUseCase,
       useFactory: deactivateEmployeeUseCaseFactory,
-      inject: [EMPLOYEES_REPOSITORY],
+      inject: [EMPLOYEES_REPOSITORY, DEPARTMENT_MANAGER_PORT],
     },
   ],
 })

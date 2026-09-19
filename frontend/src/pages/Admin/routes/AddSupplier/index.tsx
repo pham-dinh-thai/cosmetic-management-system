@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { PageHeader, Input, Button, Card, Select } from "../../../../components/ui/Primitives";
 import { suppliersService } from "../../../../services/suppliers.service";
 import { useBasePath } from "../../../../lib/useBasePath";
+import { isValidSupplierPhone } from "../../../../lib/validators";
 import type { Supplier } from "../Suppliers/type";
 import { toast } from "sonner";
 
@@ -28,6 +29,12 @@ const AddSupplierPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isValidSupplierPhone(formData.phone || "")) {
+      toast.error(
+        "Số điện thoại không hợp lệ (di động 10 số bắt đầu 03/05/07/08/09 hoặc cố định 11 số bắt đầu 0)",
+      );
+      return;
+    }
     setLoading(true);
     try {
       await suppliersService.createSupplier(formData);
@@ -71,6 +78,8 @@ const AddSupplierPage: React.FC = () => {
               <Input
                 name="phone"
                 required
+                maxLength={11}
+                inputMode="numeric"
                 value={formData.phone || ""}
                 onChange={handleChange}
                 placeholder="Nhập số điện thoại..."

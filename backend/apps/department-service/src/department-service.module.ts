@@ -39,6 +39,10 @@ import {
 } from './application/use-cases/assign-manager-to-department/assign-manager-to-department.use-case';
 import { EMPLOYEE_READER_PORT } from './application/use-cases/assign-manager-to-department/ports/employee-reader.port';
 import { EmployeeReaderAdapter } from './infrastructure/adapters/employee-reader.port';
+import {
+  ClearDepartmentManagerUseCase,
+  clearDepartmentManagerUseCaseFactory,
+} from './application/use-cases/clear-department-manager/clear-department-manager.use-case';
 
 @Module({
   imports: [
@@ -104,6 +108,11 @@ import { EmployeeReaderAdapter } from './infrastructure/adapters/employee-reader
       provide: AssignManagerToDepartmentUseCase,
       useFactory: assignManagerToDepartmentUseCaseFactory,
       inject: [DEPARTMENTS_REPOSITORY, EMPLOYEE_READER_PORT],
+    },
+    {
+      provide: ClearDepartmentManagerUseCase,
+      useFactory: clearDepartmentManagerUseCaseFactory,
+      inject: [DEPARTMENTS_REPOSITORY],
     },
     {
       provide: EMPLOYEE_READER_PORT,

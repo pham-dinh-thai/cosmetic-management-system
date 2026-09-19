@@ -82,4 +82,12 @@ export class MikroDepartmentsRepository implements IDepartmentsRepository {
       { managerId: department.getManagerId(), updatedAt: new Date() },
     );
   }
+
+  public async removeManagerByEmployee(employeeId: string): Promise<void> {
+    await this.entityManager.nativeUpdate(
+      DepartmentMikro,
+      { managerId: employeeId },
+      { managerId: null, updatedAt: new Date() },
+    );
+  }
 }

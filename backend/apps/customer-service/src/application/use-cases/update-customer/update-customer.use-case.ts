@@ -3,6 +3,7 @@ import { type ICustomersRepository } from '../../../domain/repositories/customer
 import { IUpdateCustomerRequest } from './update-customer.request';
 import { type IUpdateUserInformationPort } from './ports/update-user-information.port';
 import { type IFindUserInformationPort } from './ports/find-user-information.port';
+import { PhoneValidationService } from '../../../domain/services/phone-validation.service';
 import { Logger } from '@nestjs/common';
 
 export class UpdateCustomerUseCase {
@@ -12,6 +13,7 @@ export class UpdateCustomerUseCase {
     private readonly customersRepository: ICustomersRepository,
     private readonly updateUserInformationPort: IUpdateUserInformationPort,
     private readonly findUserInformationPort: IFindUserInformationPort,
+    private readonly phoneValidationService: PhoneValidationService,
   ) {}
 
   public async execute(
@@ -22,6 +24,13 @@ export class UpdateCustomerUseCase {
 
     if (!customer) {
       throw new CustomerNotFoundException(id);
+    }
+
+    const phone = request.phone ?? customer.getPhone();
+
+    // Validate số điện thoại trước khi cập nhật thông tin user.
+    if (phone.trim().length > 0) {
+      this.phoneValidationService.ensureValidPhone(phone);
     }
 
     const previousUserInformation = customer.getUserId()
@@ -38,7 +47,7 @@ export class UpdateCustomerUseCase {
 
     try {
       customer.update({
-        phone: request.phone ?? customer.getPhone(),
+        phone,
         address: request.address ?? customer.getAddress(),
       });
 
@@ -66,9 +75,11 @@ export const updateCustomerUseCaseFactory = (
   customersRepository: ICustomersRepository,
   updateUserInformationPort: IUpdateUserInformationPort,
   findUserInformationPort: IFindUserInformationPort,
+  phoneValidationService: PhoneValidationService,
 ): UpdateCustomerUseCase =>
   new UpdateCustomerUseCase(
     customersRepository,
     updateUserInformationPort,
     findUserInformationPort,
+    phoneValidationService,
   );

@@ -3,6 +3,7 @@ import { Customer } from '../../../domain/customer.aggregate';
 import { type ICustomersRepository } from '../../../domain/repositories/customers.repository';
 import { type ICreateUserPort } from './ports/create-user.port';
 import { type IDeleteUserPort } from './ports/delete-user.port';
+import { PhoneValidationService } from '../../../domain/services/phone-validation.service';
 import { Logger } from '@nestjs/common';
 
 export class CreateCustomerUseCase {
@@ -12,11 +13,19 @@ export class CreateCustomerUseCase {
     private readonly createUserPort: ICreateUserPort,
     private readonly customersRepository: ICustomersRepository,
     private readonly deleteUserPort: IDeleteUserPort,
+    private readonly phoneValidationService: PhoneValidationService,
   ) {}
 
   public async execute(
     request: ICreateCustomerRequest,
   ): Promise<{ id: string }> {
+    const phone = request.phone ?? '';
+
+    // Validate số điện thoại trước khi tạo user (tránh phải bù trừ).
+    if (phone.trim().length > 0) {
+      this.phoneValidationService.ensureValidPhone(phone);
+    }
+
     let userId = request.userId ?? '';
 
     if (request.user) {
@@ -43,7 +52,7 @@ export class CreateCustomerUseCase {
       const customer = Customer.create({
         userId,
         code,
-        phone: request.phone ?? '',
+        phone,
         address: request.address ?? '',
       });
 
@@ -68,9 +77,11 @@ export const createCustomerUseCaseFactory = (
   createUserPort: ICreateUserPort,
   customersRepository: ICustomersRepository,
   deleteUserPort: IDeleteUserPort,
+  phoneValidationService: PhoneValidationService,
 ): CreateCustomerUseCase =>
   new CreateCustomerUseCase(
     createUserPort,
     customersRepository,
     deleteUserPort,
+    phoneValidationService,
   );
