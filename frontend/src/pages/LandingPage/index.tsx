@@ -1,7 +1,29 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Header from "../../components/Header";
+import {
+  fetchShopProducts,
+  type ShopProduct,
+} from "../../services/landing.service";
 
 const LandingPage = () => {
+  const [products, setProducts] = useState<ShopProduct[]>(PRODUCTS);
+
+  useEffect(() => {
+    let active = true;
+    fetchShopProducts(PRODUCTS)
+      .then((result) => {
+        if (active) {
+          setProducts(result);
+        }
+      })
+      .catch(() => {
+        // Keep the static showcase when the API is unavailable.
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   return (
     <div className="min-h-screen font-[var(--font-seed-sans)] antialiased flex flex-col">
@@ -175,7 +197,7 @@ const LandingPage = () => {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {PRODUCTS.map((p) => (
+                {products.map((p) => (
                   <ProductCard key={p.code} product={p} />
                 ))}
               </div>
@@ -672,14 +694,7 @@ const FooterCol = ({ title, items }: { title: string; items: string[] }) => (
   </div>
 );
 
-type Product = {
-  code: string;
-  name: string;
-  price: string;
-  accent: string;
-};
-
-const PRODUCTS: Product[] = [
+const PRODUCTS: ShopProduct[] = [
   {
     code: "DS-01®",
     name: "Sữa rửa mặt vi sinh",
@@ -706,7 +721,7 @@ const PRODUCTS: Product[] = [
   },
 ];
 
-const ProductCard = ({ product }: { product: Product }) => (
+const ProductCard = ({ product }: { product: ShopProduct }) => (
   <article className="flex flex-col gap-5">
     <div
       className="aspect-[3/4] rounded-[16px] flex items-center justify-center relative overflow-hidden"
@@ -715,13 +730,21 @@ const ProductCard = ({ product }: { product: Product }) => (
       <span className="absolute top-3 left-3 inline-flex items-center px-2 py-1 rounded-full bg-[--color-snow-white]/20 text-[--color-snow-white] text-[10px] font-medium uppercase tracking-[0.18em] backdrop-blur-[8px]">
         Mới
       </span>
-      <div
-        className="w-1/2 aspect-square rounded-full"
-        style={{
-          backgroundColor: "rgba(252,252,247,0.18)",
-          backdropFilter: "blur(20px)",
-        }}
-      />
+      {product.imageUrl ? (
+        <img
+          src={product.imageUrl}
+          alt={product.name}
+          className="w-full h-full object-cover"
+        />
+      ) : (
+        <div
+          className="w-1/2 aspect-square rounded-full"
+          style={{
+            backgroundColor: "rgba(252,252,247,0.18)",
+            backdropFilter: "blur(20px)",
+          }}
+        />
+      )}
     </div>
     <div className="flex flex-col gap-2">
       <span className="inline-flex w-fit items-center px-2.5 py-1 rounded-full border-[1.5px] border-[--color-snow-white] text-[10px] font-medium uppercase tracking-[0.2em] text-[--color-snow-white]">
