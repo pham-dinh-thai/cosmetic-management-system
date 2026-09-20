@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "sonner";
+import ErrorBoundary from "./components/ErrorBoundary";
 import { AuthProvider } from "./contexts/AuthProvider";
 import { useAuthStore } from "./store/useAuthStore";
 import { canWriteSuppliers } from "./lib/permissions";
@@ -8,6 +9,9 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Resources from "./pages/Resources";
 import ProductDetail from "./pages/ProductDetail";
+import CategoryPage from "./pages/CategoryPage";
+import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
 import ProfilePage from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import RoleRoute from "./components/RoleRoute";
@@ -56,11 +60,15 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <Routes>
+        <ErrorBoundary>
+          <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/" element={<LandingPage />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
           <Route path="/product/:code" element={<ProductDetail />} />
+          <Route path="/category/:id" element={<CategoryPage />} />
           <Route
             path="/profile"
             element={
@@ -113,7 +121,8 @@ function App() {
           </Route>
 
           <Route path="*" element={<NotFound />} />
-        </Routes>
+          </Routes>
+        </ErrorBoundary>
       </BrowserRouter>
       <Toaster
         position="top-right"

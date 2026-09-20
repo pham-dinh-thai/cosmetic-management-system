@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/useAuth';
 import { useAuthStore } from '../store/useAuthStore';
+import { useCartStore, cartCount } from '../store/useCartStore';
 import { getEmployeeLandingPath } from '../lib/permissions';
 import { isResourcePath } from '../lib/resourcePath';
 import { productsService, type CategorySummary } from '../services/products.service';
@@ -24,6 +25,7 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
   const { isAuthenticated, logout, role } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const cartItemCount = cartCount(useCartStore((s) => s.items));
 
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -35,6 +37,7 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
   const [bestSellers, setBestSellers] = useState<BestSellerItem[]>([]);
   const [catalog, setCatalog] = useState<Map<string, CatalogProduct>>(new Map());
   const [catalogLoaded, setCatalogLoaded] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const loadCatalog = useCallback(async () => {
     try {
@@ -134,6 +137,19 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
         .map(([id, v]) => ({ id, name: v.name }))
         .slice(0, 4)
     : categories.slice(0, 4);
+
+  const trimmedQuery = searchQuery.trim().toLowerCase();
+  const searchResults = trimmedQuery
+    ? Array.from(catalog.entries())
+        .map(([variantId, p]) => ({ ...p, variantId, quantitySold: 0 }))
+        .filter(
+          (p) =>
+            p.name.toLowerCase().includes(trimmedQuery) ||
+            p.code.toLowerCase().includes(trimmedQuery) ||
+            (p.variantName ?? '').toLowerCase().includes(trimmedQuery),
+        )
+        .slice(0, 8)
+    : [];
 
   if (variant === 'auth') {
     return (
@@ -264,6 +280,8 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
                 <input
                   ref={inputRef}
                   type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Tìm kiếm sản phẩm..."
                   onFocus={() => setIsSearchFocused(true)}
                   className="flex-1 h-full px-4 outline-none text-[14px] text-[#1c3a13] placeholder-[#666666] bg-transparent font-sans"
@@ -285,6 +303,8 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
               {isSearchFocused && (
                 <div className="absolute top-full left-0 right-0 bg-[#fcfcf7] border-[1.5px] border-t-0 border-[#1c3a13] rounded-b-[16px] overflow-hidden shadow-[0_12px_32px_rgba(28,58,19,0.08)] z-40">
                   <div className="p-6 flex flex-col gap-6">
+                    {!trimmedQuery ? (
+                      <>
                     {/* Hot Keywords */}
                     <div className="flex flex-col gap-4">
                       <div className="flex items-center justify-between">
@@ -370,6 +390,46 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
                         ))}
                       </div>
                     </div>
+                      </>
+                    ) : (
+                      <div className="flex flex-col gap-6">
+                        <div className="flex items-center gap-2 text-[#1c3a13]">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                          </svg>
+                          <span className="font-medium text-[16px]">Kết quả tìm kiếm</span>
+                        </div>
+                        {searchResults.length === 0 ? (
+                          <div className="text-[14px] text-[#666666] py-2">
+                            Không tìm thấy sản phẩm phù hợp
+                          </div>
+                        ) : (
+                          <div className="flex flex-col gap-4">
+                            {searchResults.map((p) => (
+                              <Link
+                                key={p.variantId}
+                                to={`/product/${p.code}`}
+                                onClick={() => setIsSearchFocused(false)}
+                                className="flex items-center gap-3 cursor-pointer group"
+                              >
+                                <div className="w-12 h-12 bg-[#eeeee9] rounded-[8px] flex items-center justify-center shrink-0 overflow-hidden">
+                                  {p.imageUrl ? (
+                                    <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover" />
+                                  ) : (
+                                    <span className="w-full h-full flex items-center justify-center text-[14px] font-serif text-[#1c3a13] bg-[#e3ecd9] uppercase">
+                                      {p.name.charAt(0)}
+                                    </span>
+                                  )}
+                                </div>
+                                <span className="text-[14px] text-[#666666] group-hover:text-[#1c3a13] transition-colors line-clamp-2">
+                                  {p.name}
+                                </span>
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -398,15 +458,21 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
 
           <div className="flex items-center gap-2 ml-2">
             {!isAdminPage && (
-              <button
-                className="w-10 h-10 flex items-center justify-center text-[#1c3a13] hover:bg-[#eeeee9] rounded-full transition-colors relative"
+              <Link
+                to="/cart"
                 title="Giỏ hàng"
+                onClick={() => setIsSearchFocused(false)}
+                className="w-10 h-10 flex items-center justify-center text-[#1c3a13] hover:bg-[#eeeee9] rounded-full transition-colors relative"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
-                <span className="absolute top-2 right-2 w-2 h-2 bg-[#d3fa99] rounded-full ring-2 ring-[#fcfcf7]"></span>
-              </button>
+                {cartItemCount > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-[#d3fa99] text-[10px] font-semibold text-[#1c3a13] flex items-center justify-center ring-2 ring-[#fcfcf7]">
+                    {cartItemCount}
+                  </span>
+                )}
+              </Link>
             )}
 
             {/* Profile Dropdown */}
