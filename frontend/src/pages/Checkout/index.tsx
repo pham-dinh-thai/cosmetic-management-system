@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import Header from "../../components/Header";
@@ -10,9 +10,79 @@ import {
 } from "../../store/useCartStore";
 import { ordersService } from "../../services/orders.service";
 import { customersService } from "../../services/customers.service";
+import {
+  locationsService,
+  type VietnamLocation,
+} from "../../services/locations.service";
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+type LocationPickerProps = {
+  name: string;
+  placeholder: string;
+  value: string;
+  options: VietnamLocation[];
+  disabled?: boolean;
+  onChange: (value: string) => void;
+};
+
+const LocationPicker = ({
+  name,
+  placeholder,
+  value,
+  options,
+  disabled = false,
+  onChange,
+}: LocationPickerProps) => {
+  const [open, setOpen] = useState(false);
+  const selected = options.find((option) => String(option.code) === value);
+
+  return (
+    <div className="relative">
+      <input type="hidden" name={name} value={value} required disabled={disabled} />
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => setOpen((current) => !current)}
+        className="w-full min-h-[50px] bg-transparent border-[1.5px] border-warm-stone focus:border-forest-depths rounded-lg px-4 py-3 text-left text-forest-depths outline-none transition-colors cursor-pointer pr-10 disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        <span className={selected ? "text-forest-depths" : "text-pewter"}>
+          {selected?.name ?? placeholder}
+        </span>
+      </button>
+      <span className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-forest-depths">▾</span>
+
+      {open && !disabled && (
+        <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-30 max-h-[34rem] overflow-y-auto rounded-lg border-[1.5px] border-warm-stone bg-snow-white shadow-lg">
+          <button
+            type="button"
+            onClick={() => {
+              onChange("");
+              setOpen(false);
+            }}
+            className="w-full px-4 py-3 text-left text-pewter hover:bg-warm-stone/40"
+          >
+            {placeholder}
+          </button>
+          {options.map((option) => (
+            <button
+              type="button"
+              key={option.code}
+              onClick={() => {
+                onChange(String(option.code));
+                setOpen(false);
+              }}
+              className="w-full px-4 py-3 text-left text-forest-depths hover:bg-warm-stone/40"
+            >
+              {option.name}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const CheckoutPage = () => {
   const items = useCartStore((s) => s.items);
@@ -23,8 +93,92 @@ const CheckoutPage = () => {
   const [placed, setPlaced] = useState(false);
   const [orderRef, setOrderRef] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [provinces, setProvinces] = useState<VietnamLocation[]>([]);
+  const [districts, setDistricts] = useState<VietnamLocation[]>([]);
+  const [wards, setWards] = useState<VietnamLocation[]>([]);
+  const [provinceCode, setProvinceCode] = useState("");
+  const [districtCode, setDistrictCode] = useState("");
+  const [wardCode, setWardCode] = useState("");
+  const [locationsLoading, setLocationsLoading] = useState(true);
+  const [locationsError, setLocationsError] = useState(false);
 
   const subtotal = cartSubtotal(items);
+
+  useEffect(() => {
+    let active = true;
+
+    locationsService
+      .getProvinces()
+      .then((data) => {
+        if (active) setProvinces(data);
+      })
+      .catch(() => {
+        if (active) setLocationsError(true);
+      })
+      .finally(() => {
+        if (active) setLocationsLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!provinceCode) {
+      setDistricts([]);
+      setWards([]);
+      setDistrictCode("");
+      setWardCode("");
+      return;
+    }
+
+    let active = true;
+    setDistricts([]);
+    setWards([]);
+    setDistrictCode("");
+    setWardCode("");
+    setLocationsError(false);
+
+    locationsService
+      .getDistricts(Number(provinceCode))
+      .then((data) => {
+        if (active) setDistricts(data);
+      })
+      .catch(() => {
+        if (active) setLocationsError(true);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [provinceCode]);
+
+  useEffect(() => {
+    if (!districtCode) {
+      setWards([]);
+      setWardCode("");
+      return;
+    }
+
+    let active = true;
+    setWards([]);
+    setWardCode("");
+    setLocationsError(false);
+
+    locationsService
+      .getWards(Number(districtCode))
+      .then((data) => {
+        if (active) setWards(data);
+      })
+      .catch(() => {
+        if (active) setLocationsError(true);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [districtCode]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -54,6 +208,9 @@ const CheckoutPage = () => {
     setSubmitting(true);
     try {
       const { id: customer } = await customersService.ensureMe();
+      const province = provinces.find((item) => item.code === Number(data.get("province")));
+      const district = districts.find((item) => item.code === Number(data.get("district")));
+      const ward = wards.find((item) => item.code === Number(wardCode));
       const result = await ordersService.placeOrder({
         customerId: customer,
         lines: items.map((item) => ({
@@ -65,8 +222,10 @@ const CheckoutPage = () => {
           .filter(Boolean)
           .join(" "),
         recipientPhone: (data.get("phone") as string) ?? "",
-        shippingAddress: (data.get("address") as string) ?? "",
-        shippingCity: (data.get("city") as string) ?? "",
+        shippingAddress: [data.get("address"), ward?.name, district?.name]
+          .filter(Boolean)
+          .join(", "),
+        shippingCity: province?.name ?? "",
       });
 
       clear();
@@ -199,48 +358,37 @@ const CheckoutPage = () => {
                   />
                   
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="relative">
-                      <select 
-                        name="province"
-                        required
-                        className="w-full bg-transparent border-[1.5px] border-warm-stone focus:border-forest-depths rounded-lg px-4 py-3 text-forest-depths outline-none transition-colors appearance-none cursor-pointer pr-10"
-                      >
-                        <option value="">Tỉnh/Thành phố</option>
-                        <option value="HN">Hà Nội</option>
-                        <option value="HCM">TP. Hồ Chí Minh</option>
-                        <option value="DN">Đà Nẵng</option>
-                      </select>
-                      <span className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-forest-depths">▾</span>
-                    </div>
-                    
-                    <div className="relative">
-                      <select 
-                        name="district"
-                        required
-                        className="w-full bg-transparent border-[1.5px] border-warm-stone focus:border-forest-depths rounded-lg px-4 py-3 text-forest-depths outline-none transition-colors appearance-none cursor-pointer pr-10"
-                      >
-                        <option value="">Quận/Huyện</option>
-                        <option value="Q1">Quận 1</option>
-                        <option value="Q2">Quận 2</option>
-                        <option value="Q3">Quận 3</option>
-                      </select>
-                      <span className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-forest-depths">▾</span>
-                    </div>
-
-                    <div className="relative">
-                      <select 
-                        name="ward"
-                        required
-                        className="w-full bg-transparent border-[1.5px] border-warm-stone focus:border-forest-depths rounded-lg px-4 py-3 text-forest-depths outline-none transition-colors appearance-none cursor-pointer pr-10"
-                      >
-                        <option value="">Phường/Xã</option>
-                        <option value="P1">Phường 1</option>
-                        <option value="P2">Phường 2</option>
-                        <option value="P3">Phường 3</option>
-                      </select>
-                      <span className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-forest-depths">▾</span>
-                    </div>
+                    <LocationPicker
+                      name="province"
+                      placeholder={locationsLoading ? "Đang tải tỉnh/thành…" : "Tỉnh/Thành phố"}
+                      value={provinceCode}
+                      options={provinces}
+                      disabled={locationsLoading}
+                      onChange={setProvinceCode}
+                    />
+                    <LocationPicker
+                      name="district"
+                      placeholder="Quận/Huyện"
+                      value={districtCode}
+                      options={districts}
+                      disabled={!provinceCode || districts.length === 0}
+                      onChange={setDistrictCode}
+                    />
+                    <LocationPicker
+                      name="ward"
+                      placeholder="Phường/Xã"
+                      value={wardCode}
+                      options={wards}
+                      disabled={!districtCode || wards.length === 0}
+                      onChange={setWardCode}
+                    />
                   </div>
+
+                  {locationsError && (
+                    <p className="text-[13px] text-red-700">
+                      Không tải được dữ liệu địa chỉ. Vui lòng kiểm tra kết nối và thử lại.
+                    </p>
+                  )}
 
                   <input 
                     type="text" 
