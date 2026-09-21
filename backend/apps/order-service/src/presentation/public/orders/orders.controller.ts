@@ -19,8 +19,8 @@ import { FindAllOrdersUseCase } from 'apps/order-service/src/application/use-cas
 import { FindOrderByIdUseCase } from 'apps/order-service/src/application/use-cases/find-order-by-id/find-order-by-id.use-case';
 import { PrintOrderUseCase } from 'apps/order-service/src/application/use-cases/print-order/print-order.use-case';
 import { UpdateOrderUseCase } from 'apps/order-service/src/application/use-cases/update-order/update-order.use-case';
-import { CompleteOrderUseCase } from 'apps/order-service/src/application/use-cases/complete-order/complete-order.use-case';
-import { CancelOrderUseCase } from 'apps/order-service/src/application/use-cases/cancel-order/cancel-order.use-case';
+import { UpdateOrderStatusUseCase } from 'apps/order-service/src/application/use-cases/update-order-status/update-order-status.use-case';
+import { UpdateOrderPaymentStatusUseCase } from 'apps/order-service/src/application/use-cases/update-order-payment-status/update-order-payment-status.use-case';
 import { DeleteOrderUseCase } from 'apps/order-service/src/application/use-cases/delete-order/delete-order.use-case';
 import { FindOrderTransactionsUseCase } from 'apps/order-service/src/application/use-cases/find-order-transactions/find-order-transactions.use-case';
 import { OrderDetailReadModel } from 'apps/order-service/src/application/use-cases/find-order-by-id/read-models/order-detail.read-model';
@@ -28,6 +28,8 @@ import { OrderReadModel } from 'apps/order-service/src/application/use-cases/fin
 import { OrderTransactionReadModel } from 'apps/order-service/src/application/use-cases/find-order-transactions/read-models/order-transaction.read-model';
 import { OrderStatus } from 'apps/order-service/src/domain/types';
 import { UpdateOrderRequest } from './requests/update-order.request';
+import { UpdateOrderStatusRequest } from './requests/update-order-status.request';
+import { UpdateOrderPaymentStatusRequest } from './requests/update-order-payment-status.request';
 import { renderOrderReceiptHtml } from './receipt-html';
 
 @UseGuards(AuthGuard, OrgGuard)
@@ -40,8 +42,8 @@ export class OrdersController {
     private readonly findOrderByIdUseCase: FindOrderByIdUseCase,
     private readonly printOrderUseCase: PrintOrderUseCase,
     private readonly updateOrderUseCase: UpdateOrderUseCase,
-    private readonly completeOrderUseCase: CompleteOrderUseCase,
-    private readonly cancelOrderUseCase: CancelOrderUseCase,
+    private readonly updateOrderStatusUseCase: UpdateOrderStatusUseCase,
+    private readonly updateOrderPaymentStatusUseCase: UpdateOrderPaymentStatusUseCase,
     private readonly deleteOrderUseCase: DeleteOrderUseCase,
     private readonly findOrderTransactionsUseCase: FindOrderTransactionsUseCase,
   ) {}
@@ -79,7 +81,8 @@ export class OrdersController {
     @Res() response: Response,
   ): Promise<void> {
     const userId =
-      (request as unknown as { user?: { sub?: string } }).user?.sub ?? undefined;
+      (request as unknown as { user?: { sub?: string } }).user?.sub ??
+      undefined;
     const receipt = await this.printOrderUseCase.execute(id, userId);
     response.setHeader('Content-Type', 'text/html; charset=utf-8');
     response.send(renderOrderReceiptHtml(receipt));
@@ -101,20 +104,31 @@ export class OrdersController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @Patch(':id/complete')
-  public async complete(
+  @Patch(':id/status')
+  public async updateStatus(
     @Param('id') id: string,
-    @Req() request: Request,
-  ): Promise<{ id: string }> {
+    @Body() request: UpdateOrderStatusRequest,
+    @Req() req: Request,
+  ): Promise<{ id: string; status: OrderStatus }> {
     const employeeId =
-      (request as unknown as { user?: { sub?: string } }).user?.sub ?? '';
-    return await this.completeOrderUseCase.execute(id, employeeId);
+      (req as unknown as { user?: { sub?: string } }).user?.sub ?? '';
+    return await this.updateOrderStatusUseCase.execute(
+      id,
+      request.status,
+      employeeId,
+    );
   }
 
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @Patch(':id/cancel')
-  public async cancel(@Param('id') id: string): Promise<void> {
-    await this.cancelOrderUseCase.execute(id);
+  @HttpCode(HttpStatus.OK)
+  @Patch(':id/payment-status')
+  public async updatePaymentStatus(
+    @Param('id') id: string,
+    @Body() request: UpdateOrderPaymentStatusRequest,
+  ): Promise<{ id: string; status: OrderStatus; paymentStatus: string }> {
+    return await this.updateOrderPaymentStatusUseCase.execute(
+      id,
+      request.paymentStatus,
+    );
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)

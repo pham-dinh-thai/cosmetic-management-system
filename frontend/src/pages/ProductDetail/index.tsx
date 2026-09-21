@@ -96,6 +96,7 @@ const StaticProductDetail = ({ code }: { code: string }) => {
   const [selectedVariantId, setSelectedVariantId] = useState<string>("");
   const navigate = useNavigate();
   const addItem = useCartStore((s) => s.addItem);
+  const replaceAll = useCartStore((s) => s.replaceAll);
 
   useEffect(() => {
     if (product && product.variants.length > 0) {
@@ -122,16 +123,20 @@ const StaticProductDetail = ({ code }: { code: string }) => {
   const selectedVariant = product.variants.find(v => v.id === selectedVariantId) || product.variants[0];
   const currentPrice = selectedVariant?.price || product.price;
 
+  const currentBuyItem = selectedVariant
+    ? {
+        id: `${decodedCode}::${selectedVariant.id}`,
+        productCode: decodedCode,
+        name: product.name,
+        variantName: selectedVariant.name,
+        price: parsePrice(selectedVariant.price),
+        accent: product.accent,
+      }
+    : null;
+
   const addCurrentToCart = () => {
-    if (!selectedVariant) return;
-    addItem({
-      id: `${decodedCode}::${selectedVariant.id}`,
-      productCode: decodedCode,
-      name: product.name,
-      variantName: selectedVariant.name,
-      price: parsePrice(selectedVariant.price),
-      accent: product.accent,
-    });
+    if (!currentBuyItem) return;
+    addItem(currentBuyItem);
   };
 
   const relatedProducts = Object.entries(PRODUCTS_DB)
@@ -224,7 +229,8 @@ const StaticProductDetail = ({ code }: { code: string }) => {
             <div className="mt-10 flex flex-col sm:flex-row gap-4">
               <button
                 onClick={() => {
-                  addCurrentToCart();
+                  if (!currentBuyItem) return;
+                  replaceAll([{ ...currentBuyItem, qty: 1 }]);
                   navigate("/checkout");
                 }}
                 className="flex-1 inline-flex items-center justify-center rounded-full border-2 border-forest-depths bg-forest-depths text-white px-8 py-4 text-[16px] font-medium tracking-[0.02em] hover:opacity-85 transition-all"
@@ -388,6 +394,7 @@ const ApiProductDetail = ({ code }: { code: string }) => {
   const [related, setRelated] = useState<RelatedItem[]>([]);
   const navigate = useNavigate();
   const addItem = useCartStore((s) => s.addItem);
+  const replaceAll = useCartStore((s) => s.replaceAll);
 
   useEffect(() => {
     let active = true;
@@ -508,6 +515,18 @@ const ApiProductDetail = ({ code }: { code: string }) => {
     });
   };
 
+  const currentBuyItem = selectedVariant
+    ? {
+        id: selectedVariant.id,
+        productCode: product.code,
+        name: product.name,
+        variantName: selectedVariant.name,
+        price: selectedVariant.price,
+        imageUrl: product.imageUrl,
+        accent,
+      }
+    : null;
+
   const orderedRelated = related
     .map((r) => ({
       ...r,
@@ -582,7 +601,7 @@ const ApiProductDetail = ({ code }: { code: string }) => {
             </h1>
 
             <p className="mt-6 text-[18px] leading-[1.6] text-pewter max-w-lg">
-              {product.description ?? "Mỹ phẩm được bào chế theo phương pháp lâm sàng — an toàn cho làn da nhạy cảm."}
+              Mỹ phẩm được bào chế theo phương pháp lâm sàng — an toàn cho làn da nhạy cảm.
             </p>
 
             <div className="mt-8">
@@ -622,7 +641,8 @@ const ApiProductDetail = ({ code }: { code: string }) => {
             <div className="mt-10 flex flex-col sm:flex-row gap-4">
               <button
                 onClick={() => {
-                  addCurrentToCart();
+                  if (!currentBuyItem) return;
+                  replaceAll([{ ...currentBuyItem, qty: 1 }]);
                   navigate("/checkout");
                 }}
                 disabled={!selectedVariant}
@@ -656,63 +676,30 @@ const ApiProductDetail = ({ code }: { code: string }) => {
         </div>
       </main>
 
-      {/* Variants Section */}
-      {product.variants.length > 0 && (
+      {/* Product Description Section */}
+      {product.description && (
         <section className="bg-warm-stone py-24 sm:py-32">
-          <div className="max-w-[1200px] mx-auto px-6 sm:px-12">
-            <div className="max-w-2xl mb-16">
-              <span className="inline-block mb-6 font-[var(--font-seed-sans-mono)] text-[12px] font-medium uppercase tracking-[0.2em] text-pewter">
-                Chi tiết sản phẩm
-              </span>
-              <h2
-                className="text-forest-depths"
-                style={{
-                  fontWeight: 350,
-                  fontSize: "clamp(28px, 3.5vw, 40px)",
-                  lineHeight: 1.2,
-                  letterSpacing: "-0.02em",
-                }}
-              >
-                Biến thể sản phẩm.
-              </h2>
-            </div>
+          <div className="max-w-[800px] mx-auto px-6 sm:px-12 text-center">
+            <span className="inline-block mb-6 font-[var(--font-seed-sans-mono)] text-[12px] font-medium uppercase tracking-[0.2em] text-pewter">
+              Chi tiết sản phẩm
+            </span>
+            <h2
+              className="text-forest-depths mb-12"
+              style={{
+                fontWeight: 350,
+                fontSize: "clamp(28px, 3.5vw, 40px)",
+                lineHeight: 1.2,
+                letterSpacing: "-0.02em",
+              }}
+            >
+              Hiệu quả sâu, bảo vệ toàn diện.
+            </h2>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {product.variants.map((variant) => (
-                <div
-                  key={variant.id}
-                  className="bg-snow-white p-8 rounded-[16px] flex flex-col gap-4"
-                >
-                  <span className="inline-flex w-fit items-center px-2.5 py-1 rounded-full border border-forest-depths font-[var(--font-seed-sans-mono)] text-[10px] font-medium uppercase tracking-[0.18em] text-forest-depths">
-                    {product.code}
-                  </span>
-                  <h3
-                    className="text-forest-depths"
-                    style={{
-                      fontWeight: 350,
-                      fontSize: "24px",
-                      lineHeight: 1.15,
-                      letterSpacing: "-0.48px",
-                    }}
-                  >
-                    {variant.name}
-                  </h3>
-                  <p className="text-[14px] leading-[1.55] text-pewter">
-                    {[variant.volume, variant.color].filter(Boolean).join(" · ") || "Mặc định"}
-                  </p>
-                  <p className="font-[var(--font-seed-sans-mono)] text-[20px] font-medium text-forest-depths">
-                    {formatPrice(variant.price)}
-                  </p>
-                  <div className="mt-auto pt-4 border-t border-warm-stone">
-                    <p className="font-[var(--font-seed-sans-mono)] text-[12px] text-forest-depths/70">
-                      {variant.isActive
-                        ? variant.quantity > 0
-                          ? `Còn ${variant.quantity} sản phẩm`
-                          : "Hết hàng"
-                        : "Tạm ngừng kinh doanh"}
-                    </p>
-                  </div>
-                </div>
+            <div className="space-y-6 text-left">
+              {product.description.split("\n").map((paragraph, idx) => (
+                <p key={idx} className="text-[18px] text-forest-depths opacity-80 leading-[1.8]">
+                  {paragraph}
+                </p>
               ))}
             </div>
           </div>

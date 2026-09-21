@@ -25,12 +25,33 @@ export interface PosOrderResponse {
   paymentMethod: PaymentMethod;
 }
 
+export interface PlaceOrderPayload {
+  customerId: string;
+  lines: { variantId: string; quantity: number }[];
+  paymentMethod?: PaymentMethod;
+  recipientName?: string;
+  recipientPhone?: string;
+  shippingAddress?: string;
+  shippingCity?: string;
+}
+
 export interface BestSellerItem {
   variantId: string;
   quantitySold: number;
 }
 
-export type OrderStatus = 'PENDING' | 'PAID' | 'COMPLETED' | 'CANCELLED';
+export type OrderStatus =
+  | 'PENDING_CONFIRMATION'
+  | 'CONFIRMED'
+  | 'PREPARING'
+  | 'SHIPPING'
+  | 'DELIVERED'
+  | 'CANCELLED'
+  | 'DELIVERY_FAILED'
+  | 'RETURNED'
+  | 'REFUNDED';
+
+export type OrderPaymentStatus = 'UNPAID' | 'PAID';
 
 export interface OrderReadModel {
   id: string;
@@ -39,6 +60,7 @@ export interface OrderReadModel {
   customerName: string | null;
   totalAmount: number;
   paymentMethod: PaymentMethod;
+  paymentStatus: OrderPaymentStatus;
   status: OrderStatus;
   createdAt: string;
 }
@@ -55,6 +77,13 @@ export interface OrderDetailReadModel {
   id: string;
   code: string;
   customerId: string;
+  customerName: string | null;
+  recipientName: string | null;
+  recipientPhone: string | null;
+  shippingAddress: string | null;
+  shippingCity: string | null;
+  paymentMethod: PaymentMethod;
+  paymentStatus: OrderPaymentStatus;
   status: OrderStatus;
   totalAmount: number;
   lines: OrderDetailLine[];
@@ -65,6 +94,11 @@ export interface OrderDetailReadModel {
 export const ordersService = {
   async createOrder(payload: CreatePosOrderPayload): Promise<PosOrderResponse> {
     const { data } = await api.post<PosOrderResponse>("/orders/pos", payload);
+    return data;
+  },
+
+  async placeOrder(payload: PlaceOrderPayload): Promise<{ id: string }> {
+    const { data } = await api.post<{ id: string }>("/orders/place", payload);
     return data;
   },
 
@@ -90,12 +124,22 @@ export const ordersService = {
     return data;
   },
 
-  async completeOrder(id: string): Promise<void> {
-    await api.patch(`/orders/${id}/complete`);
+  async updateOrderStatus(
+    id: string,
+    status: OrderStatus,
+  ): Promise<{ id: string; status: OrderStatus }> {
+    const { data } = await api.patch<{ id: string; status: OrderStatus }>(
+      `/orders/${id}/status`,
+      { status },
+    );
+    return data;
   },
 
-  async cancelOrder(id: string): Promise<void> {
-    await api.patch(`/orders/${id}/cancel`);
+  async updateOrderPaymentStatus(
+    id: string,
+    paymentStatus: OrderPaymentStatus,
+  ): Promise<void> {
+    await api.patch(`/orders/${id}/payment-status`, { paymentStatus });
   },
 
   async deleteOrder(id: string): Promise<void> {

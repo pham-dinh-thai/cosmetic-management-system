@@ -143,8 +143,8 @@ export const overviewService = {
     const todayStart = startOfDay(now);
     const yesterdayStart = startOfDay(daysAgo(1, now));
 
-    const completedOrders = orders.filter(
-      (o) => o.status === "COMPLETED",
+    const deliveredOrders = orders.filter(
+      (o) => o.status === "DELIVERED",
     );
 
     const sumInRange = (
@@ -160,12 +160,12 @@ export const overviewService = {
         )
         .reduce((sum, item) => sum + Number(item.totalAmount), 0);
 
-    const revenueToday = completedOrders
+    const revenueToday = deliveredOrders
       .filter((o) => isSameDay(new Date(o.createdAt), now))
       .reduce((sum, o) => sum + Number(o.totalAmount), 0);
 
     const revenueYesterday = sumInRange(
-      completedOrders,
+      deliveredOrders,
       yesterdayStart,
       todayStart,
     );
@@ -180,12 +180,12 @@ export const overviewService = {
         new Date(o.createdAt).getTime() < todayStart.getTime(),
     ).length;
 
-    const revenueThisMonth = completedOrders
+    const revenueThisMonth = deliveredOrders
       .filter((o) => isSameMonth(new Date(o.createdAt), now))
       .reduce((sum, o) => sum + Number(o.totalAmount), 0);
 
     const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const revenueLastMonth = completedOrders
+    const revenueLastMonth = deliveredOrders
       .filter((o) => isSameMonth(new Date(o.createdAt), prevMonth))
       .reduce((sum, o) => sum + Number(o.totalAmount), 0);
 
@@ -202,7 +202,7 @@ export const overviewService = {
     const revenueByDay: OverviewData["revenueByDay"] = [];
     for (let i = 6; i >= 0; i--) {
       const day = daysAgo(i, now);
-      const value = completedOrders
+      const value = deliveredOrders
         .filter((o) => isSameDay(new Date(o.createdAt), day))
         .reduce((sum, o) => sum + Number(o.totalAmount), 0);
       revenueByDay.push({
@@ -224,7 +224,7 @@ export const overviewService = {
     }
 
     const lineDetails = await Promise.all(
-      completedOrders.map((o) => this.getOrderDetail(o.id)),
+      deliveredOrders.map((o) => this.getOrderDetail(o.id)),
     );
 
     const byVariant = new Map<
@@ -257,19 +257,49 @@ export const overviewService = {
 
     const orderStatusCounts = [
       {
-        status: "PENDING",
-        label: "Chờ xử lý",
-        count: orders.filter((o) => o.status === "PENDING").length,
+        status: "PENDING_CONFIRMATION",
+        label: "Chờ xác nhận",
+        count: orders.filter((o) => o.status === "PENDING_CONFIRMATION").length,
       },
       {
-        status: "COMPLETED",
-        label: "Hoàn thành",
-        count: orders.filter((o) => o.status === "COMPLETED").length,
+        status: "CONFIRMED",
+        label: "Đã xác nhận",
+        count: orders.filter((o) => o.status === "CONFIRMED").length,
+      },
+      {
+        status: "PREPARING",
+        label: "Đang chuẩn bị hàng",
+        count: orders.filter((o) => o.status === "PREPARING").length,
+      },
+      {
+        status: "SHIPPING",
+        label: "Đang giao",
+        count: orders.filter((o) => o.status === "SHIPPING").length,
+      },
+      {
+        status: "DELIVERED",
+        label: "Giao thành công",
+        count: orders.filter((o) => o.status === "DELIVERED").length,
       },
       {
         status: "CANCELLED",
         label: "Đã hủy",
         count: orders.filter((o) => o.status === "CANCELLED").length,
+      },
+      {
+        status: "DELIVERY_FAILED",
+        label: "Giao hàng thất bại",
+        count: orders.filter((o) => o.status === "DELIVERY_FAILED").length,
+      },
+      {
+        status: "RETURNED",
+        label: "Đã hoàn hàng",
+        count: orders.filter((o) => o.status === "RETURNED").length,
+      },
+      {
+        status: "REFUNDED",
+        label: "Đã hoàn tiền",
+        count: orders.filter((o) => o.status === "REFUNDED").length,
       },
     ];
 

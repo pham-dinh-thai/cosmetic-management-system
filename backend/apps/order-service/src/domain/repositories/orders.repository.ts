@@ -1,5 +1,9 @@
 import { Order } from '../order.aggregate';
-import { CreateOrderLineProps, OrderStatus } from '../types';
+import {
+  CreateOrderLineProps,
+  OrderPaymentStatus,
+  OrderStatus,
+} from '../types';
 
 export interface IOrdersRepository {
   findAll(options?: {
@@ -19,6 +23,10 @@ export interface IOrdersRepository {
     lines: CreateOrderLineProps[],
   ): Promise<Order | null>;
   setStatus(id: string, status: OrderStatus): Promise<Order | null>;
+  setPaymentStatus(
+    id: string,
+    paymentStatus: OrderPaymentStatus,
+  ): Promise<Order | null>;
   delete(id: string): Promise<Order | null>;
 }
 

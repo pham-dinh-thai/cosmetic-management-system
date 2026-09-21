@@ -5,18 +5,25 @@ export class OrderReadModel {
     public readonly id: string,
     public readonly code: string,
     public readonly customerId: string,
+    public readonly customerName: string | null,
     public readonly paymentMethod: string,
+    public readonly paymentStatus: string,
     public readonly status: string,
     public readonly totalAmount: number,
     public readonly createdAt: Date,
   ) {}
 
-  public static from(order: Order): OrderReadModel {
+  public static from(
+    order: Order,
+    customerName: string | null,
+  ): OrderReadModel {
     return new OrderReadModel(
       order.getId(),
       order.getCode(),
       order.getCustomerId(),
+      customerName,
       order.getPaymentMethod(),
+      order.getPaymentStatus(),
       order.getStatus(),
       order.getTotalAmount(),
       order.getCreatedAt() ?? new Date(),

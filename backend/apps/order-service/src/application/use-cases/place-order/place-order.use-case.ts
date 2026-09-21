@@ -27,7 +27,7 @@ export class PlaceOrderUseCase {
   ) {}
 
   public async execute(request: IPlaceOrderRequest): Promise<{ id: string }> {
-    const order = await this.buildOrder(request.customerId, request.lines);
+    const order = await this.buildOrder(request);
 
     await this.deductStock(order);
 
@@ -39,14 +39,16 @@ export class PlaceOrderUseCase {
   }
 
   private async buildOrder(
-    customerId: string,
-    lines: IPlaceOrderRequest['lines'],
+    request: Pick<
+      IPlaceOrderRequest,
+      'customerId' | 'lines' | 'paymentMethod' | 'recipientName' | 'recipientPhone' | 'shippingAddress' | 'shippingCity'
+    >,
   ): Promise<Order> {
     const maxCodeSequence = await this.ordersRepository.findMaxCodeSequence();
     const code = OrderCode.generate((maxCodeSequence ?? 0) + 1);
 
     const pricedLines = await Promise.all(
-      lines.map(async (line) => ({
+      request.lines.map(async (line) => ({
         ...line,
         unitPrice: await this.variantsReaderPort.findVariantUnitPrice(
           line.variantId,
@@ -56,8 +58,12 @@ export class PlaceOrderUseCase {
 
     return Order.create({
       code: code.getValue(),
-      customerId,
-      paymentMethod: OrderPaymentMethod.CASH,
+      customerId: request.customerId,
+      paymentMethod: request.paymentMethod ?? OrderPaymentMethod.CASH,
+      recipientName: request.recipientName,
+      recipientPhone: request.recipientPhone,
+      shippingAddress: request.shippingAddress,
+      shippingCity: request.shippingCity,
       lines: pricedLines,
     });
   }

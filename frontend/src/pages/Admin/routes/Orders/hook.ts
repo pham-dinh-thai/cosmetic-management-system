@@ -5,16 +5,32 @@ import {
   openOrderReceiptPrint,
   type OrderDetailReadModel,
   type OrderReadModel,
+  type OrderStatus,
 } from '../../../../services/orders.service';
 import type { StatusFilter } from './type';
+
+type ConfirmAction = {
+  isOpen: boolean;
+  order: OrderReadModel | null;
+  status: OrderStatus | null;
+  label: string;
+  destructive: boolean;
+};
+
+const EMPTY_CONFIRM: ConfirmAction = {
+  isOpen: false,
+  order: null,
+  status: null,
+  label: '',
+  destructive: false,
+};
 
 export function useOrders() {
   const [orders, setOrders] = useState<OrderReadModel[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState('');
   const [status, setStatus] = useState<StatusFilter>('all');
-  const [confirmCancel, setConfirmCancel] = useState<{ isOpen: boolean; order: OrderReadModel | null }>({ isOpen: false, order: null });
-  const [confirmComplete, setConfirmComplete] = useState<{ isOpen: boolean; order: OrderReadModel | null }>({ isOpen: false, order: null });
+  const [confirmAction, setConfirmAction] = useState<ConfirmAction>(EMPTY_CONFIRM);
   const [detailOrder, setDetailOrder] = useState<{ order: OrderReadModel; detail: OrderDetailReadModel } | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
 
@@ -35,39 +51,60 @@ export function useOrders() {
     fetchOrders();
   }, [fetchOrders]);
 
-  const handleCancelOrder = async (id: string) => {
+  const handleStatusChange = async (
+    order: OrderReadModel,
+    nextStatus: OrderStatus,
+    label: string,
+    destructive = false,
+  ) => {
+    if (destructive) {
+      setConfirmAction({
+        isOpen: true,
+        order,
+        status: nextStatus,
+        label,
+        destructive: true,
+      });
+      return;
+    }
+
     try {
-      await ordersService.cancelOrder(id);
-      toast.success('Đã hủy đơn hàng thành công');
+      await ordersService.updateOrderStatus(order.id, nextStatus);
+      toast.success(`Đã cập nhật trạng thái: ${label}`);
       await fetchOrders();
     } catch (error) {
       console.error(error);
-      toast.error('Lỗi khi hủy đơn hàng');
+      toast.error('Lỗi khi cập nhật trạng thái đơn hàng');
     }
   };
 
-  const handleCancelConfirm = async () => {
-    if (confirmCancel.order) {
-      await handleCancelOrder(confirmCancel.order.id);
-      setConfirmCancel({ isOpen: false, order: null });
+  const handleConfirmAction = async () => {
+    if (!confirmAction.order || !confirmAction.status) {
+      return;
     }
-  };
 
-  const handleCompleteOrder = async (id: string) => {
     try {
-      await ordersService.completeOrder(id);
-      toast.success('Đã cập nhật trạng thái hoàn thành đơn hàng');
+      await ordersService.updateOrderStatus(
+        confirmAction.order.id,
+        confirmAction.status,
+      );
+      toast.success(`Đã cập nhật trạng thái: ${confirmAction.label}`);
+      setConfirmAction(EMPTY_CONFIRM);
       await fetchOrders();
     } catch (error) {
       console.error(error);
-      toast.error('Lỗi khi cập nhật đơn hàng');
+      toast.error('Lỗi khi cập nhật trạng thái đơn hàng');
     }
   };
 
-  const handleCompleteConfirm = async () => {
-    if (confirmComplete.order) {
-      await handleCompleteOrder(confirmComplete.order.id);
-      setConfirmComplete({ isOpen: false, order: null });
+  const handleMarkPaid = async (order: OrderReadModel) => {
+    try {
+      await ordersService.updateOrderPaymentStatus(order.id, 'PAID');
+      toast.success('Đã ghi nhận thanh toán');
+      await fetchOrders();
+    } catch (error) {
+      console.error(error);
+      toast.error('Lỗi khi cập nhật thanh toán');
     }
   };
 
@@ -102,12 +139,11 @@ export function useOrders() {
     setQ,
     status,
     setStatus,
-    confirmCancel,
-    setConfirmCancel,
-    handleCancelConfirm,
-    confirmComplete,
-    setConfirmComplete,
-    handleCompleteConfirm,
+    confirmAction,
+    setConfirmAction,
+    handleConfirmAction,
+    handleStatusChange,
+    handleMarkPaid,
     detailOrder,
     setDetailOrder,
     loadingDetail,

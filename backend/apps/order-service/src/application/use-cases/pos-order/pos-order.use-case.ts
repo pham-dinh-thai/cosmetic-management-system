@@ -11,6 +11,7 @@ import {
   type PosOrderPaymentMethod,
 } from './pos-order.request';
 import { BatchDeduction } from 'apps/order-service/src/domain/ports/remove-stock.port';
+import { OrderPaymentStatus } from 'apps/order-service/src/domain/types';
 
 export const WALK_IN_CUSTOMER_ID = '00000000-0000-0000-0000-000000000001';
 
@@ -53,10 +54,11 @@ export class PosOrderUseCase {
       code: code.getValue(),
       customerId: request.customerId ?? WALK_IN_CUSTOMER_ID,
       paymentMethod: request.paymentMethod,
+      paymentStatus: OrderPaymentStatus.PAID,
       lines: pricedLines,
     });
 
-    order.complete();
+    order.deliver();
 
     await this.deductStock(order);
 

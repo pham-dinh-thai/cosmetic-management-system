@@ -66,6 +66,10 @@ import {
   ReverseBatchStockUseCase,
   reverseBatchStockUseCaseFactory,
 } from './application/use-cases/reverse-batch-stock/reverse-batch-stock.use-case';
+import {
+  RestoreBatchStockUseCase,
+  restoreBatchStockUseCaseFactory,
+} from './application/use-cases/restore-batch-stock/restore-batch-stock.use-case';
 
 @Module({
   imports: [MikroOrmModule.forFeature([Inventory, Batch])],
@@ -148,6 +152,11 @@ import {
     {
       provide: ReverseBatchStockUseCase,
       useFactory: reverseBatchStockUseCaseFactory,
+      inject: [INVENTORIES_REPOSITORY],
+    },
+    {
+      provide: RestoreBatchStockUseCase,
+      useFactory: restoreBatchStockUseCaseFactory,
       inject: [INVENTORIES_REPOSITORY],
     },
   ],

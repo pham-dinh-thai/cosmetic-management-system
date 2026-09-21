@@ -13,7 +13,13 @@ export class OrderDetailReadModel {
     public readonly id: string,
     public readonly code: string,
     public readonly customerId: string,
+    public readonly customerName: string | null,
+    public readonly recipientName: string | null,
+    public readonly recipientPhone: string | null,
+    public readonly shippingAddress: string | null,
+    public readonly shippingCity: string | null,
     public readonly paymentMethod: string,
+    public readonly paymentStatus: string,
     public readonly status: string,
     public readonly totalAmount: number,
     public readonly lines: OrderDetailLineReadModel[],
@@ -21,12 +27,21 @@ export class OrderDetailReadModel {
     public readonly updatedAt: Date,
   ) {}
 
-  public static from(order: Order): OrderDetailReadModel {
+  public static from(
+    order: Order,
+    customerName: string | null,
+  ): OrderDetailReadModel {
     return new OrderDetailReadModel(
       order.getId(),
       order.getCode(),
       order.getCustomerId(),
+      customerName,
+      order.getRecipientName() ?? null,
+      order.getRecipientPhone() ?? null,
+      order.getShippingAddress() ?? null,
+      order.getShippingCity() ?? null,
       order.getPaymentMethod(),
+      order.getPaymentStatus(),
       order.getStatus(),
       order.getTotalAmount(),
       order.getLines().map((line) => ({

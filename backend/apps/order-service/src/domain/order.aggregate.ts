@@ -5,8 +5,29 @@ import {
   CreateOrderProps,
   FromPersistentOrderProps,
   OrderPaymentMethod,
+  OrderPaymentStatus,
   OrderStatus,
 } from './types';
+
+const ORDER_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
+  [OrderStatus.PENDING_CONFIRMATION]: [
+    OrderStatus.CONFIRMED,
+    OrderStatus.DELIVERED,
+    OrderStatus.CANCELLED,
+  ],
+  [OrderStatus.CONFIRMED]: [OrderStatus.PREPARING, OrderStatus.CANCELLED],
+  [OrderStatus.PREPARING]: [OrderStatus.SHIPPING, OrderStatus.CANCELLED],
+  [OrderStatus.SHIPPING]: [
+    OrderStatus.DELIVERED,
+    OrderStatus.DELIVERY_FAILED,
+    OrderStatus.CANCELLED,
+  ],
+  [OrderStatus.DELIVERED]: [],
+  [OrderStatus.CANCELLED]: [OrderStatus.REFUNDED],
+  [OrderStatus.DELIVERY_FAILED]: [OrderStatus.RETURNED, OrderStatus.CANCELLED],
+  [OrderStatus.RETURNED]: [OrderStatus.REFUNDED],
+  [OrderStatus.REFUNDED]: [],
+};
 
 export class Order {
   private constructor(
@@ -14,9 +35,14 @@ export class Order {
     private readonly code: string,
     private readonly customerId: string,
     private readonly paymentMethod: OrderPaymentMethod,
+    private paymentStatus: OrderPaymentStatus,
     private status: OrderStatus,
     private totalAmount: number,
     private readonly lines: OrderLine[],
+    private readonly recipientName?: string | null,
+    private readonly recipientPhone?: string | null,
+    private readonly shippingAddress?: string | null,
+    private readonly shippingCity?: string | null,
     private readonly createdAt?: Date,
     private readonly updatedAt?: Date,
   ) {}
@@ -29,9 +55,14 @@ export class Order {
       props.code,
       props.customerId,
       props.paymentMethod,
-      OrderStatus.PENDING,
+      props.paymentStatus ?? OrderPaymentStatus.UNPAID,
+      OrderStatus.PENDING_CONFIRMATION,
       Order.calculateTotal(lines),
       lines,
+      props.recipientName,
+      props.recipientPhone,
+      props.shippingAddress,
+      props.shippingCity,
     );
   }
 
@@ -41,9 +72,14 @@ export class Order {
       props.code,
       props.customerId,
       props.paymentMethod,
+      props.paymentStatus,
       props.status,
       props.totalAmount,
       props.lines.map((line) => OrderLine.fromPersistent(line)),
+      props.recipientName,
+      props.recipientPhone,
+      props.shippingAddress,
+      props.shippingCity,
       props.createdAt,
       props.updatedAt,
     );
@@ -53,12 +89,22 @@ export class Order {
     return lines.reduce((sum, line) => sum + line.getSubtotal(), 0);
   }
 
+  private transitionTo(next: OrderStatus): void {
+    const allowed = ORDER_TRANSITIONS[this.status] ?? [];
+
+    if (!allowed.includes(next)) {
+      throw new InvalidOrderStatusException(this.id, this.status, next);
+    }
+
+    this.status = next;
+  }
+
   public replaceLines(lines: CreateOrderLineProps[]): void {
-    if (this.status !== OrderStatus.PENDING) {
+    if (this.status !== OrderStatus.PENDING_CONFIRMATION) {
       throw new InvalidOrderStatusException(
         this.id,
         this.status,
-        OrderStatus.PENDING,
+        OrderStatus.PENDING_CONFIRMATION,
       );
     }
 
@@ -70,32 +116,48 @@ export class Order {
     this.totalAmount = Order.calculateTotal(this.lines);
   }
 
-  public complete(): void {
-    if (this.status !== OrderStatus.PENDING) {
-      throw new InvalidOrderStatusException(
-        this.id,
-        this.status,
-        OrderStatus.COMPLETED,
-      );
-    }
+  public confirm(): void {
+    this.transitionTo(OrderStatus.CONFIRMED);
+  }
 
-    this.status = OrderStatus.COMPLETED;
+  public startPreparing(): void {
+    this.transitionTo(OrderStatus.PREPARING);
+  }
+
+  public startShipping(): void {
+    this.transitionTo(OrderStatus.SHIPPING);
+  }
+
+  public deliver(): void {
+    this.transitionTo(OrderStatus.DELIVERED);
+  }
+
+  public failDelivery(): void {
+    this.transitionTo(OrderStatus.DELIVERY_FAILED);
+  }
+
+  public returnOrder(): void {
+    this.transitionTo(OrderStatus.RETURNED);
+  }
+
+  public refund(): void {
+    this.transitionTo(OrderStatus.REFUNDED);
   }
 
   public cancel(): void {
-    if (this.status !== OrderStatus.PENDING) {
-      throw new InvalidOrderStatusException(
-        this.id,
-        this.status,
-        OrderStatus.CANCELLED,
-      );
-    }
-
-    this.status = OrderStatus.CANCELLED;
+    this.transitionTo(OrderStatus.CANCELLED);
   }
 
-  public isCompletable(): boolean {
-    return this.status === OrderStatus.PENDING;
+  public markPaid(): void {
+    this.paymentStatus = OrderPaymentStatus.PAID;
+  }
+
+  public markUnpaid(): void {
+    this.paymentStatus = OrderPaymentStatus.UNPAID;
+  }
+
+  public isPendingConfirmation(): boolean {
+    return this.status === OrderStatus.PENDING_CONFIRMATION;
   }
 
   public getId(): string {
@@ -112,6 +174,10 @@ export class Order {
 
   public getPaymentMethod(): OrderPaymentMethod {
     return this.paymentMethod;
+  }
+
+  public getPaymentStatus(): OrderPaymentStatus {
+    return this.paymentStatus;
   }
 
   public getStatus(): OrderStatus {
@@ -132,5 +198,21 @@ export class Order {
 
   public getUpdatedAt(): Date | undefined {
     return this.updatedAt;
+  }
+
+  public getRecipientName(): string | null | undefined {
+    return this.recipientName;
+  }
+
+  public getRecipientPhone(): string | null | undefined {
+    return this.recipientPhone;
+  }
+
+  public getShippingAddress(): string | null | undefined {
+    return this.shippingAddress;
+  }
+
+  public getShippingCity(): string | null | undefined {
+    return this.shippingCity;
   }
 }

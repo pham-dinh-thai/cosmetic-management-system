@@ -39,7 +39,22 @@ export interface CustomerDetail extends CustomerSummary {
   phones: { id: string; phone: string }[];
 }
 
+export interface MeCustomer {
+  id: string;
+  code: string;
+}
+
 export const customersService = {
+  async getMe(): Promise<MeCustomer | null> {
+    const { data } = await api.get<MeCustomer | null>("/customers/me");
+    return data;
+  },
+
+  async ensureMe(): Promise<MeCustomer> {
+    const { data } = await api.post<MeCustomer>("/customers/me");
+    return data;
+  },
+
   async getCustomers(search?: string): Promise<CustomerSummary[]> {
     const { data } = await api.get<CustomerSummary[]>("/customers", {
       params: search ? { search } : undefined,

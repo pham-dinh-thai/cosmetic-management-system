@@ -13,7 +13,7 @@ export class DeleteOrderUseCase {
       throw new OrderNotFoundException(id);
     }
 
-    if (order.getStatus() !== OrderStatus.PENDING) {
+    if (order.getStatus() !== OrderStatus.PENDING_CONFIRMATION) {
       throw new InvalidOrderStatusException(id, order.getStatus(), 'DELETED');
     }
 

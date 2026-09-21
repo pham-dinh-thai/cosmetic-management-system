@@ -2,7 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { EntityManager, raw } from '@mikro-orm/postgresql';
 import { IOrdersRepository } from '../../domain/repositories/orders.repository';
 import { Order as OrderDomain } from '../../domain/order.aggregate';
-import { CreateOrderLineProps, OrderStatus } from '../../domain/types';
+import {
+  CreateOrderLineProps,
+  OrderPaymentStatus,
+  OrderStatus,
+} from '../../domain/types';
 import { Order } from '../entities/order.entity';
 import { OrderLine } from '../entities/order-line.entity';
 import { OrdersMapper } from '../mappers/orders.mapper';
@@ -73,8 +77,13 @@ export class MikroOrdersRepository implements IOrdersRepository {
       code: order.getCode(),
       customerId: order.getCustomerId(),
       paymentMethod: order.getPaymentMethod(),
+      paymentStatus: order.getPaymentStatus(),
       status: order.getStatus(),
       totalAmount: order.getTotalAmount(),
+      recipientName: order.getRecipientName() ?? null,
+      recipientPhone: order.getRecipientPhone() ?? null,
+      shippingAddress: order.getShippingAddress() ?? null,
+      shippingCity: order.getShippingCity() ?? null,
     });
 
     this.em.persist(entity);
@@ -152,6 +161,26 @@ export class MikroOrdersRepository implements IOrdersRepository {
     return OrdersMapper.toDomain(entity);
   }
 
+  public async setPaymentStatus(
+    id: string,
+    paymentStatus: OrderPaymentStatus,
+  ): Promise<OrderDomain | null> {
+    const entity = await this.em.findOne(
+      Order,
+      { id },
+      { populate: ['lines'] },
+    );
+
+    if (!entity) {
+      return null;
+    }
+
+    entity.paymentStatus = paymentStatus;
+    await this.em.flush();
+
+    return OrdersMapper.toDomain(entity);
+  }
+
   public async findBestSellers(
     limit: number,
   ): Promise<{ variantId: string; quantitySold: number }[]> {
@@ -160,7 +189,7 @@ export class MikroOrdersRepository implements IOrdersRepository {
       .join('ol.order', 'o')
       .select('ol.variantId')
       .addSelect(raw('SUM(ol.quantity)').as('total'))
-      .where({ 'o.status': { $ne: OrderStatus.CANCELLED } })
+      .where({ 'o.status': OrderStatus.DELIVERED })
       .groupBy('ol.variantId')
       .orderBy({ [raw('SUM(ol.quantity)')]: 'DESC' })
       .limit(limit)

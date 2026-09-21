@@ -10,13 +10,17 @@ import {
   Post,
   Put,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
+import type { Request } from 'express';
 import { AuthGuard, Role, Roles, RolesGuard } from '@app/security';
 import { FindAllCustomersUseCase } from 'apps/customer-service/src/application/use-cases/find-customer/find-all/find-all-customers.use-case';
 import { FindAllCustomerReadModel } from 'apps/customer-service/src/application/use-cases/find-customer/find-all/read-models/find-all-customer.read-model';
 import { FindCustomerByIdUseCase } from 'apps/customer-service/src/application/use-cases/find-customer/find-by-id/find-customer-by-id.use-case';
 import { FindCustomerByIdReadModel } from 'apps/customer-service/src/application/use-cases/find-customer/find-by-id/read-models/find-customer-by-id.read-model';
+import { FindCustomerByUserUseCase } from 'apps/customer-service/src/application/use-cases/find-customer/find-by-user/find-customer-by-user.use-case';
+import { FindCustomerByUserReadModel } from 'apps/customer-service/src/application/use-cases/find-customer/find-by-user/read-models/find-customer-by-user.read-model';
 import { CreateCustomerUseCase } from 'apps/customer-service/src/application/use-cases/create-customer/create-customer.use-case';
 import { CreateCustomerRequest } from './requests/create-customer.request';
 import { UpdateCustomerUseCase } from 'apps/customer-service/src/application/use-cases/update-customer/update-customer.use-case';
@@ -47,6 +51,7 @@ export class CustomersController {
     private readonly removePhoneUseCase: RemovePhoneUseCase,
     private readonly activateCustomerUseCase: ActivateCustomerUseCase,
     private readonly deactivateCustomerUseCase: DeactivateCustomerUseCase,
+    private readonly findCustomerByUserUseCase: FindCustomerByUserUseCase,
   ) {}
 
   @Get()
@@ -54,6 +59,47 @@ export class CustomersController {
     @Query('search') search?: string,
   ): Promise<FindAllCustomerReadModel[]> {
     return await this.findAllCustomersUseCase.execute(search);
+  }
+
+  @Roles(Role.Customer, Role.Admin, Role.Employee)
+  @Get('me')
+  public async findMe(
+    @Req() request: Request,
+  ): Promise<FindCustomerByUserReadModel | null> {
+    const userId =
+      (request as unknown as { user?: { sub?: string } }).user?.sub ?? '';
+    if (!userId) {
+      return null;
+    }
+
+    return await this.findCustomerByUserUseCase.execute(userId);
+  }
+
+  @Roles(Role.Customer, Role.Admin, Role.Employee)
+  @Post('me')
+  public async ensureMe(
+    @Req() request: Request,
+  ): Promise<FindCustomerByUserReadModel> {
+    const userId =
+      (request as unknown as { user?: { sub?: string } }).user?.sub ?? '';
+
+    if (userId) {
+      const existing = await this.findCustomerByUserUseCase.execute(userId);
+      if (existing) {
+        return existing;
+      }
+    }
+
+    await this.createCustomerUseCase.execute({ userId });
+
+    const customer = await this.findCustomerByUserUseCase.execute(userId);
+
+    return (
+      customer ?? {
+        id: '',
+        code: '',
+      }
+    );
   }
 
   @Get(':id')
