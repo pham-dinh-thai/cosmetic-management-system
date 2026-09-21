@@ -71,6 +71,8 @@ export interface OrderDetailLine {
   quantity: number;
   unitPrice: number;
   subtotal: number;
+  name?: string;
+  variantName?: string;
 }
 
 export interface OrderDetailReadModel {
@@ -111,6 +113,23 @@ export const ordersService = {
 
   async getOrders(params?: { search?: string; status?: OrderStatus; customerId?: string }): Promise<OrderReadModel[]> {
     const { data } = await api.get<OrderReadModel[]>('/orders', { params });
+    return data;
+  },
+
+  async getMyOrders(): Promise<OrderReadModel[]> {
+    const { data } = await api.get<OrderReadModel[]>('/orders/me');
+    return data;
+  },
+
+  async getMyOrderById(id: string): Promise<OrderDetailReadModel> {
+    const { data } = await api.get<OrderDetailReadModel>(`/orders/me/${id}`);
+    return data;
+  },
+
+  async cancelMyOrder(id: string): Promise<{ id: string; status: OrderStatus }> {
+    const { data } = await api.patch<{ id: string; status: OrderStatus }>(
+      `/orders/me/${id}/cancel`,
+    );
     return data;
   },
 

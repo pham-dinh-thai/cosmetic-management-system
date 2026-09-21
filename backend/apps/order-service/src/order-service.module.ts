@@ -8,6 +8,7 @@ import { Order } from './infrastructure/entities/order.entity';
 import { OrderLine } from './infrastructure/entities/order-line.entity';
 import { OrderTransaction } from './infrastructure/entities/order-transaction.entity';
 import { OrdersController } from './presentation/public/orders/orders.controller';
+import { MyOrdersController } from './presentation/public/orders/my-orders.controller';
 import { ClientOrdersController } from './presentation/public/orders/client-orders.controller';
 import { PosOrdersController } from './presentation/public/orders/pos-orders.controller';
 import { BestSellersController } from './presentation/public/orders/best-sellers.controller';
@@ -30,9 +31,11 @@ import { OrderLoggerAdapter } from './infrastructure/adapters/order-logger.adapt
 import { VariantLabelReaderAdapter } from './infrastructure/adapters/variant-label-reader.adapter';
 import { EmployeeCodeReaderAdapter } from './infrastructure/adapters/employee-code-reader.adapter';
 import { CustomerNameReaderAdapter } from './infrastructure/adapters/customer-name-reader.adapter';
+import { CustomerIdReaderAdapter } from './infrastructure/adapters/customer-id-reader.adapter';
 import { VARIANT_LABEL_READER_PORT } from './application/use-cases/print-order/ports/variant-label-reader.port';
 import { EMPLOYEE_CODE_READER_PORT } from './application/use-cases/print-order/ports/employee-code-reader.port';
 import { CUSTOMER_NAME_READER_PORT } from './domain/ports/customer-name-reader.port';
+import { CUSTOMER_ID_READER_PORT } from './application/ports/customer-id-reader.port';
 import {
   FindAllOrdersUseCase,
   findAllOrdersUseCaseFactory,
@@ -114,6 +117,7 @@ import { ORDER_LOGGER_PORT } from './application/ports/employee-logger.port';
   ],
   controllers: [
     BestSellersController,
+    MyOrdersController,
     ClientOrdersController,
     PosOrdersController,
     OrdersController,
@@ -155,6 +159,12 @@ import { ORDER_LOGGER_PORT } from './application/ports/employee-logger.port';
       provide: CUSTOMER_NAME_READER_PORT,
       useFactory: (config: ConfigService) =>
         new CustomerNameReaderAdapter(config),
+      inject: [ConfigService],
+    },
+    {
+      provide: CUSTOMER_ID_READER_PORT,
+      useFactory: (config: ConfigService) =>
+        new CustomerIdReaderAdapter(config),
       inject: [ConfigService],
     },
     {

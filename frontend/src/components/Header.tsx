@@ -510,6 +510,16 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
                       </svg>
                       <span>Thông tin cá nhân</span>
                     </Link>
+                    <Link
+                      to="/my-orders"
+                      onClick={() => setIsProfileMenuOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 text-[14px] font-medium text-[#1c3a13] hover:bg-[#eeeee9] transition-colors"
+                    >
+                      <svg className="w-4 h-4 text-[#757c5d]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                      </svg>
+                      <span>Đơn hàng của tôi</span>
+                    </Link>
                     {role === 'admin' && (
                       <Link
                         to={getEmployeeLandingPath(useAuthStore.getState().user)}
