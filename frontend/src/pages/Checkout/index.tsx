@@ -1,34 +1,86 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import Header from "../../components/Header";
+import { useAuth } from "../../contexts/useAuth";
 import {
   useCartStore,
   formatVND,
   cartSubtotal,
 } from "../../store/useCartStore";
+import { ordersService } from "../../services/orders.service";
+import { customersService } from "../../services/customers.service";
+
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const CheckoutPage = () => {
   const items = useCartStore((s) => s.items);
   const clear = useCartStore((s) => s.clear);
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
   const [placed, setPlaced] = useState(false);
   const [orderRef, setOrderRef] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const subtotal = cartSubtotal(items);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.currentTarget;
     if (!form.checkValidity()) {
       form.reportValidity();
       return;
     }
-    const ref = `GD-${Math.floor(100000 + Math.random() * 900000)}`;
-    clear();
-    setOrderRef(ref);
-    setPlaced(true);
-    toast.success("Đặt hàng thành công!");
+
+    if (!isAuthenticated) {
+      toast.error("Vui lòng đăng nhập để đặt hàng.");
+      navigate("/login", { state: { from: "/checkout" }, replace: true });
+      return;
+    }
+
+    const demoItems = items.filter((item) => !UUID_RE.test(item.id));
+    if (demoItems.length > 0) {
+      toast.error(
+        `Sản phẩm demo (${demoItems.map((i) => i.productCode).join(", ")}) không thể đặt hàng trực tuyến. Vui lòng bỏ chúng khỏi giỏ.`,
+      );
+      return;
+    }
+
+    const data = new FormData(form);
+    const paymentMethod = data.get("payment") === "BANK_TRANSFER" ? "BANK_TRANSFER" : "CASH";
+
+    setSubmitting(true);
+    try {
+      const { id: customer } = await customersService.ensureMe();
+      const result = await ordersService.placeOrder({
+        customerId: customer,
+        lines: items.map((item) => ({
+          variantId: item.id,
+          quantity: item.qty,
+        })),
+        paymentMethod,
+        recipientName: [data.get("firstName"), data.get("lastName")]
+          .filter(Boolean)
+          .join(" "),
+        recipientPhone: (data.get("phone") as string) ?? "",
+        shippingAddress: (data.get("address") as string) ?? "",
+        shippingCity: (data.get("city") as string) ?? "",
+      });
+
+      clear();
+      setOrderRef(`#${result.id.slice(0, 8).toUpperCase()}`);
+      setPlaced(true);
+      toast.success("Đặt hàng thành công!");
+    } catch (error) {
+      const message =
+        (error as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message ?? "Không thể đặt hàng. Vui lòng thử lại.";
+      toast.error(message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (placed) {
@@ -96,6 +148,14 @@ const CheckoutPage = () => {
         {/* Left: Forms */}
         <div className="flex-1 lg:w-3/5 px-6 sm:px-12 py-12 lg:py-20 lg:pl-12 xl:pl-[calc(50vw-600px+48px)] xl:pr-12 border-r border-warm-stone">
           <div className="max-w-xl mx-auto lg:ml-auto lg:mr-0 w-full">
+            <button
+              type="button"
+              onClick={() => navigate(-1)}
+              className="mb-8 inline-flex items-center gap-2 text-[14px] font-medium text-forest-depths hover:opacity-70 transition-opacity"
+            >
+              <span aria-hidden="true">←</span>
+              Quay lại
+            </button>
             <h1 
               className="text-forest-depths mb-12"
               style={{
@@ -197,11 +257,11 @@ const CheckoutPage = () => {
                 <h2 className="text-[18px] text-forest-depths mb-4 mt-4" style={{ fontWeight: 400 }}>Thanh toán</h2>
                 <div className="border-[1.5px] border-warm-stone rounded-lg flex flex-col">
                   <label className="flex items-center gap-4 p-4 border-b border-warm-stone cursor-pointer">
-                    <input type="radio" name="payment" defaultChecked className="accent-forest-depths w-4 h-4" />
+                    <input type="radio" name="payment" value="CASH" defaultChecked className="accent-forest-depths w-4 h-4" />
                     <span className="text-forest-depths">Thanh toán khi nhận hàng (COD)</span>
                   </label>
                   <label className="flex items-center gap-4 p-4 cursor-pointer bg-snow-white/50">
-                    <input type="radio" name="payment" className="accent-forest-depths w-4 h-4" />
+                    <input type="radio" name="payment" value="BANK_TRANSFER" className="accent-forest-depths w-4 h-4" />
                     <span className="text-forest-depths">Chuyển khoản ngân hàng</span>
                   </label>
                 </div>
@@ -209,9 +269,10 @@ const CheckoutPage = () => {
 
               <button 
                 type="submit"
-                className="w-full mt-4 inline-flex items-center justify-center rounded-full bg-forest-depths text-white px-8 py-4 text-[16px] font-medium tracking-[0.02em] hover:opacity-85 transition-all"
+                disabled={submitting}
+                className="w-full mt-4 inline-flex items-center justify-center rounded-full bg-forest-depths text-white px-8 py-4 text-[16px] font-medium tracking-[0.02em] hover:opacity-85 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Hoàn tất đặt hàng
+                {submitting ? "Đang đặt hàng…" : "Hoàn tất đặt hàng"}
               </button>
             </form>
           </div>

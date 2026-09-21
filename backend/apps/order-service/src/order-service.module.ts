@@ -17,18 +17,22 @@ import { ORDERS_REPOSITORY } from './domain/repositories/orders.repository';
 import { ORDER_TRANSACTIONS_REPOSITORY } from './domain/repositories/order-transactions.repository';
 import { REMOVE_STOCK_PORT } from './domain/ports/remove-stock.port';
 import { CREATE_INVOICE_PORT } from './domain/ports/create-invoice.port';
+import { RESTORE_STOCK_PORT } from './domain/ports/restore-stock.port';
 import { MikroOrdersRepository } from './infrastructure/repositories/mikro-orders.repository';
 import { MikroOrderTransactionsRepository } from './infrastructure/repositories/mikro-order-transactions.repository';
 import { RemoveStockAdapter } from './infrastructure/adapters/remove-stock.adapter';
 import { CreateInvoiceAdapter } from './infrastructure/adapters/create-invoice.adapter';
 import { VariantsReaderAdapter } from './infrastructure/adapters/variants-reader.adapter';
 import { ReverseInventoryAdapter } from './infrastructure/adapters/reverse-inventory.adapter';
+import { RestoreStockAdapter } from './infrastructure/adapters/restore-stock.adapter';
 import { DecreaseCartLineQuantityAdapter } from './infrastructure/adapters/decrease-cart-line-quantity.adapter';
 import { OrderLoggerAdapter } from './infrastructure/adapters/order-logger.adapter';
 import { VariantLabelReaderAdapter } from './infrastructure/adapters/variant-label-reader.adapter';
 import { EmployeeCodeReaderAdapter } from './infrastructure/adapters/employee-code-reader.adapter';
+import { CustomerNameReaderAdapter } from './infrastructure/adapters/customer-name-reader.adapter';
 import { VARIANT_LABEL_READER_PORT } from './application/use-cases/print-order/ports/variant-label-reader.port';
 import { EMPLOYEE_CODE_READER_PORT } from './application/use-cases/print-order/ports/employee-code-reader.port';
+import { CUSTOMER_NAME_READER_PORT } from './domain/ports/customer-name-reader.port';
 import {
   FindAllOrdersUseCase,
   findAllOrdersUseCaseFactory,
@@ -46,13 +50,13 @@ import {
   updateOrderUseCaseFactory,
 } from './application/use-cases/update-order/update-order.use-case';
 import {
-  CompleteOrderUseCase,
-  completeOrderUseCaseFactory,
-} from './application/use-cases/complete-order/complete-order.use-case';
+  UpdateOrderStatusUseCase,
+  updateOrderStatusUseCaseFactory,
+} from './application/use-cases/update-order-status/update-order-status.use-case';
 import {
-  CancelOrderUseCase,
-  cancelOrderUseCaseFactory,
-} from './application/use-cases/cancel-order/cancel-order.use-case';
+  UpdateOrderPaymentStatusUseCase,
+  updateOrderPaymentStatusUseCaseFactory,
+} from './application/use-cases/update-order-payment-status/update-order-payment-status.use-case';
 import {
   DeleteOrderUseCase,
   deleteOrderUseCaseFactory,
@@ -148,9 +152,20 @@ import { ORDER_LOGGER_PORT } from './application/ports/employee-logger.port';
       inject: [ConfigService],
     },
     {
+      provide: CUSTOMER_NAME_READER_PORT,
+      useFactory: (config: ConfigService) =>
+        new CustomerNameReaderAdapter(config),
+      inject: [ConfigService],
+    },
+    {
       provide: REVERSE_INVENTORY_PORT,
       useFactory: (config: ConfigService) =>
         new ReverseInventoryAdapter(config),
+      inject: [ConfigService],
+    },
+    {
+      provide: RESTORE_STOCK_PORT,
+      useFactory: (config: ConfigService) => new RestoreStockAdapter(config),
       inject: [ConfigService],
     },
     {
@@ -174,12 +189,12 @@ import { ORDER_LOGGER_PORT } from './application/ports/employee-logger.port';
     {
       provide: FindAllOrdersUseCase,
       useFactory: findAllOrdersUseCaseFactory,
-      inject: [ORDERS_REPOSITORY],
+      inject: [ORDERS_REPOSITORY, CUSTOMER_NAME_READER_PORT],
     },
     {
       provide: FindOrderByIdUseCase,
       useFactory: findOrderByIdUseCaseFactory,
-      inject: [ORDERS_REPOSITORY],
+      inject: [ORDERS_REPOSITORY, CUSTOMER_NAME_READER_PORT],
     },
     {
       provide: PrintOrderUseCase,
@@ -196,13 +211,19 @@ import { ORDER_LOGGER_PORT } from './application/ports/employee-logger.port';
       inject: [ORDERS_REPOSITORY],
     },
     {
-      provide: CompleteOrderUseCase,
-      useFactory: completeOrderUseCaseFactory,
+      provide: UpdateOrderStatusUseCase,
+      useFactory: updateOrderStatusUseCaseFactory,
       inject: [
         ORDERS_REPOSITORY,
         ORDER_TRANSACTIONS_REPOSITORY,
         CREATE_INVOICE_PORT,
+        RESTORE_STOCK_PORT,
       ],
+    },
+    {
+      provide: UpdateOrderPaymentStatusUseCase,
+      useFactory: updateOrderPaymentStatusUseCaseFactory,
+      inject: [ORDERS_REPOSITORY],
     },
     {
       provide: PlaceOrderUseCase,
@@ -227,11 +248,6 @@ import { ORDER_LOGGER_PORT } from './application/ports/employee-logger.port';
         ORDER_LOGGER_PORT,
         CREATE_INVOICE_PORT,
       ],
-    },
-    {
-      provide: CancelOrderUseCase,
-      useFactory: cancelOrderUseCaseFactory,
-      inject: [ORDERS_REPOSITORY],
     },
     {
       provide: DeleteOrderUseCase,

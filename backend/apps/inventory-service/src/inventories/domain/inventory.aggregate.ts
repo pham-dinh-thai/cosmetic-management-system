@@ -175,6 +175,31 @@ export class Inventory {
     return batch;
   }
 
+  public restoreStock(quantity: number): Batch[] {
+    if (!this.isActive) {
+      throw new InactiveInventoryException(this.id);
+    }
+
+    const activeBatches = this.batches.filter((b) => b.getIsActive());
+
+    const target =
+      activeBatches.length > 0
+        ? activeBatches.sort(
+            (a, b) =>
+              a.getExpiredDate().getTime() - b.getExpiredDate().getTime(),
+          )[0]
+        : this.batches[this.batches.length - 1];
+
+    if (!target) {
+      throw new BatchNotFoundException('batch', 'none');
+    }
+
+    target.increase(quantity);
+    this.updatedAt = new Date();
+
+    return [target];
+  }
+
   public applyStockAdjustment(batchId: string, delta: number): Batch {
     if (!this.isActive) {
       throw new InactiveInventoryException(this.id);

@@ -1,5 +1,4 @@
 import { type ICartsRepository } from '../../../domain/repositories/carts.repository';
-import { EmptyCartException } from '../../../domain/exceptions/empty-cart.exception';
 
 export interface IRemoveCartItemsRequest {
   customerId: string;
@@ -15,7 +14,7 @@ export class RemoveCartItemsUseCase {
     );
 
     if (!cart) {
-      throw new EmptyCartException();
+      return;
     }
 
     for (const line of request.lines) {

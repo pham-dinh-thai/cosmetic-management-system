@@ -1,11 +1,21 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+} from '@nestjs/common';
 import { FindInventoryByVariantUseCase } from '../../application/use-cases/find-inventory-by-variant/find-inventory-by-variant.use-case';
 import { AddBatchToInventoryUseCase } from '../../application/use-cases/add-batch-to-inventory/add-batch-to-inventory.use-case';
 import { CreateInventoryUseCase } from '../../application/use-cases/create-inventory/create-inventory.use-case';
 import { InventoryNotFoundException } from '../../domain/exceptions/inventory-not-found.exception';
 import { InternalReverseRequest } from './requests/internal-reverse.request';
+import { InternalRestoreStockRequest } from './requests/internal-restore-stock.request';
 import { DecreaseBatchStockUseCase } from '../../application/use-cases/decrease-batch-stock/decrease-batch-stock.use-case';
 import { ReverseBatchStockUseCase } from '../../application/use-cases/reverse-batch-stock/reverse-batch-stock.use-case';
+import { RestoreBatchStockUseCase } from '../../application/use-cases/restore-batch-stock/restore-batch-stock.use-case';
 import { InternalAddBatchRequest } from './requests/internal-add-batch.request';
 import { InternalSaleRequest } from './requests/internal-sale.request';
 
@@ -17,13 +27,12 @@ export class InternalInventoriesController {
     private readonly createInventoryUseCase: CreateInventoryUseCase,
     private readonly decreaseBatchStockUseCase: DecreaseBatchStockUseCase,
     private readonly reverseBatchStockUseCase: ReverseBatchStockUseCase,
+    private readonly restoreBatchStockUseCase: RestoreBatchStockUseCase,
   ) {}
 
   @HttpCode(HttpStatus.CREATED)
   @Post('purchase')
-  public async purchase(
-    @Body() request: InternalAddBatchRequest,
-  ): Promise<{
+  public async purchase(@Body() request: InternalAddBatchRequest): Promise<{
     variantId: string;
     quantity: number;
     lotNumber: string;
@@ -78,9 +87,8 @@ export class InternalInventoriesController {
   public async byVariant(
     @Param('variantId') variantId: string,
   ): Promise<{ quantity: number; minStock: number }> {
-    const inventory = await this.findInventoryByVariantUseCase.execute(
-      variantId,
-    );
+    const inventory =
+      await this.findInventoryByVariantUseCase.execute(variantId);
 
     return { quantity: inventory.quantity, minStock: inventory.minStock };
   }
@@ -119,6 +127,23 @@ export class InternalInventoriesController {
 
     await this.reverseBatchStockUseCase.execute(inventory.id, {
       deductions: request.deductions,
+    });
+
+    return { variantId: request.variantId, quantity: request.quantity };
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('restore')
+  public async restore(
+    @Body() request: InternalRestoreStockRequest,
+  ): Promise<{ variantId: string; quantity: number }> {
+    const inventory = await this.findInventoryByVariantUseCase.execute(
+      request.variantId,
+    );
+
+    await this.restoreBatchStockUseCase.execute(inventory.id, {
+      variantId: request.variantId,
+      quantity: request.quantity,
     });
 
     return { variantId: request.variantId, quantity: request.quantity };

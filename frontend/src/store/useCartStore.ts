@@ -15,6 +15,7 @@ export interface CartItem {
 interface CartState {
   items: CartItem[];
   addItem: (item: Omit<CartItem, "qty"> & { qty?: number }) => void;
+  replaceAll: (items: CartItem[]) => void;
   increment: (id: string) => void;
   decrement: (id: string) => void;
   removeItem: (id: string) => void;
@@ -52,6 +53,8 @@ export const useCartStore = create<CartState>()(
             items: [...state.items, { ...item, qty: item.qty ?? 1 }],
           };
         }),
+
+      replaceAll: (items) => set({ items }),
 
       increment: (id) =>
         set((state) => ({

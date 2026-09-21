@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/useAuth";
 import { useAuthStore } from "../../store/useAuthStore";
 import { getEmployeeLandingPath } from "../../lib/permissions";
@@ -13,15 +13,18 @@ const Login: React.FC = () => {
 
   const { login, isLoading, role, error, clearError } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const storeUser = useAuthStore((s) => s.user);
+  const returnTo =
+    (location.state as { from?: string } | null)?.from ?? "/";
 
   useEffect(() => {
     if (role === "admin" || role === "employee") {
       navigate(getEmployeeLandingPath(storeUser), { replace: true });
     } else if (role === "customer") {
-      navigate("/", { replace: true });
+      navigate(returnTo, { replace: true });
     }
-  }, [role, navigate, storeUser]);
+  }, [role, navigate, storeUser, returnTo]);
 
   useEffect(() => {
     return () => {

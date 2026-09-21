@@ -1,10 +1,24 @@
 export const OrderStatus = {
-  PENDING: 'PENDING',
-  COMPLETED: 'COMPLETED',
+  PENDING_CONFIRMATION: 'PENDING_CONFIRMATION',
+  CONFIRMED: 'CONFIRMED',
+  PREPARING: 'PREPARING',
+  SHIPPING: 'SHIPPING',
+  DELIVERED: 'DELIVERED',
   CANCELLED: 'CANCELLED',
+  DELIVERY_FAILED: 'DELIVERY_FAILED',
+  RETURNED: 'RETURNED',
+  REFUNDED: 'REFUNDED',
 } as const;
 
 export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus];
+
+export const OrderPaymentStatus = {
+  UNPAID: 'UNPAID',
+  PAID: 'PAID',
+} as const;
+
+export type OrderPaymentStatus =
+  (typeof OrderPaymentStatus)[keyof typeof OrderPaymentStatus];
 
 export const OrderPaymentMethod = {
   CASH: 'CASH',
@@ -31,24 +45,33 @@ export type FromPersistentOrderLineProps = {
   updatedAt: Date;
 };
 
+export type OrderShippingInfo = {
+  recipientName?: string | null;
+  recipientPhone?: string | null;
+  shippingAddress?: string | null;
+  shippingCity?: string | null;
+};
+
 export type CreateOrderProps = {
   code: string;
   customerId: string;
   paymentMethod: OrderPaymentMethod;
+  paymentStatus?: OrderPaymentStatus;
   lines: CreateOrderLineProps[];
-};
+} & OrderShippingInfo;
 
 export type FromPersistentOrderProps = {
   id: string;
   code: string;
   customerId: string;
   paymentMethod: OrderPaymentMethod;
+  paymentStatus: OrderPaymentStatus;
   status: OrderStatus;
   totalAmount: number;
   lines: FromPersistentOrderLineProps[];
   createdAt: Date;
   updatedAt: Date;
-};
+} & OrderShippingInfo;
 
 export type CreateOrderTransactionProps = {
   orderId: string;
