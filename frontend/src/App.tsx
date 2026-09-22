@@ -10,6 +10,7 @@ import Register from "./pages/Register";
 import Resources from "./pages/Resources";
 import ProductDetail from "./pages/ProductDetail";
 import CategoryPage from "./pages/CategoryPage";
+import Shop from "./pages/Shop";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import ProfilePage from "./pages/Profile";
@@ -66,6 +67,8 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/" element={<LandingPage />} />
+          <Route path="/shop" element={<Shop />} />
+          <Route path="/products-store" element={<Shop />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/product/:code" element={<ProductDetail />} />

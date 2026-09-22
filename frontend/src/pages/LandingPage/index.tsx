@@ -64,7 +64,7 @@ const LandingPage = () => {
 
               <div className="mt-10 flex flex-wrap items-center gap-4">
                 <Link
-                  to="/login"
+                  to="/shop"
                   className="inline-flex items-center justify-center rounded-full bg-[--color-forest-depths] text-[--color-snow-white] px-6 py-4 text-[14px] font-normal tracking-[0.02em] hover:opacity-90 transition-opacity"
                 >
                   Khám phá sản phẩm →
@@ -189,7 +189,7 @@ const LandingPage = () => {
                   </h2>
                 </div>
                 <Link
-                  to="/login"
+                  to="/shop"
                   className="inline-flex items-center gap-2 text-[14px] underline underline-offset-[6px] decoration-[1.5px] hover:opacity-70 transition-opacity"
                 >
                   Xem tất cả sản phẩm →

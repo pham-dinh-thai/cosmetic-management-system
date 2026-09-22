@@ -99,9 +99,17 @@ const CategoryPage = () => {
       <main className="flex-1">
         <div className="px-6 sm:px-12 py-16 sm:py-24">
           <div className="max-w-[1200px] mx-auto">
-            <p className="text-[13px] font-medium uppercase tracking-[0.2em] text-pewter mb-4">
-              Danh mục sản phẩm
-            </p>
+            <nav className="flex items-center gap-2 font-[var(--font-seed-sans-mono)] text-[11px] uppercase tracking-[0.2em] text-[#666666] mb-4">
+              <Link to="/" className="hover:text-[#1c3a13] transition-colors">
+                Trang chủ
+              </Link>
+              <span>/</span>
+              <Link to="/shop" className="hover:text-[#1c3a13] transition-colors">
+                Cửa hàng
+              </Link>
+              <span>/</span>
+              <span className="text-[#1c3a13]">{category?.name ?? "Danh mục"}</span>
+            </nav>
             <h1
               className="text-forest-depths"
               style={{
@@ -130,12 +138,20 @@ const CategoryPage = () => {
                 <h2 className="text-[24px] text-forest-depths" style={{ fontWeight: 350 }}>
                   Chưa có sản phẩm trong danh mục này
                 </h2>
-                <Link
-                  to="/"
-                  className="mt-6 inline-flex items-center justify-center rounded-full bg-forest-depths text-snow-white px-6 py-3 text-[14px]"
-                >
-                  Về trang chủ
-                </Link>
+                <div className="mt-6 flex items-center justify-center gap-4">
+                  <Link
+                    to="/shop"
+                    className="inline-flex items-center justify-center rounded-full bg-forest-depths text-snow-white px-6 py-3 text-[14px]"
+                  >
+                    Xem tất cả sản phẩm
+                  </Link>
+                  <Link
+                    to="/"
+                    className="inline-flex items-center justify-center rounded-full border border-forest-depths text-forest-depths px-6 py-3 text-[14px]"
+                  >
+                    Về trang chủ
+                  </Link>
+                </div>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">

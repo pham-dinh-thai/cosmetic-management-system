@@ -217,7 +217,7 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
   return (
     <header className="w-full bg-[#fcfcf7] border-b border-[#eeeee9] sticky top-0 z-40">
       <div className="w-full px-6 md:px-12 h-[80px] flex items-center justify-between">
-        <div className="flex-1 flex items-center justify-start">
+        <div className="flex-1 flex items-center justify-start gap-6">
           <Link
             to="/"
             className="flex items-baseline gap-1.5 text-[28px] font-serif font-medium text-[#1c3a13] uppercase tracking-[0.1em] select-none whitespace-nowrap"
@@ -226,10 +226,8 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
           </Link>
         </div>
 
-        {/* Center: Search Area */}
         {!isAdminPage && (
           <div className="hidden lg:flex flex-[2] max-w-[700px] items-center justify-center gap-3">
-            {/* Menu Box */}
             <div 
               className="relative"
               onMouseEnter={() => setIsCategoryMenuOpen(true)}
@@ -244,12 +242,19 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
                 </svg>
               </div>
 
-              {/* Category Dropdown */}
               {isCategoryMenuOpen && (
                 <div className="absolute top-full left-0 pt-2 z-50">
                   <div className="w-[600px] bg-[#fcfcf7] border-[1.5px] border-[#1c3a13] rounded-[16px] overflow-hidden shadow-[0_12px_32px_rgba(28,58,19,0.08)] max-h-[70vh] flex flex-col">
-                    <div className="px-6 py-4 border-b border-[#eeeee9] bg-[#fcfcf7] shrink-0">
+                    <div className="px-6 py-4 border-b border-[#eeeee9] bg-[#fcfcf7] shrink-0 flex items-center justify-between">
                       <h3 className="text-[16px] font-medium text-[#1c3a13]">Tất cả danh mục</h3>
+                      <Link
+                        to="/shop"
+                        onClick={() => setIsCategoryMenuOpen(false)}
+                        className="text-[12px] font-medium text-[#1c3a13] hover:underline flex items-center gap-1"
+                      >
+                        <span>Xem tất cả sản phẩm</span>
+                        <span>→</span>
+                      </Link>
                     </div>
                     <div className="p-6 overflow-y-auto grid grid-cols-2 gap-x-8 gap-y-2">
                       {categories.length === 0 ? (
@@ -274,7 +279,6 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
               )}
             </div>
 
-            {/* Search Bar */}
             <div className="relative flex flex-1 flex-col" ref={searchRef}>
               <div className={`relative flex items-center bg-[#fcfcf7] border-[1.5px] ${isSearchFocused ? 'border-[#1c3a13] rounded-t-[16px] rounded-b-none' : 'border-[#1c3a13] rounded-[8px]'} overflow-hidden h-[42px] transition-colors shadow-sm z-50`}>
                 <input
@@ -299,13 +303,11 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
                 </button>
               </div>
 
-              {/* Search Dropdown */}
               {isSearchFocused && (
                 <div className="absolute top-full left-0 right-0 bg-[#fcfcf7] border-[1.5px] border-t-0 border-[#1c3a13] rounded-b-[16px] overflow-hidden shadow-[0_12px_32px_rgba(28,58,19,0.08)] z-40">
                   <div className="p-6 flex flex-col gap-6">
                     {!trimmedQuery ? (
                       <>
-                    {/* Hot Keywords */}
                     <div className="flex flex-col gap-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2 text-[#1c3a13]">
@@ -352,7 +354,6 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
 
                     <div className="w-full h-[1px] bg-[#eeeee9]"></div>
 
-                    {/* Hot Categories */}
                     <div className="flex flex-col gap-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2 text-[#1c3a13]">
