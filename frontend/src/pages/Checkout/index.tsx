@@ -9,80 +9,13 @@ import {
   cartSubtotal,
 } from "../../store/useCartStore";
 import { ordersService } from "../../services/orders.service";
-import { customersService } from "../../services/customers.service";
 import {
-  locationsService,
-  type VietnamLocation,
-} from "../../services/locations.service";
+  customersService,
+  splitName,
+} from "../../services/customers.service";
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-type LocationPickerProps = {
-  name: string;
-  placeholder: string;
-  value: string;
-  options: VietnamLocation[];
-  disabled?: boolean;
-  onChange: (value: string) => void;
-};
-
-const LocationPicker = ({
-  name,
-  placeholder,
-  value,
-  options,
-  disabled = false,
-  onChange,
-}: LocationPickerProps) => {
-  const [open, setOpen] = useState(false);
-  const selected = options.find((option) => String(option.code) === value);
-
-  return (
-    <div className="relative">
-      <input type="hidden" name={name} value={value} required disabled={disabled} />
-      <button
-        type="button"
-        disabled={disabled}
-        onClick={() => setOpen((current) => !current)}
-        className="w-full min-h-[50px] bg-transparent border-[1.5px] border-warm-stone focus:border-forest-depths rounded-lg px-4 py-3 text-left text-forest-depths outline-none transition-colors cursor-pointer pr-10 disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        <span className={selected ? "text-forest-depths" : "text-pewter"}>
-          {selected?.name ?? placeholder}
-        </span>
-      </button>
-      <span className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-forest-depths">▾</span>
-
-      {open && !disabled && (
-        <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-30 max-h-[34rem] overflow-y-auto rounded-lg border-[1.5px] border-warm-stone bg-snow-white shadow-lg">
-          <button
-            type="button"
-            onClick={() => {
-              onChange("");
-              setOpen(false);
-            }}
-            className="w-full px-4 py-3 text-left text-pewter hover:bg-warm-stone/40"
-          >
-            {placeholder}
-          </button>
-          {options.map((option) => (
-            <button
-              type="button"
-              key={option.code}
-              onClick={() => {
-                onChange(String(option.code));
-                setOpen(false);
-              }}
-              className="w-full px-4 py-3 text-left text-forest-depths hover:bg-warm-stone/40"
-            >
-              {option.name}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
 
 const CheckoutPage = () => {
   const items = useCartStore((s) => s.items);
@@ -93,92 +26,51 @@ const CheckoutPage = () => {
   const [placed, setPlaced] = useState(false);
   const [orderRef, setOrderRef] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [provinces, setProvinces] = useState<VietnamLocation[]>([]);
-  const [districts, setDistricts] = useState<VietnamLocation[]>([]);
-  const [wards, setWards] = useState<VietnamLocation[]>([]);
-  const [provinceCode, setProvinceCode] = useState("");
-  const [districtCode, setDistrictCode] = useState("");
-  const [wardCode, setWardCode] = useState("");
-  const [locationsLoading, setLocationsLoading] = useState(true);
-  const [locationsError, setLocationsError] = useState(false);
+
+  // Hồ sơ khách hàng đã lưu trong DB — dùng để điền sẵn thông tin giao hàng
+  const [formValues, setFormValues] = useState({
+    lastName: "",
+    firstName: "",
+    phone: "",
+    address: "",
+  });
 
   const subtotal = cartSubtotal(items);
 
+  // Điền sẵn thông tin cá nhân từ hồ sơ khách hàng (đã đăng nhập)
   useEffect(() => {
-    let active = true;
-
-    locationsService
-      .getProvinces()
-      .then((data) => {
-        if (active) setProvinces(data);
-      })
-      .catch(() => {
-        if (active) setLocationsError(true);
-      })
-      .finally(() => {
-        if (active) setLocationsLoading(false);
-      });
-
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!provinceCode) {
-      setDistricts([]);
-      setWards([]);
-      setDistrictCode("");
-      setWardCode("");
+    if (!isAuthenticated) {
       return;
     }
 
     let active = true;
-    setDistricts([]);
-    setWards([]);
-    setDistrictCode("");
-    setWardCode("");
-    setLocationsError(false);
 
-    locationsService
-      .getDistricts(Number(provinceCode))
-      .then((data) => {
-        if (active) setDistricts(data);
+    customersService
+      .getMe()
+      .then((profile) => {
+        if (!active || !profile) {
+          return;
+        }
+
+        const { firstName, lastName } = splitName(profile.name ?? "");
+        const firstAddress = profile.addresses?.[0];
+        const address = profile.address || firstAddress?.street || "";
+
+        setFormValues({
+          firstName,
+          lastName,
+          phone: profile.phone ?? "",
+          address,
+        });
       })
       .catch(() => {
-        if (active) setLocationsError(true);
+        // Không có hồ sơ thì để form trống cho người dùng tự nhập
       });
 
     return () => {
       active = false;
     };
-  }, [provinceCode]);
-
-  useEffect(() => {
-    if (!districtCode) {
-      setWards([]);
-      setWardCode("");
-      return;
-    }
-
-    let active = true;
-    setWards([]);
-    setWardCode("");
-    setLocationsError(false);
-
-    locationsService
-      .getWards(Number(districtCode))
-      .then((data) => {
-        if (active) setWards(data);
-      })
-      .catch(() => {
-        if (active) setLocationsError(true);
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [districtCode]);
+  }, [isAuthenticated]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -208,9 +100,6 @@ const CheckoutPage = () => {
     setSubmitting(true);
     try {
       const { id: customer } = await customersService.ensureMe();
-      const province = provinces.find((item) => item.code === Number(data.get("province")));
-      const district = districts.find((item) => item.code === Number(data.get("district")));
-      const ward = wards.find((item) => item.code === Number(wardCode));
       const result = await ordersService.placeOrder({
         customerId: customer,
         lines: items.map((item) => ({
@@ -222,10 +111,7 @@ const CheckoutPage = () => {
           .filter(Boolean)
           .join(" "),
         recipientPhone: (data.get("phone") as string) ?? "",
-        shippingAddress: [data.get("address"), ward?.name, district?.name]
-          .filter(Boolean)
-          .join(", "),
-        shippingCity: province?.name ?? "",
+        shippingAddress: (data.get("address") as string) ?? "",
       });
 
       clear();
@@ -338,6 +224,10 @@ const CheckoutPage = () => {
                       name="lastName"
                       required
                       placeholder="Họ"
+                      value={formValues.lastName}
+                      onChange={(e) =>
+                        setFormValues((v) => ({ ...v, lastName: e.target.value }))
+                      }
                       className="w-full bg-transparent border-[1.5px] border-warm-stone focus:border-forest-depths rounded-lg px-4 py-3 text-forest-depths outline-none transition-colors"
                     />
                     <input 
@@ -345,6 +235,10 @@ const CheckoutPage = () => {
                       name="firstName"
                       required
                       placeholder="Tên"
+                      value={formValues.firstName}
+                      onChange={(e) =>
+                        setFormValues((v) => ({ ...v, firstName: e.target.value }))
+                      }
                       className="w-full bg-transparent border-[1.5px] border-warm-stone focus:border-forest-depths rounded-lg px-4 py-3 text-forest-depths outline-none transition-colors"
                     />
                   </div>
@@ -354,47 +248,22 @@ const CheckoutPage = () => {
                     name="phone"
                     required
                     placeholder="Số điện thoại"
+                    value={formValues.phone}
+                    onChange={(e) =>
+                      setFormValues((v) => ({ ...v, phone: e.target.value }))
+                    }
                     className="w-full bg-transparent border-[1.5px] border-warm-stone focus:border-forest-depths rounded-lg px-4 py-3 text-forest-depths outline-none transition-colors"
                   />
                   
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <LocationPicker
-                      name="province"
-                      placeholder={locationsLoading ? "Đang tải tỉnh/thành…" : "Tỉnh/Thành phố"}
-                      value={provinceCode}
-                      options={provinces}
-                      disabled={locationsLoading}
-                      onChange={setProvinceCode}
-                    />
-                    <LocationPicker
-                      name="district"
-                      placeholder="Quận/Huyện"
-                      value={districtCode}
-                      options={districts}
-                      disabled={!provinceCode || districts.length === 0}
-                      onChange={setDistrictCode}
-                    />
-                    <LocationPicker
-                      name="ward"
-                      placeholder="Phường/Xã"
-                      value={wardCode}
-                      options={wards}
-                      disabled={!districtCode || wards.length === 0}
-                      onChange={setWardCode}
-                    />
-                  </div>
-
-                  {locationsError && (
-                    <p className="text-[13px] text-red-700">
-                      Không tải được dữ liệu địa chỉ. Vui lòng kiểm tra kết nối và thử lại.
-                    </p>
-                  )}
-
                   <input 
                     type="text" 
                     name="address"
                     required
-                    placeholder="Địa chỉ cụ thể (số nhà, tên đường...)"
+                    placeholder="Địa chỉ nhận hàng (số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành phố...)"
+                    value={formValues.address}
+                    onChange={(e) =>
+                      setFormValues((v) => ({ ...v, address: e.target.value }))
+                    }
                     className="w-full bg-transparent border-[1.5px] border-warm-stone focus:border-forest-depths rounded-lg px-4 py-3 text-forest-depths outline-none transition-colors"
                   />
                 </div>

@@ -34,6 +34,7 @@ import { AddPhoneRequest } from './requests/add-phone.request';
 import { RemovePhoneUseCase } from 'apps/customer-service/src/application/use-cases/remove-phone/remove-phone.use-case';
 import { ActivateCustomerUseCase } from 'apps/customer-service/src/application/use-cases/activate-customer/activate-customer.use-case';
 import { DeactivateCustomerUseCase } from 'apps/customer-service/src/application/use-cases/deactivate-customer/deactivate-customer.use-case';
+import { CustomerNotFoundException } from 'apps/customer-service/src/domain/exceptions/customer-not-found.exception';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Roles(Role.Admin, Role.Employee)
@@ -65,14 +66,19 @@ export class CustomersController {
   @Get('me')
   public async findMe(
     @Req() request: Request,
-  ): Promise<FindCustomerByUserReadModel | null> {
+  ): Promise<FindCustomerByIdReadModel | null> {
     const userId =
       (request as unknown as { user?: { sub?: string } }).user?.sub ?? '';
     if (!userId) {
       return null;
     }
 
-    return await this.findCustomerByUserUseCase.execute(userId);
+    const customer = await this.findCustomerByUserUseCase.execute(userId);
+    if (!customer) {
+      return null;
+    }
+
+    return await this.findCustomerByIdUseCase.execute(customer.id);
   }
 
   @Roles(Role.Customer, Role.Admin, Role.Employee)
@@ -114,6 +120,25 @@ export class CustomersController {
     @Body() request: CreateCustomerRequest,
   ): Promise<{ id: string }> {
     return await this.createCustomerUseCase.execute(request);
+  }
+
+  @Roles(Role.Customer, Role.Admin, Role.Employee)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Put('me')
+  public async updateMe(
+    @Req() request: Request,
+    @Body() body: UpdateCustomerRequest,
+  ): Promise<void> {
+    const userId =
+      (request as unknown as { user?: { sub?: string } }).user?.sub ?? '';
+
+    const customer = await this.findCustomerByUserUseCase.execute(userId);
+
+    if (!customer) {
+      throw new CustomerNotFoundException(userId);
+    }
+
+    await this.updateCustomerUseCase.execute(customer.id, body);
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)

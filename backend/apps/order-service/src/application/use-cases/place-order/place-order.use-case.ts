@@ -41,7 +41,13 @@ export class PlaceOrderUseCase {
   private async buildOrder(
     request: Pick<
       IPlaceOrderRequest,
-      'customerId' | 'lines' | 'paymentMethod' | 'recipientName' | 'recipientPhone' | 'shippingAddress' | 'shippingCity'
+      | 'customerId'
+      | 'lines'
+      | 'paymentMethod'
+      | 'recipientName'
+      | 'recipientPhone'
+      | 'shippingAddress'
+      | 'shippingCity'
     >,
   ): Promise<Order> {
     const maxCodeSequence = await this.ordersRepository.findMaxCodeSequence();

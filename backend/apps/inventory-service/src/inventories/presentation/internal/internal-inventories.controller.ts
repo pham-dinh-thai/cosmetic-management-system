@@ -100,9 +100,26 @@ export class InternalInventoriesController {
     quantity: number;
     deductions: { batchId: string; quantity: number }[];
   }> {
-    const inventory = await this.findInventoryByVariantUseCase.execute(
-      request.variantId,
-    );
+    let inventory: { id: string };
+
+    try {
+      inventory = await this.findInventoryByVariantUseCase.execute(
+        request.variantId,
+      );
+    } catch (error) {
+      if (!(error instanceof InventoryNotFoundException)) {
+        throw error;
+      }
+
+      // Variant chưa từng nhập hàng → tạo kho trống để xử lý như hết hàng
+      await this.createInventoryUseCase.execute({
+        variantId: request.variantId,
+        minStock: 0,
+      });
+      inventory = await this.findInventoryByVariantUseCase.execute(
+        request.variantId,
+      );
+    }
 
     const deductions = await this.decreaseBatchStockUseCase.execute(
       inventory.id,

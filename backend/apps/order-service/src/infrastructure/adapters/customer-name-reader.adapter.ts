@@ -14,7 +14,9 @@ export class CustomerNameReaderAdapter implements ICustomerNameReaderPort {
   }
 
   public async getCustomerName(customerId: string): Promise<string | null> {
-    const response = await fetch(`${this.url}/api/internal/customers/${customerId}`);
+    const response = await fetch(
+      `${this.url}/api/internal/customers/${customerId}`,
+    );
 
     if (!response.ok) {
       return null;

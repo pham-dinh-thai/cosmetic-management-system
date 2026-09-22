@@ -31,10 +31,7 @@ export class PrintOrderUseCase {
     private readonly employeeCodeReaderPort: IEmployeeCodeReaderPort,
   ) {}
 
-  public async execute(
-    id: string,
-    userId?: string,
-  ): Promise<OrderReceipt> {
+  public async execute(id: string, userId?: string): Promise<OrderReceipt> {
     const order = await this.ordersRepository.findById(id);
 
     if (!order) {

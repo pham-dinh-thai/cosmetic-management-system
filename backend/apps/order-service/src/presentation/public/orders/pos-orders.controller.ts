@@ -19,9 +19,7 @@ export class PosOrdersController {
   @Departments('sales')
   @HttpCode(HttpStatus.CREATED)
   @Post('pos')
-  public async place(
-    @Body() request: PosOrderRequest,
-  ): Promise<{
+  public async place(@Body() request: PosOrderRequest): Promise<{
     id: string;
     status: string;
     total: number;

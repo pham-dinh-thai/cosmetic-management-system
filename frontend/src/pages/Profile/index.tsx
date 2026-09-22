@@ -6,6 +6,7 @@ import { useProfile } from "./hook";
 const ProfilePage: React.FC = () => {
   const {
     user,
+    isLoading,
     isSaving,
     isPasswordSaving,
     formData,
@@ -44,7 +45,7 @@ const ProfilePage: React.FC = () => {
           <div className="flex items-center gap-6">
             <div className="relative">
               <img
-                src={formData.avatar || avatarPlaceholder}
+                src={avatarPlaceholder}
                 alt={userDisplayName}
                 className="w-20 h-20 rounded-full object-cover border-2 border-[#1c3a13] shadow-md"
               />
@@ -92,7 +93,18 @@ const ProfilePage: React.FC = () => {
               </p>
             </div>
 
-            <form onSubmit={handleSaveProfile} className="flex flex-col gap-6">
+            {isLoading ? (
+              <div className="flex flex-col gap-6" aria-busy="true">
+                {[0, 1, 2].map((row) => (
+                  <div
+                    key={row}
+                    className="h-[48px] rounded-[12px] bg-[#eeeee9] animate-pulse"
+                  />
+                ))}
+                <div className="h-[120px] rounded-[12px] bg-[#eeeee9] animate-pulse" />
+              </div>
+            ) : (
+              <form onSubmit={handleSaveProfile} className="flex flex-col gap-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex flex-col gap-2">
                   <label className="text-[12px] font-medium uppercase tracking-[0.1em] text-[#666666]">
@@ -143,33 +155,20 @@ const ProfilePage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="flex flex-col gap-2">
-                  <label className="text-[12px] font-medium uppercase tracking-[0.1em] text-[#666666]">
-                    Giới tính
-                  </label>
-                  <select
-                    name="gender"
-                    value={formData.gender}
-                    onChange={handleInputChange}
-                    className="w-full h-[48px] px-4 rounded-[12px] border border-[#1c3a13] bg-[#fcfcf7] text-[14px] text-[#1c3a13] outline-none"
-                  >
-                    <option value="female">Nữ</option>
-                    <option value="male">Nam</option>
-                    <option value="other">Khác</option>
-                  </select>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="text-[12px] font-medium uppercase tracking-[0.1em] text-[#666666]">
-                    URL ảnh đại diện
-                  </label>
-                  <Input
-                    name="avatar"
-                    value={formData.avatar}
-                    onChange={handleInputChange}
-                    placeholder="https://..."
-                  />
-                </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-[12px] font-medium uppercase tracking-[0.1em] text-[#666666]">
+                  Giới tính
+                </label>
+                <select
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleInputChange}
+                  className="w-full h-[48px] px-4 rounded-[12px] border border-[#1c3a13] bg-[#fcfcf7] text-[14px] text-[#1c3a13] outline-none"
+                >
+                  <option value="female">Nữ</option>
+                  <option value="male">Nam</option>
+                  <option value="other">Khác</option>
+                </select>
               </div>
 
               <div className="flex flex-col gap-2">
@@ -191,7 +190,8 @@ const ProfilePage: React.FC = () => {
                   {isSaving ? "Đang lưu..." : "Lưu thay đổi"}
                 </Button>
               </div>
-            </form>
+              </form>
+            )}
           </Card>
 
           {/* Right Form: Change Password */}
