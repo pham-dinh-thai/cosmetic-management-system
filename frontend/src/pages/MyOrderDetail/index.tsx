@@ -214,7 +214,7 @@ export const MyOrderDetailPage: React.FC = () => {
       <>
         <Header />
         <div className="min-h-screen bg-[#fcfcf7] py-20 flex flex-col items-center justify-center text-center px-6">
-          <h2 className="text-2xl font-serif text-[#1c3a13] mb-4">Không tìm thấy đơn hàng</h2>
+          <h2 className="text-2xl font-sans font-light text-[#1c3a13] mb-4">Không tìm thấy đơn hàng</h2>
           <p className="text-[#666666] mb-6">Đơn hàng không tồn tại hoặc bạn không có quyền xem thông tin này.</p>
           <Link
             to="/my-orders"
@@ -276,7 +276,7 @@ export const MyOrderDetailPage: React.FC = () => {
           <div className="bg-white rounded-3xl border border-[#eeeee9] p-6 sm:p-8 md:p-10 shadow-[0_4px_24px_rgba(28,58,19,0.03)] flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="flex flex-col gap-3">
               <div className="flex flex-wrap items-center gap-3">
-                <h1 className="text-[26px] sm:text-[32px] font-serif font-light text-[#1c3a13] tracking-tight">
+                <h1 className="text-[26px] sm:text-[32px] font-sans font-light text-[#1c3a13] tracking-tight">
                   Đơn hàng <span className="font-mono font-medium">{order.code}</span>
                 </h1>
                 <span className={`inline-flex items-center px-3.5 py-1 rounded-full text-[12px] font-medium ${meta.className}`}>
@@ -442,7 +442,7 @@ export const MyOrderDetailPage: React.FC = () => {
               <div className="bg-white rounded-3xl border border-[#eeeee9] p-6 sm:p-8 md:p-9 shadow-[0_4px_24px_rgba(28,58,19,0.03)] flex flex-col gap-6">
                 <div className="flex items-center justify-between border-b border-[#eeeee9] pb-5">
                   <div className="flex items-center gap-3">
-                    <h2 className="text-[20px] font-serif font-medium text-[#1c3a13]">
+                    <h2 className="text-[20px] font-sans font-medium text-[#1c3a13]">
                       Danh sách sản phẩm
                     </h2>
                     <span className="px-3 py-1 rounded-full bg-[#fcfcf7] border border-[#eeeee9] text-[12px] font-medium text-[#666666]">
@@ -572,7 +572,7 @@ export const MyOrderDetailPage: React.FC = () => {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-[19px] sm:text-[20px] font-serif font-medium text-[#1c3a13]">
+                    <h3 className="text-[19px] sm:text-[20px] font-sans font-medium text-[#1c3a13]">
                       Địa chỉ nhận hàng
                     </h3>
                     <span className="text-[13px] text-[#888888]">Thông tin giao nhận bưu kiện</span>
@@ -638,7 +638,7 @@ export const MyOrderDetailPage: React.FC = () => {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-[19px] sm:text-[20px] font-serif font-medium text-[#1c3a13]">
+                    <h3 className="text-[19px] sm:text-[20px] font-sans font-medium text-[#1c3a13]">
                       Thanh toán
                     </h3>
                     <span className="text-[13px] text-[#888888]">Hình thức và trạng thái giao dịch</span>
@@ -688,7 +688,7 @@ export const MyOrderDetailPage: React.FC = () => {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-[19px] sm:text-[20px] font-serif font-medium text-[#1c3a13]">
+                    <h3 className="text-[19px] sm:text-[20px] font-sans font-medium text-[#1c3a13]">
                       Tổng kết đơn hàng
                     </h3>
                     <span className="text-[13px] text-[#888888]">Chi tiết thanh toán và chi phí</span>
@@ -716,7 +716,7 @@ export const MyOrderDetailPage: React.FC = () => {
                       <span className="text-[15px] font-semibold text-[#1c3a13] block">Tổng thanh toán</span>
                       <span className="text-[11px] text-[#888888] block mt-0.5">(Đã bao gồm VAT nếu có)</span>
                     </div>
-                    <span className="font-serif text-[26px] sm:text-[28px] font-normal text-[#1c3a13]">
+                    <span className="font-mono text-[26px] sm:text-[28px] font-medium text-[#1c3a13]">
                       {order.totalAmount.toLocaleString('vi-VN')}₫
                     </span>
                   </div>

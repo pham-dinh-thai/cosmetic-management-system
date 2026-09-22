@@ -140,7 +140,7 @@ const MyOrdersPage: React.FC = () => {
                 <span>/</span>
                 <span className="text-[#1c3a13] font-medium">Đơn hàng của tôi</span>
               </nav>
-              <h1 className="text-[28px] sm:text-[34px] font-serif font-light tracking-tight text-[#1c3a13]">
+              <h1 className="text-[28px] sm:text-[34px] font-sans font-light tracking-tight text-[#1c3a13]">
                 Đơn hàng của tôi
               </h1>
               <p className="text-[14px] text-[#666666] mt-1">
@@ -172,7 +172,7 @@ const MyOrdersPage: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
               </div>
-              <h3 className="text-[20px] font-serif font-medium text-[#1c3a13] mb-2">
+              <h3 className="text-[20px] font-sans font-medium text-[#1c3a13] mb-2">
                 Bạn chưa có đơn hàng nào
               </h3>
               <p className="text-[14px] text-[#666666] max-w-[380px] mb-6 leading-relaxed">
@@ -229,7 +229,7 @@ const MyOrdersPage: React.FC = () => {
                       {firstLine ? (
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                           <div className="flex items-center gap-5 flex-1 min-w-0">
-                            <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl bg-[#fcfcf7] border border-[#eeeee9] flex items-center justify-center shrink-0 text-[#1c3a13] font-serif text-2xl group-hover:scale-105 transition-transform">
+                            <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl bg-[#fcfcf7] border border-[#eeeee9] flex items-center justify-center shrink-0 text-[#1c3a13] font-sans font-medium text-xl group-hover:scale-105 transition-transform">
                               {(firstLine.name || firstLine.variantId).charAt(0).toUpperCase()}
                             </div>
                             <div className="flex-1 min-w-0 flex flex-col gap-1.5">
@@ -283,7 +283,7 @@ const MyOrdersPage: React.FC = () => {
                     <div className="px-6 sm:px-8 py-4 sm:py-5 border-t border-[#eeeee9] flex flex-wrap items-center justify-between gap-4 bg-[#fcfcf7]/60">
                       <div className="flex items-baseline gap-2">
                         <span className="text-[12px] text-[#666666] uppercase tracking-wider">Tổng tiền:</span>
-                        <span className="font-serif text-[20px] sm:text-[22px] font-medium text-[#1c3a13]">
+                        <span className="font-mono text-[20px] sm:text-[22px] font-medium text-[#1c3a13]">
                           {order.totalAmount.toLocaleString('vi-VN')}₫
                         </span>
                       </div>
