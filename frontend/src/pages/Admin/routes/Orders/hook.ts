@@ -6,6 +6,7 @@ import {
   type OrderDetailReadModel,
   type OrderReadModel,
   type OrderStatus,
+  type OrderPaymentStatus,
 } from '../../../../services/orders.service';
 import type { StatusFilter } from './type';
 
@@ -97,14 +98,26 @@ export function useOrders() {
     }
   };
 
-  const handleMarkPaid = async (order: OrderReadModel) => {
+  const handlePaymentStatusChange = async (
+    order: OrderReadModel,
+    nextPaymentStatus: OrderPaymentStatus,
+  ) => {
+    if (order.paymentStatus === 'PAID') {
+      toast.error('Đơn hàng đã thanh toán, không thể thay đổi lại trạng thái.');
+      return;
+    }
+
     try {
-      await ordersService.updateOrderPaymentStatus(order.id, 'PAID');
-      toast.success('Đã ghi nhận thanh toán');
+      await ordersService.updateOrderPaymentStatus(order.id, nextPaymentStatus);
+      toast.success(
+        nextPaymentStatus === 'PAID'
+          ? 'Đã cập nhật: Đã thanh toán'
+          : 'Đã cập nhật: Chưa thanh toán'
+      );
       await fetchOrders();
     } catch (error) {
       console.error(error);
-      toast.error('Lỗi khi cập nhật thanh toán');
+      toast.error('Lỗi khi cập nhật trạng thái thanh toán');
     }
   };
 
@@ -143,7 +156,7 @@ export function useOrders() {
     setConfirmAction,
     handleConfirmAction,
     handleStatusChange,
-    handleMarkPaid,
+    handlePaymentStatusChange,
     detailOrder,
     setDetailOrder,
     loadingDetail,

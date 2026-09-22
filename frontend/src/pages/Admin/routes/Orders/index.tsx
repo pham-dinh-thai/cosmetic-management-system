@@ -91,7 +91,7 @@ const OrdersPage: React.FC = () => {
     setConfirmAction,
     handleConfirmAction,
     handleStatusChange,
-    handleMarkPaid,
+    handlePaymentStatusChange,
     detailOrder,
     setDetailOrder,
     loadingDetail,
@@ -104,7 +104,8 @@ const OrdersPage: React.FC = () => {
       {
         key: 'code',
         header: 'Mã đơn hàng',
-        render: (o) => <span className="font-mono text-[12px] font-medium">{o.code}</span>,
+        className: 'whitespace-nowrap',
+        render: (o) => <span className="font-mono text-[12px] font-medium whitespace-nowrap">{o.code}</span>,
       },
       {
         key: 'customerName',
@@ -114,33 +115,58 @@ const OrdersPage: React.FC = () => {
       {
         key: 'createdAt',
         header: 'Ngày tạo',
+        className: 'whitespace-nowrap',
         render: (o) => {
           const date = new Date(o.createdAt);
-          return <span className="text-[#666666]">{Number.isNaN(date.getTime()) ? o.createdAt : date.toLocaleString('vi-VN')}</span>;
+          return <span className="text-[#666666] whitespace-nowrap">{Number.isNaN(date.getTime()) ? o.createdAt : date.toLocaleString('vi-VN')}</span>;
         },
       },
       {
         key: 'totalAmount',
         header: 'Tổng tiền',
-        render: (o) => <span className="font-mono font-medium text-[#1c3a13]">{o.totalAmount.toLocaleString('vi-VN')}₫</span>,
+        className: 'whitespace-nowrap',
+        render: (o) => <span className="font-mono font-medium text-[#1c3a13] whitespace-nowrap">{o.totalAmount.toLocaleString('vi-VN')}₫</span>,
       },
       {
         key: 'paymentStatus',
         header: 'Thanh toán',
-        render: (o) => (
-          <span
-            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-[0.18em] ${paymentStatusMeta[o.paymentStatus]?.className || 'bg-[#eeeee9] text-[#666666]'}`}
-          >
-            {paymentStatusMeta[o.paymentStatus]?.label || o.paymentStatus}
-          </span>
-        ),
+        className: 'whitespace-nowrap',
+        render: (o) => {
+          const badgeClass = `inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em] whitespace-nowrap ${paymentStatusMeta[o.paymentStatus]?.className || 'bg-[#eeeee9] text-[#666666]'}`;
+
+          // Nếu đã thanh toán thì chặn không cho đổi nữa (hiển thị badge tĩnh)
+          if (o.paymentStatus === 'PAID') {
+            return (
+              <span className={badgeClass}>
+                {paymentStatusMeta[o.paymentStatus]?.label || o.paymentStatus}
+              </span>
+            );
+          }
+
+          return (
+            <select
+              value={o.paymentStatus}
+              onChange={(e) => {
+                const next = e.target.value as OrderPaymentStatus;
+                if (next !== o.paymentStatus) {
+                  handlePaymentStatusChange(o, next);
+                }
+              }}
+              className={`${badgeClass} border-0 cursor-pointer focus:outline-none whitespace-nowrap`}
+            >
+              <option value="UNPAID">Chưa thanh toán</option>
+              <option value="PAID">Đã thanh toán</option>
+            </select>
+          );
+        },
       },
       {
         key: 'status',
         header: 'Trạng thái',
+        className: 'whitespace-nowrap',
         render: (o) => {
           const nextActions = NEXT_ACTIONS[o.status] ?? [];
-          const badgeClass = `inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.18em] ${statusMeta[o.status]?.className || 'bg-[#eeeee9] text-[#666666]'}`;
+          const badgeClass = `inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em] whitespace-nowrap ${statusMeta[o.status]?.className || 'bg-[#eeeee9] text-[#666666]'}`;
 
           if (nextActions.length === 0) {
             return (
@@ -160,7 +186,7 @@ const OrdersPage: React.FC = () => {
                   handleStatusChange(o, action.status, action.label, action.destructive);
                 }
               }}
-              className={`${badgeClass} border-0 cursor-pointer focus:outline-none`}
+              className={`${badgeClass} border-0 cursor-pointer focus:outline-none whitespace-nowrap`}
             >
               <option value={o.status}>{statusMeta[o.status]?.label || o.status}</option>
               {nextActions.map((action) => (
@@ -175,25 +201,20 @@ const OrdersPage: React.FC = () => {
       {
         key: 'actions',
         header: 'Thao tác',
-        className: 'text-right',
+        className: 'text-right whitespace-nowrap',
         render: (o) => (
-          <div className="flex flex-wrap justify-end gap-2">
+          <div className="flex items-center justify-end gap-1.5 flex-nowrap whitespace-nowrap">
             <Button variant="outline" size="sm" disabled={loadingDetail} onClick={() => handleViewDetail(o)}>
               Chi tiết
             </Button>
             <Button variant="outline" size="sm" onClick={() => handlePrintOrder(o)}>
               In
             </Button>
-            {o.paymentStatus === 'UNPAID' && (
-              <Button variant="outline" size="sm" onClick={() => handleMarkPaid(o)}>
-                Đã thanh toán
-              </Button>
-            )}
           </div>
         ),
       },
     ],
-    [handlePrintOrder, handleViewDetail, handleMarkPaid, handleStatusChange, loadingDetail]
+    [handlePrintOrder, handleViewDetail, handlePaymentStatusChange, handleStatusChange, loadingDetail]
   );
 
   return (
@@ -259,7 +280,7 @@ const OrdersPage: React.FC = () => {
                 </p>
               </div>
               <span
-                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-[0.18em] ${statusMeta[detailOrder.detail.status as OrderStatus]?.className || 'bg-[#eeeee9] text-[#666666]'}`}
+                className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-medium uppercase tracking-[0.14em] whitespace-nowrap ${statusMeta[detailOrder.detail.status as OrderStatus]?.className || 'bg-[#eeeee9] text-[#666666]'}`}
               >
                 {statusMeta[detailOrder.detail.status as OrderStatus]?.label ||
                   detailOrder.detail.status}
