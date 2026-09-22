@@ -15,6 +15,7 @@ import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import ProfilePage from "./pages/Profile";
 import MyOrdersPage from "./pages/MyOrders";
+import MyOrderDetailPage from "./pages/MyOrderDetail";
 import NotFound from "./pages/NotFound";
 import RoleRoute from "./components/RoleRoute";
 import type React from "react";
@@ -86,6 +87,14 @@ function App() {
             element={
               <RoleRoute allowedRoles={["admin", "employee", "customer"]}>
                 <MyOrdersPage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/my-orders/:id"
+            element={
+              <RoleRoute allowedRoles={["admin", "employee", "customer"]}>
+                <MyOrderDetailPage />
               </RoleRoute>
             }
           />
