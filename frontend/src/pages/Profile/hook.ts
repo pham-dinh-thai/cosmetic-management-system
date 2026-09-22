@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuthStore } from "../../store/useAuthStore";
 import { customersService, splitName } from "../../services/customers.service";
+import { authService } from "../../services/auth.service";
 import { profileApi } from "./api";
 import type { ProfileFormData, PasswordFormData } from "./type";
 import { toast } from "sonner";
@@ -137,20 +138,30 @@ export function useProfile() {
 
   const handleSavePassword = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user?.id) {
+      toast.error("Bạn chưa đăng nhập.");
+      return;
+    }
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       toast.error("Mật khẩu mới không khớp!");
       return;
     }
-    if (passwordData.newPassword.length < 6) {
-      toast.error("Mật khẩu phải có ít nhất 6 ký tự!");
+    if (passwordData.newPassword.length < 8) {
+      toast.error("Mật khẩu phải có ít nhất 8 ký tự!");
       return;
     }
     setIsPasswordSaving(true);
     try {
+      await authService.changePassword({
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword,
+      });
       toast.success("Đổi mật khẩu thành công!");
       setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
     } catch (err: any) {
-      toast.error(err?.message || "Lỗi khi đổi mật khẩu.");
+      toast.error(
+        err?.response?.data?.message ?? "Lỗi khi đổi mật khẩu. Vui lòng thử lại.",
+      );
     } finally {
       setIsPasswordSaving(false);
     }

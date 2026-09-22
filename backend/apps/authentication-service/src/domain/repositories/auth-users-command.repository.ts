@@ -3,6 +3,8 @@ import { AuthUser } from '../auth-user.aggregate';
 export interface IAuthUsersCommandRepository {
   create(authUser: AuthUser): Promise<void>;
 
+  update(authUser: AuthUser): Promise<void>;
+
   existsByUserId(userId: string): Promise<boolean>;
 
   deleteByUserId(userId: string): Promise<boolean>;
