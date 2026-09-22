@@ -48,6 +48,10 @@ import { EMPLOYEE_PERMISSION_READER_PORT } from './application/ports/employee-pe
 import { EmployeePermissionReaderAdapter } from './infrastructure/adapters/employee-permission-reader.adapter';
 import { DEPARTMENT_PERMISSION_READER_PORT } from './application/ports/department-permission-reader.port';
 import { DepartmentPermissionReaderAdapter } from './infrastructure/adapters/department-permission-reader.adapter';
+import {
+  ChangePasswordUseCase,
+  changePasswordUseCaseFactory,
+} from './application/use-cases/change-password/change-password.use-case';
 
 @Module({
   imports: [
@@ -68,7 +72,12 @@ import { DepartmentPermissionReaderAdapter } from './infrastructure/adapters/dep
       inject: [ConfigService],
     }),
     MikroOrmModule.forFeature([AuthUser]),
-    JwtModule.register({}),
+    JwtModule.registerAsync({
+      useFactory: (config: ConfigService) => ({
+        secret: config.get<string>('JWT_ACCESS_SECRET'),
+      }),
+      inject: [ConfigService],
+    }),
   ],
   controllers: [AuthUsersController, InternalAuthUsersController],
   providers: [
@@ -146,6 +155,15 @@ import { DepartmentPermissionReaderAdapter } from './infrastructure/adapters/dep
         CREATE_USER_PORT,
         CREATE_CUSTOMER_PORT,
         SIGN_TOKEN_PORT,
+      ],
+    },
+    {
+      provide: ChangePasswordUseCase,
+      useFactory: changePasswordUseCaseFactory,
+      inject: [
+        AUTH_USERS_QUERY_REPOSITORY,
+        AUTH_USERS_COMMAND_REPOSITORY,
+        PASSWORD_HASHER_PORT,
       ],
     },
     {

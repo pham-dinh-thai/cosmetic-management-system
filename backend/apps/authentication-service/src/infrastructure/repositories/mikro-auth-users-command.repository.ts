@@ -21,6 +21,17 @@ export class MikroAuthUsersCommandRepository implements IAuthUsersCommandReposit
     return count > 0;
   }
 
+  public async update(authUser: AuthUser): Promise<void> {
+    const entity = await this.entityManager.findOne(AuthUserMikro, {
+      userId: authUser.getUserId(),
+    });
+
+    if (entity) {
+      entity.password = authUser.getPassword();
+      await this.entityManager.flush();
+    }
+  }
+
   public async deleteByUserId(userId: string): Promise<boolean> {
     const result = await this.entityManager.nativeDelete(AuthUserMikro, {
       userId,

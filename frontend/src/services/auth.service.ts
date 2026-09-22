@@ -29,6 +29,11 @@ export interface RegisterResponse {
 
 export type UserRole = "admin" | "employee" | "customer" | string;
 
+export interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
+}
+
 export interface TokenPayload {
   sub: string;
   email: string;
@@ -68,6 +73,10 @@ export const authService = {
       payload,
     );
     return data;
+  },
+
+  async changePassword(payload: ChangePasswordPayload): Promise<void> {
+    await api.post("/auth-users/change-password", payload);
   },
 
   getRole(): UserRole | null {

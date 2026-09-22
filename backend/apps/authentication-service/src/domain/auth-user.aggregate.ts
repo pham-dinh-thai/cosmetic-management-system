@@ -26,4 +26,8 @@ export class AuthUser {
   public getPassword(): string {
     return this.password;
   }
+
+  public updatePassword(hashedPassword: string): void {
+    this.password = hashedPassword;
+  }
 }
