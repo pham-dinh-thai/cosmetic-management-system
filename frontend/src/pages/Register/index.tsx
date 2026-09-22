@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/useAuth";
-import Header from "../../components/Header";
+import { customersService } from "../../services/customers.service";
 import type { RegisterGender } from "../../services/auth.service";
 
 const Register: React.FC = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [gender, setGender] = useState<RegisterGender | "">("");
+  const [address, setAddress] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [gender, setGender] = useState<RegisterGender | "">("");
   const [showPassword, setShowPassword] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -23,9 +25,11 @@ const Register: React.FC = () => {
       setFirstName("");
       setLastName("");
       setEmail("");
+      setPhone("");
+      setGender("");
+      setAddress("");
       setPassword("");
       setConfirmPassword("");
-      setGender("");
       setShowPassword(false);
       setAgreeTerms(false);
       setError(null);
@@ -37,13 +41,34 @@ const Register: React.FC = () => {
     e.preventDefault();
     setError(null);
 
+    if (!firstName.trim() || !lastName.trim()) {
+      setError("Vui lòng nhập đầy đủ họ và tên.");
+      return;
+    }
+
+    if (!email.trim()) {
+      setError("Vui lòng nhập địa chỉ email.");
+      return;
+    }
+
+    if (!phone.trim()) {
+      setError("Vui lòng nhập số điện thoại liên hệ.");
+      return;
+    }
+
+    const phoneRegex = /^[0-9+() -]{9,15}$/;
+    if (!phoneRegex.test(phone.trim())) {
+      setError("Số điện thoại không hợp lệ (từ 9 đến 11 chữ số).");
+      return;
+    }
+
     if (!gender) {
       setError("Vui lòng chọn giới tính.");
       return;
     }
 
-    if (!firstName.trim() || !lastName.trim()) {
-      setError("Vui lòng nhập đầy đủ họ và tên đệm lẫn tên riêng.");
+    if (!address.trim()) {
+      setError("Vui lòng nhập địa chỉ liên hệ hoặc nhận hàng.");
       return;
     }
 
@@ -67,10 +92,27 @@ const Register: React.FC = () => {
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         gender: gender as RegisterGender,
-        email,
+        email: email.trim(),
         password,
         passwordConfirmation: confirmPassword,
       });
+
+      // Save customer phone and address
+      try {
+        await customersService.ensureMe();
+        await customersService.updateMe({
+          user: {
+            firstName: firstName.trim(),
+            lastName: lastName.trim(),
+            gender: gender as string,
+          },
+          phone: phone.trim(),
+          address: address.trim(),
+        });
+      } catch (profileErr) {
+        console.warn("Không thể lưu bổ sung số điện thoại/địa chỉ:", profileErr);
+      }
+
       navigate("/", { replace: true });
     } catch (err) {
       const data = (err as { response?: { data?: { message?: unknown } } })
@@ -86,26 +128,106 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className="min-h-full bg-white text-zinc-900 font-sans antialiased flex flex-col justify-between selection:bg-[#2C221E] selection:text-white">
-      <Header variant="auth" />
+    <div className="min-h-screen bg-[#fcfcf7] text-[#1c3a13] font-sans antialiased flex items-center justify-center p-4 sm:p-6 lg:p-10 selection:bg-[#1c3a13] selection:text-[#fcfcf7]">
+      {/* Main Split Container Card */}
+      <div className="w-full max-w-[1120px] bg-white rounded-[32px] border border-[#eeeee9] overflow-hidden flex flex-col lg:flex-row min-h-[700px]">
+        {/* Left Side: Botanical Visual Hero Section */}
+        <div className="relative lg:w-[46%] min-h-[360px] lg:min-h-full flex flex-col justify-between p-8 sm:p-12 text-white overflow-hidden">
+          {/* Background Cover Image */}
+          <img
+            src="/images/auth-cover.jpg"
+            alt="Mỹ phẩm thiên nhiên Guardian"
+            className="absolute inset-0 w-full h-full object-cover object-center select-none"
+          />
 
-      <main className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
-        <div className="w-full max-w-md bg-white rounded-3xl border border-zinc-100 shadow-[0_20px_50px_rgba(0,0,0,0.04)] overflow-hidden">
-          <div className="p-8 sm:p-12 flex flex-col justify-center bg-white">
-            <div className="w-full">
-              <div className="mb-8 text-left">
-                <h1 className="text-3xl sm:text-4xl font-serif text-[#2C221E] font-medium tracking-tight">
-                  Tạo tài khoản
-                </h1>
-                <p className="mt-2 text-sm text-zinc-500">
-                  Tham gia vào cộng đồng chăm sóc da cao cấp cùng Guardian.
-                </p>
-              </div>
+          {/* Natural Vignette Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/25 pointer-events-none" />
 
-              {error && (
-                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-600 flex items-center gap-2">
+          {/* Top Left Brand Pill */}
+          <div className="relative z-10 flex items-center justify-between">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white hover:bg-white/30 transition-all text-xs tracking-wider uppercase font-medium"
+            >
+              <span className="w-2 h-2 rounded-full bg-[#d3fa99]" />
+              <span>GUARDIAN BEAUTY</span>
+            </Link>
+          </div>
+
+          {/* Bottom Headline & Narrative */}
+          <div className="relative z-10 mt-auto pt-16">
+            <h1 className="text-3xl sm:text-4xl lg:text-[40px] font-light font-sans tracking-tight text-white leading-[1.18] mb-4">
+              Gia Nhập Cùng Chúng Tôi, <br />
+              Đồng Hành Phát Triển
+            </h1>
+            <p className="text-sm sm:text-base text-white/85 max-w-md font-normal leading-relaxed">
+              Trở thành thành viên của Guardian để tận hưởng các đặc quyền độc quyền,
+              liệu trình chăm sóc da chuẩn khoa học và sản phẩm chính hãng.
+            </p>
+            <div className="mt-8 text-[11px] text-white/60 tracking-wider">
+              © 2026 GUARDIAN. Bảo lưu mọi quyền.
+            </div>
+          </div>
+        </div>
+
+        {/* Right Side: Clean White Auth Form */}
+        <div className="lg:w-[54%] bg-white flex flex-col justify-between p-6 sm:p-8 lg:p-10 overflow-y-auto">
+          {/* Top Navigation Row: Back Link */}
+          <div className="flex items-center justify-between mb-5">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-1.5 text-xs text-[#666666] hover:text-[#1c3a13] transition-colors group"
+            >
+              <svg
+                className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="1.8"
+                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                />
+              </svg>
+              <span>Về trang chủ</span>
+            </Link>
+          </div>
+
+          <div className="my-auto py-1">
+            <div className="mb-5">
+              <h2 className="text-3xl font-normal tracking-tight text-[#1c3a13]">
+                Đăng ký
+              </h2>
+              <p className="mt-1 text-sm text-[#666666]">
+                Tạo tài khoản để tham gia hệ sinh thái Guardian.
+              </p>
+            </div>
+
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-600 flex items-center gap-2">
+                <svg
+                  className="w-4 h-4 shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="1.5"
+                    d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <span className="flex-1">{error}</span>
+                <button
+                  type="button"
+                  onClick={() => setError(null)}
+                  className="text-red-400 hover:text-red-600 p-0.5"
+                >
                   <svg
-                    className="w-4 h-4 shrink-0"
+                    className="w-3.5 h-3.5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -113,121 +235,100 @@ const Register: React.FC = () => {
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      strokeWidth="1.5"
-                      d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      strokeWidth="2"
+                      d="M6 18L18 6M6 6l12 12"
                     />
                   </svg>
-                  <span>{error}</span>
-                  <button
-                    onClick={() => setError(null)}
-                    className="ml-auto text-red-400 hover:text-red-600"
-                  >
-                    <svg
-                      className="w-3 h-3"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  </button>
-                </div>
-              )}
-
-              {/* <div className="grid grid-cols-2 gap-3 mb-6">
-                <button
-                  type="button"
-                  className="flex items-center justify-center gap-2 py-2.5 px-4 border border-zinc-200 rounded-xl text-xs font-medium text-zinc-700 hover:bg-zinc-50 hover:border-zinc-300 transition-colors"
-                >
-                  <svg className="w-4 h-4" viewBox="0 0 24 24">
-                    <path
-                      fill="#4285F4"
-                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                    />
-                    <path
-                      fill="#34A853"
-                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                    />
-                    <path
-                      fill="#FBBC05"
-                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-                    />
-                    <path
-                      fill="#EA4335"
-                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-                    />
-                  </svg>
-                  <span>Google</span>
                 </button>
+              </div>
+            )}
 
-                <button
-                  type="button"
-                  className="flex items-center justify-center gap-2 py-2.5 px-4 border border-zinc-200 rounded-xl text-xs font-medium text-zinc-700 hover:bg-zinc-50 hover:border-zinc-300 transition-colors"
-                >
-                  <svg
-                    className="w-4 h-4 fill-current text-zinc-900"
-                    viewBox="0 0 24 24"
+            <form className="space-y-3.5" onSubmit={handleSubmit}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                  <label
+                    htmlFor="firstName"
+                    className="block text-xs font-medium text-[#1c3a13] mb-1.5"
                   >
-                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8 0.93-2.85-.9.04-2 .6-2.65 1.36-.58.67-.84 1.73-.72 2.76 1.01.08 1.82-.52 2.44-1.27z" />
-                  </svg>
-                  <span>Apple</span>
-                </button>
-              </div> */}
-
-              {/* <div className="relative flex items-center justify-center mb-6">
-                <div className="w-full border-t border-zinc-200"></div>
-                <span className="px-3 bg-white text-[11px] uppercase tracking-wider text-zinc-400">
-                  hoặc đăng ký bằng email
-                </span>
-              </div> */}
-
-              <form className="space-y-4" onSubmit={handleSubmit}>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label
-                      htmlFor="firstName"
-                      className="block text-xs font-medium uppercase tracking-wider text-zinc-700 mb-1.5"
-                    >
-                      Họ và tên đệm <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="firstName"
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                      placeholder="Nguyễn Văn"
-                      className="w-full px-4 py-3 bg-white rounded-xl border border-zinc-200 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-[#2C221E] focus:ring-1 focus:ring-[#2C221E] transition-all"
-                    />
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="lastName"
-                      className="block text-xs font-medium uppercase tracking-wider text-zinc-700 mb-1.5"
-                    >
-                      Tên riêng <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="lastName"
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                      placeholder="A"
-                      className="w-full px-4 py-3 bg-white rounded-xl border border-zinc-200 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-[#2C221E] focus:ring-1 focus:ring-[#2C221E] transition-all"
-                    />
-                  </div>
+                    Họ & tên đệm <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="firstName"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder="Nguyễn Văn"
+                    required
+                    className="w-full h-[42px] px-3.5 py-2.5 bg-white rounded-lg border border-[#eeeee9] text-sm text-[#1c3a13] placeholder:text-[#b3b3b3] focus:outline-none focus:border-[#1c3a13] transition-all"
+                  />
                 </div>
 
                 <div>
                   <label
-                    htmlFor="gender"
-                    className="block text-xs font-medium uppercase tracking-wider text-zinc-700 mb-1.5"
+                    htmlFor="lastName"
+                    className="block text-xs font-medium text-[#1c3a13] mb-1.5"
                   >
-                    Giới tính
+                    Tên riêng <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="lastName"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    placeholder="An"
+                    required
+                    className="w-full h-[42px] px-3.5 py-2.5 bg-white rounded-lg border border-[#eeeee9] text-sm text-[#1c3a13] placeholder:text-[#b3b3b3] focus:outline-none focus:border-[#1c3a13] transition-all"
+                  />
+                </div>
+              </div>
+
+              {/* Row 2: Email & Số điện thoại */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block text-xs font-medium text-[#1c3a13] mb-1.5"
+                  >
+                    Địa chỉ Email <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="email@example.com"
+                    required
+                    className="w-full h-[42px] px-3.5 py-2.5 bg-white rounded-lg border border-[#eeeee9] text-sm text-[#1c3a13] placeholder:text-[#b3b3b3] focus:outline-none focus:border-[#1c3a13] transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="phone"
+                    className="block text-xs font-medium text-[#1c3a13] mb-1.5"
+                  >
+                    Số điện thoại <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="0912 345 678"
+                    required
+                    className="w-full h-[42px] px-3.5 py-2.5 bg-white rounded-lg border border-[#eeeee9] text-sm text-[#1c3a13] placeholder:text-[#b3b3b3] focus:outline-none focus:border-[#1c3a13] transition-all"
+                  />
+                </div>
+              </div>
+
+              {/* Row 3: Giới tính & Địa chỉ */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                  <label
+                    htmlFor="gender"
+                    className="block text-xs font-medium text-[#1c3a13] mb-1.5"
+                  >
+                    Giới tính <span className="text-red-500">*</span>
                   </label>
                   <select
                     id="gender"
@@ -235,8 +336,8 @@ const Register: React.FC = () => {
                     onChange={(e) =>
                       setGender(e.target.value as RegisterGender | "")
                     }
-                    className="w-full px-4 py-3 bg-white rounded-xl border border-zinc-200 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-[#2C221E] focus:ring-1 focus:ring-[#2C221E] transition-all"
                     required
+                    className="w-full h-[42px] px-3.5 py-2.5 bg-white rounded-lg border border-[#eeeee9] text-sm text-[#1c3a13] focus:outline-none focus:border-[#1c3a13] transition-all"
                   >
                     <option value="" disabled>
                       Chọn giới tính
@@ -249,28 +350,31 @@ const Register: React.FC = () => {
 
                 <div>
                   <label
-                    htmlFor="email"
-                    className="block text-xs font-medium uppercase tracking-wider text-zinc-700 mb-1.5"
+                    htmlFor="address"
+                    className="block text-xs font-medium text-[#1c3a13] mb-1.5"
                   >
-                    Địa chỉ Email
+                    Địa chỉ nhận hàng <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
-                    id="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="name@example.com"
-                    className="w-full px-4 py-3 bg-white rounded-xl border border-zinc-200 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-[#2C221E] focus:ring-1 focus:ring-[#2C221E] transition-all"
+                    id="address"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    placeholder="Số nhà, đường, phường/quận..."
                     required
+                    className="w-full h-[42px] px-3.5 py-2.5 bg-white rounded-lg border border-[#eeeee9] text-sm text-[#1c3a13] placeholder:text-[#b3b3b3] focus:outline-none focus:border-[#1c3a13] transition-all"
                   />
                 </div>
+              </div>
 
+              {/* Row 4: Mật khẩu & Xác nhận mật khẩu */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
                   <label
                     htmlFor="password"
-                    className="block text-xs font-medium uppercase tracking-wider text-zinc-700 mb-1.5"
+                    className="block text-xs font-medium text-[#1c3a13] mb-1.5"
                   >
-                    Mật khẩu
+                    Mật khẩu (≥ 8 ký tự) <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -279,50 +383,23 @@ const Register: React.FC = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full px-4 py-3 bg-white rounded-xl border border-zinc-200 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-[#2C221E] focus:ring-1 focus:ring-[#2C221E] transition-all"
                       required
+                      className="w-full h-[42px] px-3.5 py-2.5 bg-white rounded-lg border border-[#eeeee9] text-sm text-[#1c3a13] placeholder:text-[#b3b3b3] focus:outline-none focus:border-[#1c3a13] transition-all pr-9"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-zinc-400 hover:text-zinc-600 transition-colors"
-                      aria-label={
-                        showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"
-                      }
+                      className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-[#666666] hover:text-[#1c3a13] transition-colors cursor-pointer"
+                      aria-label={showPassword ? "Ẩn" : "Hiện"}
                     >
                       {showPassword ? (
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="1.5"
-                            d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a10.025 10.025 0 014.122-.977c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21M3 3l18 18"
-                          />
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a10.025 10.025 0 012.122-.063c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21M3 3l18 18" />
                         </svg>
                       ) : (
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="1.5"
-                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                          />
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="1.5"
-                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                          />
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
                       )}
                     </button>
@@ -332,9 +409,9 @@ const Register: React.FC = () => {
                 <div>
                   <label
                     htmlFor="confirmPassword"
-                    className="block text-xs font-medium uppercase tracking-wider text-zinc-700 mb-1.5"
+                    className="block text-xs font-medium text-[#1c3a13] mb-1.5"
                   >
-                    Xác nhận mật khẩu
+                    Xác nhận mật khẩu <span className="text-red-500">*</span>
                   </label>
                   <input
                     type={showPassword ? "text" : "password"}
@@ -342,95 +419,94 @@ const Register: React.FC = () => {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full px-4 py-3 bg-white rounded-xl border border-zinc-200 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-[#2C221E] focus:ring-1 focus:ring-[#2C221E] transition-all"
                     required
+                    className="w-full h-[42px] px-3.5 py-2.5 bg-white rounded-lg border border-[#eeeee9] text-sm text-[#1c3a13] placeholder:text-[#b3b3b3] focus:outline-none focus:border-[#1c3a13] transition-all"
                   />
                 </div>
-
-                <div className="pt-2">
-                  <label className="flex items-start gap-2.5 cursor-pointer select-none">
-                    <input
-                      type="checkbox"
-                      checked={agreeTerms}
-                      onChange={(e) => setAgreeTerms(e.target.checked)}
-                      className="mt-0.5 w-4 h-4 rounded border-zinc-300 text-[#2C221E] focus:ring-[#2C221E]"
-                      required
-                    />
-                    <span className="text-xs text-zinc-600 leading-tight">
-                      Tôi đồng ý với{" "}
-                      <a
-                        href="#"
-                        className="underline text-zinc-900 font-medium hover:text-black"
-                      >
-                        Điều khoản Dịch vụ
-                      </a>{" "}
-                      và{" "}
-                      <a
-                        href="#"
-                        className="underline text-zinc-900 font-medium hover:text-black"
-                      >
-                        Chính sách Bảo mật
-                      </a>{" "}
-                      của Guardian.
-                    </span>
-                  </label>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full mt-4 py-3.5 px-6 rounded-xl bg-[#2C221E] hover:bg-[#1f1714] text-white text-xs font-semibold uppercase tracking-widest transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2 group cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  {isLoading ? (
-                    <>
-                      <svg
-                        className="animate-spin w-4 h-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        />
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                        />
-                      </svg>
-                      <span>Đang tạo tài khoản...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Tạo tài khoản</span>
-                      <svg
-                        className="w-4 h-4 transition-transform group-hover:translate-x-1"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      ></svg>
-                    </>
-                  )}
-                </button>
-              </form>
-
-              <div className="mt-8 pt-6 border-t border-zinc-100 text-center text-xs text-zinc-500">
-                Đã có tài khoản?{" "}
-                <Link
-                  to="/login"
-                  className="font-medium text-[#2C221E] hover:underline uppercase tracking-wider text-[11px] ml-1"
-                >
-                  Đăng nhập ngay
-                </Link>
               </div>
+
+              {/* Terms Checkbox */}
+              <div className="pt-1">
+                <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={agreeTerms}
+                    onChange={(e) => setAgreeTerms(e.target.checked)}
+                    className="mt-0.5 w-4 h-4 rounded border-[#eeeee9] text-[#1c3a13] focus:ring-[#1c3a13] cursor-pointer"
+                    required
+                  />
+                  <span className="text-xs text-[#666666] leading-tight">
+                    Tôi đồng ý với{" "}
+                    <a href="#" className="underline text-[#1c3a13] font-medium hover:text-black">
+                      Điều khoản Dịch vụ
+                    </a>{" "}
+                    và{" "}
+                    <a href="#" className="underline text-[#1c3a13] font-medium hover:text-black">
+                      Chính sách Bảo mật
+                    </a>{" "}
+                    của Guardian.
+                  </span>
+                </label>
+              </div>
+
+              {/* Primary CTA Button */}
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full mt-3 py-3 px-6 rounded-full bg-[#1c3a13] hover:bg-[#162e0f] text-[#fcfcf7] text-sm font-medium transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {isLoading ? (
+                  <>
+                    <svg
+                      className="animate-spin w-4 h-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                      />
+                    </svg>
+                    <span>Đang tạo tài khoản...</span>
+                  </>
+                ) : (
+                  <span>Tạo tài khoản</span>
+                )}
+              </button>
+            </form>
+
+            {/* Switch to Login */}
+            <div className="mt-5 text-center text-xs text-[#666666]">
+              Đã có tài khoản?{" "}
+              <Link
+                to="/login"
+                className="font-medium text-[#1c3a13] underline hover:text-black ml-1"
+              >
+                Đăng nhập ngay
+              </Link>
             </div>
           </div>
+
+          {/* Footer Legal Links */}
+          <div className="pt-6 flex items-center justify-between text-[11px] text-[#666666] border-t border-[#eeeee9]">
+            <a href="#" className="hover:text-[#1c3a13] transition-colors">
+              Điều khoản Dịch vụ
+            </a>
+            <a href="#" className="hover:text-[#1c3a13] transition-colors">
+              Chính sách Bảo mật
+            </a>
+          </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 };
