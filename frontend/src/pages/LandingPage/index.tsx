@@ -78,9 +78,9 @@ const LandingPage = () => {
               </div>
 
               <div className="mt-16 grid grid-cols-3 gap-6 max-w-md">
-                <Stat label="Sản phẩm" value="24" />
+                <Stat label="Sản phẩm" value="99+" />
                 <Stat label="Thành phần hoạt tính" value="62" />
-                <Stat label="Quốc gia" value="18" />
+                <Stat label="Quốc gia" value="108" />
               </div>
             </div>
 
@@ -97,66 +97,18 @@ const LandingPage = () => {
                       "radial-gradient(circle at 30% 25%, rgba(211,250,153,0.18), transparent 55%), radial-gradient(circle at 80% 75%, rgba(105,142,121,0.35), transparent 60%)",
                   }}
                 />
-                <svg
-                  viewBox="0 0 400 500"
-                  className="absolute inset-0 w-full h-full"
-                  preserveAspectRatio="xMidYMid slice"
-                  aria-hidden
-                >
-                  {/* branching microbiome illustration */}
-                  <g
-                    fill="none"
-                    stroke="#d3fa99"
-                    strokeWidth="1.2"
-                    opacity="0.55"
-                  >
-                    <path d="M200 460 Q 200 360 160 320 Q 120 280 110 220" />
-                    <path d="M160 320 Q 140 300 130 260" />
-                    <path d="M160 320 Q 200 300 230 270" />
-                    <path d="M200 360 Q 240 340 270 300" />
-                    <path d="M270 300 Q 300 280 320 250" />
-                    <path d="M270 300 Q 280 260 260 220" />
-                    <path d="M110 220 Q 90 200 95 170" />
-                    <path d="M110 220 Q 130 200 145 180" />
-                    <path d="M200 460 Q 220 420 215 380" />
-                    <path d="M215 380 Q 235 350 230 320" />
-                    <path d="M230 320 Q 260 310 280 290" />
-                    <path d="M230 320 Q 210 300 195 280" />
-                  </g>
-                  <g fill="#d3fa99">
-                    <circle cx="110" cy="220" r="3.5" />
-                    <circle cx="160" cy="320" r="4" />
-                    <circle cx="270" cy="300" r="3.5" />
-                    <circle cx="200" cy="360" r="3" />
-                    <circle cx="230" cy="320" r="3.5" />
-                    <circle cx="215" cy="380" r="2.5" />
-                    <circle cx="95" cy="170" r="2" />
-                    <circle cx="130" cy="260" r="2" />
-                    <circle cx="320" cy="250" r="2" />
-                    <circle cx="260" cy="220" r="2" />
-                  </g>
-                </svg>
-                <div className="absolute bottom-8 left-8 right-8 flex items-end justify-between text-[--color-snow-white]">
-                  <div>
-                    <p className="text-[10px] font-medium uppercase tracking-[0.22em] opacity-70">
-                      Số danh mục
-                    </p>
-                    <p className="font-[var(--font-seed-sans-mono)] text-[14px] mt-1">
-                      DS-01® / 24 SKU
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-[10px] font-medium uppercase tracking-[0.22em] opacity-70">
-                      Phiên bản
-                    </p>
-                    <p className="font-[var(--font-seed-sans-mono)] text-[14px] mt-1">
-                      v.2026.03
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="absolute -top-4 -right-4 bg-[--color-lime-pulse] text-[--color-forest-depths] rounded-full px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.18em]">
-                Mới
+                <img
+                  src="/images/auth-cover.jpg"
+                  alt="Mỹ phẩm thiên nhiên Guardian"
+                  className="absolute inset-0 w-full h-full object-cover object-center select-none"
+                />
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background:
+                      "linear-gradient(to bottom, rgba(28,58,19,0.1), rgba(28,58,19,0.35))",
+                  }}
+                />
               </div>
             </div>
           </div>

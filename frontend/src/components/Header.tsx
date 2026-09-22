@@ -180,7 +180,7 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
           <div className="flex items-center justify-center">
             <Link
               to="/"
-              className="flex items-baseline gap-1.5 text-[26px] sm:text-[28px] font-serif font-medium text-[#1c3a13] uppercase tracking-[0.1em] select-none"
+              className="flex items-baseline gap-1.5 text-[26px] sm:text-[28px] font-sans font-medium text-[#1c3a13] uppercase tracking-[0.12em] select-none"
             >
               GUARDIAN
             </Link>
@@ -220,7 +220,7 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
         <div className="flex-1 flex items-center justify-start gap-6">
           <Link
             to="/"
-            className="flex items-baseline gap-1.5 text-[28px] font-serif font-medium text-[#1c3a13] uppercase tracking-[0.1em] select-none whitespace-nowrap"
+            className="flex items-baseline gap-1.5 text-[28px] font-sans font-medium text-[#1c3a13] uppercase tracking-[0.12em] select-none whitespace-nowrap"
           >
             GUARDIAN
           </Link>
@@ -339,7 +339,7 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
                               {p.imageUrl ? (
                                 <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover" />
                               ) : (
-                                <span className="w-full h-full flex items-center justify-center text-[14px] font-serif text-[#1c3a13] bg-[#e3ecd9] uppercase">
+                                <span className="w-full h-full flex items-center justify-center text-[14px] font-sans font-medium text-[#1c3a13] bg-[#e3ecd9] uppercase">
                                   {p.name.charAt(0)}
                                 </span>
                               )}
@@ -381,7 +381,7 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
                             onClick={() => setIsSearchFocused(false)}
                             className="flex flex-col items-center gap-2 cursor-pointer group"
                           >
-                            <div className="w-16 h-16 rounded-full bg-[#e3ecd9] border border-transparent group-hover:border-[#1c3a13] flex items-center justify-center text-[22px] font-serif text-[#1c3a13] uppercase transition-colors overflow-hidden">
+                            <div className="w-16 h-16 rounded-full bg-[#e3ecd9] border border-transparent group-hover:border-[#1c3a13] flex items-center justify-center text-[22px] font-sans font-light text-[#1c3a13] uppercase transition-colors overflow-hidden">
                               <span>{cat.name.charAt(0)}</span>
                             </div>
                             <span className="text-[12px] text-[#666666] group-hover:text-[#1c3a13] font-medium text-center transition-colors">
@@ -417,7 +417,7 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
                                   {p.imageUrl ? (
                                     <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover" />
                                   ) : (
-                                    <span className="w-full h-full flex items-center justify-center text-[14px] font-serif text-[#1c3a13] bg-[#e3ecd9] uppercase">
+                                    <span className="w-full h-full flex items-center justify-center text-[14px] font-sans font-medium text-[#1c3a13] bg-[#e3ecd9] uppercase">
                                       {p.name.charAt(0)}
                                     </span>
                                   )}

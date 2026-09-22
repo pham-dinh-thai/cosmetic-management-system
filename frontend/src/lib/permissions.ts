@@ -29,6 +29,7 @@ export const ACCOUNTING_EMPLOYEE_PAGES: ResourcePageKey[] = [
 
 export const ADMIN_PAGES: ResourcePageKey[] = [
   "overview",
+  "reports",
   "orders",
   "customers",
   "employees",

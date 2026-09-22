@@ -52,7 +52,7 @@ export const CancelOrderModal: React.FC<CancelOrderModalProps> = ({
         </div>
 
         {/* Title */}
-        <h3 className="text-[22px] font-serif font-medium text-[#1c3a13] tracking-tight mb-2">
+        <h3 className="text-[22px] font-sans font-medium text-[#1c3a13] tracking-tight mb-2">
           Xác nhận hủy đơn hàng
         </h3>
 

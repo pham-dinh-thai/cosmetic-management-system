@@ -793,7 +793,7 @@ const ShopPage: React.FC = () => {
                                 boxShadow: "0 4px 24px 0 rgba(0, 0, 0, 0.06)",
                               }}
                             >
-                              <span className="font-serif text-[32px] text-[#fcfcf7]/60 uppercase">
+                              <span className="font-sans text-[32px] font-light text-[#fcfcf7]/60 uppercase">
                                 {product.name.charAt(0)}
                               </span>
                             </div>

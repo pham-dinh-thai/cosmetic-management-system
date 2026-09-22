@@ -21,7 +21,7 @@ export class CosmeticVariant {
       throw new NegativePriceException(props.price);
     }
 
-    if (props.costPrice > props.price) {
+    if (props.costPrice >= props.price) {
       throw new CostPriceCanNotBeHigherThanPriceException();
     }
 
