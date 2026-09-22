@@ -14,6 +14,7 @@ import NotFound from "../NotFound";
 
 const PAGE_TITLES: Record<ResourcePageKey, string> = {
   overview: "Tổng quan",
+  reports: "Báo cáo thống kê",
   orders: "Đơn hàng",
   customers: "Khách hàng",
   employees: "Nhân viên",
@@ -38,6 +39,7 @@ const ADMIN_SECTIONS: (active: ResourcePageKey) => SidebarSection[] = (
     title: "Tổng quan",
     items: [
       { id: "overview", label: "Bảng điều khiển", active: active === "overview" },
+      { id: "reports", label: "Báo cáo thống kê", active: active === "reports" },
     ],
   },
   {

@@ -78,9 +78,9 @@ const LandingPage = () => {
               </div>
 
               <div className="mt-16 grid grid-cols-3 gap-6 max-w-md">
-                <Stat label="Sản phẩm" value="24" />
+                <Stat label="Sản phẩm" value="99+" />
                 <Stat label="Thành phần hoạt tính" value="62" />
-                <Stat label="Quốc gia" value="18" />
+                <Stat label="Quốc gia" value="108" />
               </div>
             </div>
 

@@ -26,6 +26,7 @@ const AdminSuppliersWrite: React.FC<{ children: React.ReactNode }> = ({ children
 };
 
 import OverviewPage from "./pages/Admin/routes/Overview";
+import ReportsPage from "./pages/Admin/routes/Reports";
 import CustomersPage from "./pages/Admin/routes/Customers";
 import AddCustomerPage from "./pages/Admin/routes/AddCustomer";
 import EditCustomerPage from "./pages/Admin/routes/EditCustomer";
@@ -107,6 +108,7 @@ function App() {
             }
           >
             <Route path="/overview" element={<OverviewPage />} />
+            <Route path="/reports" element={<ReportsPage />} />
             <Route path="/pos" element={<PosPage />} />
             <Route path="/orders" element={<OrdersPage />} />
             <Route path="/customers" element={<CustomersPage />} />
