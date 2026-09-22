@@ -62,7 +62,7 @@ const AddPurchaseOrderPage: React.FC = () => {
             .map((v) => ({
               id: v.id,
               label: `${d.name} – ${v.name}`,
-              price: v.costPrice ?? v.price,
+              price: (v.costPrice && v.costPrice > 0) ? v.costPrice : v.price,
             })),
         );
         setVariantOptions(options);
@@ -98,12 +98,6 @@ const AddPurchaseOrderPage: React.FC = () => {
   const handleQuantityChange = (lineId: string, value: number) => {
     setLines((prev) =>
       prev.map((l) => (l.localId === lineId ? { ...l, quantity: value } : l)),
-    );
-  };
-
-  const handleUnitPriceChange = (lineId: string, value: number) => {
-    setLines((prev) =>
-      prev.map((l) => (l.localId === lineId ? { ...l, unitPrice: value } : l)),
     );
   };
 
@@ -198,14 +192,9 @@ const AddPurchaseOrderPage: React.FC = () => {
       header: "Đơn giá",
       className: "text-right w-40",
       render: (l) => (
-        <Input
-          type="number"
-          min={0}
-          value={l.unitPrice}
-          onChange={(e) => handleUnitPriceChange(l.localId, parseInt(e.target.value) || 0)}
-          className="text-right !px-2 !py-1.5"
-          style={{ minWidth: "120px" }}
-        />
+        <span className="font-mono font-medium text-[#1c3a13] whitespace-nowrap">
+          {l.unitPrice > 0 ? `${l.unitPrice.toLocaleString("vi-VN")}₫` : "—"}
+        </span>
       ),
     },
     {
@@ -228,8 +217,8 @@ const AddPurchaseOrderPage: React.FC = () => {
       header: "Thành tiền",
       className: "text-right w-48",
       render: (l) => (
-        <span className="font-mono font-medium text-[#1c3a13]">
-          {(l.quantity * l.unitPrice).toLocaleString("vi-VN")}
+        <span className="font-mono font-medium text-[#1c3a13] whitespace-nowrap">
+          {(l.quantity * l.unitPrice).toLocaleString("vi-VN")}₫
         </span>
       ),
     },

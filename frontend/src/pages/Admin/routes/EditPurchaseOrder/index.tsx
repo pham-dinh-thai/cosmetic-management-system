@@ -174,14 +174,9 @@ const EditPurchaseOrderPage: React.FC = () => {
       header: "Đơn giá",
       className: "text-right w-40",
       render: (l) => (
-        <Input
-          type="number"
-          min={0}
-          value={l.unitPrice}
-          onChange={(e) => handleLineChange(l.id, "unitPrice", parseInt(e.target.value) || 0)}
-          className="text-right !px-2 !py-1.5"
-          style={{ minWidth: "120px" }}
-        />
+        <span className="font-mono font-medium text-[#1c3a13] whitespace-nowrap">
+          {l.unitPrice > 0 ? `${l.unitPrice.toLocaleString("vi-VN")}₫` : "0₫"}
+        </span>
       ),
     },
     {
@@ -204,8 +199,8 @@ const EditPurchaseOrderPage: React.FC = () => {
       header: "Thành tiền",
       className: "text-right w-48",
       render: (l) => (
-        <span className="font-mono font-medium text-[#1c3a13]">
-          {(l.quantity * l.unitPrice).toLocaleString("vi-VN")}
+        <span className="font-mono font-medium text-[#1c3a13] whitespace-nowrap">
+          {(l.quantity * l.unitPrice).toLocaleString("vi-VN")}₫
         </span>
       ),
     },
