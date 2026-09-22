@@ -5,7 +5,6 @@ export interface ProfileFormData {
   phone: string;
   gender: string;
   address: string;
-  avatar: string;
 }
 
 export interface PasswordFormData {

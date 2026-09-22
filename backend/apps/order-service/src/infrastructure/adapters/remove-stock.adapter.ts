@@ -1,9 +1,10 @@
-import {
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { HttpException, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InsufficientStockException } from '../../domain/exceptions/insufficient-stock.exception';
-import { BatchDeduction, IRemoveStockPort } from '../../domain/ports/remove-stock.port';
+import {
+  BatchDeduction,
+  IRemoveStockPort,
+} from '../../domain/ports/remove-stock.port';
 
 export class RemoveStockAdapter implements IRemoveStockPort {
   private readonly url: string;
@@ -29,19 +30,30 @@ export class RemoveStockAdapter implements IRemoveStockPort {
       return body.deductions;
     }
 
-    if (response.status === 409) {
-      let message = `Insufficient stock for variant "${variantId}": requested ${quantity}`;
-      try {
-        const body = (await response.json()) as { message?: string };
-        if (body?.message) {
-          message = body.message;
-        }
-      } catch {
-        // ignore parse errors
-      }
-      throw new InsufficientStockException(variantId, quantity, 0, message);
+    let message: string | undefined;
+    try {
+      const body = (await response.json()) as { message?: string };
+      message = body?.message;
+    } catch {
+      // ignore parse errors
     }
 
-    throw new InternalServerErrorException('Failed to remove stock');
+    if (response.status === 409) {
+      throw new InsufficientStockException(
+        variantId,
+        quantity,
+        0,
+        message ??
+          `Insufficient stock for variant "${variantId}": requested ${quantity}`,
+      );
+    }
+
+    if (message) {
+      throw new HttpException(message, response.status);
+    }
+
+    throw new InternalServerErrorException(
+      `Failed to remove stock for variant "${variantId}" (status ${response.status})`,
+    );
   }
 }

@@ -9,7 +9,6 @@ export interface UserProfile {
   firstName?: string;
   lastName?: string;
   phone?: string;
-  avatar?: string;
   gender?: string;
   address?: string;
   departmentCode?: string;

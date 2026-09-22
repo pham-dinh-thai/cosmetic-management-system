@@ -6,9 +6,7 @@ export type BestSellerReadModel = {
 };
 
 export class FindBestSellersUseCase {
-  public constructor(
-    private readonly ordersRepository: IOrdersRepository,
-  ) {}
+  public constructor(private readonly ordersRepository: IOrdersRepository) {}
 
   public async execute(limit: number): Promise<BestSellerReadModel[]> {
     const safeLimit = Number.isInteger(limit) && limit > 0 ? limit : 4;

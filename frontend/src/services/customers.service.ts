@@ -2,7 +2,7 @@ import api from "../config/axios";
 
 const DEFAULT_PASSWORD = "Customer@123456";
 
-function splitName(name: string): { firstName: string; lastName: string } {
+export function splitName(name: string): { firstName: string; lastName: string } {
   const trimmed = name.trim();
   const index = trimmed.lastIndexOf(" ");
   if (index === -1) {
@@ -42,6 +42,14 @@ export interface CustomerDetail extends CustomerSummary {
 export interface MeCustomer {
   id: string;
   code: string;
+  userId?: string;
+  name?: string;
+  gender?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  addresses?: { id: string; city: string; street: string }[];
+  phones?: { id: string; phone: string }[];
 }
 
 export const customersService = {
@@ -53,6 +61,14 @@ export const customersService = {
   async ensureMe(): Promise<MeCustomer> {
     const { data } = await api.post<MeCustomer>("/customers/me");
     return data;
+  },
+
+  async updateMe(payload: {
+    user: { firstName: string; lastName: string; gender: string };
+    phone?: string;
+    address?: string;
+  }): Promise<void> {
+    await api.put<void>("/customers/me", payload);
   },
 
   async getCustomers(search?: string): Promise<CustomerSummary[]> {
