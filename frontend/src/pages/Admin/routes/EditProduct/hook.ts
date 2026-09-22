@@ -178,8 +178,144 @@ export function useEditProduct() {
     }
   };
 
+  const handleSaveAllChanges = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    setError(null);
+
+    // 1. Validate Product Name
+    if (!productData.name.trim()) {
+      const msg = "Tên sản phẩm không được để trống.";
+      setError(msg);
+      toast.error(msg);
+      return;
+    }
+
+    // 2. Validate Existing Variants
+    for (const v of existingVariants) {
+      if (!v.name.trim()) {
+        const msg = "Tên cấu hình biến thể không được để trống.";
+        setError(msg);
+        toast.error(msg);
+        return;
+      }
+      if (Number(v.price) <= 0) {
+        const msg = `Giá bán của biến thể "${v.name}" phải lớn hơn 0.`;
+        setError(msg);
+        toast.error(msg);
+        return;
+      }
+      if (Number(v.costPrice) < 0) {
+        const msg = `Giá gốc của biến thể "${v.name}" không hợp lệ.`;
+        setError(msg);
+        toast.error(msg);
+        return;
+      }
+      if (Number(v.costPrice) >= Number(v.price)) {
+        const msg = `Giá gốc (giá nhập) phải nhỏ hơn giá bán đối với biến thể "${v.name}".`;
+        setError(msg);
+        toast.error(msg);
+        return;
+      }
+    }
+
+    // 3. Validate New Variants (filter out completely blank rows)
+    const pendingNewVariants = newVariants.filter(
+      (v) => v.name.trim() !== "" || Number(v.price) > 0 || Number(v.costPrice) > 0
+    );
+
+    for (const v of pendingNewVariants) {
+      if (!v.name.trim()) {
+        const msg = "Vui lòng nhập tên cho biến thể mới.";
+        setError(msg);
+        toast.error(msg);
+        return;
+      }
+      if (Number(v.price) <= 0) {
+        const msg = `Giá bán của biến thể mới "${v.name}" phải lớn hơn 0.`;
+        setError(msg);
+        toast.error(msg);
+        return;
+      }
+      if (Number(v.costPrice) < 0) {
+        const msg = `Giá gốc của biến thể mới "${v.name}" không hợp lệ.`;
+        setError(msg);
+        toast.error(msg);
+        return;
+      }
+      if (Number(v.costPrice) >= Number(v.price)) {
+        const msg = `Giá gốc (giá nhập) phải nhỏ hơn giá bán đối với biến thể mới "${v.name}".`;
+        setError(msg);
+        toast.error(msg);
+        return;
+      }
+    }
+
+    setLoading(true);
+    try {
+      // 1. Update basic info
+      const payload: UpdateCosmeticPayload = {
+        name: productData.name,
+        brand: productData.brand || undefined,
+        origin: productData.origin || undefined,
+        description: productData.description || undefined,
+        imageUrl: productData.imageUrl || undefined,
+        categoryIds: productData.categoryIds,
+      };
+      await editProductApi.updateCosmetic(productId, payload);
+
+      // 2. Update existing variants
+      await Promise.all(
+        existingVariants.map((v) => {
+          const varPayload: UpdateVariantPayload = {
+            name: v.name,
+            price: Number(v.price),
+            costPrice: Number(v.costPrice),
+            volume: v.volume || undefined,
+            color: v.color || undefined,
+          };
+          return editProductApi.updateVariant(v.id, varPayload);
+        })
+      );
+
+      // 3. Add new variants if any
+      for (const v of pendingNewVariants) {
+        const newPayload: CreateVariantPayload = {
+          name: v.name,
+          price: Number(v.price),
+          costPrice: Number(v.costPrice),
+          volume: v.volume || undefined,
+          color: v.color || undefined,
+        };
+        await editProductApi.addVariant(productId, newPayload);
+      }
+
+      toast.success("Đã lưu tất cả thay đổi thành công!");
+      await loadData();
+      setNewVariants([]);
+    } catch (err: any) {
+      const msg =
+        err?.response?.data?.message || "Đã xảy ra lỗi khi lưu các thay đổi.";
+      setError(msg);
+      toast.error(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const saveExistingVariant = async (index: number) => {
     const v = existingVariants[index];
+    if (!v.name.trim()) {
+      toast.error("Tên biến thể không được để trống.");
+      return;
+    }
+    if (Number(v.price) <= 0) {
+      toast.error("Giá bán phải lớn hơn 0.");
+      return;
+    }
+    if (Number(v.costPrice) >= Number(v.price)) {
+      toast.error(`Giá gốc (giá nhập) phải nhỏ hơn giá bán đối với biến thể "${v.name}".`);
+      return;
+    }
     try {
       const payload: UpdateVariantPayload = {
         name: v.name,
@@ -225,6 +361,14 @@ export function useEditProduct() {
       toast.error("Vui lòng điền đủ Tên và Giá bán cho biến thể mới.");
       return;
     }
+    if (Number(v.price) <= 0) {
+      toast.error("Giá bán phải lớn hơn 0.");
+      return;
+    }
+    if (Number(v.costPrice) >= Number(v.price)) {
+      toast.error(`Giá gốc (giá nhập) phải nhỏ hơn giá bán đối với biến thể "${v.name}".`);
+      return;
+    }
     try {
       const payload: CreateVariantPayload = {
         name: v.name,
@@ -259,6 +403,7 @@ export function useEditProduct() {
     handleExistingVariantChange,
     handleNewVariantChange,
     handleSaveProductInfo,
+    handleSaveAllChanges,
     handleSaveImageOnly,
     handleImageUpload,
     saveExistingVariant,

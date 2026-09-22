@@ -93,21 +93,35 @@ export function useAddProduct() {
     e.preventDefault();
     setError(null);
 
-    if (!productData.name) {
-      setError("Tên sản phẩm không được để trống.");
+    if (!productData.name.trim()) {
+      const msg = "Tên sản phẩm không được để trống.";
+      setError(msg);
+      toast.error(msg);
       return;
     }
     for (const v of variants) {
-      if (!v.name) {
-        setError("Tên biến thể không được để trống.");
+      if (!v.name.trim()) {
+        const msg = "Tên biến thể không được để trống.";
+        setError(msg);
+        toast.error(msg);
         return;
       }
-      if (v.price < 0) {
-        setError("Giá bán biến thể không hợp lệ.");
+      if (Number(v.price) <= 0) {
+        const msg = `Giá bán của biến thể "${v.name}" phải lớn hơn 0.`;
+        setError(msg);
+        toast.error(msg);
         return;
       }
-      if (Number(v.costPrice) > Number(v.price)) {
-        setError("Giá gốc không được cao hơn giá bán.");
+      if (Number(v.costPrice) < 0) {
+        const msg = `Giá gốc của biến thể "${v.name}" không hợp lệ.`;
+        setError(msg);
+        toast.error(msg);
+        return;
+      }
+      if (Number(v.costPrice) >= Number(v.price)) {
+        const msg = `Giá gốc (giá nhập) phải nhỏ hơn giá bán đối với biến thể "${v.name}".`;
+        setError(msg);
+        toast.error(msg);
         return;
       }
     }
