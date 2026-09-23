@@ -129,7 +129,7 @@ services:
     pull_policy: never
     command: ["sh", "/scripts/migrate.sh"]
     environment:
-      NODE_OPTIONS: "-r ts-node/register"
+      NODE_OPTIONS: "-r ts-node/register -r tsconfig-paths/register"
       USER_DB_HOST: ${USER_DB_HOST}
       USER_DB_PORT: "${USER_DB_PORT}"
       USER_DB_USER: ${USER_DB_USER}
