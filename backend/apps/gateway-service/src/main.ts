@@ -36,6 +36,7 @@ const SERVICE_DOCS_SOURCES: ServiceDocsSource[] = [
   { name: 'invoices', url: process.env.INVOICE_SERVICE_URL },
   { name: 'receipts', url: process.env.RECEIPT_SERVICE_URL },
   { name: 'baskets', url: process.env.BASKET_SERVICE_URL },
+  { name: 'audit-logs', url: process.env.AUDIT_SERVICE_URL },
   { name: 'uploads', url: process.env.STORAGE_SERVICE_URL },
 ];
 
@@ -228,6 +229,13 @@ async function bootstrap() {
       target: process.env.BASKET_SERVICE_URL,
       changeOrigin: true,
       pathFilter: (pathname) => /^\/api\/baskets(\/|$)/.test(pathname),
+    }),
+  );
+  app.use(
+    createProxyMiddleware({
+      target: process.env.AUDIT_SERVICE_URL,
+      changeOrigin: true,
+      pathFilter: (pathname) => /^\/api\/audit-logs(\/|$)/.test(pathname),
     }),
   );
 

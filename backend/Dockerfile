@@ -5,7 +5,7 @@ RUN npm ci
 COPY . .
 RUN set -eux; \
     mkdir -p /opt/built; \
-    for app in user-service gateway-service authentication-service authorization-service department-service employee-service customer-service category-service supplier-service cosmetic-service inventory-service purchase-service order-service invoice-service receipt-service basket-service storage-service; do \
+    for app in user-service gateway-service authentication-service authorization-service department-service employee-service customer-service category-service supplier-service cosmetic-service inventory-service purchase-service order-service invoice-service receipt-service basket-service storage-service audit-service; do \
       npx nest build "$app"; \
       mkdir -p "/opt/built/$app"; \
       cp -r "dist/apps/$app/." "/opt/built/$app/"; \
