@@ -21,6 +21,7 @@ import {
   Role,
   Roles,
 } from '@app/security';
+import { Audit, AuditAction, paramId, responseId } from '@app/audit-client';
 import { FindAllSuppliersUseCase } from 'apps/supplier-service/src/application/use-cases/find-supplier/find-all/find-all-suppliers.use-case';
 import { FindAllSupplierReadModel } from 'apps/supplier-service/src/application/use-cases/find-supplier/find-all/read-models/find-all-supplier.read-model';
 import { FindSupplierByIdUseCase } from 'apps/supplier-service/src/application/use-cases/find-supplier/find-by-id/find-supplier-by-id.use-case';
@@ -68,6 +69,11 @@ export class SuppliersController {
 
   @Positions(Position.Manager)
   @Post()
+  @Audit({
+    entityType: 'supplier',
+    action: AuditAction.CREATE,
+    entityId: responseId(),
+  })
   public async create(
     @Body() request: CreateSupplierRequest,
   ): Promise<{ id: string }> {
@@ -76,6 +82,11 @@ export class SuppliersController {
 
   @Positions(Position.Manager)
   @Put(':id')
+  @Audit({
+    entityType: 'supplier',
+    action: AuditAction.UPDATE,
+    entityId: paramId(),
+  })
   public async update(
     @Param('id') id: string,
     @Body() request: UpdateSupplierRequest,
@@ -86,6 +97,11 @@ export class SuppliersController {
   @Positions(Position.Manager)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id/activate')
+  @Audit({
+    entityType: 'supplier',
+    action: AuditAction.UPDATE,
+    entityId: paramId(),
+  })
   public async activate(@Param('id') id: string): Promise<void> {
     await this.activateSupplierUseCase.execute(id);
   }
@@ -93,6 +109,11 @@ export class SuppliersController {
   @Positions(Position.Manager)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id/deactivate')
+  @Audit({
+    entityType: 'supplier',
+    action: AuditAction.UPDATE,
+    entityId: paramId(),
+  })
   public async deactivate(@Param('id') id: string): Promise<void> {
     await this.deactivateSupplierUseCase.execute(id);
   }
@@ -100,6 +121,11 @@ export class SuppliersController {
   @Positions(Position.Manager)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
+  @Audit({
+    entityType: 'supplier',
+    action: AuditAction.DELETE,
+    entityId: paramId(),
+  })
   public async delete(@Param('id') id: string): Promise<void> {
     await this.deleteSupplierUseCase.execute(id);
   }

@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { AuthGuard, Role, Roles, RolesGuard } from '@app/security';
+import { Audit, AuditAction, paramId } from '@app/audit-client';
 import { FindAllOrdersUseCase } from 'apps/order-service/src/application/use-cases/find-all-orders/find-all-orders.use-case';
 import { FindOrderByIdUseCase } from 'apps/order-service/src/application/use-cases/find-order-by-id/find-order-by-id.use-case';
 import { UpdateOrderStatusUseCase } from 'apps/order-service/src/application/use-cases/update-order-status/update-order-status.use-case';
@@ -80,6 +81,11 @@ export class MyOrdersController {
 
   @HttpCode(HttpStatus.OK)
   @Patch('me/:id/cancel')
+  @Audit({
+    entityType: 'order',
+    action: AuditAction.UPDATE,
+    entityId: paramId(),
+  })
   public async cancelMine(
     @Req() request: Request,
     @Param('id') id: string,

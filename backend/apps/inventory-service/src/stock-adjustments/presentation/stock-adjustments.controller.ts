@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { AuthGuard, Departments, OrgGuard, Role, Roles } from '@app/security';
+import { Audit, AuditAction, responseId } from '@app/audit-client';
 import { AdjustBatchStockWithReasonUseCase } from '../application/use-cases/adjust-batch-stock-with-reason/adjust-batch-stock-with-reason.use-case';
 import { IAdjustBatchStockWithReasonRequest } from '../application/use-cases/adjust-batch-stock-with-reason/adjust-batch-stock-with-reason.request';
 import { FindStockAdjustmentsUseCase } from '../application/use-cases/find-stock-adjustments/find-stock-adjustments.use-case';
@@ -30,6 +31,11 @@ export class StockAdjustmentsController {
   @Departments('warehouse')
   @HttpCode(HttpStatus.CREATED)
   @Post()
+  @Audit({
+    entityType: 'stock-adjustment',
+    action: AuditAction.CREATE,
+    entityId: responseId(),
+  })
   public async create(
     @Body() request: CreateStockAdjustmentRequest,
     @Req() httpRequest: Request,

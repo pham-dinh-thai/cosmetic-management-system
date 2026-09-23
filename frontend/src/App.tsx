@@ -57,6 +57,7 @@ import StockAdjustmentsHistoryPage from "./pages/Admin/routes/StockAdjustmentsHi
 import ReceiptsPage from "./pages/Admin/routes/Receipts";
 import PaymentsPage from "./pages/Admin/routes/Payments";
 import InvoicesPage from "./pages/Admin/routes/Invoices";
+import AuditLogsPage from "./pages/Admin/routes/AuditLogs";
 import OrdersPage from "./pages/Admin/routes/Orders";
 import PosPage from "./pages/Employee/routes/POS";
 
@@ -138,6 +139,7 @@ function App() {
             <Route path="/receipts" element={<ReceiptsPage />} />
             <Route path="/payments" element={<PaymentsPage />} />
             <Route path="/invoices" element={<InvoicesPage />} />
+            <Route path="/audit-logs" element={<AuditLogsPage />} />
             <Route path="/inventory/add" element={<AddInventoryPage />} />
             <Route path="/inventory/:id/edit" element={<EditInventoryPage />} />
             <Route path="/inventory/:id" element={<InventoryDetailPage />} />

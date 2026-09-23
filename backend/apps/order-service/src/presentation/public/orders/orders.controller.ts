@@ -15,6 +15,7 @@ import {
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { AuthGuard, Departments, OrgGuard, Role, Roles } from '@app/security';
+import { Audit, AuditAction, paramId } from '@app/audit-client';
 import { FindAllOrdersUseCase } from 'apps/order-service/src/application/use-cases/find-all-orders/find-all-orders.use-case';
 import { FindOrderByIdUseCase } from 'apps/order-service/src/application/use-cases/find-order-by-id/find-order-by-id.use-case';
 import { PrintOrderUseCase } from 'apps/order-service/src/application/use-cases/print-order/print-order.use-case';
@@ -96,6 +97,11 @@ export class OrdersController {
   }
 
   @Put(':id')
+  @Audit({
+    entityType: 'order',
+    action: AuditAction.UPDATE,
+    entityId: paramId(),
+  })
   public async update(
     @Param('id') id: string,
     @Body() request: UpdateOrderRequest,
@@ -105,6 +111,11 @@ export class OrdersController {
 
   @HttpCode(HttpStatus.OK)
   @Patch(':id/status')
+  @Audit({
+    entityType: 'order',
+    action: AuditAction.UPDATE,
+    entityId: paramId(),
+  })
   public async updateStatus(
     @Param('id') id: string,
     @Body() request: UpdateOrderStatusRequest,
@@ -121,6 +132,11 @@ export class OrdersController {
 
   @HttpCode(HttpStatus.OK)
   @Patch(':id/payment-status')
+  @Audit({
+    entityType: 'order',
+    action: AuditAction.UPDATE,
+    entityId: paramId(),
+  })
   public async updatePaymentStatus(
     @Param('id') id: string,
     @Body() request: UpdateOrderPaymentStatusRequest,
@@ -133,6 +149,11 @@ export class OrdersController {
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
+  @Audit({
+    entityType: 'order',
+    action: AuditAction.DELETE,
+    entityId: paramId(),
+  })
   public async delete(@Param('id') id: string): Promise<void> {
     await this.deleteOrderUseCase.execute(id);
   }

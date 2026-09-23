@@ -1,4 +1,5 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import { Audit, AuditAction, responseId } from '@app/audit-client';
 import { CreateReceiptFromInvoicePaymentUseCase } from 'apps/receipt-service/src/application/use-cases/create-receipt-from-invoice-payment/create-receipt-from-invoice-payment.use-case';
 import { CreateReceiptFromInvoicePaymentRequest } from './requests/internal-receipt.request';
 
@@ -10,6 +11,11 @@ export class InternalReceiptsController {
 
   @HttpCode(HttpStatus.CREATED)
   @Post('from-invoice-payment')
+  @Audit({
+    entityType: 'receipt',
+    action: AuditAction.CREATE,
+    entityId: responseId(),
+  })
   public async fromInvoicePayment(
     @Body() request: CreateReceiptFromInvoicePaymentRequest,
   ): Promise<{ id: string } | null> {

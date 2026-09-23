@@ -129,7 +129,7 @@ services:
     pull_policy: never
     command: ["sh", "/scripts/migrate.sh"]
     environment:
-      NODE_OPTIONS: "-r ts-node/register"
+      NODE_OPTIONS: "-r ts-node/register -r tsconfig-paths/register"
       USER_DB_HOST: ${USER_DB_HOST}
       USER_DB_PORT: "${USER_DB_PORT}"
       USER_DB_USER: ${USER_DB_USER}
@@ -236,6 +236,7 @@ services:
       AUTH_SERVICE_URL: ${AUTH_SERVICE_URL}
       AUTHORIZATION_SERVICE_URL: ${AUTHORIZATION_SERVICE_URL}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      AUDIT_SERVICE_URL: ${AUDIT_SERVICE_URL}
     ports:
       - "3001:3001"
     depends_on:
@@ -260,6 +261,7 @@ services:
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
       JWT_ACCESS_EXPIRES_IN: ${JWT_ACCESS_EXPIRES_IN}
       JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN}
+      AUDIT_SERVICE_URL: ${AUDIT_SERVICE_URL}
     ports:
       - "3002:3002"
     depends_on:
@@ -277,6 +279,7 @@ services:
       AUTHORIZATION_DB_PASSWORD: ${AUTHORIZATION_DB_PASSWORD}
       AUTHORIZATION_DB_NAME: ${AUTHORIZATION_DB_NAME}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      AUDIT_SERVICE_URL: ${AUDIT_SERVICE_URL}
     ports:
       - "3003:3003"
     depends_on:
@@ -295,6 +298,7 @@ services:
       DEPARTMENT_DB_NAME: ${DEPARTMENT_DB_NAME}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
       EMPLOYEE_SERVICE_URL: ${EMPLOYEE_SERVICE_URL}
+      AUDIT_SERVICE_URL: ${AUDIT_SERVICE_URL}
     ports:
       - "3004:3004"
     depends_on:
@@ -314,6 +318,7 @@ services:
       USER_SERVICE_URL: ${USER_SERVICE_URL}
       DEPARTMENT_SERVICE_URL: ${DEPARTMENT_SERVICE_URL}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      AUDIT_SERVICE_URL: ${AUDIT_SERVICE_URL}
     ports:
       - "3005:3005"
     depends_on:
@@ -332,6 +337,7 @@ services:
       CUSTOMER_DB_NAME: ${CUSTOMER_DB_NAME}
       USER_SERVICE_URL: ${USER_SERVICE_URL}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      AUDIT_SERVICE_URL: ${AUDIT_SERVICE_URL}
     ports:
       - "3006:3006"
     depends_on:
@@ -349,6 +355,7 @@ services:
       CATEGORY_DB_PASSWORD: ${CATEGORY_DB_PASSWORD}
       CATEGORY_DB_NAME: ${CATEGORY_DB_NAME}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      AUDIT_SERVICE_URL: ${AUDIT_SERVICE_URL}
     ports:
       - "3007:3007"
     depends_on:
@@ -366,6 +373,7 @@ services:
       SUPPLIER_DB_PASSWORD: ${SUPPLIER_DB_PASSWORD}
       SUPPLIER_DB_NAME: ${SUPPLIER_DB_NAME}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      AUDIT_SERVICE_URL: ${AUDIT_SERVICE_URL}
     ports:
       - "3008:3008"
     depends_on:
@@ -385,6 +393,7 @@ services:
       INVENTORY_SERVICE_URL: ${INVENTORY_SERVICE_URL}
       ORDER_SERVICE_URL: ${ORDER_SERVICE_URL}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      AUDIT_SERVICE_URL: ${AUDIT_SERVICE_URL}
     ports:
       - "3009:3009"
     depends_on:
@@ -415,6 +424,7 @@ services:
       INVENTORY_DB_PASSWORD: ${INVENTORY_DB_PASSWORD}
       INVENTORY_DB_NAME: ${INVENTORY_DB_NAME}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      AUDIT_SERVICE_URL: ${AUDIT_SERVICE_URL}
     ports:
       - "3010:3010"
     depends_on:
@@ -437,6 +447,7 @@ services:
       USER_SERVICE_URL: ${USER_SERVICE_URL}
       RECEIPT_SERVICE_URL: ${RECEIPT_SERVICE_URL}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      AUDIT_SERVICE_URL: ${AUDIT_SERVICE_URL}
     ports:
       - "3011:3011"
     depends_on:
@@ -460,6 +471,7 @@ services:
       INVOICE_SERVICE_URL: ${INVOICE_SERVICE_URL}
       CUSTOMER_SERVICE_URL: ${CUSTOMER_SERVICE_URL}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      AUDIT_SERVICE_URL: ${AUDIT_SERVICE_URL}
     ports:
       - "3012:3012"
     depends_on:
@@ -478,6 +490,7 @@ services:
       INVOICE_DB_NAME: ${INVOICE_DB_NAME}
       RECEIPT_SERVICE_URL: ${RECEIPT_SERVICE_URL}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      AUDIT_SERVICE_URL: ${AUDIT_SERVICE_URL}
     ports:
       - "3013:3013"
     depends_on:
@@ -495,6 +508,7 @@ services:
       RECEIPT_DB_PASSWORD: ${RECEIPT_DB_PASSWORD}
       RECEIPT_DB_NAME: ${RECEIPT_DB_NAME}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      AUDIT_SERVICE_URL: ${AUDIT_SERVICE_URL}
     ports:
       - "3016:3016"
     depends_on:

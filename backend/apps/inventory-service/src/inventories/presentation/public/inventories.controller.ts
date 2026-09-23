@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { AuthGuard, Departments, OrgGuard, Role, Roles } from '@app/security';
+import { Audit, AuditAction, paramId, responseId } from '@app/audit-client';
 import { FindAllInventoriesUseCase } from '../../application/use-cases/find-all-inventory/find-all-inventories.use-case';
 import { InventoryReadModel } from '../../application/use-cases/find-all-inventory/read-models/inventory.read-model';
 import { FindInventoryByVariantUseCase } from '../../application/use-cases/find-inventory-by-variant/find-inventory-by-variant.use-case';
@@ -106,6 +107,11 @@ export class InventoriesController {
   @Departments('warehouse')
   @HttpCode(HttpStatus.CREATED)
   @Post()
+  @Audit({
+    entityType: 'inventory',
+    action: AuditAction.CREATE,
+    entityId: responseId(),
+  })
   public async create(
     @Body() request: CreateInventoryRequest,
   ): Promise<{ id: string; variantId: string }> {
@@ -126,6 +132,11 @@ export class InventoriesController {
   @Departments('warehouse')
   @HttpCode(HttpStatus.OK)
   @Patch(':id/min-stock')
+  @Audit({
+    entityType: 'inventory',
+    action: AuditAction.UPDATE,
+    entityId: paramId(),
+  })
   public async updateMinStock(
     @Param('id') id: string,
     @Body() request: UpdateInventoryMinStockRequest,
@@ -142,6 +153,11 @@ export class InventoriesController {
   @Departments('warehouse')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id/activate')
+  @Audit({
+    entityType: 'inventory',
+    action: AuditAction.UPDATE,
+    entityId: paramId(),
+  })
   public async activate(@Param('id') id: string): Promise<void> {
     await this.activateInventoryUseCase.execute(id);
   }
@@ -151,6 +167,11 @@ export class InventoriesController {
   @Departments('warehouse')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id/deactivate')
+  @Audit({
+    entityType: 'inventory',
+    action: AuditAction.UPDATE,
+    entityId: paramId(),
+  })
   public async deactivate(@Param('id') id: string): Promise<void> {
     await this.deactivateInventoryUseCase.execute(id);
   }
@@ -160,6 +181,11 @@ export class InventoriesController {
   @Departments('warehouse')
   @HttpCode(HttpStatus.CREATED)
   @Post(':id/batches')
+  @Audit({
+    entityType: 'inventory-batch',
+    action: AuditAction.CREATE,
+    entityId: responseId(),
+  })
   public async addBatch(
     @Param('id') id: string,
     @Body() request: AddBatchRequest,
@@ -190,6 +216,11 @@ export class InventoriesController {
   @Departments('warehouse')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id/batches/:batchId/activate')
+  @Audit({
+    entityType: 'inventory-batch',
+    action: AuditAction.UPDATE,
+    entityId: paramId('batchId'),
+  })
   public async activateBatch(
     @Param('id') id: string,
     @Param('batchId') batchId: string,
@@ -202,6 +233,11 @@ export class InventoriesController {
   @Departments('warehouse')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id/batches/:batchId/deactivate')
+  @Audit({
+    entityType: 'inventory-batch',
+    action: AuditAction.UPDATE,
+    entityId: paramId('batchId'),
+  })
   public async deactivateBatch(
     @Param('id') id: string,
     @Param('batchId') batchId: string,
@@ -214,6 +250,11 @@ export class InventoriesController {
   @Departments('warehouse')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id/batches/:batchId/adjust')
+  @Audit({
+    entityType: 'inventory-batch',
+    action: AuditAction.UPDATE,
+    entityId: paramId('batchId'),
+  })
   public async adjustBatchStock(
     @Param('id') id: string,
     @Param('batchId') batchId: string,
@@ -229,6 +270,11 @@ export class InventoriesController {
   @Departments('warehouse')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post(':id/decrease-stock')
+  @Audit({
+    entityType: 'inventory',
+    action: AuditAction.UPDATE,
+    entityId: paramId(),
+  })
   public async decreaseStock(
     @Param('id') id: string,
     @Body() request: DecreaseStockRequest,

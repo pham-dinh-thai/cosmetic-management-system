@@ -11,6 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard, Departments, OrgGuard, Role, Roles } from '@app/security';
+import { Audit, AuditAction, paramId } from '@app/audit-client';
 import { FindAllInvoicesUseCase } from 'apps/invoice-service/src/application/use-cases/find-all-invoices/find-all-invoices.use-case';
 import { FindInvoiceByIdUseCase } from 'apps/invoice-service/src/application/use-cases/find-invoice-by-id/find-invoice-by-id.use-case';
 import { RecordPaymentUseCase } from 'apps/invoice-service/src/application/use-cases/record-payment/record-payment.use-case';
@@ -58,6 +59,11 @@ export class InvoicesController {
 
   @HttpCode(HttpStatus.OK)
   @Put(':id/payment')
+  @Audit({
+    entityType: 'invoice',
+    action: AuditAction.UPDATE,
+    entityId: paramId(),
+  })
   public async recordPayment(
     @Param('id') id: string,
     @Body() request: RecordPaymentRequest,
@@ -67,6 +73,11 @@ export class InvoicesController {
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Put(':id')
+  @Audit({
+    entityType: 'invoice',
+    action: AuditAction.UPDATE,
+    entityId: paramId(),
+  })
   public async update(
     @Param('id') id: string,
     @Body() request: UpdateInvoiceRequest,
@@ -76,6 +87,11 @@ export class InvoicesController {
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
+  @Audit({
+    entityType: 'invoice',
+    action: AuditAction.DELETE,
+    entityId: paramId(),
+  })
   public async delete(@Param('id') id: string): Promise<void> {
     await this.deleteInvoiceUseCase.execute(id);
   }

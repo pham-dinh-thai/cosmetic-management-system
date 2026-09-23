@@ -43,6 +43,7 @@ export const ADMIN_PAGES: ResourcePageKey[] = [
   "receipts",
   "payments",
   "invoices",
+  "audit-logs",
 ];
 
 export function isAdmin(user: UserProfile | null): boolean {

@@ -15,6 +15,7 @@ import { UpdateEmployeeInformationUseCase } from 'apps/employee-service/src/appl
 import { CreateEmployeeRequest } from './requests/create-employee.request';
 import { UpdateEmployeeInformationRequest } from './requests/update-employee-information.request';
 import { AuthGuard, Role, Roles, RolesGuard } from '@app/security';
+import { Audit, AuditAction, paramId } from '@app/audit-client';
 import { AssignDepartmentToEmployeeUseCase } from 'apps/employee-service/src/application/use-cases/assign-department-to-employee/assign-department-to-employee.use-case';
 import { AssignDepartmentToEmployeeRequest } from './requests/assign-department-to-employee.request';
 import { UpdateEmployeePositionUseCase } from 'apps/employee-service/src/application/use-cases/update-employee-position/update-employee-position.use-case';
@@ -46,11 +47,17 @@ export class EmployeesController {
   }
 
   @Post()
+  @Audit({ entityType: 'employee', action: AuditAction.CREATE })
   public async create(@Body() request: CreateEmployeeRequest): Promise<void> {
     await this.createEmployeeUseCase.execute(request);
   }
 
   @Patch(':id')
+  @Audit({
+    entityType: 'employee',
+    action: AuditAction.UPDATE,
+    entityId: paramId(),
+  })
   public async updateInformation(
     @Param('id') id: string,
     @Body() request: UpdateEmployeeInformationRequest,
@@ -59,6 +66,11 @@ export class EmployeesController {
   }
 
   @Patch(':id/department')
+  @Audit({
+    entityType: 'employee',
+    action: AuditAction.UPDATE,
+    entityId: paramId(),
+  })
   public async assignDepartment(
     @Param('id') id: string,
     @Body() request: AssignDepartmentToEmployeeRequest,
@@ -67,6 +79,11 @@ export class EmployeesController {
   }
 
   @Patch(':id/position')
+  @Audit({
+    entityType: 'employee',
+    action: AuditAction.UPDATE,
+    entityId: paramId(),
+  })
   public async updatePosition(
     @Param('id') id: string,
     @Body() request: UpdateEmployeePositionRequest,
@@ -76,18 +93,33 @@ export class EmployeesController {
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
+  @Audit({
+    entityType: 'employee',
+    action: AuditAction.DELETE,
+    entityId: paramId(),
+  })
   public async delete(@Param('id') id: string): Promise<void> {
     await this.deleteEmployeeUseCase.execute(id);
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id/activate')
+  @Audit({
+    entityType: 'employee',
+    action: AuditAction.UPDATE,
+    entityId: paramId(),
+  })
   public async activate(@Param('id') id: string): Promise<void> {
     await this.activateEmployeeUseCase.execute(id);
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id/deactivate')
+  @Audit({
+    entityType: 'employee',
+    action: AuditAction.UPDATE,
+    entityId: paramId(),
+  })
   public async deactivate(@Param('id') id: string): Promise<void> {
     await this.deactivateEmployeeUseCase.execute(id);
   }

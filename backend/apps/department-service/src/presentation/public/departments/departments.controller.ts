@@ -14,6 +14,7 @@ import {
 import { CreateDepartmentUseCase } from 'apps/department-service/src/application/use-cases/create-department/create-department.use-case';
 import { CreateDepartmentRequest } from './requests/create-department.request';
 import { AuthGuard, Role, Roles, RolesGuard } from '@app/security';
+import { Audit, AuditAction, paramId } from '@app/audit-client';
 import { UpdateDepartmentUseCase } from 'apps/department-service/src/application/use-cases/update-department/update-department.use-case';
 import { UpdateDepartmentRequest } from './requests/update-department.request';
 import { DeactivateDepartmentUseCase } from 'apps/department-service/src/application/use-cases/deactivate-department/deactivate-department.use-case';
@@ -44,11 +45,17 @@ export class DepartmentsController {
   }
 
   @Post()
+  @Audit({ entityType: 'department', action: AuditAction.CREATE })
   public async create(@Body() request: CreateDepartmentRequest): Promise<void> {
     await this.createDepartmentUseCase.execute(request);
   }
 
   @Put(':id')
+  @Audit({
+    entityType: 'department',
+    action: AuditAction.UPDATE,
+    entityId: paramId(),
+  })
   public async update(
     @Param('id') id: string,
     @Body() request: UpdateDepartmentRequest,
@@ -58,21 +65,41 @@ export class DepartmentsController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @Audit({
+    entityType: 'department',
+    action: AuditAction.DELETE,
+    entityId: paramId(),
+  })
   public async delete(@Param('id') id: string): Promise<void> {
     await this.deleteDepartmentUseCase.execute(id);
   }
 
   @Patch(':id/deactivate')
+  @Audit({
+    entityType: 'department',
+    action: AuditAction.UPDATE,
+    entityId: paramId(),
+  })
   public async deactivate(@Param('id') id: string): Promise<void> {
     await this.deactivateDepartmentUseCase.execute(id);
   }
 
   @Patch(':id/activate')
+  @Audit({
+    entityType: 'department',
+    action: AuditAction.UPDATE,
+    entityId: paramId(),
+  })
   public async activate(@Param('id') id: string): Promise<void> {
     await this.activateDepartmentUseCase.execute(id);
   }
 
   @Patch(':id/manager')
+  @Audit({
+    entityType: 'department',
+    action: AuditAction.UPDATE,
+    entityId: paramId(),
+  })
   public async assignManager(
     @Param('id') id: string,
     @Body() request: AssignManagerToDepartmentRequest,

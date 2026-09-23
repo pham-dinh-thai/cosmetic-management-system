@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { AuthGuard } from '@app/security';
+import { Audit, AuditAction, responseId, userSubId } from '@app/audit-client';
 import { LoginUseCase } from 'apps/authentication-service/src/application/use-cases/login/login.use-case';
 import { LoginResponse } from 'apps/authentication-service/src/application/use-cases/login/login.response';
 import { RefreshTokenUseCase } from 'apps/authentication-service/src/application/use-cases/refresh-token/refresh-token.use-case';
@@ -19,6 +20,28 @@ import { LoginRequest } from './requests/login.request';
 import { RegisterRequest } from './requests/register.request';
 import { ChangePasswordRequest } from './requests/change-password.request';
 
+function subFromAccessToken(token: string | undefined): string | undefined {
+  if (!token) {
+    return undefined;
+  }
+
+  try {
+    const parts = token.split('.');
+
+    if (parts.length !== 3) {
+      return undefined;
+    }
+
+    const payload = JSON.parse(
+      Buffer.from(parts[1], 'base64url').toString('utf8'),
+    ) as { sub?: unknown };
+
+    return typeof payload.sub === 'string' ? payload.sub : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 @Controller('auth-users')
 export class AuthUsersController {
   public constructor(
@@ -29,6 +52,11 @@ export class AuthUsersController {
   ) {}
 
   @Post('/register')
+  @Audit({
+    entityType: 'auth-user',
+    action: AuditAction.CREATE,
+    entityId: responseId('userId'),
+  })
   public async register(
     @Body() request: RegisterRequest,
   ): Promise<RegisterResponse> {
@@ -36,6 +64,14 @@ export class AuthUsersController {
   }
 
   @Post('/login')
+  @Audit({
+    entityType: 'auth-user',
+    action: AuditAction.LOGIN,
+    entityId: (_req, res) =>
+      subFromAccessToken(
+        (res as { accessToken?: string } | undefined)?.accessToken,
+      ),
+  })
   public async login(@Body() request: LoginRequest): Promise<LoginResponse> {
     return await this.loginUseCase.execute(request);
   }
@@ -54,6 +90,11 @@ export class AuthUsersController {
   }
 
   @UseGuards(AuthGuard)
+  @Audit({
+    entityType: 'auth-user',
+    action: AuditAction.UPDATE,
+    entityId: userSubId(),
+  })
   @Post('/change-password')
   public async changePassword(
     @Body() request: ChangePasswordRequest,

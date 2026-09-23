@@ -7,6 +7,7 @@ import {
   Param,
   Post,
 } from '@nestjs/common';
+import { Audit, AuditAction, responseId } from '@app/audit-client';
 import { FindInventoryByVariantUseCase } from '../../application/use-cases/find-inventory-by-variant/find-inventory-by-variant.use-case';
 import { AddBatchToInventoryUseCase } from '../../application/use-cases/add-batch-to-inventory/add-batch-to-inventory.use-case';
 import { CreateInventoryUseCase } from '../../application/use-cases/create-inventory/create-inventory.use-case';
@@ -32,6 +33,16 @@ export class InternalInventoriesController {
 
   @HttpCode(HttpStatus.CREATED)
   @Post('purchase')
+  @Audit({
+    entityType: 'inventory',
+    action: AuditAction.UPDATE,
+    entityId: responseId('variantId'),
+    actorId: (req) => {
+      const createdBy = (req.body as { createdBy?: string } | undefined)
+        ?.createdBy;
+      return createdBy;
+    },
+  })
   public async purchase(@Body() request: InternalAddBatchRequest): Promise<{
     variantId: string;
     quantity: number;
@@ -95,6 +106,11 @@ export class InternalInventoriesController {
 
   @HttpCode(HttpStatus.OK)
   @Post('sale')
+  @Audit({
+    entityType: 'inventory',
+    action: AuditAction.UPDATE,
+    entityId: responseId('variantId'),
+  })
   public async sale(@Body() request: InternalSaleRequest): Promise<{
     variantId: string;
     quantity: number;
@@ -135,6 +151,11 @@ export class InternalInventoriesController {
 
   @HttpCode(HttpStatus.OK)
   @Post('reverse')
+  @Audit({
+    entityType: 'inventory',
+    action: AuditAction.UPDATE,
+    entityId: responseId('variantId'),
+  })
   public async reverse(
     @Body() request: InternalReverseRequest,
   ): Promise<{ variantId: string; quantity: number }> {
@@ -151,6 +172,11 @@ export class InternalInventoriesController {
 
   @HttpCode(HttpStatus.OK)
   @Post('restore')
+  @Audit({
+    entityType: 'inventory',
+    action: AuditAction.UPDATE,
+    entityId: responseId('variantId'),
+  })
   public async restore(
     @Body() request: InternalRestoreStockRequest,
   ): Promise<{ variantId: string; quantity: number }> {

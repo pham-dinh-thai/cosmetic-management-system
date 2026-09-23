@@ -15,6 +15,7 @@ import {
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { AuthGuard, Role, Roles, RolesGuard } from '@app/security';
+import { Audit, AuditAction, paramId, responseId, userSubId } from '@app/audit-client';
 import { FindAllCustomersUseCase } from 'apps/customer-service/src/application/use-cases/find-customer/find-all/find-all-customers.use-case';
 import { FindAllCustomerReadModel } from 'apps/customer-service/src/application/use-cases/find-customer/find-all/read-models/find-all-customer.read-model';
 import { FindCustomerByIdUseCase } from 'apps/customer-service/src/application/use-cases/find-customer/find-by-id/find-customer-by-id.use-case';
@@ -83,6 +84,11 @@ export class CustomersController {
 
   @Roles(Role.Customer, Role.Admin, Role.Employee)
   @Post('me')
+  @Audit({
+    entityType: 'customer',
+    action: AuditAction.CREATE,
+    entityId: userSubId(),
+  })
   public async ensureMe(
     @Req() request: Request,
   ): Promise<FindCustomerByUserReadModel> {
@@ -116,6 +122,11 @@ export class CustomersController {
   }
 
   @Post()
+  @Audit({
+    entityType: 'customer',
+    action: AuditAction.CREATE,
+    entityId: responseId(),
+  })
   public async create(
     @Body() request: CreateCustomerRequest,
   ): Promise<{ id: string }> {
@@ -125,6 +136,11 @@ export class CustomersController {
   @Roles(Role.Customer, Role.Admin, Role.Employee)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Put('me')
+  @Audit({
+    entityType: 'customer',
+    action: AuditAction.UPDATE,
+    entityId: userSubId(),
+  })
   public async updateMe(
     @Req() request: Request,
     @Body() body: UpdateCustomerRequest,
@@ -143,6 +159,11 @@ export class CustomersController {
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Put(':id')
+  @Audit({
+    entityType: 'customer',
+    action: AuditAction.UPDATE,
+    entityId: paramId(),
+  })
   public async update(
     @Param('id') id: string,
     @Body() request: UpdateCustomerRequest,
@@ -152,23 +173,43 @@ export class CustomersController {
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
+  @Audit({
+    entityType: 'customer',
+    action: AuditAction.DELETE,
+    entityId: paramId(),
+  })
   public async delete(@Param('id') id: string): Promise<void> {
     await this.deleteCustomerUseCase.execute(id);
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id/activate')
+  @Audit({
+    entityType: 'customer',
+    action: AuditAction.UPDATE,
+    entityId: paramId(),
+  })
   public async activate(@Param('id') id: string): Promise<void> {
     await this.activateCustomerUseCase.execute(id);
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id/deactivate')
+  @Audit({
+    entityType: 'customer',
+    action: AuditAction.UPDATE,
+    entityId: paramId(),
+  })
   public async deactivate(@Param('id') id: string): Promise<void> {
     await this.deactivateCustomerUseCase.execute(id);
   }
 
   @Post(':id/addresses')
+  @Audit({
+    entityType: 'customer-address',
+    action: AuditAction.CREATE,
+    entityId: paramId(),
+  })
   public async addAddress(
     @Param('id') id: string,
     @Body() request: AddAddressRequest,
@@ -178,6 +219,11 @@ export class CustomersController {
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id/addresses/:addressId')
+  @Audit({
+    entityType: 'customer-address',
+    action: AuditAction.DELETE,
+    entityId: paramId('addressId'),
+  })
   public async removeAddress(
     @Param('id') id: string,
     @Param('addressId') addressId: string,
@@ -186,6 +232,11 @@ export class CustomersController {
   }
 
   @Post(':id/phones')
+  @Audit({
+    entityType: 'customer-phone',
+    action: AuditAction.CREATE,
+    entityId: paramId(),
+  })
   public async addPhone(
     @Param('id') id: string,
     @Body() request: AddPhoneRequest,
@@ -195,6 +246,11 @@ export class CustomersController {
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id/phones/:phoneId')
+  @Audit({
+    entityType: 'customer-phone',
+    action: AuditAction.DELETE,
+    entityId: paramId('phoneId'),
+  })
   public async removePhone(
     @Param('id') id: string,
     @Param('phoneId') phoneId: string,

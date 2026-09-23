@@ -14,6 +14,7 @@ export type ResourcePageKey =
   | "receipts"
   | "payments"
   | "invoices"
+  | "audit-logs"
   | "pos";
 
 const RESOURCE_PREFIXES: [string, ResourcePageKey][] = [
@@ -32,6 +33,7 @@ const RESOURCE_PREFIXES: [string, ResourcePageKey][] = [
   ["/receipts", "receipts"],
   ["/payments", "payments"],
   ["/invoices", "invoices"],
+  ["/audit-logs", "audit-logs"],
   ["/pos", "pos"],
 ];
 

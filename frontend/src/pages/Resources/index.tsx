@@ -28,6 +28,7 @@ const PAGE_TITLES: Record<ResourcePageKey, string> = {
   receipts: "Phiếu thu",
   payments: "Phiếu chi",
   invoices: "Công nợ",
+  "audit-logs": "Nhật ký hoạt động",
   pos: "Bán hàng",
 };
 
@@ -81,6 +82,11 @@ const ADMIN_SECTIONS: (active: ResourcePageKey) => SidebarSection[] = (
       { id: "customers", label: "Khách hàng", active: active === "customers" },
       { id: "employees", label: "Nhân viên", active: active === "employees" },
       { id: "departments", label: "Phòng ban", active: active === "departments" },
+      {
+        id: "audit-logs",
+        label: "Nhật ký hoạt động",
+        active: active === "audit-logs",
+      },
     ],
   },
 ];
