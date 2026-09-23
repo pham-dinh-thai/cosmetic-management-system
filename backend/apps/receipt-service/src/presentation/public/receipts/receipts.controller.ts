@@ -12,6 +12,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard, Departments, OrgGuard, Role, Roles } from '@app/security';
+import { Audit, AuditAction, paramId, responseId } from '@app/audit-client';
 import { CreateManualReceiptUseCase } from 'apps/receipt-service/src/application/use-cases/create-manual-receipt/create-manual-receipt.use-case';
 import { FindAllReceiptsUseCase } from 'apps/receipt-service/src/application/use-cases/find-all-receipts/find-all-receipts.use-case';
 import { FindReceiptByIdUseCase } from 'apps/receipt-service/src/application/use-cases/find-receipt-by-id/find-receipt-by-id.use-case';
@@ -58,6 +59,11 @@ export class ReceiptsController {
 
   @HttpCode(HttpStatus.CREATED)
   @Post()
+  @Audit({
+    entityType: 'receipt',
+    action: AuditAction.CREATE,
+    entityId: responseId(),
+  })
   public async create(
     @Body() request: CreateReceiptRequest,
   ): Promise<{ id: string; code: string }> {
@@ -75,6 +81,11 @@ export class ReceiptsController {
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Put(':id')
+  @Audit({
+    entityType: 'receipt',
+    action: AuditAction.UPDATE,
+    entityId: paramId(),
+  })
   public async update(
     @Param('id') id: string,
     @Body() request: UpdateReceiptRequest,
@@ -84,6 +95,11 @@ export class ReceiptsController {
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
+  @Audit({
+    entityType: 'receipt',
+    action: AuditAction.DELETE,
+    entityId: paramId(),
+  })
   public async delete(@Param('id') id: string): Promise<void> {
     await this.deleteReceiptUseCase.execute(id);
   }

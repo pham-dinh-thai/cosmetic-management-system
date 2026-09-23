@@ -10,6 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard, Role, Roles, RolesGuard } from '@app/security';
+import { Audit, AuditAction, paramId } from '@app/audit-client';
 import { CreateRoleUseCase } from 'apps/authorization-service/src/application/use-cases/create-role/create-role.use-case';
 import { DeleteRoleUseCase } from 'apps/authorization-service/src/application/use-cases/delete-role/delete-role.use-case';
 import { CreateRoleRequest } from './requests/create-role.request';
@@ -32,12 +33,18 @@ export class RolesController {
   }
 
   @Post()
+  @Audit({ entityType: 'role', action: AuditAction.CREATE })
   public async create(@Body() request: CreateRoleRequest): Promise<void> {
     await this.createRoleUseCase.execute(request);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @Audit({
+    entityType: 'role',
+    action: AuditAction.DELETE,
+    entityId: paramId(),
+  })
   public async delete(@Param('id') id: string): Promise<void> {
     await this.deleteRoleUseCase.execute(id);
   }

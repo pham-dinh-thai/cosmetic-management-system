@@ -13,6 +13,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard, Departments, OrgGuard, Role, Roles } from '@app/security';
+import { Audit, AuditAction, paramId, responseId } from '@app/audit-client';
 import { CreateCosmeticUseCase } from 'apps/cosmetic-service/src/application/use-cases/create-cosmetic/create-cosmetic.use-case';
 import { FindAllCosmeticsUseCase } from 'apps/cosmetic-service/src/application/use-cases/find-cosmetic/find-all/find-all-cosmetics.use-case';
 import { FindAllCosmeticReadModel } from 'apps/cosmetic-service/src/application/use-cases/find-cosmetic/find-all/read-models/find-all-cosmetic.read-model';
@@ -68,6 +69,11 @@ export class CosmeticsController {
   @Roles(Role.Admin, Role.Employee)
   @Departments('sales')
   @Post()
+  @Audit({
+    entityType: 'cosmetic',
+    action: AuditAction.CREATE,
+    entityId: responseId(),
+  })
   public async create(
     @Body() request: CreateCosmeticRequest,
   ): Promise<{ id: string }> {
@@ -78,6 +84,11 @@ export class CosmeticsController {
   @Roles(Role.Admin, Role.Employee)
   @Departments('sales')
   @Put(':id')
+  @Audit({
+    entityType: 'cosmetic',
+    action: AuditAction.UPDATE,
+    entityId: paramId(),
+  })
   public async update(
     @Param('id') id: string,
     @Body() request: UpdateCosmeticRequest,
@@ -89,6 +100,11 @@ export class CosmeticsController {
   @Roles(Role.Admin, Role.Employee)
   @Departments('sales')
   @Patch(':id/image')
+  @Audit({
+    entityType: 'cosmetic',
+    action: AuditAction.UPDATE,
+    entityId: paramId(),
+  })
   public async updateImage(
     @Param('id') id: string,
     @Body() request: UpdateCosmeticImageRequest,
@@ -101,6 +117,11 @@ export class CosmeticsController {
   @Departments('sales')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id/activate')
+  @Audit({
+    entityType: 'cosmetic',
+    action: AuditAction.UPDATE,
+    entityId: paramId(),
+  })
   public async activate(@Param('id') id: string): Promise<void> {
     await this.activateCosmeticUseCase.execute(id);
   }
@@ -110,6 +131,11 @@ export class CosmeticsController {
   @Departments('sales')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id/deactivate')
+  @Audit({
+    entityType: 'cosmetic',
+    action: AuditAction.UPDATE,
+    entityId: paramId(),
+  })
   public async deactivate(@Param('id') id: string): Promise<void> {
     await this.deactivateCosmeticUseCase.execute(id);
   }
@@ -119,6 +145,11 @@ export class CosmeticsController {
   @Departments('sales')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
+  @Audit({
+    entityType: 'cosmetic',
+    action: AuditAction.DELETE,
+    entityId: paramId(),
+  })
   public async delete(@Param('id') id: string): Promise<void> {
     await this.deleteCosmeticUseCase.execute(id);
   }
@@ -127,6 +158,11 @@ export class CosmeticsController {
   @Roles(Role.Admin, Role.Employee)
   @Departments('sales')
   @Post(':id/variants')
+  @Audit({
+    entityType: 'cosmetic-variant',
+    action: AuditAction.CREATE,
+    entityId: responseId(),
+  })
   public async addVariant(
     @Param('id') id: string,
     @Body() request: AddVariantRequest,
@@ -138,6 +174,11 @@ export class CosmeticsController {
   @Roles(Role.Admin, Role.Employee)
   @Departments('sales')
   @Put('variants/:variantId')
+  @Audit({
+    entityType: 'cosmetic-variant',
+    action: AuditAction.UPDATE,
+    entityId: paramId('variantId'),
+  })
   public async updateVariant(
     @Param('variantId') variantId: string,
     @Body() request: UpdateVariantRequest,
@@ -150,6 +191,11 @@ export class CosmeticsController {
   @Departments('sales')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch('variants/:variantId/activate')
+  @Audit({
+    entityType: 'cosmetic-variant',
+    action: AuditAction.UPDATE,
+    entityId: paramId('variantId'),
+  })
   public async activateVariant(
     @Param('variantId') variantId: string,
   ): Promise<void> {
@@ -161,6 +207,11 @@ export class CosmeticsController {
   @Departments('sales')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch('variants/:variantId/deactivate')
+  @Audit({
+    entityType: 'cosmetic-variant',
+    action: AuditAction.UPDATE,
+    entityId: paramId('variantId'),
+  })
   public async deactivateVariant(
     @Param('variantId') variantId: string,
   ): Promise<void> {

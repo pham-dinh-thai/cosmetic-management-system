@@ -22,6 +22,7 @@ import {
   Role,
   Roles,
 } from '@app/security';
+import { Audit, AuditAction, paramId, responseId } from '@app/audit-client';
 import { FindAllCategoriesUseCase } from 'apps/category-service/src/application/use-cases/find-category/find-all/find-all-categories.use-case';
 import { FindAllCategoryReadModel } from 'apps/category-service/src/application/use-cases/find-category/find-all/read-models/find-all-category.read-model';
 import { FindCategoryByIdUseCase } from 'apps/category-service/src/application/use-cases/find-category/find-by-id/find-category-by-id.use-case';
@@ -67,6 +68,11 @@ export class CategoriesController {
 
   @Positions(Position.Manager)
   @Post()
+  @Audit({
+    entityType: 'category',
+    action: AuditAction.CREATE,
+    entityId: responseId(),
+  })
   public async create(
     @Body() request: CreateCategoryRequest,
   ): Promise<{ id: string }> {
@@ -75,6 +81,11 @@ export class CategoriesController {
 
   @Positions(Position.Manager)
   @Put(':id')
+  @Audit({
+    entityType: 'category',
+    action: AuditAction.UPDATE,
+    entityId: paramId(),
+  })
   public async update(
     @Param('id') id: string,
     @Body() request: UpdateCategoryRequest,
@@ -85,6 +96,11 @@ export class CategoriesController {
   @Positions(Position.Manager)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id/activate')
+  @Audit({
+    entityType: 'category',
+    action: AuditAction.UPDATE,
+    entityId: paramId(),
+  })
   public async activate(@Param('id') id: string): Promise<void> {
     await this.activateCategoryUseCase.execute(id);
   }
@@ -92,6 +108,11 @@ export class CategoriesController {
   @Positions(Position.Manager)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id/deactivate')
+  @Audit({
+    entityType: 'category',
+    action: AuditAction.UPDATE,
+    entityId: paramId(),
+  })
   public async deactivate(@Param('id') id: string): Promise<void> {
     await this.deactivateCategoryUseCase.execute(id);
   }
@@ -99,6 +120,11 @@ export class CategoriesController {
   @Positions(Position.Manager)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
+  @Audit({
+    entityType: 'category',
+    action: AuditAction.DELETE,
+    entityId: paramId(),
+  })
   public async delete(@Param('id') id: string): Promise<void> {
     await this.deleteCategoryUseCase.execute(id);
   }

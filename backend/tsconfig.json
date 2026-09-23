@@ -38,6 +38,12 @@
       "@app/codes/*": [
         "./libs/codes/src/*"
       ],
+      "@app/audit-client": [
+        "./libs/audit-client/src"
+      ],
+      "@app/audit-client/*": [
+        "./libs/audit-client/src/*"
+      ],
       "constants/*": [
         "./constants/*"
       ]

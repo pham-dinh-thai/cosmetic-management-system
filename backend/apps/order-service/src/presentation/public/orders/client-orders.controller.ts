@@ -7,6 +7,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard, RolesGuard } from '@app/security';
+import { Audit, AuditAction, responseId } from '@app/audit-client';
 import { PlaceOrderUseCase } from 'apps/order-service/src/application/use-cases/place-order/place-order.use-case';
 import { PlaceOrderRequest } from './requests/place-order.request';
 
@@ -17,6 +18,11 @@ export class ClientOrdersController {
 
   @HttpCode(HttpStatus.CREATED)
   @Post('place')
+  @Audit({
+    entityType: 'order',
+    action: AuditAction.CREATE,
+    entityId: responseId(),
+  })
   public async place(
     @Body() request: PlaceOrderRequest,
   ): Promise<{ id: string }> {

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AuditClientModule } from '@app/audit-client';
 import { ROLES_REPOSITORY } from './domain/repositories/roles.repository';
 import { MikroRolesRepository } from './infrastructure/repositories/mikro-roles.repository';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -31,6 +32,7 @@ import {
       envFilePath: '../.env',
       isGlobal: true,
     }),
+    AuditClientModule,
     MikroOrmModule.forRootAsync({
       driver: PostgreSqlDriver,
       useFactory: (config: ConfigService) => ({

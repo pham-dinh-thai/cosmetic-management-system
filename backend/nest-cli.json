@@ -135,6 +135,15 @@
         "tsConfigPath": "libs/security/tsconfig.lib.json"
       }
     },
+    "audit-client": {
+      "type": "library",
+      "root": "libs/audit-client",
+      "entryFile": "index",
+      "sourceRoot": "libs/audit-client/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/audit-client/tsconfig.lib.json"
+      }
+    },
     "supplier-service": {
       "type": "application",
       "root": "apps/supplier-service",

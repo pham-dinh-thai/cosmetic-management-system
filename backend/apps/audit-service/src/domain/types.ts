@@ -1,15 +1,6 @@
-export const AuditAction = {
-  CREATE: 'CREATE',
-  UPDATE: 'UPDATE',
-  DELETE: 'DELETE',
-  LOGIN: 'LOGIN',
-  LOGOUT: 'LOGOUT',
-  VIEW: 'VIEW',
-  EXPORT: 'EXPORT',
-  OTHER: 'OTHER',
-} as const;
+import { AuditAction } from '@app/audit-client';
 
-export type AuditAction = (typeof AuditAction)[keyof typeof AuditAction];
+export { AuditAction } from '@app/audit-client';
 
 export type RecordAuditLogProps = {
   actorId?: string;

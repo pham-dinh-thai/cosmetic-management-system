@@ -16,6 +16,7 @@ import {
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { AuthGuard, Departments, OrgGuard, Role, Roles } from '@app/security';
+import { Audit, AuditAction, paramId, responseId } from '@app/audit-client';
 import { CreatePurchaseOrderUseCase } from 'apps/purchase-service/src/application/use-cases/create-purchase-order/create-purchase-order.use-case';
 import { FindAllPurchaseOrdersUseCase } from 'apps/purchase-service/src/application/use-cases/find-all-purchase-orders/find-all-purchase-orders.use-case';
 import { FindPurchaseOrderByIdUseCase } from 'apps/purchase-service/src/application/use-cases/find-purchase-order-by-id/find-purchase-order-by-id.use-case';
@@ -94,6 +95,11 @@ export class PurchaseOrdersController {
   }
 
   @Post()
+  @Audit({
+    entityType: 'purchase-order',
+    action: AuditAction.CREATE,
+    entityId: responseId(),
+  })
   public async create(
     @Body() request: CreatePurchaseOrderRequest,
     @Req() httpRequest: Request,
@@ -104,6 +110,11 @@ export class PurchaseOrdersController {
   }
 
   @Put(':id')
+  @Audit({
+    entityType: 'purchase-order',
+    action: AuditAction.UPDATE,
+    entityId: paramId(),
+  })
   public async update(
     @Param('id') id: string,
     @Body() request: UpdatePurchaseOrderRequest,
@@ -113,6 +124,11 @@ export class PurchaseOrdersController {
 
   @HttpCode(HttpStatus.OK)
   @Patch(':id/complete')
+  @Audit({
+    entityType: 'purchase-order',
+    action: AuditAction.UPDATE,
+    entityId: paramId(),
+  })
   public async complete(
     @Param('id') id: string,
     @Req() request: Request,
@@ -124,12 +140,22 @@ export class PurchaseOrdersController {
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id/cancel')
+  @Audit({
+    entityType: 'purchase-order',
+    action: AuditAction.UPDATE,
+    entityId: paramId(),
+  })
   public async cancel(@Param('id') id: string): Promise<void> {
     await this.cancelPurchaseOrderUseCase.execute(id);
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
+  @Audit({
+    entityType: 'purchase-order',
+    action: AuditAction.DELETE,
+    entityId: paramId(),
+  })
   public async delete(@Param('id') id: string): Promise<void> {
     await this.deletePurchaseOrderUseCase.execute(id);
   }
