@@ -15,3 +15,4 @@ export const INVOICE_SERVICE_PORT = 3013;
 export const BASKET_SERVICE_PORT = 3014;
 export const STORAGE_SERVICE_PORT = 3015;
 export const RECEIPT_SERVICE_PORT = 3016;
+export const AUDIT_SERVICE_PORT = 3017;

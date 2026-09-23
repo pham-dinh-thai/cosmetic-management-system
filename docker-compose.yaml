@@ -51,6 +51,9 @@ services:
       RECEIPT_DB_USER: ${RECEIPT_DB_USER}
       RECEIPT_DB_PASSWORD: ${RECEIPT_DB_PASSWORD}
       RECEIPT_DB_NAME: ${RECEIPT_DB_NAME}
+      AUDIT_DB_USER: ${AUDIT_DB_USER}
+      AUDIT_DB_PASSWORD: ${AUDIT_DB_PASSWORD}
+      AUDIT_DB_NAME: ${AUDIT_DB_NAME}
     ports:
       - "5432:5432"
     volumes:
@@ -112,6 +115,9 @@ services:
       RECEIPT_DB_NAME: ${RECEIPT_DB_NAME}
       RECEIPT_DB_USER: ${RECEIPT_DB_USER}
       RECEIPT_DB_PASSWORD: ${RECEIPT_DB_PASSWORD}
+      AUDIT_DB_NAME: ${AUDIT_DB_NAME}
+      AUDIT_DB_USER: ${AUDIT_DB_USER}
+      AUDIT_DB_PASSWORD: ${AUDIT_DB_PASSWORD}
     volumes:
       - ./docker/postgres/sync-users.sh:/scripts/sync-users.sh:ro
     depends_on:
@@ -199,6 +205,11 @@ services:
       RECEIPT_DB_USER: ${RECEIPT_DB_USER}
       RECEIPT_DB_PASSWORD: ${RECEIPT_DB_PASSWORD}
       RECEIPT_DB_NAME: ${RECEIPT_DB_NAME}
+      AUDIT_DB_HOST: ${AUDIT_DB_HOST}
+      AUDIT_DB_PORT: "${AUDIT_DB_PORT}"
+      AUDIT_DB_USER: ${AUDIT_DB_USER}
+      AUDIT_DB_PASSWORD: ${AUDIT_DB_PASSWORD}
+      AUDIT_DB_NAME: ${AUDIT_DB_NAME}
     volumes:
       - ./docker/postgres/migrate.sh:/scripts/migrate.sh:ro
     depends_on:
@@ -510,6 +521,23 @@ services:
       migration:
         condition: service_completed_successfully
 
+  audit-service:
+    image: cosmetic-management-system-backend
+    pull_policy: never
+    command: ["node", "dist/apps/audit-service/main.js"]
+    environment:
+      AUDIT_DB_HOST: ${AUDIT_DB_HOST}
+      AUDIT_DB_PORT: "${AUDIT_DB_PORT}"
+      AUDIT_DB_USER: ${AUDIT_DB_USER}
+      AUDIT_DB_PASSWORD: ${AUDIT_DB_PASSWORD}
+      AUDIT_DB_NAME: ${AUDIT_DB_NAME}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+    ports:
+      - "3017:3017"
+    depends_on:
+      migration:
+        condition: service_completed_successfully
+
   gateway-service:
     image: cosmetic-management-system-backend
     pull_policy: never
@@ -531,6 +559,7 @@ services:
       RECEIPT_SERVICE_URL: ${RECEIPT_SERVICE_URL}
       BASKET_SERVICE_URL: ${BASKET_SERVICE_URL}
       STORAGE_SERVICE_URL: ${STORAGE_SERVICE_URL}
+      AUDIT_SERVICE_URL: ${AUDIT_SERVICE_URL}
     ports:
       - "3000:3000"
     depends_on:
@@ -546,6 +575,7 @@ services:
       - invoice-service
       - receipt-service
       - basket-service
+      - audit-service
 
   frontend:
     build: ./frontend
