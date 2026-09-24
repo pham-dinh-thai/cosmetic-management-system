@@ -119,7 +119,7 @@ export class CosmeticsController {
   @Patch(':id/activate')
   @Audit({
     entityType: 'cosmetic',
-    action: AuditAction.UPDATE,
+    action: AuditAction.ACTIVATE,
     entityId: paramId(),
   })
   public async activate(@Param('id') id: string): Promise<void> {
@@ -133,7 +133,7 @@ export class CosmeticsController {
   @Patch(':id/deactivate')
   @Audit({
     entityType: 'cosmetic',
-    action: AuditAction.UPDATE,
+    action: AuditAction.DEACTIVATE,
     entityId: paramId(),
   })
   public async deactivate(@Param('id') id: string): Promise<void> {
@@ -193,7 +193,7 @@ export class CosmeticsController {
   @Patch('variants/:variantId/activate')
   @Audit({
     entityType: 'cosmetic-variant',
-    action: AuditAction.UPDATE,
+    action: AuditAction.ACTIVATE,
     entityId: paramId('variantId'),
   })
   public async activateVariant(
@@ -209,7 +209,7 @@ export class CosmeticsController {
   @Patch('variants/:variantId/deactivate')
   @Audit({
     entityType: 'cosmetic-variant',
-    action: AuditAction.UPDATE,
+    action: AuditAction.DEACTIVATE,
     entityId: paramId('variantId'),
   })
   public async deactivateVariant(

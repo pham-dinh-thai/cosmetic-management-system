@@ -275,8 +275,8 @@
       "checks": [
         {
           "name": "audit_logs_action_check",
-          "expression": "\"action\" in ('CREATE', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT', 'VIEW', 'EXPORT', 'OTHER')",
-          "definition": "check (\"action\" in ('CREATE', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT', 'VIEW', 'EXPORT', 'OTHER'))",
+          "expression": "\"action\" in ('CREATE', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT', 'VIEW', 'EXPORT', 'ACTIVATE', 'DEACTIVATE', 'OTHER')",
+          "definition": "check (\"action\" in ('CREATE', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT', 'VIEW', 'EXPORT', 'ACTIVATE', 'DEACTIVATE', 'OTHER'))",
           "columnName": "action"
         }
       ],

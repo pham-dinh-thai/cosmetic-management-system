@@ -155,7 +155,7 @@ export class InventoriesController {
   @Patch(':id/activate')
   @Audit({
     entityType: 'inventory',
-    action: AuditAction.UPDATE,
+    action: AuditAction.ACTIVATE,
     entityId: paramId(),
   })
   public async activate(@Param('id') id: string): Promise<void> {
@@ -169,7 +169,7 @@ export class InventoriesController {
   @Patch(':id/deactivate')
   @Audit({
     entityType: 'inventory',
-    action: AuditAction.UPDATE,
+    action: AuditAction.DEACTIVATE,
     entityId: paramId(),
   })
   public async deactivate(@Param('id') id: string): Promise<void> {
@@ -218,7 +218,7 @@ export class InventoriesController {
   @Patch(':id/batches/:batchId/activate')
   @Audit({
     entityType: 'inventory-batch',
-    action: AuditAction.UPDATE,
+    action: AuditAction.ACTIVATE,
     entityId: paramId('batchId'),
   })
   public async activateBatch(
@@ -235,7 +235,7 @@ export class InventoriesController {
   @Patch(':id/batches/:batchId/deactivate')
   @Audit({
     entityType: 'inventory-batch',
-    action: AuditAction.UPDATE,
+    action: AuditAction.DEACTIVATE,
     entityId: paramId('batchId'),
   })
   public async deactivateBatch(
