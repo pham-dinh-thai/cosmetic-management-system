@@ -19,12 +19,16 @@ export type AuditOptions = {
    * ví dụ lấy `createdBy` từ body do service khác truyền sang.
    */
   actorId?: (request: Request) => string | undefined;
+  /**
+   * Ghi log cả khi request thất bại (lỗi từ handler/validation).
+   * Mặc định true; set false để chỉ ghi khi thành công.
+   */
+  recordOnError?: boolean;
 };
 
 export const AUDIT_KEY = 'audit-options';
 
-export const Audit = (options: AuditOptions) =>
-  SetMetadata(AUDIT_KEY, options);
+export const Audit = (options: AuditOptions) => SetMetadata(AUDIT_KEY, options);
 
 // ---- Helpers cho entityId ----
 
@@ -48,9 +52,7 @@ export const responseId =
   };
 
 /** Lấy actor id (sub) từ JWT trên request. */
-export const userSubId =
-  (): AuditEntityIdExtractor =>
-  (request) => {
-    const user = (request as Request & { user?: { sub?: string } }).user;
-    return user?.sub;
-  };
+export const userSubId = (): AuditEntityIdExtractor => (request) => {
+  const user = (request as Request & { user?: { sub?: string } }).user;
+  return user?.sub;
+};
