@@ -8,6 +8,8 @@ export type AuditAction =
   | "LOGOUT"
   | "VIEW"
   | "EXPORT"
+  | "ACTIVATE"
+  | "DEACTIVATE"
   | "OTHER";
 
 export interface AuditLogSummary {
@@ -78,6 +80,8 @@ export const AUDIT_ACTION_LABEL: Record<AuditAction, string> = {
   LOGOUT: "Đăng xuất",
   VIEW: "Xem",
   EXPORT: "Xuất dữ liệu",
+  ACTIVATE: "Kích hoạt",
+  DEACTIVATE: "Vô hiệu hoá",
   OTHER: "Khác",
 };
 
@@ -89,6 +93,8 @@ const AUDIT_ACTION_COLOR: Record<AuditAction, string> = {
   LOGOUT: "bg-[#eeeee9] text-[#666666]",
   VIEW: "bg-[#eeeee9] text-[#666666]",
   EXPORT: "bg-[#e3efe0] text-[#1c3a13]",
+  ACTIVATE: "bg-[#e3efe0] text-[#1c3a13]",
+  DEACTIVATE: "bg-[#f6e3e0] text-[#8a3b2e]",
   OTHER: "bg-[#eeeee9] text-[#666666]",
 };
 

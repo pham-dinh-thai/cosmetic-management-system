@@ -186,7 +186,7 @@ export class CustomersController {
   @Patch(':id/activate')
   @Audit({
     entityType: 'customer',
-    action: AuditAction.UPDATE,
+    action: AuditAction.ACTIVATE,
     entityId: paramId(),
   })
   public async activate(@Param('id') id: string): Promise<void> {
@@ -197,7 +197,7 @@ export class CustomersController {
   @Patch(':id/deactivate')
   @Audit({
     entityType: 'customer',
-    action: AuditAction.UPDATE,
+    action: AuditAction.DEACTIVATE,
     entityId: paramId(),
   })
   public async deactivate(@Param('id') id: string): Promise<void> {

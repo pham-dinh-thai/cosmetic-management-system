@@ -6,6 +6,8 @@ export const AuditAction = {
   LOGOUT: 'LOGOUT',
   VIEW: 'VIEW',
   EXPORT: 'EXPORT',
+  ACTIVATE: 'ACTIVATE',
+  DEACTIVATE: 'DEACTIVATE',
   OTHER: 'OTHER',
 } as const;
 

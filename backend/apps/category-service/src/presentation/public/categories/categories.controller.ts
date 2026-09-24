@@ -98,7 +98,7 @@ export class CategoriesController {
   @Patch(':id/activate')
   @Audit({
     entityType: 'category',
-    action: AuditAction.UPDATE,
+    action: AuditAction.ACTIVATE,
     entityId: paramId(),
   })
   public async activate(@Param('id') id: string): Promise<void> {
@@ -110,7 +110,7 @@ export class CategoriesController {
   @Patch(':id/deactivate')
   @Audit({
     entityType: 'category',
-    action: AuditAction.UPDATE,
+    action: AuditAction.DEACTIVATE,
     entityId: paramId(),
   })
   public async deactivate(@Param('id') id: string): Promise<void> {

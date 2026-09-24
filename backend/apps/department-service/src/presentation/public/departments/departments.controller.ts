@@ -77,7 +77,7 @@ export class DepartmentsController {
   @Patch(':id/deactivate')
   @Audit({
     entityType: 'department',
-    action: AuditAction.UPDATE,
+    action: AuditAction.DEACTIVATE,
     entityId: paramId(),
   })
   public async deactivate(@Param('id') id: string): Promise<void> {
@@ -87,7 +87,7 @@ export class DepartmentsController {
   @Patch(':id/activate')
   @Audit({
     entityType: 'department',
-    action: AuditAction.UPDATE,
+    action: AuditAction.ACTIVATE,
     entityId: paramId(),
   })
   public async activate(@Param('id') id: string): Promise<void> {
