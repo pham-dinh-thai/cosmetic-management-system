@@ -301,7 +301,7 @@ const RolesPage: React.FC = () => {
                       void selectRole(role.id);
                     }
                   }}
-                  className={`flex cursor-pointer flex-col items-start gap-1.5 rounded-xl border px-4 py-3 text-left transition-colors ${
+                  className={`flex cursor-pointer flex-col items-start gap-1.5 rounded-lg border px-4 py-3 text-left transition-colors ${
                     isSelected
                       ? "border-[#1c3a13] bg-[#e3ecd9]"
                       : "border-[#eeeee9] bg-transparent hover:border-[#c4c7c4]"
@@ -351,20 +351,18 @@ const RolesPage: React.FC = () => {
             </div>
 
             <div className="flex flex-wrap items-end gap-2">
-              <div className="w-40">
-                <Select
-                  options={RESOURCE_OPTIONS}
-                  value={newPermissionResource}
-                  onChange={(e) => setNewPermissionResource(e.target.value)}
-                />
-              </div>
-              <div className="w-36">
-                <Select
-                  options={ACTION_OPTIONS}
-                  value={newPermissionAction}
-                  onChange={(e) => setNewPermissionAction(e.target.value)}
-                />
-              </div>
+              <Select
+                options={RESOURCE_OPTIONS}
+                value={newPermissionResource}
+                onChange={(e) => setNewPermissionResource(e.target.value)}
+                className="!w-[150px]"
+              />
+              <Select
+                options={ACTION_OPTIONS}
+                value={newPermissionAction}
+                onChange={(e) => setNewPermissionAction(e.target.value)}
+                className="!w-[120px]"
+              />
               <Button
                 size="sm"
                 variant="outline"
@@ -403,7 +401,7 @@ const RolesPage: React.FC = () => {
                       return (
                         <div
                           key={permission.id}
-                          className={`flex items-center justify-between gap-2 rounded-xl border px-3 py-2.5 transition-colors ${
+                          className={`flex items-center justify-between gap-2 rounded-lg border px-3 py-2.5 transition-colors ${
                             granted
                               ? "border-[#1c3a13] bg-[#e3ecd9]"
                               : "border-[#eeeee9] hover:border-[#c4c7c4]"
