@@ -401,7 +401,7 @@ const RolesPage: React.FC = () => {
                         permission.isActive &&
                         !saving;
                       return (
-                        <label
+                        <div
                           key={permission.id}
                           className={`flex items-center justify-between gap-2 rounded-xl border px-3 py-2.5 transition-colors ${
                             granted
@@ -422,19 +422,21 @@ const RolesPage: React.FC = () => {
                               type="button"
                               disabled={!roleDetail}
                               onClick={() => void handleTogglePermissionActive(permission)}
-                              className="text-[11px] text-[#666666] underline-offset-2 hover:text-[#1c3a13] hover:underline"
+                              className="text-[11px] text-[#666666] underline-offset-2 hover:text-[#1c3a13] hover:underline disabled:cursor-not-allowed disabled:opacity-50"
                             >
                               {permission.isActive ? "Vô hiệu hoá" : "Kích hoạt"}
                             </button>
-                            <input
-                              type="checkbox"
-                              checked={granted}
-                              disabled={!editable}
-                              onChange={() => void handleTogglePermission(permission)}
-                              className="h-4 w-4 accent-[#1c3a13] disabled:cursor-not-allowed"
-                            />
+                            <label className="flex items-center">
+                              <input
+                                type="checkbox"
+                                checked={granted}
+                                disabled={!editable}
+                                onChange={() => void handleTogglePermission(permission)}
+                                className="h-4 w-4 accent-[#1c3a13] disabled:cursor-not-allowed"
+                              />
+                            </label>
                           </span>
-                        </label>
+                        </div>
                       );
                     })}
                   </div>
