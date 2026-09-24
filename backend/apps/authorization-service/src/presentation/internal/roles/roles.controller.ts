@@ -1,6 +1,6 @@
 import { Controller, Get, Param } from '@nestjs/common';
-import { FindRoleByIdReadModel } from 'apps/authorization-service/src/application/use-cases/find-role/find-by-id/find-role-by-id.read-model';
-import { FindRoleByIdUseCase } from 'apps/authorization-service/src/application/use-cases/find-role/find-by-id/find-role-by-id.use-case';
+import { FindRoleByIdReadModel } from 'apps/authorization-service/src/application/use-cases/find-role-by-id/find-role-by-id.read-model';
+import { FindRoleByIdUseCase } from 'apps/authorization-service/src/application/use-cases/find-role-by-id/find-role-by-id.use-case';
 
 @Controller('internal/roles')
 export class InternalRolesController {

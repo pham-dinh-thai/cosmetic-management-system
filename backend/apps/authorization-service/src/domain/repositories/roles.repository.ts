@@ -8,6 +8,10 @@ export interface IRolesRepository {
   create(role: Role): Promise<void>;
 
   delete(id: string): Promise<boolean>;
+
+  setIsActive(role: Role): Promise<void>;
+
+  syncPermissions(role: Role): Promise<void>;
 }
 
 export const ROLES_REPOSITORY = 'IRolesRepository';
