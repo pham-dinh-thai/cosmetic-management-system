@@ -104,10 +104,11 @@ function App() {
 
           <Route
             element={
-              // Khu quản trị: cho mọi nhân viên (admin hoặc vai trò tùy chỉnh
-              // như warehouse-manager...). Bên trong Resources đã lọc sidebar +
-              // redirect theo permission; backend cũng enforce từng API.
-              <RoleRoute excludeRoles={["customer"]}>
+              // Khu quản trị: cho mọi nhân viên đã đăng nhập (admin hoặc vai trò
+              // tùy chỉnh như warehouse-manager...), trừ customer. Bên trong
+              // Resources đã lọc sidebar + redirect theo permission; backend
+              // cũng enforce từng API.
+              <RoleRoute anyRole excludeRoles={["customer"]}>
                 <Resources />
               </RoleRoute>
             }
