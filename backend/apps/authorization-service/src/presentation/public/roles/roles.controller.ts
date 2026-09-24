@@ -21,6 +21,9 @@ import { ActivateRoleUseCase } from 'apps/authorization-service/src/application/
 import { DeactivateRoleUseCase } from 'apps/authorization-service/src/application/use-cases/deactivate-role/deactivate-role.use-case';
 import { GrantPermissionToRoleUseCase } from 'apps/authorization-service/src/application/use-cases/grant-permission-to-role/grant-permission-to-role.use-case';
 import { GrantPermissionsRequest } from './requests/grant-permissions.request';
+import { FindRoleByIdUseCase } from 'apps/authorization-service/src/application/use-cases/find-role-by-id/find-role-by-id.use-case';
+import { FindRoleByIdReadModel } from 'apps/authorization-service/src/application/use-cases/find-role-by-id/find-role-by-id.read-model';
+import { RoleNotFoundException } from 'apps/authorization-service/src/domain/exceptions/role-not-found.exception';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Roles(Role.Admin)
@@ -33,11 +36,25 @@ export class RolesController {
     private readonly activateRoleUseCase: ActivateRoleUseCase,
     private readonly deactivateRoleUseCase: DeactivateRoleUseCase,
     private readonly grantPermissionToRoleUseCase: GrantPermissionToRoleUseCase,
+    private readonly findRoleByIdUseCase: FindRoleByIdUseCase,
   ) {}
 
   @Get()
   public async findAll(): Promise<FindAllRolesReadModel[]> {
     return await this.findAllRolesUseCase.execute();
+  }
+
+  @Get(':id')
+  public async findById(
+    @Param('id') id: string,
+  ): Promise<FindRoleByIdReadModel | null> {
+    const role = await this.findRoleByIdUseCase.execute(id);
+
+    if (!role) {
+      throw new RoleNotFoundException(id);
+    }
+
+    return role;
   }
 
   @Post()

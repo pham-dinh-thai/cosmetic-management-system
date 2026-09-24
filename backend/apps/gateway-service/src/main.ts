@@ -131,7 +131,8 @@ async function bootstrap() {
     createProxyMiddleware({
       target: process.env.AUTHORIZATION_SERVICE_URL,
       changeOrigin: true,
-      pathFilter: (pathname) => /^\/api\/roles(\/|$)/.test(pathname),
+      pathFilter: (pathname) =>
+        /^\/api\/(roles|permissions)(\/|$)/.test(pathname),
     }),
   );
   app.use(

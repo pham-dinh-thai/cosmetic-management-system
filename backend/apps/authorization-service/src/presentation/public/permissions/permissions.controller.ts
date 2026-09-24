@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Param,
   Patch,
   Post,
@@ -12,6 +13,8 @@ import { CreatePermissionUseCase } from 'apps/authorization-service/src/applicat
 import { CreatePermissionRequest } from './requests/create-permission.request';
 import { ActivatePermissionUseCase } from 'apps/authorization-service/src/application/use-cases/activate-permission/activate-permission.use-case';
 import { DeactivatePermissionUseCase } from 'apps/authorization-service/src/application/use-cases/deactivate-permission/deactivate-permission.use-case';
+import { FindAllPermissionsUseCase } from 'apps/authorization-service/src/application/use-cases/find-all-permissions/find-all-permissions.use-case';
+import { FindAllPermissionsReadModel } from 'apps/authorization-service/src/application/use-cases/find-all-permissions/find-all-permissions.read-model';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Roles(Role.Admin)
@@ -21,7 +24,13 @@ export class PermissionsController {
     private readonly createPermissionUseCase: CreatePermissionUseCase,
     private readonly activatePermissionUseCase: ActivatePermissionUseCase,
     private readonly deactivatePermissionUseCase: DeactivatePermissionUseCase,
+    private readonly findAllPermissionsUseCase: FindAllPermissionsUseCase,
   ) {}
+
+  @Get()
+  public async findAll(): Promise<FindAllPermissionsReadModel[]> {
+    return await this.findAllPermissionsUseCase.execute();
+  }
 
   @Post()
   @Audit({ entityType: 'permission', action: AuditAction.CREATE })

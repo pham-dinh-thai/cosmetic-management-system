@@ -20,6 +20,8 @@ export class GrantPermissionToRoleUseCase {
       throw new RoleNotFoundException(id);
     }
 
+    role.clearPermissions();
+
     for (const permissionId of request.permissionIds) {
       const permission =
         await this.permissionsRepository.findById(permissionId);

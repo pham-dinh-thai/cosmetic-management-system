@@ -16,6 +16,7 @@ import {
 } from './application/use-cases/delete-role/delete-role.use-case';
 import { JwtModule } from '@nestjs/jwt';
 import { RolesController } from './presentation/public/roles/roles.controller';
+import { PermissionsController } from './presentation/public/permissions/permissions.controller';
 import { InternalRolesController } from './presentation/internal/roles/roles.controller';
 import {
   FindAllRolesUseCase,
@@ -85,7 +86,11 @@ import { RolePermission } from './infrastructure/entities/roles_permissions.enti
       inject: [ConfigService],
     }),
   ],
-  controllers: [RolesController, InternalRolesController],
+  controllers: [
+    RolesController,
+    PermissionsController,
+    InternalRolesController,
+  ],
   providers: [
     {
       provide: ROLES_REPOSITORY,

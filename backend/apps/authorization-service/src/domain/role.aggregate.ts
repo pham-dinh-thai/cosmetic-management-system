@@ -82,6 +82,10 @@ export class Role {
     this.permissions.push(requestedPermission);
   }
 
+  public clearPermissions(): void {
+    this.permissions = [];
+  }
+
   public revokePermission(permissionId: string): void {
     if (!this.isActive) {
       throw new RoleDeactivatedException(this.id);

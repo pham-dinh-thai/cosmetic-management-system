@@ -8,7 +8,12 @@ export class FindAllRolesUseCase {
     const roles = await this.rolesRepository.findAll();
 
     return roles.map(
-      (role) => new FindAllRolesReadModel(role.getId(), role.getName()),
+      (role) =>
+        new FindAllRolesReadModel(
+          role.getId(),
+          role.getName(),
+          role.getIsActive(),
+        ),
     );
   }
 }
