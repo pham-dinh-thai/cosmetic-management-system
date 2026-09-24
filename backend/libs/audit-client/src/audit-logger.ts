@@ -17,7 +17,9 @@ export class AuditLogger {
    */
   public async record(input: RecordAuditLogInput): Promise<void> {
     if (!this.url) {
-      this.logger.warn('AUDIT_SERVICE_URL chưa được cấu hình, bỏ qua ghi audit');
+      this.logger.warn(
+        'AUDIT_SERVICE_URL chưa được cấu hình, bỏ qua ghi audit',
+      );
       return;
     }
 
