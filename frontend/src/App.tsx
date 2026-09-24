@@ -26,6 +26,9 @@ const AdminSuppliersWrite: React.FC<{ children: React.ReactNode }> = ({ children
 };
 
 import OverviewPage from "./pages/Admin/routes/Overview";
+import SalesDashboardPage from "./pages/Admin/routes/SalesDashboard";
+import WarehouseDashboardPage from "./pages/Admin/routes/WarehouseDashboard";
+import AccountingDashboardPage from "./pages/Admin/routes/AccountingDashboard";
 import ReportsPage from "./pages/Admin/routes/Reports";
 import CustomersPage from "./pages/Admin/routes/Customers";
 import AddCustomerPage from "./pages/Admin/routes/AddCustomer";
@@ -80,7 +83,7 @@ function App() {
           <Route
             path="/profile"
             element={
-              <RoleRoute allowedRoles={["admin", "employee", "customer"]}>
+              <RoleRoute anyRole>
                 <ProfilePage />
               </RoleRoute>
             }
@@ -88,7 +91,7 @@ function App() {
           <Route
             path="/my-orders"
             element={
-              <RoleRoute allowedRoles={["admin", "employee", "customer"]}>
+              <RoleRoute anyRole>
                 <MyOrdersPage />
               </RoleRoute>
             }
@@ -96,7 +99,7 @@ function App() {
           <Route
             path="/my-orders/:id"
             element={
-              <RoleRoute allowedRoles={["admin", "employee", "customer"]}>
+              <RoleRoute anyRole>
                 <MyOrderDetailPage />
               </RoleRoute>
             }
@@ -104,12 +107,19 @@ function App() {
 
           <Route
             element={
-              <RoleRoute allowedRoles={["admin", "employee"]}>
+              // Khu quản trị: cho mọi nhân viên đã đăng nhập (admin hoặc vai trò
+              // tùy chỉnh như warehouse-manager...), trừ customer. Bên trong
+              // Resources đã lọc sidebar + redirect theo permission; backend
+              // cũng enforce từng API.
+              <RoleRoute anyRole excludeRoles={["customer"]}>
                 <Resources />
               </RoleRoute>
             }
           >
             <Route path="/overview" element={<OverviewPage />} />
+            <Route path="/sales-dashboard" element={<SalesDashboardPage />} />
+            <Route path="/warehouse-dashboard" element={<WarehouseDashboardPage />} />
+            <Route path="/accounting-dashboard" element={<AccountingDashboardPage />} />
             <Route path="/reports" element={<ReportsPage />} />
             <Route path="/pos" element={<PosPage />} />
             <Route path="/orders" element={<OrdersPage />} />

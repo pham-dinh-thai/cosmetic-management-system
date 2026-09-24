@@ -6,7 +6,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard, Departments, OrgGuard, Role, Roles } from '@app/security';
+import { AuthGuard, PermissionsGuard, Permissions } from '@app/security';
 import { Audit, AuditAction, responseId } from '@app/audit-client';
 import { PosOrderUseCase } from 'apps/order-service/src/application/use-cases/pos-order/pos-order.use-case';
 import { PosOrderRequest } from './requests/pos-order.request';
@@ -15,9 +15,8 @@ import { PosOrderRequest } from './requests/pos-order.request';
 export class PosOrdersController {
   public constructor(private readonly posOrderUseCase: PosOrderUseCase) {}
 
-  @UseGuards(AuthGuard, OrgGuard)
-  @Roles(Role.Admin, Role.Employee)
-  @Departments('sales')
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @Permissions('orders:write')
   @HttpCode(HttpStatus.CREATED)
   @Post('pos')
   @Audit({

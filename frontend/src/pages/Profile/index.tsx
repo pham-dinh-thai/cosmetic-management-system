@@ -23,9 +23,9 @@ const ProfilePage: React.FC = () => {
   const userRoleDisplay =
     user?.role === "admin"
       ? "Quản trị viên (Admin)"
-      : user?.role === "employee"
-      ? "Nhân viên (Employee)"
-      : "Khách hàng";
+      : !user?.role || user?.role === "customer"
+      ? "Khách hàng"
+      : "Nhân viên";
 
   const avatarPlaceholder = `https://ui-avatars.com/api/?name=${encodeURIComponent(userDisplayName)}&background=1c3a13&color=fcfcf7&size=128`;
 

@@ -15,7 +15,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
-import { AuthGuard, Departments, OrgGuard, Role, Roles } from '@app/security';
+import { AuthGuard, PermissionsGuard, Permissions } from '@app/security';
 import { Audit, AuditAction, paramId, responseId } from '@app/audit-client';
 import { CreatePurchaseOrderUseCase } from 'apps/purchase-service/src/application/use-cases/create-purchase-order/create-purchase-order.use-case';
 import { FindAllPurchaseOrdersUseCase } from 'apps/purchase-service/src/application/use-cases/find-all-purchase-orders/find-all-purchase-orders.use-case';
@@ -34,9 +34,8 @@ import { PurchaseOrderStatus } from 'apps/purchase-service/src/domain/types';
 import { CreatePurchaseOrderRequest } from './requests/create-purchase-order.request';
 import { UpdatePurchaseOrderRequest } from './requests/update-purchase-order.request';
 
-@UseGuards(AuthGuard, OrgGuard)
-@Roles(Role.Admin, Role.Employee)
-@Departments('warehouse')
+@UseGuards(AuthGuard, PermissionsGuard)
+@Permissions('purchase_orders:read')
 @Controller('purchase-orders')
 export class PurchaseOrdersController {
   public constructor(
@@ -94,6 +93,7 @@ export class PurchaseOrdersController {
     return await this.findPurchaseOrderByIdUseCase.execute(id);
   }
 
+  @Permissions('purchase_orders:write')
   @Post()
   @Audit({
     entityType: 'purchase-order',
@@ -109,6 +109,7 @@ export class PurchaseOrdersController {
     return await this.createPurchaseOrderUseCase.execute(request, employeeId);
   }
 
+  @Permissions('purchase_orders:write')
   @Put(':id')
   @Audit({
     entityType: 'purchase-order',
@@ -122,6 +123,7 @@ export class PurchaseOrdersController {
     await this.updatePurchaseOrderUseCase.execute(id, request);
   }
 
+  @Permissions('purchase_orders:write')
   @HttpCode(HttpStatus.OK)
   @Patch(':id/complete')
   @Audit({
@@ -138,6 +140,7 @@ export class PurchaseOrdersController {
     return await this.completePurchaseOrderUseCase.execute(id, employeeId);
   }
 
+  @Permissions('purchase_orders:write')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id/cancel')
   @Audit({
@@ -149,6 +152,7 @@ export class PurchaseOrdersController {
     await this.cancelPurchaseOrderUseCase.execute(id);
   }
 
+  @Permissions('purchase_orders:write')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   @Audit({

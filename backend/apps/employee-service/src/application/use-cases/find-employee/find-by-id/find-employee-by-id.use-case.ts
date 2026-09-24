@@ -22,6 +22,7 @@ export class FindEmployeeByIdUseCase {
       lastName: string;
       gender: string;
       email?: string;
+      roleId?: string;
     } | null = null;
 
     try {
@@ -48,6 +49,7 @@ export class FindEmployeeByIdUseCase {
       userInfo?.firstName,
       userInfo?.lastName,
       userInfo?.email,
+      userInfo?.roleId,
     );
   }
 }

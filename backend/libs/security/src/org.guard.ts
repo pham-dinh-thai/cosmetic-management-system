@@ -17,6 +17,7 @@ export type RequestUser = {
   roleId?: string;
   departmentCode?: string;
   position?: Position;
+  permissions?: string[];
 };
 
 @Injectable()

@@ -14,7 +14,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
-import { AuthGuard, Departments, OrgGuard, Role, Roles } from '@app/security';
+import { AuthGuard, PermissionsGuard, Permissions } from '@app/security';
 import { Audit, AuditAction, paramId } from '@app/audit-client';
 import { FindAllOrdersUseCase } from 'apps/order-service/src/application/use-cases/find-all-orders/find-all-orders.use-case';
 import { FindOrderByIdUseCase } from 'apps/order-service/src/application/use-cases/find-order-by-id/find-order-by-id.use-case';
@@ -33,9 +33,8 @@ import { UpdateOrderStatusRequest } from './requests/update-order-status.request
 import { UpdateOrderPaymentStatusRequest } from './requests/update-order-payment-status.request';
 import { renderOrderReceiptHtml } from './receipt-html';
 
-@UseGuards(AuthGuard, OrgGuard)
-@Roles(Role.Admin, Role.Employee)
-@Departments('sales')
+@UseGuards(AuthGuard, PermissionsGuard)
+@Permissions('orders:read')
 @Controller('orders')
 export class OrdersController {
   public constructor(
@@ -96,6 +95,7 @@ export class OrdersController {
     return await this.findOrderByIdUseCase.execute(id);
   }
 
+  @Permissions('orders:write')
   @Put(':id')
   @Audit({
     entityType: 'order',
@@ -109,6 +109,7 @@ export class OrdersController {
     await this.updateOrderUseCase.execute(id, request);
   }
 
+  @Permissions('orders:write')
   @HttpCode(HttpStatus.OK)
   @Patch(':id/status')
   @Audit({
@@ -130,6 +131,7 @@ export class OrdersController {
     );
   }
 
+  @Permissions('orders:write')
   @HttpCode(HttpStatus.OK)
   @Patch(':id/payment-status')
   @Audit({
@@ -147,6 +149,7 @@ export class OrdersController {
     );
   }
 
+  @Permissions('orders:write')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   @Audit({

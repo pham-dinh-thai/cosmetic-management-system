@@ -10,6 +10,7 @@ export interface PermissionSummary {
 }
 
 export const RESOURCE_OPTIONS = [
+  { value: "dashboard", label: "Dashboard (Thống kê)" },
   { value: "users", label: "Người dùng" },
   { value: "auth_users", label: "Tài khoản đăng nhập" },
   { value: "customers", label: "Khách hàng" },
@@ -26,6 +27,8 @@ export const RESOURCE_OPTIONS = [
   { value: "payments", label: "Phiếu chi" },
   { value: "purchase_orders", label: "Phiếu nhập" },
   { value: "stock_adjustments", label: "Điều chỉnh kho" },
+  { value: "roles", label: "Vai trò" },
+  { value: "permissions", label: "Quyền" },
 ];
 
 export const ACTION_OPTIONS = [

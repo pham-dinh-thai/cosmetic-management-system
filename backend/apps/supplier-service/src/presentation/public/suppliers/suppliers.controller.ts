@@ -14,12 +14,8 @@ import {
 } from '@nestjs/common';
 import {
   AuthGuard,
-  Departments,
-  OrgGuard,
-  Position,
-  Positions,
-  Role,
-  Roles,
+  PermissionsGuard,
+  Permissions,
 } from '@app/security';
 import { Audit, AuditAction, paramId, responseId } from '@app/audit-client';
 import { FindAllSuppliersUseCase } from 'apps/supplier-service/src/application/use-cases/find-supplier/find-all/find-all-suppliers.use-case';
@@ -34,9 +30,8 @@ import { DeleteSupplierUseCase } from 'apps/supplier-service/src/application/use
 import { CreateSupplierRequest } from './requests/create-supplier.request';
 import { UpdateSupplierRequest } from './requests/update-supplier.request';
 
-@UseGuards(AuthGuard, OrgGuard)
-@Roles(Role.Admin, Role.Employee)
-@Departments('warehouse')
+@UseGuards(AuthGuard, PermissionsGuard)
+@Permissions('suppliers:read')
 @Controller('suppliers')
 export class SuppliersController {
   public constructor(
@@ -67,7 +62,7 @@ export class SuppliersController {
     return await this.findSupplierByIdUseCase.execute(id);
   }
 
-  @Positions(Position.Manager)
+  @Permissions('suppliers:write')
   @Post()
   @Audit({
     entityType: 'supplier',
@@ -80,7 +75,7 @@ export class SuppliersController {
     return await this.createSupplierUseCase.execute(request);
   }
 
-  @Positions(Position.Manager)
+  @Permissions('suppliers:write')
   @Put(':id')
   @Audit({
     entityType: 'supplier',
@@ -94,7 +89,7 @@ export class SuppliersController {
     await this.updateSupplierUseCase.execute(id, request);
   }
 
-  @Positions(Position.Manager)
+  @Permissions('suppliers:write')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id/activate')
   @Audit({
@@ -106,7 +101,7 @@ export class SuppliersController {
     await this.activateSupplierUseCase.execute(id);
   }
 
-  @Positions(Position.Manager)
+  @Permissions('suppliers:write')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id/deactivate')
   @Audit({
@@ -118,7 +113,7 @@ export class SuppliersController {
     await this.deactivateSupplierUseCase.execute(id);
   }
 
-  @Positions(Position.Manager)
+  @Permissions('suppliers:write')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   @Audit({

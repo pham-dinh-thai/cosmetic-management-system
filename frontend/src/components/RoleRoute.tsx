@@ -5,18 +5,30 @@ import type { UserRole } from "../services/auth.service";
 import NotFound from "../pages/NotFound";
 
 interface RoleRouteProps {
-  allowedRoles: UserRole[];
+  /** Danh sách vai trò được phép (dùng khi không bật anyRole). */
+  allowedRoles?: UserRole[];
+  /** Bật = mọi vai trò đã đăng nhập đều được vào (không check role cụ thể). */
+  anyRole?: boolean;
+  /** Các vai trò bị chặn, check sau allowedRoles/anyRole. */
+  excludeRoles?: UserRole[];
   children: ReactNode;
 }
 
-const RoleRoute: React.FC<RoleRouteProps> = ({ allowedRoles, children }) => {
+const RoleRoute: React.FC<RoleRouteProps> = ({
+  allowedRoles = [],
+  anyRole = false,
+  excludeRoles = [],
+  children,
+}) => {
   const { role, isAuthenticated } = useAuth();
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  if (!role || !allowedRoles.includes(role)) {
+  const allowed = anyRole || (role != null && allowedRoles.includes(role));
+
+  if (!allowed || (role != null && excludeRoles.includes(role))) {
     return <NotFound />;
   }
 

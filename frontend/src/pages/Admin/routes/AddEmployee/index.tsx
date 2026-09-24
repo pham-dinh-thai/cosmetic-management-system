@@ -9,6 +9,7 @@ import {
 } from "../../../../components/ui/Primitives";
 import { employeesService } from "../../../../services/employees.service";
 import { departmentsService } from "../../../../services/departments.service";
+import { rolesService, type RoleSummary } from "../../../../services/roles.service";
 import type { Department } from "../Departments/type";
 import type { Employee } from "../Employees/type";
 import { isValidMobilePhone } from "../../../../lib/validators";
@@ -27,6 +28,7 @@ const AddEmployeePage: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [departments, setDepartments] = useState<Department[]>([]);
+  const [roles, setRoles] = useState<RoleSummary[]>([]);
   const [formData, setFormData] = useState<
     Partial<Employee> & { firstName: string; lastName: string }
   >({
@@ -43,11 +45,22 @@ const AddEmployeePage: React.FC = () => {
     hiredAt: new Date().toISOString().split("T")[0],
   });
   const [password, setPassword] = useState("");
-  const [roleId, setRoleId] = useState("employee");
+  const [roleId, setRoleId] = useState("");
 
   useEffect(() => {
     departmentsService.getDepartments().then((data) => setDepartments(data));
+    rolesService.findAll().then((data) => setRoles(data));
   }, []);
+
+  // Default vai trò: ưu tiên role "employee", nếu không có thì role active đầu tiên.
+  useEffect(() => {
+    if (roles.length === 0 || roleId) return;
+    const employeeRole = roles.find(
+      (r) => r.id === "employee" || r.name.toLowerCase() === "employee",
+    );
+    const firstActive = roles.find((r) => r.isActive);
+    setRoleId(employeeRole?.id || firstActive?.id || "");
+  }, [roles, roleId]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -59,6 +72,10 @@ const AddEmployeePage: React.FC = () => {
   const departmentOptions = departments
     .filter((d) => d.isActive)
     .map((d) => ({ value: d.id, label: d.name }));
+
+  const activeRoleOptions = roles
+    .filter((r) => r.isActive)
+    .map((r) => ({ value: r.id, label: r.name }));
 
   const positionOptions = [
     { value: "staff", label: "Nhân viên" },
@@ -202,19 +219,20 @@ const AddEmployeePage: React.FC = () => {
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
               <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
-                Vai trò đăng nhập
+                Vai trò đăng nhập <span className="text-red-500">*</span>
               </label>
               <Select
                 name="roleId"
                 value={roleId}
                 onChange={(e) => setRoleId(e.target.value)}
                 options={[
-                  { value: "employee", label: "Nhân viên" },
-                  { value: "admin", label: "Admin (quản trị)" },
+                  { value: "", label: "Chọn vai trò đăng nhập" },
+                  ...activeRoleOptions,
                 ]}
               />
               <p className="text-[11px] text-[#666666]">
-                Admin cũng là nhân viên, chỉ khác quyền quản trị.
+                Vai trò quyết định quyền truy cập của nhân viên (tạo/ chỉnh tại
+                màn hình Phân quyền).
               </p>
             </div>
           </div>

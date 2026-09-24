@@ -25,4 +25,12 @@ export const userService = {
   async updateProfile(userId: string, payload: UpdateProfilePayload): Promise<void> {
     await api.patch(`/users/${userId}`, payload);
   },
+
+  /**
+   * Đổi vai trò (quyền) của một người dùng. Endpoint admin-only,
+   * dùng chung cho màn hình Nhân viên (chỉnh sửa vai trò).
+   */
+  async updateRole(userId: string, roleId: string): Promise<void> {
+    await api.patch(`/users/${userId}/role`, { roleId });
+  },
 };

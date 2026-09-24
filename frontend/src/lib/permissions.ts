@@ -1,32 +1,7 @@
 import type { ResourcePageKey } from "./resourcePath";
 import type { UserProfile } from "../store/useAuthStore";
 
-export type DepartmentCode =
-  | "sales"
-  | "warehouse"
-  | "accounting"
-  | "accountant";
-
-export const SALES_EMPLOYEE_PAGES: ResourcePageKey[] = [
-  "orders",
-  "products",
-  "categories",
-  "pos",
-];
-
-export const WAREHOUSE_EMPLOYEE_PAGES: ResourcePageKey[] = [
-  "suppliers",
-  "purchase",
-  "inventory",
-  "stock-adjustments",
-];
-
-export const ACCOUNTING_EMPLOYEE_PAGES: ResourcePageKey[] = [
-  "receipts",
-  "payments",
-  "invoices",
-];
-
+/** Trang dành cho admin (được cấp toàn bộ). */
 export const ADMIN_PAGES: ResourcePageKey[] = [
   "overview",
   "reports",
@@ -45,84 +20,123 @@ export const ADMIN_PAGES: ResourcePageKey[] = [
   "invoices",
   "audit-logs",
   "roles",
+  "pos",
+  "sales-dashboard",
+  "warehouse-dashboard",
+  "accounting-dashboard",
+];
+
+/**
+ * Permission cần có (phải đủ TẤT CẢ) để non-admin truy cập từng trang.
+ * Trang không có trong map là admin-only (reports, customers, employees,
+ * departments, audit-logs).
+ */
+export const PERMISSION_PAGE_MAP: Partial<Record<ResourcePageKey, string[]>> = {
+  overview: ["dashboard:overview"],
+  "sales-dashboard": ["dashboard:sales"],
+  "warehouse-dashboard": ["dashboard:warehouse"],
+  "accounting-dashboard": ["dashboard:accounting"],
+  orders: ["orders:read"],
+  products: ["cosmetics:read"],
+  categories: ["categories:read"],
+  suppliers: ["suppliers:read"],
+  purchase: ["purchase_orders:read"],
+  inventory: ["inventory:read"],
+  "stock-adjustments": ["stock_adjustments:read"],
+  receipts: ["receipts:read"],
+  payments: ["payments:read"],
+  invoices: ["invoices:read"],
+  pos: ["orders:read", "orders:write", "cosmetics:read"],
+  roles: ["roles:read"],
+};
+
+/** Thứ tự ưu tiên chọn trang đích sau khi đăng nhập. */
+const LANDING_PRIORITY: ResourcePageKey[] = [
+  "overview",
+  "sales-dashboard",
+  "warehouse-dashboard",
+  "accounting-dashboard",
+  "pos",
+  "orders",
+  "inventory",
+  "products",
+  "purchase",
+  "suppliers",
+  "stock-adjustments",
+  "receipts",
+  "payments",
+  "invoices",
+  "categories",
+  "roles",
 ];
 
 export function isAdmin(user: UserProfile | null): boolean {
   return user?.role === "admin";
 }
 
-export function isManager(user: UserProfile | null): boolean {
-  return user?.position === "manager";
+/**
+ * Admin luôn được phép mọi quyền. Người dùng khác phải có permission trong
+ * danh sách permission lấy từ JWT (role của họ được gán trong Phân quyền).
+ */
+export function hasPermission(
+  user: UserProfile | null,
+  permission: string,
+): boolean {
+  if (!user) return false;
+  if (isAdmin(user)) return true;
+  return (user.permissions ?? []).includes(permission);
+}
+
+export function canReadRoles(user: UserProfile | null): boolean {
+  return hasPermission(user, "roles:read");
+}
+
+export function canWriteRoles(user: UserProfile | null): boolean {
+  return hasPermission(user, "roles:write");
+}
+
+export function canWritePermissions(user: UserProfile | null): boolean {
+  return hasPermission(user, "permissions:write");
 }
 
 export function canWriteCatalog(user: UserProfile | null): boolean {
-  return isAdmin(user) || isManager(user);
+  return hasPermission(user, "categories:write");
 }
 
 export function canWriteSuppliers(user: UserProfile | null): boolean {
-  return isAdmin(user) || isManager(user);
+  return hasPermission(user, "suppliers:write");
 }
 
-export function getAccessibleAdminPages(
+function canAccessPage(
   user: UserProfile | null,
-): ResourcePageKey[] {
+  page: ResourcePageKey,
+): boolean {
+  const required = PERMISSION_PAGE_MAP[page];
+  if (!required) return false;
+  return required.every((permission) => hasPermission(user, permission));
+}
+
+/**
+ * Danh sách trang người dùng được phép truy cập.
+ * Admin: toàn bộ. Non-admin: chỉ trang có đủ permission trong JWT.
+ * Không gắn quyền nào => không truy cập được trang nào.
+ */
+export function getAccessiblePages(user: UserProfile | null): ResourcePageKey[] {
   if (isAdmin(user)) {
     return ADMIN_PAGES;
   }
-
-  return [];
+  return ADMIN_PAGES.filter((page) => canAccessPage(user, page));
 }
 
-export function getAccessibleEmployeePages(
-  user: UserProfile | null,
-): ResourcePageKey[] {
-  if (isAdmin(user)) {
-    return [];
-  }
-
-  switch (user?.departmentCode as DepartmentCode | undefined) {
-    case "sales":
-      return SALES_EMPLOYEE_PAGES;
-    case "warehouse":
-      return WAREHOUSE_EMPLOYEE_PAGES;
-    case "accounting":
-    case "accountant":
-      return ACCOUNTING_EMPLOYEE_PAGES;
-    default:
-      return [];
-  }
-}
-
-export function getEmployeeLandingPath(user: UserProfile | null): string {
+/**
+ * Trang đích sau khi đăng nhập / bấm logo.
+ * Admin: /overview. Non-admin: trang đầu tiên có quyền theo thứ tự ưu tiên.
+ * Không có quyền nào => về trang chủ bán hàng (không vào được khu quản trị).
+ */
+export function getLandingPath(user: UserProfile | null): string {
   if (isAdmin(user)) {
     return "/overview";
   }
-  switch (user?.departmentCode as DepartmentCode | undefined) {
-    case "sales":
-      return "/products";
-    case "warehouse":
-      return "/suppliers";
-    case "accounting":
-    case "accountant":
-      return "/receipts";
-    default:
-      return "/pos";
-  }
-}
-
-export function getEmployeeRoleTitle(user: UserProfile | null): string {
-  if (isAdmin(user)) {
-    return "Admin";
-  }
-  switch (user?.departmentCode as DepartmentCode | undefined) {
-    case "sales":
-      return "Nhân viên Sales";
-    case "warehouse":
-      return "Nhân viên Kho";
-    case "accounting":
-    case "accountant":
-      return "Nhân viên Kế toán";
-    default:
-      return "Employee";
-  }
+  const page = LANDING_PRIORITY.find((p) => canAccessPage(user, p));
+  return page ? `/${page}` : "/";
 }

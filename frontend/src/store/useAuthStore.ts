@@ -13,6 +13,7 @@ export interface UserProfile {
   address?: string;
   departmentCode?: string;
   position?: string;
+  permissions: string[];
 }
 
 interface AuthState {
@@ -46,6 +47,7 @@ export const useAuthStore = create<AuthState>()(
           role: decoded?.roleId || "customer",
           departmentCode: (decoded as any)?.departmentCode,
           position: (decoded as any)?.position,
+          permissions: (decoded as any)?.permissions ?? [],
         };
 
         set({
@@ -92,6 +94,7 @@ export const useAuthStore = create<AuthState>()(
                 role: decoded.roleId,
                 departmentCode: (decoded as any)?.departmentCode,
                 position: (decoded as any)?.position,
+                permissions: (decoded as any)?.permissions ?? [],
                 ...currentUser, // Preserve profile details if previously set
               },
             });

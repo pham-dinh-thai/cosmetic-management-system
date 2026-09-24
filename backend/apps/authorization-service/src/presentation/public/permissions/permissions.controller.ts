@@ -7,7 +7,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard, Role, Roles, RolesGuard } from '@app/security';
+import { AuthGuard, PermissionsGuard, Permissions } from '@app/security';
 import { Audit, AuditAction, paramId } from '@app/audit-client';
 import { CreatePermissionUseCase } from 'apps/authorization-service/src/application/use-cases/create-permission/create-permission.use-case';
 import { CreatePermissionRequest } from './requests/create-permission.request';
@@ -16,8 +16,8 @@ import { DeactivatePermissionUseCase } from 'apps/authorization-service/src/appl
 import { FindAllPermissionsUseCase } from 'apps/authorization-service/src/application/use-cases/find-all-permissions/find-all-permissions.use-case';
 import { FindAllPermissionsReadModel } from 'apps/authorization-service/src/application/use-cases/find-all-permissions/find-all-permissions.read-model';
 
-@UseGuards(AuthGuard, RolesGuard)
-@Roles(Role.Admin)
+@UseGuards(AuthGuard, PermissionsGuard)
+@Permissions('permissions:read')
 @Controller('permissions')
 export class PermissionsController {
   public constructor(
@@ -33,12 +33,14 @@ export class PermissionsController {
   }
 
   @Post()
+  @Permissions('permissions:write')
   @Audit({ entityType: 'permission', action: AuditAction.CREATE })
   public async create(@Body() request: CreatePermissionRequest): Promise<void> {
     await this.createPermissionUseCase.execute(request);
   }
 
   @Patch(':id/activate')
+  @Permissions('permissions:write')
   @Audit({
     entityType: 'permission',
     action: AuditAction.ACTIVATE,
@@ -49,6 +51,7 @@ export class PermissionsController {
   }
 
   @Patch(':id/deactivate')
+  @Permissions('permissions:write')
   @Audit({
     entityType: 'permission',
     action: AuditAction.DEACTIVATE,

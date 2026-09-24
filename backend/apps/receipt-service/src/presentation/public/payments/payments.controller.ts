@@ -11,7 +11,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard, Departments, OrgGuard, Role, Roles } from '@app/security';
+import { AuthGuard, PermissionsGuard, Permissions } from '@app/security';
 import { Audit, AuditAction, paramId, responseId } from '@app/audit-client';
 import { CreateManualPaymentUseCase } from 'apps/receipt-service/src/application/use-cases/create-manual-payment/create-manual-payment.use-case';
 import { FindAllPaymentsUseCase } from 'apps/receipt-service/src/application/use-cases/find-all-payments/find-all-payments.use-case';
@@ -25,9 +25,8 @@ import {
   UpdatePaymentRequest,
 } from './requests/payment.requests';
 
-@UseGuards(AuthGuard, OrgGuard)
-@Roles(Role.Admin, Role.Employee)
-@Departments('accounting', 'accountant')
+@UseGuards(AuthGuard, PermissionsGuard)
+@Permissions('payments:read')
 @Controller('payments')
 export class PaymentsController {
   public constructor(
@@ -58,6 +57,7 @@ export class PaymentsController {
     return await this.findPaymentByIdUseCase.execute(id);
   }
 
+  @Permissions('payments:write')
   @HttpCode(HttpStatus.CREATED)
   @Post()
   @Audit({
@@ -80,6 +80,7 @@ export class PaymentsController {
     return { id: result.id, code: payment.code };
   }
 
+  @Permissions('payments:write')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Put(':id')
   @Audit({
@@ -94,6 +95,7 @@ export class PaymentsController {
     await this.updatePaymentNoteUseCase.execute(id, request.note);
   }
 
+  @Permissions('payments:write')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   @Audit({

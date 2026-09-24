@@ -14,6 +14,7 @@ export interface EmployeeSummary {
   lastName?: string | null;
   gender?: string | null;
   email?: string | null;
+  roleId?: string | null;
 }
 
 const DEFAULT_PASSWORD = "Employee@123456";
@@ -60,6 +61,7 @@ export const employeesService = {
       address: employee.address || "",
       email: employee.email || "",
       position: employee.position,
+      roleId: employee.roleId || "",
     };
   },
 
