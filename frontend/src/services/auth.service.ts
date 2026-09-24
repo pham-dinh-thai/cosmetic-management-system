@@ -38,6 +38,7 @@ export interface TokenPayload {
   sub: string;
   email: string;
   roleId: UserRole;
+  permissions?: string[];
   iat?: number;
   exp?: number;
 }

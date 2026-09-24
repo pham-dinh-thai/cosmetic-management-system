@@ -21,6 +21,11 @@ import {
   type PermissionSummary,
 } from "../../../../services/permissions.service";
 import { friendlyErrorMessage } from "../../../../lib/apiError";
+import { useAuthStore } from "../../../../store/useAuthStore";
+import {
+  canWriteRoles,
+  canWritePermissions,
+} from "../../../../lib/permissions";
 
 const ACTIVE_BADGE =
   "inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-[0.18em] bg-[#e3ecd9] text-[#1c3a13]";
@@ -28,6 +33,10 @@ const INACTIVE_BADGE =
   "inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-[0.18em] bg-[#eeeee9] text-[#666666]";
 
 const RolesPage: React.FC = () => {
+  const user = useAuthStore((s) => s.user);
+  const writeRolesAllowed = canWriteRoles(user);
+  const writePermissionsAllowed = canWritePermissions(user);
+
   const [roles, setRoles] = useState<RoleSummary[]>([]);
   const [rolesLoading, setRolesLoading] = useState(true);
   const [permissions, setPermissions] = useState<PermissionSummary[]>([]);
@@ -83,6 +92,19 @@ const RolesPage: React.FC = () => {
     [roleDetail],
   );
 
+  const activePermissionIds = useMemo(
+    () =>
+      permissions.filter((p) => p.isActive).map((p) => p.id),
+    [permissions],
+  );
+
+  const allActiveGranted = useMemo(
+    () =>
+      activePermissionIds.length > 0 &&
+      activePermissionIds.every((id) => grantedIds.has(id)),
+    [activePermissionIds, grantedIds],
+  );
+
   const selectRole = useCallback(async (id: string) => {
     setSelectedRoleId(id);
     setDetailLoading(true);
@@ -98,6 +120,7 @@ const RolesPage: React.FC = () => {
   }, []);
 
   const handleAddRole = async () => {
+    if (!writeRolesAllowed) return;
     if (!newRoleName.trim()) {
       toast.error("Vui lòng nhập tên vai trò");
       return;
@@ -125,6 +148,7 @@ const RolesPage: React.FC = () => {
   };
 
   const handleToggleRoleActive = async (role: RoleSummary) => {
+    if (!writeRolesAllowed) return;
     try {
       if (role.isActive) {
         await rolesService.deactivate(role.id);
@@ -147,8 +171,31 @@ const RolesPage: React.FC = () => {
     }
   };
 
+  const applyPermissionIds = useCallback(
+    async (ids: string[], successMessage: string) => {
+      if (!selectedRole || !roleDetail) return;
+      const previous = roleDetail;
+      setRoleDetail({
+        ...roleDetail,
+        permissions: permissions.filter((p) => ids.includes(p.id)),
+      });
+      setSaving(true);
+      try {
+        await rolesService.updatePermissions(selectedRole.id, ids);
+        toast.success(successMessage);
+      } catch (error) {
+        setRoleDetail(previous);
+        toast.error(friendlyErrorMessage(error, "Không cập nhật được quyền"));
+      } finally {
+        setSaving(false);
+      }
+    },
+    [selectedRole, roleDetail, permissions],
+  );
+
   const handleTogglePermission = async (permission: PermissionSummary) => {
     if (!selectedRole || !roleDetail) return;
+    if (!writeRolesAllowed) return;
     if (!selectedRole.isActive) {
       toast.error("Vai trò đang vô hiệu hoá, không thể cập nhật quyền");
       return;
@@ -165,28 +212,64 @@ const RolesPage: React.FC = () => {
       nextIds.add(permission.id);
     }
 
-    const previous = roleDetail;
-    setRoleDetail({
-      ...roleDetail,
-      permissions: permissions.filter((p) => nextIds.has(p.id)),
-    });
-    setSaving(true);
-    try {
-      await rolesService.updatePermissions(selectedRole.id, [...nextIds]);
-      toast.success(
-        nextIds.has(permission.id)
-          ? `Đã cấp quyền "${actionLabel(permission.action)}" cho "${selectedRole.name}"`
-          : `Đã thu hồi quyền "${actionLabel(permission.action)}" khỏi "${selectedRole.name}"`,
-      );
-    } catch (error) {
-      setRoleDetail(previous);
-      toast.error(friendlyErrorMessage(error, "Không cập nhật được quyền"));
-    } finally {
-      setSaving(false);
+    await applyPermissionIds(
+      [...nextIds],
+      nextIds.has(permission.id)
+        ? `Đã cấp quyền "${actionLabel(permission.action)}" cho "${selectedRole.name}"`
+        : `Đã thu hồi quyền "${actionLabel(permission.action)}" khỏi "${selectedRole.name}"`,
+    );
+  };
+
+  const handleSelectAllPermissions = async () => {
+    if (!selectedRole || !roleDetail) return;
+    if (!writeRolesAllowed) return;
+    if (!selectedRole.isActive) {
+      toast.error("Vai trò đang vô hiệu hoá, không thể cập nhật quyền");
+      return;
     }
+
+    const selectAll = !allActiveGranted;
+    await applyPermissionIds(
+      selectAll ? activePermissionIds : [],
+      selectAll
+        ? `Đã cấp tất cả quyền cho "${selectedRole.name}"`
+        : `Đã thu hồi tất cả quyền khỏi "${selectedRole.name}"`,
+    );
+  };
+
+  const handleSelectResourcePermissions = async (
+    resource: string,
+    items: PermissionSummary[],
+  ) => {
+    if (!selectedRole || !roleDetail) return;
+    if (!writeRolesAllowed) return;
+    if (!selectedRole.isActive) {
+      toast.error("Vai trò đang vô hiệu hoá, không thể cập nhật quyền");
+      return;
+    }
+
+    const activeIds = items.filter((p) => p.isActive).map((p) => p.id);
+    if (activeIds.length === 0) return;
+
+    const allGranted = activeIds.every((id) => grantedIds.has(id));
+    const nextIds = new Set(grantedIds);
+
+    if (allGranted) {
+      activeIds.forEach((id) => nextIds.delete(id));
+    } else {
+      activeIds.forEach((id) => nextIds.add(id));
+    }
+
+    await applyPermissionIds(
+      [...nextIds],
+      allGranted
+        ? `Đã bỏ chọn toàn bộ quyền "${resourceLabel(resource)}" của "${selectedRole.name}"`
+        : `Đã chọn toàn bộ quyền "${resourceLabel(resource)}" cho "${selectedRole.name}"`,
+    );
   };
 
   const handleAddPermission = async () => {
+    if (!writePermissionsAllowed) return;
     if (!newPermissionResource || !newPermissionAction) return;
 
     try {
@@ -203,6 +286,7 @@ const RolesPage: React.FC = () => {
   };
 
   const handleTogglePermissionActive = async (permission: PermissionSummary) => {
+    if (!writePermissionsAllowed) return;
     try {
       if (permission.isActive) {
         await permissionsService.deactivate(permission.id);
@@ -264,6 +348,7 @@ const RolesPage: React.FC = () => {
             <Input
               placeholder="Tên vai trò mới…"
               value={newRoleName}
+              disabled={!writeRolesAllowed}
               onChange={(e) => setNewRoleName(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") void handleAddRole();
@@ -273,6 +358,7 @@ const RolesPage: React.FC = () => {
               size="sm"
               variant="outline"
               className="shrink-0"
+              disabled={!writeRolesAllowed}
               onClick={() => void handleAddRole()}
               type="button"
             >
@@ -317,11 +403,12 @@ const RolesPage: React.FC = () => {
                   </span>
                   <button
                     type="button"
+                    disabled={!writeRolesAllowed}
                     onClick={(e) => {
                       e.stopPropagation();
                       void handleToggleRoleActive(role);
                     }}
-                    className="text-[12px] text-[#666666] underline-offset-2 hover:text-[#1c3a13] hover:underline"
+                    className="text-[12px] text-[#666666] underline-offset-2 hover:text-[#1c3a13] hover:underline disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {role.isActive ? "Vô hiệu hoá" : "Kích hoạt"}
                   </button>
@@ -348,18 +435,40 @@ const RolesPage: React.FC = () => {
                   Vai trò đang tạm ngưng — cần kích hoạt lại để cập nhật quyền.
                 </p>
               )}
+              {!writeRolesAllowed && (
+                <p className="mt-1 text-[12px] text-[#b45309]">
+                  Bạn cần quyền <span className="font-mono">roles:write</span> để cập nhật quyền cho vai trò.
+                </p>
+              )}
             </div>
 
-            <div className="flex flex-wrap items-end gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                type="button"
+                disabled={
+                  !writeRolesAllowed ||
+                  !selectedRole?.isActive ||
+                  saving ||
+                  permissionsLoading ||
+                  detailLoading
+                }
+                onClick={() => void handleSelectAllPermissions()}
+              >
+                {allActiveGranted ? "Bỏ chọn tất cả" : "Chọn tất cả"}
+              </Button>
               <Select
                 options={RESOURCE_OPTIONS}
                 value={newPermissionResource}
+                disabled={!writePermissionsAllowed}
                 onChange={(e) => setNewPermissionResource(e.target.value)}
                 className="!w-[150px]"
               />
               <Select
                 options={ACTION_OPTIONS}
                 value={newPermissionAction}
+                disabled={!writePermissionsAllowed}
                 onChange={(e) => setNewPermissionAction(e.target.value)}
                 className="!w-[120px]"
               />
@@ -367,6 +476,7 @@ const RolesPage: React.FC = () => {
                 size="sm"
                 variant="outline"
                 type="button"
+                disabled={!writePermissionsAllowed}
                 onClick={() => void handleAddPermission()}
               >
                 + Thêm quyền
@@ -386,60 +496,92 @@ const RolesPage: React.FC = () => {
             </p>
           ) : (
             <div className="flex flex-col gap-6">
-              {permissionGroups.map(([resource, items]) => (
-                <div key={resource}>
-                  <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#666666]">
-                    {resourceLabel(resource)}
-                  </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                    {items.map((permission) => {
-                      const granted = grantedIds.has(permission.id);
-                      const editable =
-                        selectedRole?.isActive &&
-                        permission.isActive &&
-                        !saving;
-                      return (
-                        <div
-                          key={permission.id}
-                          className={`flex items-center justify-between gap-2 rounded-lg border px-3 py-2.5 transition-colors ${
-                            granted
-                              ? "border-[#1c3a13] bg-[#e3ecd9]"
-                              : "border-[#eeeee9] hover:border-[#c4c7c4]"
-                          } ${!permission.isActive ? "opacity-55" : ""}`}
+              {permissionGroups.map(([resource, items]) => {
+                const activeCount = items.filter((p) => p.isActive).length;
+                const resourceAllGranted =
+                  activeCount > 0 &&
+                  items
+                    .filter((p) => p.isActive)
+                    .every((p) => grantedIds.has(p.id));
+                const resourceToggleDisabled =
+                  !writeRolesAllowed ||
+                  !selectedRole?.isActive ||
+                  saving ||
+                  activeCount === 0;
+                return (
+                  <div key={resource}>
+                    <div className="mb-2 flex items-center justify-between gap-2">
+                      <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#666666]">
+                        {resourceLabel(resource)}
+                        <span className="ml-2 normal-case tracking-normal text-[#999999]">
+                          {items.filter((p) => grantedIds.has(p.id)).length}/
+                          {items.length}
+                        </span>
+                      </p>
+                      {activeCount > 0 && (
+                        <button
+                          type="button"
+                          disabled={resourceToggleDisabled}
+                          onClick={() =>
+                            void handleSelectResourcePermissions(resource, items)
+                          }
+                          className="text-[11px] text-[#1c3a13] underline-offset-2 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                          <span className="flex flex-col gap-0.5">
-                            <span className="text-[13px] font-medium text-[#1c3a13]">
-                              {actionLabel(permission.action)}
+                          {resourceAllGranted ? "Bỏ chọn hết" : "Chọn hết"}
+                        </button>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                      {items.map((permission) => {
+                        const granted = grantedIds.has(permission.id);
+                        const editable =
+                          writeRolesAllowed &&
+                          selectedRole?.isActive &&
+                          permission.isActive &&
+                          !saving;
+                        return (
+                          <div
+                            key={permission.id}
+                            className={`flex items-center justify-between gap-2 rounded-lg border px-3 py-2.5 transition-colors ${
+                              granted
+                                ? "border-[#1c3a13] bg-[#e3ecd9]"
+                                : "border-[#eeeee9] hover:border-[#c4c7c4]"
+                            } ${!permission.isActive ? "opacity-55" : ""}`}
+                          >
+                            <span className="flex flex-col gap-0.5">
+                              <span className="text-[13px] font-medium text-[#1c3a13]">
+                                {actionLabel(permission.action)}
+                              </span>
+                              <span className="font-mono text-[11px] text-[#666666]">
+                                {permission.id}
+                              </span>
                             </span>
-                            <span className="font-mono text-[11px] text-[#666666]">
-                              {permission.id}
+                            <span className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                disabled={!roleDetail || !writePermissionsAllowed}
+                                onClick={() => void handleTogglePermissionActive(permission)}
+                                className="text-[11px] text-[#666666] underline-offset-2 hover:text-[#1c3a13] hover:underline disabled:cursor-not-allowed disabled:opacity-50"
+                              >
+                                {permission.isActive ? "Vô hiệu hoá" : "Kích hoạt"}
+                              </button>
+                              <label className="flex items-center">
+                                <input
+                                  type="checkbox"
+                                  checked={granted}
+                                  disabled={!editable}
+                                  onChange={() => void handleTogglePermission(permission)}
+                                  className="h-4 w-4 accent-[#1c3a13] disabled:cursor-not-allowed"
+                                />
+                              </label>
                             </span>
-                          </span>
-                          <span className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              disabled={!roleDetail}
-                              onClick={() => void handleTogglePermissionActive(permission)}
-                              className="text-[11px] text-[#666666] underline-offset-2 hover:text-[#1c3a13] hover:underline disabled:cursor-not-allowed disabled:opacity-50"
-                            >
-                              {permission.isActive ? "Vô hiệu hoá" : "Kích hoạt"}
-                            </button>
-                            <label className="flex items-center">
-                              <input
-                                type="checkbox"
-                                checked={granted}
-                                disabled={!editable}
-                                onChange={() => void handleTogglePermission(permission)}
-                                className="h-4 w-4 accent-[#1c3a13] disabled:cursor-not-allowed"
-                              />
-                            </label>
-                          </span>
-                        </div>
-                      );
-                    })}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </Card>

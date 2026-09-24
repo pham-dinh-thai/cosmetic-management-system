@@ -55,6 +55,31 @@ export function isManager(user: UserProfile | null): boolean {
   return user?.position === "manager";
 }
 
+/**
+ * Admin luôn được phép mọi quyền. Người dùng khác phải có permission trong
+ * danh sách permission lấy từ JWT (role của họ được gán trong Phân quyền).
+ */
+export function hasPermission(
+  user: UserProfile | null,
+  permission: string,
+): boolean {
+  if (!user) return false;
+  if (isAdmin(user)) return true;
+  return (user.permissions ?? []).includes(permission);
+}
+
+export function canReadRoles(user: UserProfile | null): boolean {
+  return hasPermission(user, "roles:read");
+}
+
+export function canWriteRoles(user: UserProfile | null): boolean {
+  return hasPermission(user, "roles:write");
+}
+
+export function canWritePermissions(user: UserProfile | null): boolean {
+  return hasPermission(user, "permissions:write");
+}
+
 export function canWriteCatalog(user: UserProfile | null): boolean {
   return isAdmin(user) || isManager(user);
 }

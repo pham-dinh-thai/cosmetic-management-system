@@ -26,6 +26,8 @@ export const RESOURCE_OPTIONS = [
   { value: "payments", label: "Phiếu chi" },
   { value: "purchase_orders", label: "Phiếu nhập" },
   { value: "stock_adjustments", label: "Điều chỉnh kho" },
+  { value: "roles", label: "Vai trò" },
+  { value: "permissions", label: "Quyền" },
 ];
 
 export const ACTION_OPTIONS = [

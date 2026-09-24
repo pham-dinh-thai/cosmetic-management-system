@@ -4,6 +4,7 @@ import DashboardLayout, { type SidebarSection } from "../../components/Dashboard
 import { useAuthStore } from "../../store/useAuthStore";
 import {
   isAdmin,
+  canReadRoles,
   getAccessibleEmployeePages,
   getEmployeeLandingPath,
   getEmployeeRoleTitle,
@@ -158,6 +159,16 @@ const buildEmployeeSections = (
     });
   }
 
+  if (accessible.includes("roles")) {
+    sections.push({
+      id: "management",
+      title: "Quản trị",
+      items: [
+        { id: "roles", label: "Phân quyền", active: active === "roles" },
+      ],
+    });
+  }
+
   if (
     accessible.includes("receipts") ||
     accessible.includes("payments") ||
@@ -189,12 +200,19 @@ const Resources: React.FC = () => {
   const user = useAuthStore((s) => s.user);
 
   const admin = isAdmin(user);
+  const employeePages = admin ? [] : getAccessibleEmployeePages(user);
   const accessible: ResourcePageKey[] = admin
     ? ADMIN_PAGES
-    : getAccessibleEmployeePages(user);
+    : [
+        ...employeePages,
+        ...(canReadRoles(user) ? (["roles"] as ResourcePageKey[]) : []),
+      ];
 
   const activeKey = getActiveKey(location.pathname);
-  const landingPath = getEmployeeLandingPath(user);
+  const landingPath =
+    admin || employeePages.length > 0 || !canReadRoles(user)
+      ? getEmployeeLandingPath(user)
+      : "/roles";
 
   if (!admin && accessible.length === 0) {
     return <NotFound />;
