@@ -16,7 +16,10 @@ export type ResourcePageKey =
   | "invoices"
   | "audit-logs"
   | "roles"
-  | "pos";
+  | "pos"
+  | "sales-dashboard"
+  | "warehouse-dashboard"
+  | "accounting-dashboard";
 
 const RESOURCE_PREFIXES: [string, ResourcePageKey][] = [
   ["/overview", "overview"],
@@ -37,6 +40,9 @@ const RESOURCE_PREFIXES: [string, ResourcePageKey][] = [
   ["/audit-logs", "audit-logs"],
   ["/roles", "roles"],
   ["/pos", "pos"],
+  ["/sales-dashboard", "sales-dashboard"],
+  ["/warehouse-dashboard", "warehouse-dashboard"],
+  ["/accounting-dashboard", "accounting-dashboard"],
 ];
 
 export function getActiveKey(pathname: string): ResourcePageKey | null {

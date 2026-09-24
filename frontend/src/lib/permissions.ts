@@ -25,10 +25,14 @@ export const ADMIN_PAGES: ResourcePageKey[] = [
 
 /**
  * Permission cần có (phải đủ TẤT CẢ) để non-admin truy cập từng trang.
- * Trang không có trong map là admin-only (overview, reports, customers,
- * employees, departments, audit-logs).
+ * Trang không có trong map là admin-only (reports, customers, employees,
+ * departments, audit-logs).
  */
 export const PERMISSION_PAGE_MAP: Partial<Record<ResourcePageKey, string[]>> = {
+  overview: ["dashboard:overview"],
+  "sales-dashboard": ["dashboard:sales"],
+  "warehouse-dashboard": ["dashboard:warehouse"],
+  "accounting-dashboard": ["dashboard:accounting"],
   orders: ["orders:read"],
   products: ["cosmetics:read"],
   categories: ["categories:read"],
@@ -45,6 +49,10 @@ export const PERMISSION_PAGE_MAP: Partial<Record<ResourcePageKey, string[]>> = {
 
 /** Thứ tự ưu tiên chọn trang đích sau khi đăng nhập. */
 const LANDING_PRIORITY: ResourcePageKey[] = [
+  "overview",
+  "sales-dashboard",
+  "warehouse-dashboard",
+  "accounting-dashboard",
   "pos",
   "orders",
   "inventory",

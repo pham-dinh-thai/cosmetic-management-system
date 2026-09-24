@@ -29,6 +29,9 @@ const PAGE_TITLES: Record<ResourcePageKey, string> = {
   "audit-logs": "Nhật ký hoạt động",
   roles: "Phân quyền",
   pos: "Bán hàng",
+  "sales-dashboard": "Tổng quan bán hàng",
+  "warehouse-dashboard": "Tổng quan kho",
+  "accounting-dashboard": "Tổng quan thu chi",
 };
 
 interface SectionDef {
@@ -50,6 +53,7 @@ const SECTION_DEFS: SectionDef[] = [
     id: "sales",
     title: "Bán hàng",
     items: [
+      { id: "sales-dashboard", label: "Tổng quan bán hàng" },
       { id: "orders", label: "Đơn hàng" },
       { id: "products", label: "Sản phẩm" },
       { id: "categories", label: "Danh mục" },
@@ -60,6 +64,7 @@ const SECTION_DEFS: SectionDef[] = [
     id: "warehouse",
     title: "Kho",
     items: [
+      { id: "warehouse-dashboard", label: "Tổng quan kho" },
       { id: "suppliers", label: "Nhà cung cấp" },
       { id: "purchase", label: "Nhập hàng" },
       { id: "inventory", label: "Kho" },
@@ -70,6 +75,7 @@ const SECTION_DEFS: SectionDef[] = [
     id: "accounting",
     title: "Thu chi",
     items: [
+      { id: "accounting-dashboard", label: "Tổng quan thu chi" },
       { id: "invoices", label: "Công nợ" },
       { id: "receipts", label: "Phiếu thu" },
       { id: "payments", label: "Phiếu chi" },
