@@ -10,7 +10,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard, Role, Roles, RolesGuard } from '@app/security';
+import { AuthGuard, PermissionsGuard, Permissions } from '@app/security';
 import { Audit, AuditAction, paramId } from '@app/audit-client';
 import { CreateRoleUseCase } from 'apps/authorization-service/src/application/use-cases/create-role/create-role.use-case';
 import { DeleteRoleUseCase } from 'apps/authorization-service/src/application/use-cases/delete-role/delete-role.use-case';
@@ -25,8 +25,8 @@ import { FindRoleByIdUseCase } from 'apps/authorization-service/src/application/
 import { FindRoleByIdReadModel } from 'apps/authorization-service/src/application/use-cases/find-role-by-id/find-role-by-id.read-model';
 import { RoleNotFoundException } from 'apps/authorization-service/src/domain/exceptions/role-not-found.exception';
 
-@UseGuards(AuthGuard, RolesGuard)
-@Roles(Role.Admin)
+@UseGuards(AuthGuard, PermissionsGuard)
+@Permissions('roles:read')
 @Controller('roles')
 export class RolesController {
   public constructor(
@@ -58,12 +58,14 @@ export class RolesController {
   }
 
   @Post()
+  @Permissions('roles:write')
   @Audit({ entityType: 'role', action: AuditAction.CREATE })
   public async create(@Body() request: CreateRoleRequest): Promise<void> {
     await this.createRoleUseCase.execute(request);
   }
 
   @Delete(':id')
+  @Permissions('roles:write')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Audit({
     entityType: 'role',
@@ -75,6 +77,7 @@ export class RolesController {
   }
 
   @Patch(':id/activate')
+  @Permissions('roles:write')
   @Audit({
     entityType: 'role',
     action: AuditAction.ACTIVATE,
@@ -85,6 +88,7 @@ export class RolesController {
   }
 
   @Patch(':id/deactivate')
+  @Permissions('roles:write')
   @Audit({
     entityType: 'role',
     action: AuditAction.DEACTIVATE,
@@ -95,6 +99,7 @@ export class RolesController {
   }
 
   @Post(':id/permissions')
+  @Permissions('roles:write')
   @Audit({
     entityType: 'role',
     action: AuditAction.UPDATE,

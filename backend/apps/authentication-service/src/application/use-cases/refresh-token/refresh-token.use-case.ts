@@ -4,12 +4,14 @@ import { LoginResponse } from '../login/login.response';
 import { InvalidRefreshTokenException } from '../../../domain/exceptions/invalid-refresh-token.exception';
 import { UserDeactivatedException } from 'apps/authentication-service/src/domain/exceptions/user-deactivated.exception';
 import { PermissionResolver } from '../../services/permission.resolver';
+import { IRolePermissionReaderPort } from '../../ports/role-permission-reader.port';
 
 export class RefreshTokenUseCase {
   public constructor(
     private readonly signTokenPort: ISignTokenPort,
     private readonly usersReaderPort: IUsersReaderPort,
     private readonly permissionResolver: PermissionResolver,
+    private readonly rolePermissionReaderPort: IRolePermissionReaderPort,
   ) {}
 
   public async execute(refreshToken: string): Promise<LoginResponse> {
@@ -30,6 +32,9 @@ export class RefreshTokenUseCase {
     }
 
     const permission = await this.permissionResolver.load(user.id);
+    const permissions = await this.rolePermissionReaderPort.findByRoleId(
+      user.roleId,
+    );
 
     return new LoginResponse(
       this.signTokenPort.signAccessToken({
@@ -38,6 +43,7 @@ export class RefreshTokenUseCase {
         roleId: user.roleId,
         departmentCode: permission?.departmentCode,
         position: permission?.position,
+        permissions,
       }),
       this.signTokenPort.signRefreshToken({ sub: user.id }),
     );
@@ -48,5 +54,11 @@ export const refreshTokenUseCaseFactory = (
   signTokenPort: ISignTokenPort,
   usersReaderPort: IUsersReaderPort,
   permissionResolver: PermissionResolver,
+  rolePermissionReaderPort: IRolePermissionReaderPort,
 ): RefreshTokenUseCase =>
-  new RefreshTokenUseCase(signTokenPort, usersReaderPort, permissionResolver);
+  new RefreshTokenUseCase(
+    signTokenPort,
+    usersReaderPort,
+    permissionResolver,
+    rolePermissionReaderPort,
+  );

@@ -53,6 +53,8 @@ import {
   ChangePasswordUseCase,
   changePasswordUseCaseFactory,
 } from './application/use-cases/change-password/change-password.use-case';
+import { ROLE_PERMISSION_READER_PORT } from './application/ports/role-permission-reader.port';
+import { RolePermissionReaderAdapter } from './infrastructure/adapters/role-permission-reader.adapter';
 
 @Module({
   imports: [
@@ -126,12 +128,18 @@ import {
         AUTH_USERS_QUERY_REPOSITORY,
         SIGN_TOKEN_PORT,
         PermissionResolver,
+        ROLE_PERMISSION_READER_PORT,
       ],
     },
     {
       provide: RefreshTokenUseCase,
       useFactory: refreshTokenUseCaseFactory,
-      inject: [SIGN_TOKEN_PORT, USERS_READER_PORT, PermissionResolver],
+      inject: [
+        SIGN_TOKEN_PORT,
+        USERS_READER_PORT,
+        PermissionResolver,
+        ROLE_PERMISSION_READER_PORT,
+      ],
     },
     {
       provide: PermissionResolver,
@@ -157,6 +165,7 @@ import {
         CREATE_USER_PORT,
         CREATE_CUSTOMER_PORT,
         SIGN_TOKEN_PORT,
+        ROLE_PERMISSION_READER_PORT,
       ],
     },
     {
@@ -175,6 +184,10 @@ import {
     {
       provide: DEPARTMENT_PERMISSION_READER_PORT,
       useClass: DepartmentPermissionReaderAdapter,
+    },
+    {
+      provide: ROLE_PERMISSION_READER_PORT,
+      useClass: RolePermissionReaderAdapter,
     },
   ],
 })

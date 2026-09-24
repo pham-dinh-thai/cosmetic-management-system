@@ -15,4 +15,6 @@ export enum Resource {
   Payments = 'payments',
   PurchaseOrders = 'purchase_orders',
   StockAdjustments = 'stock_adjustments',
+  Roles = 'roles',
+  Permissions = 'permissions',
 }

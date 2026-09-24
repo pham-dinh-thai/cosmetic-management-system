@@ -5,6 +5,7 @@ import { ICreateUserPort } from './ports/create-user.port';
 import { ICreateCustomerPort } from './ports/create-customer.port';
 import { ISignTokenPort } from '../../ports/sign-token.port';
 import { IUsersReaderPort } from 'apps/authentication-service/src/application/ports/users-reader.port';
+import { IRolePermissionReaderPort } from 'apps/authentication-service/src/application/ports/role-permission-reader.port';
 import { EmailAlreadyExistsException } from 'apps/authentication-service/src/domain/exceptions/email-already-exists.exception';
 import { PasswordNotMatchingException } from 'apps/authentication-service/src/domain/exceptions/password-not-matching.exception';
 
@@ -16,6 +17,7 @@ export class RegisterUseCase {
     private readonly createUserPort: ICreateUserPort,
     private readonly createCustomerPort: ICreateCustomerPort,
     private readonly signTokenPort: ISignTokenPort,
+    private readonly rolePermissionReaderPort: IRolePermissionReaderPort,
   ) {}
 
   public async execute(request: IRegisterRequest): Promise<RegisterResponse> {
@@ -43,11 +45,16 @@ export class RegisterUseCase {
       code: `CUS-${randomUUID().slice(0, 8).toUpperCase()}`,
     });
 
+    const permissions = await this.rolePermissionReaderPort.findByRoleId(
+      REGISTER_ROLE_ID,
+    );
+
     return new RegisterResponse(
       this.signTokenPort.signAccessToken({
         sub: userId,
         email: request.email,
         roleId: REGISTER_ROLE_ID,
+        permissions,
       }),
       this.signTokenPort.signRefreshToken({ sub: userId }),
       userId,
@@ -60,10 +67,12 @@ export const registerUseCaseFactory = (
   createUserPort: ICreateUserPort,
   createCustomerPort: ICreateCustomerPort,
   signTokenPort: ISignTokenPort,
+  rolePermissionReaderPort: IRolePermissionReaderPort,
 ): RegisterUseCase =>
   new RegisterUseCase(
     usersReaderPort,
     createUserPort,
     createCustomerPort,
     signTokenPort,
+    rolePermissionReaderPort,
   );
