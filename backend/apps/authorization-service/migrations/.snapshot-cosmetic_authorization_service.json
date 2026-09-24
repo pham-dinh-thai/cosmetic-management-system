@@ -132,12 +132,6 @@
           "expression": "\"action\" in ('read', 'write', 'delete')",
           "definition": "check (\"action\" in ('read', 'write', 'delete'))",
           "columnName": "action"
-        },
-        {
-          "name": "permissions_resource_check",
-          "expression": "\"resource\" in ('users', 'auth_users', 'customers', 'employees')",
-          "definition": "check (\"resource\" in ('users', 'auth_users', 'customers', 'employees'))",
-          "columnName": "resource"
         }
       ],
       "triggers": [],
