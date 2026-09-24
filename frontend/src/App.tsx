@@ -80,7 +80,7 @@ function App() {
           <Route
             path="/profile"
             element={
-              <RoleRoute allowedRoles={["admin", "employee", "customer"]}>
+              <RoleRoute anyRole>
                 <ProfilePage />
               </RoleRoute>
             }
@@ -88,7 +88,7 @@ function App() {
           <Route
             path="/my-orders"
             element={
-              <RoleRoute allowedRoles={["admin", "employee", "customer"]}>
+              <RoleRoute anyRole>
                 <MyOrdersPage />
               </RoleRoute>
             }
@@ -96,7 +96,7 @@ function App() {
           <Route
             path="/my-orders/:id"
             element={
-              <RoleRoute allowedRoles={["admin", "employee", "customer"]}>
+              <RoleRoute anyRole>
                 <MyOrderDetailPage />
               </RoleRoute>
             }
@@ -104,7 +104,10 @@ function App() {
 
           <Route
             element={
-              <RoleRoute allowedRoles={["admin", "employee"]}>
+              // Khu quản trị: cho mọi nhân viên (admin hoặc vai trò tùy chỉnh
+              // như warehouse-manager...). Bên trong Resources đã lọc sidebar +
+              // redirect theo permission; backend cũng enforce từng API.
+              <RoleRoute excludeRoles={["customer"]}>
                 <Resources />
               </RoleRoute>
             }

@@ -10,19 +10,23 @@ const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
-  const { login, isLoading, role, error, clearError } = useAuth();
+  const { login, isLoading, error, clearError } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const storeUser = useAuthStore((s) => s.user);
   const returnTo = (location.state as { from?: string } | null)?.from ?? "/";
 
   useEffect(() => {
-    if (role === "admin" || role === "employee") {
-      navigate(getLandingPath(storeUser), { replace: true });
-    } else if (role === "customer") {
+    if (!storeUser) return;
+
+    if (storeUser.role === "customer") {
       navigate(returnTo, { replace: true });
+    } else {
+      // Nhân viên mọi vai trò (kể cả custom như warehouse-manager):
+      // đưa tới trang đầu tiên họ có quyền theo permission trong JWT.
+      navigate(getLandingPath(storeUser), { replace: true });
     }
-  }, [role, navigate, storeUser, returnTo]);
+  }, [storeUser, navigate, returnTo]);
 
   useEffect(() => {
     return () => {
