@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/useAuth";
 import { useAuthStore } from "../../store/useAuthStore";
-import { getEmployeeLandingPath } from "../../lib/permissions";
+import { getLandingPath } from "../../lib/permissions";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -18,7 +18,7 @@ const Login: React.FC = () => {
 
   useEffect(() => {
     if (role === "admin" || role === "employee") {
-      navigate(getEmployeeLandingPath(storeUser), { replace: true });
+      navigate(getLandingPath(storeUser), { replace: true });
     } else if (role === "customer") {
       navigate(returnTo, { replace: true });
     }

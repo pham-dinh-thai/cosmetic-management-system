@@ -12,7 +12,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import type { Request } from 'express';
-import { AuthGuard, Departments, OrgGuard, Role, Roles } from '@app/security';
+import { AuthGuard, PermissionsGuard, Permissions } from '@app/security';
 import { Audit, AuditAction, paramId, responseId } from '@app/audit-client';
 import { FindAllInventoriesUseCase } from '../../application/use-cases/find-all-inventory/find-all-inventories.use-case';
 import { InventoryReadModel } from '../../application/use-cases/find-all-inventory/read-models/inventory.read-model';
@@ -37,6 +37,8 @@ import { UpdateInventoryMinStockRequest } from './requests/update-inventory-min-
 import { DecreaseStockRequest } from './requests/decrease-stock.request';
 import { AdjustBatchStockRequest } from './requests/adjust-batch-stock.request';
 
+@UseGuards(AuthGuard, PermissionsGuard)
+@Permissions('inventory:read')
 @Controller('inventories')
 export class InventoriesController {
   public constructor(
@@ -56,17 +58,13 @@ export class InventoriesController {
     private readonly findOverstockBatchesUseCase: FindOverstockBatchesUseCase,
   ) {}
 
-  @UseGuards(AuthGuard, OrgGuard)
-  @Roles(Role.Admin, Role.Employee)
-  @Departments('warehouse')
+  
   @Get()
   public async findAll(): Promise<InventoryReadModel[]> {
     return await this.findAllInventoriesUseCase.execute();
   }
 
-  @UseGuards(AuthGuard, OrgGuard)
-  @Roles(Role.Admin, Role.Employee)
-  @Departments('warehouse')
+  
   @Get('by-variant/:variantId')
   public async findByVariant(
     @Param('variantId') variantId: string,
@@ -74,9 +72,7 @@ export class InventoriesController {
     return await this.findInventoryByVariantUseCase.execute(variantId);
   }
 
-  @UseGuards(AuthGuard, OrgGuard)
-  @Roles(Role.Admin, Role.Employee)
-  @Departments('warehouse')
+  
   @Get('expiring')
   public async findExpiring(
     @Query('days') days?: number,
@@ -84,9 +80,7 @@ export class InventoriesController {
     return await this.findExpiringBatchesUseCase.execute(days);
   }
 
-  @UseGuards(AuthGuard, OrgGuard)
-  @Roles(Role.Admin, Role.Employee)
-  @Departments('warehouse')
+  
   @Get('overstock')
   public async findOverstock(
     @Query('days') days?: number,
@@ -94,17 +88,14 @@ export class InventoriesController {
     return await this.findOverstockBatchesUseCase.execute(days);
   }
 
-  @UseGuards(AuthGuard, OrgGuard)
-  @Roles(Role.Admin, Role.Employee)
-  @Departments('warehouse')
+  
   @Get(':id')
   public async findById(@Param('id') id: string): Promise<InventoryReadModel> {
     return await this.findInventoryByIdUseCase.execute(id);
   }
 
-  @UseGuards(AuthGuard, OrgGuard)
-  @Roles(Role.Admin, Role.Employee)
-  @Departments('warehouse')
+  
+  @Permissions('inventory:write')
   @HttpCode(HttpStatus.CREATED)
   @Post()
   @Audit({
@@ -127,10 +118,9 @@ export class InventoriesController {
     return { id: inventory.id, variantId: inventory.variantId };
   }
 
-  @UseGuards(AuthGuard, OrgGuard)
-  @Roles(Role.Admin, Role.Employee)
-  @Departments('warehouse')
+  
   @HttpCode(HttpStatus.OK)
+  @Permissions('inventory:write')
   @Patch(':id/min-stock')
   @Audit({
     entityType: 'inventory',
@@ -148,10 +138,9 @@ export class InventoriesController {
     return { id, minStock: request.minStock };
   }
 
-  @UseGuards(AuthGuard, OrgGuard)
-  @Roles(Role.Admin, Role.Employee)
-  @Departments('warehouse')
+  
   @HttpCode(HttpStatus.NO_CONTENT)
+  @Permissions('inventory:write')
   @Patch(':id/activate')
   @Audit({
     entityType: 'inventory',
@@ -162,10 +151,9 @@ export class InventoriesController {
     await this.activateInventoryUseCase.execute(id);
   }
 
-  @UseGuards(AuthGuard, OrgGuard)
-  @Roles(Role.Admin, Role.Employee)
-  @Departments('warehouse')
+  
   @HttpCode(HttpStatus.NO_CONTENT)
+  @Permissions('inventory:write')
   @Patch(':id/deactivate')
   @Audit({
     entityType: 'inventory',
@@ -176,10 +164,9 @@ export class InventoriesController {
     await this.deactivateInventoryUseCase.execute(id);
   }
 
-  @UseGuards(AuthGuard, OrgGuard)
-  @Roles(Role.Admin, Role.Employee)
-  @Departments('warehouse')
+  
   @HttpCode(HttpStatus.CREATED)
+  @Permissions('inventory:write')
   @Post(':id/batches')
   @Audit({
     entityType: 'inventory-batch',
@@ -211,10 +198,9 @@ export class InventoriesController {
     return { id: batch.id, lotNumber: batch.lotNumber };
   }
 
-  @UseGuards(AuthGuard, OrgGuard)
-  @Roles(Role.Admin, Role.Employee)
-  @Departments('warehouse')
+  
   @HttpCode(HttpStatus.NO_CONTENT)
+  @Permissions('inventory:write')
   @Patch(':id/batches/:batchId/activate')
   @Audit({
     entityType: 'inventory-batch',
@@ -228,10 +214,9 @@ export class InventoriesController {
     await this.activateBatchOnInventoryUseCase.execute(id, batchId);
   }
 
-  @UseGuards(AuthGuard, OrgGuard)
-  @Roles(Role.Admin, Role.Employee)
-  @Departments('warehouse')
+  
   @HttpCode(HttpStatus.NO_CONTENT)
+  @Permissions('inventory:write')
   @Patch(':id/batches/:batchId/deactivate')
   @Audit({
     entityType: 'inventory-batch',
@@ -245,10 +230,9 @@ export class InventoriesController {
     await this.deactivateBatchOnInventoryUseCase.execute(id, batchId);
   }
 
-  @UseGuards(AuthGuard, OrgGuard)
-  @Roles(Role.Admin, Role.Employee)
-  @Departments('warehouse')
+  
   @HttpCode(HttpStatus.NO_CONTENT)
+  @Permissions('inventory:write')
   @Patch(':id/batches/:batchId/adjust')
   @Audit({
     entityType: 'inventory-batch',
@@ -265,10 +249,9 @@ export class InventoriesController {
     });
   }
 
-  @UseGuards(AuthGuard, OrgGuard)
-  @Roles(Role.Admin, Role.Employee)
-  @Departments('warehouse')
+  
   @HttpCode(HttpStatus.NO_CONTENT)
+  @Permissions('inventory:write')
   @Post(':id/decrease-stock')
   @Audit({
     entityType: 'inventory',

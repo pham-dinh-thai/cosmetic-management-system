@@ -14,13 +14,9 @@ import {
 } from '@nestjs/common';
 import {
   AuthGuard,
-  Departments,
-  OrgGuard,
-  Position,
-  Positions,
+  PermissionsGuard,
+  Permissions,
   Public,
-  Role,
-  Roles,
 } from '@app/security';
 import { Audit, AuditAction, paramId, responseId } from '@app/audit-client';
 import { FindAllCategoriesUseCase } from 'apps/category-service/src/application/use-cases/find-category/find-all/find-all-categories.use-case';
@@ -35,9 +31,8 @@ import { DeactivateCategoryUseCase } from 'apps/category-service/src/application
 import { CreateCategoryRequest } from './requests/create-category.request';
 import { UpdateCategoryRequest } from './requests/update-category.request';
 
-@UseGuards(AuthGuard, OrgGuard)
-@Roles(Role.Admin, Role.Employee)
-@Departments('sales')
+@UseGuards(AuthGuard, PermissionsGuard)
+@Permissions('categories:read')
 @Controller('categories')
 export class CategoriesController {
   public constructor(
@@ -66,7 +61,7 @@ export class CategoriesController {
     return await this.findCategoryByIdUseCase.execute(id);
   }
 
-  @Positions(Position.Manager)
+  @Permissions('categories:write')
   @Post()
   @Audit({
     entityType: 'category',
@@ -79,7 +74,7 @@ export class CategoriesController {
     return await this.createCategoryUseCase.execute(request);
   }
 
-  @Positions(Position.Manager)
+  @Permissions('categories:write')
   @Put(':id')
   @Audit({
     entityType: 'category',
@@ -93,7 +88,7 @@ export class CategoriesController {
     await this.updateCategoryUseCase.execute(id, request);
   }
 
-  @Positions(Position.Manager)
+  @Permissions('categories:write')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id/activate')
   @Audit({
@@ -105,7 +100,7 @@ export class CategoriesController {
     await this.activateCategoryUseCase.execute(id);
   }
 
-  @Positions(Position.Manager)
+  @Permissions('categories:write')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id/deactivate')
   @Audit({
@@ -117,7 +112,7 @@ export class CategoriesController {
     await this.deactivateCategoryUseCase.execute(id);
   }
 
-  @Positions(Position.Manager)
+  @Permissions('categories:write')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   @Audit({

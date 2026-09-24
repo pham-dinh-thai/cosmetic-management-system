@@ -10,7 +10,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard, Departments, OrgGuard, Role, Roles } from '@app/security';
+import { AuthGuard, PermissionsGuard, Permissions } from '@app/security';
 import { Audit, AuditAction, paramId } from '@app/audit-client';
 import { FindAllInvoicesUseCase } from 'apps/invoice-service/src/application/use-cases/find-all-invoices/find-all-invoices.use-case';
 import { FindInvoiceByIdUseCase } from 'apps/invoice-service/src/application/use-cases/find-invoice-by-id/find-invoice-by-id.use-case';
@@ -24,9 +24,8 @@ import {
   UpdateInvoiceRequest,
 } from './requests/invoice.requests';
 
-@UseGuards(AuthGuard, OrgGuard)
-@Roles(Role.Admin, Role.Employee)
-@Departments('accounting', 'accountant')
+@UseGuards(AuthGuard, PermissionsGuard)
+@Permissions('invoices:read')
 @Controller('invoices')
 export class InvoicesController {
   public constructor(
@@ -57,6 +56,7 @@ export class InvoicesController {
     return await this.findInvoiceByIdUseCase.execute(id);
   }
 
+  @Permissions('invoices:write')
   @HttpCode(HttpStatus.OK)
   @Put(':id/payment')
   @Audit({
@@ -71,6 +71,7 @@ export class InvoicesController {
     return await this.recordPaymentUseCase.execute(id, request.amount);
   }
 
+  @Permissions('invoices:write')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Put(':id')
   @Audit({
@@ -85,6 +86,7 @@ export class InvoicesController {
     await this.updateInvoiceUseCase.execute(id, request);
   }
 
+  @Permissions('invoices:write')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   @Audit({

@@ -10,7 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import type { Request } from 'express';
-import { AuthGuard, Departments, OrgGuard, Role, Roles } from '@app/security';
+import { AuthGuard, PermissionsGuard, Permissions } from '@app/security';
 import { Audit, AuditAction, responseId } from '@app/audit-client';
 import { AdjustBatchStockWithReasonUseCase } from '../application/use-cases/adjust-batch-stock-with-reason/adjust-batch-stock-with-reason.use-case';
 import { IAdjustBatchStockWithReasonRequest } from '../application/use-cases/adjust-batch-stock-with-reason/adjust-batch-stock-with-reason.request';
@@ -19,6 +19,8 @@ import { StockAdjustmentReadModel } from '../application/use-cases/find-stock-ad
 import { CreateStockAdjustmentRequest } from './requests/create-stock-adjustment.request';
 import { FindStockAdjustmentsQuery } from './requests/find-stock-adjustments.query';
 
+@UseGuards(AuthGuard, PermissionsGuard)
+@Permissions('stock_adjustments:read')
 @Controller('stock-adjustments')
 export class StockAdjustmentsController {
   public constructor(
@@ -26,9 +28,8 @@ export class StockAdjustmentsController {
     private readonly findStockAdjustmentsUseCase: FindStockAdjustmentsUseCase,
   ) {}
 
-  @UseGuards(AuthGuard, OrgGuard)
-  @Roles(Role.Admin, Role.Employee)
-  @Departments('warehouse')
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @Permissions('stock_adjustments:write')
   @HttpCode(HttpStatus.CREATED)
   @Post()
   @Audit({
@@ -61,9 +62,6 @@ export class StockAdjustmentsController {
     );
   }
 
-  @UseGuards(AuthGuard, OrgGuard)
-  @Roles(Role.Admin, Role.Employee)
-  @Departments('warehouse')
   @Get()
   public async findAll(
     @Query() query: FindStockAdjustmentsQuery,

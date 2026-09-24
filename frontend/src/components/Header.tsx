@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/useAuth';
 import { useAuthStore } from '../store/useAuthStore';
 import { useCartStore, cartCount } from '../store/useCartStore';
-import { getEmployeeLandingPath } from '../lib/permissions';
+import { getLandingPath } from '../lib/permissions';
 import { isResourcePath } from '../lib/resourcePath';
 import { productsService, type CategorySummary } from '../services/products.service';
 import { ordersService, type BestSellerItem } from '../services/orders.service';
@@ -523,7 +523,7 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
                     </Link>
                     {role === 'admin' && (
                       <Link
-                        to={getEmployeeLandingPath(useAuthStore.getState().user)}
+                        to={getLandingPath(useAuthStore.getState().user)}
                         onClick={() => setIsProfileMenuOpen(false)}
                         className="flex items-center gap-3 px-4 py-3 text-[14px] font-medium text-[#1c3a13] hover:bg-[#eeeee9] transition-colors"
                       >
@@ -536,7 +536,7 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
                     )}
                     {role === 'employee' && (
                       <Link
-                        to={getEmployeeLandingPath(useAuthStore.getState().user)}
+                        to={getLandingPath(useAuthStore.getState().user)}
                         onClick={() => setIsProfileMenuOpen(false)}
                         className="flex items-center gap-3 px-4 py-3 text-[14px] font-medium text-[#1c3a13] hover:bg-[#eeeee9] transition-colors"
                       >

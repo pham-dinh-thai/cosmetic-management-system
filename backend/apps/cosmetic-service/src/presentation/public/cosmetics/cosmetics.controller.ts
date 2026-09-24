@@ -12,7 +12,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard, Departments, OrgGuard, Role, Roles } from '@app/security';
+import { AuthGuard, PermissionsGuard, Permissions } from '@app/security';
 import { Audit, AuditAction, paramId, responseId } from '@app/audit-client';
 import { CreateCosmeticUseCase } from 'apps/cosmetic-service/src/application/use-cases/create-cosmetic/create-cosmetic.use-case';
 import { FindAllCosmeticsUseCase } from 'apps/cosmetic-service/src/application/use-cases/find-cosmetic/find-all/find-all-cosmetics.use-case';
@@ -65,9 +65,8 @@ export class CosmeticsController {
     return await this.findCosmeticByIdUseCase.execute(id);
   }
 
-  @UseGuards(AuthGuard, OrgGuard)
-  @Roles(Role.Admin, Role.Employee)
-  @Departments('sales')
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @Permissions('cosmetics:write')
   @Post()
   @Audit({
     entityType: 'cosmetic',
@@ -80,9 +79,8 @@ export class CosmeticsController {
     return await this.createCosmeticUseCase.execute(request);
   }
 
-  @UseGuards(AuthGuard, OrgGuard)
-  @Roles(Role.Admin, Role.Employee)
-  @Departments('sales')
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @Permissions('cosmetics:write')
   @Put(':id')
   @Audit({
     entityType: 'cosmetic',
@@ -96,9 +94,8 @@ export class CosmeticsController {
     await this.updateCosmeticUseCase.execute(id, request);
   }
 
-  @UseGuards(AuthGuard, OrgGuard)
-  @Roles(Role.Admin, Role.Employee)
-  @Departments('sales')
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @Permissions('cosmetics:write')
   @Patch(':id/image')
   @Audit({
     entityType: 'cosmetic',
@@ -112,9 +109,8 @@ export class CosmeticsController {
     await this.updateCosmeticImageUseCase.execute(id, request);
   }
 
-  @UseGuards(AuthGuard, OrgGuard)
-  @Roles(Role.Admin, Role.Employee)
-  @Departments('sales')
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @Permissions('cosmetics:write')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id/activate')
   @Audit({
@@ -126,9 +122,8 @@ export class CosmeticsController {
     await this.activateCosmeticUseCase.execute(id);
   }
 
-  @UseGuards(AuthGuard, OrgGuard)
-  @Roles(Role.Admin, Role.Employee)
-  @Departments('sales')
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @Permissions('cosmetics:write')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id/deactivate')
   @Audit({
@@ -140,9 +135,8 @@ export class CosmeticsController {
     await this.deactivateCosmeticUseCase.execute(id);
   }
 
-  @UseGuards(AuthGuard, OrgGuard)
-  @Roles(Role.Admin, Role.Employee)
-  @Departments('sales')
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @Permissions('cosmetics:write')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   @Audit({
@@ -154,9 +148,8 @@ export class CosmeticsController {
     await this.deleteCosmeticUseCase.execute(id);
   }
 
-  @UseGuards(AuthGuard, OrgGuard)
-  @Roles(Role.Admin, Role.Employee)
-  @Departments('sales')
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @Permissions('cosmetics:write')
   @Post(':id/variants')
   @Audit({
     entityType: 'cosmetic-variant',
@@ -170,9 +163,8 @@ export class CosmeticsController {
     return await this.addVariantUseCase.execute(id, request);
   }
 
-  @UseGuards(AuthGuard, OrgGuard)
-  @Roles(Role.Admin, Role.Employee)
-  @Departments('sales')
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @Permissions('cosmetics:write')
   @Put('variants/:variantId')
   @Audit({
     entityType: 'cosmetic-variant',
@@ -186,9 +178,8 @@ export class CosmeticsController {
     await this.updateVariantUseCase.execute(variantId, request);
   }
 
-  @UseGuards(AuthGuard, OrgGuard)
-  @Roles(Role.Admin, Role.Employee)
-  @Departments('sales')
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @Permissions('cosmetics:write')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch('variants/:variantId/activate')
   @Audit({
@@ -202,9 +193,8 @@ export class CosmeticsController {
     await this.activateVariantUseCase.execute(variantId);
   }
 
-  @UseGuards(AuthGuard, OrgGuard)
-  @Roles(Role.Admin, Role.Employee)
-  @Departments('sales')
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @Permissions('cosmetics:write')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch('variants/:variantId/deactivate')
   @Audit({

@@ -11,7 +11,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard, Departments, OrgGuard, Role, Roles } from '@app/security';
+import { AuthGuard, PermissionsGuard, Permissions } from '@app/security';
 import { Audit, AuditAction, paramId, responseId } from '@app/audit-client';
 import { CreateManualReceiptUseCase } from 'apps/receipt-service/src/application/use-cases/create-manual-receipt/create-manual-receipt.use-case';
 import { FindAllReceiptsUseCase } from 'apps/receipt-service/src/application/use-cases/find-all-receipts/find-all-receipts.use-case';
@@ -25,9 +25,8 @@ import {
   UpdateReceiptRequest,
 } from './requests/receipt.requests';
 
-@UseGuards(AuthGuard, OrgGuard)
-@Roles(Role.Admin, Role.Employee)
-@Departments('accounting', 'accountant')
+@UseGuards(AuthGuard, PermissionsGuard)
+@Permissions('receipts:read')
 @Controller('receipts')
 export class ReceiptsController {
   public constructor(
@@ -57,6 +56,7 @@ export class ReceiptsController {
     return await this.findReceiptByIdUseCase.execute(id);
   }
 
+  @Permissions('receipts:write')
   @HttpCode(HttpStatus.CREATED)
   @Post()
   @Audit({
@@ -79,6 +79,7 @@ export class ReceiptsController {
     return { id: result.id, code: receipt.code };
   }
 
+  @Permissions('receipts:write')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Put(':id')
   @Audit({
@@ -93,6 +94,7 @@ export class ReceiptsController {
     await this.updateReceiptNoteUseCase.execute(id, request.note);
   }
 
+  @Permissions('receipts:write')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   @Audit({

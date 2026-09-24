@@ -4,11 +4,8 @@ import DashboardLayout, { type SidebarSection } from "../../components/Dashboard
 import { useAuthStore } from "../../store/useAuthStore";
 import {
   isAdmin,
-  canReadRoles,
-  getAccessibleEmployeePages,
-  getEmployeeLandingPath,
-  getEmployeeRoleTitle,
-  ADMIN_PAGES,
+  getAccessiblePages,
+  getLandingPath,
 } from "../../lib/permissions";
 import { getActiveKey, type ResourcePageKey } from "../../lib/resourcePath";
 import NotFound from "../NotFound";
@@ -34,165 +31,74 @@ const PAGE_TITLES: Record<ResourcePageKey, string> = {
   pos: "Bán hàng",
 };
 
-const ADMIN_SECTIONS: (active: ResourcePageKey) => SidebarSection[] = (
-  active,
-) => [
+interface SectionDef {
+  id: string;
+  title: string;
+  items: { id: ResourcePageKey; label: string }[];
+}
+
+const SECTION_DEFS: SectionDef[] = [
   {
     id: "overview-group",
     title: "Tổng quan",
     items: [
-      { id: "overview", label: "Bảng điều khiển", active: active === "overview" },
-      { id: "reports", label: "Báo cáo thống kê", active: active === "reports" },
+      { id: "overview", label: "Bảng điều khiển" },
+      { id: "reports", label: "Báo cáo thống kê" },
     ],
   },
   {
     id: "sales",
     title: "Bán hàng",
     items: [
-      { id: "orders", label: "Đơn hàng", active: active === "orders" },
-      { id: "products", label: "Sản phẩm", active: active === "products" },
-      { id: "categories", label: "Danh mục", active: active === "categories" },
+      { id: "orders", label: "Đơn hàng" },
+      { id: "products", label: "Sản phẩm" },
+      { id: "categories", label: "Danh mục" },
+      { id: "pos", label: "Tạo hoá đơn" },
     ],
   },
   {
     id: "warehouse",
     title: "Kho",
     items: [
-      { id: "suppliers", label: "Nhà cung cấp", active: active === "suppliers" },
-      { id: "purchase", label: "Nhập hàng", active: active === "purchase" },
-      { id: "inventory", label: "Kho", active: active === "inventory" },
-      {
-        id: "stock-adjustments",
-        label: "Điều chỉnh kho",
-        active: active === "stock-adjustments",
-      },
+      { id: "suppliers", label: "Nhà cung cấp" },
+      { id: "purchase", label: "Nhập hàng" },
+      { id: "inventory", label: "Kho" },
+      { id: "stock-adjustments", label: "Điều chỉnh kho" },
     ],
   },
   {
     id: "accounting",
     title: "Thu chi",
     items: [
-      { id: "invoices", label: "Công nợ", active: active === "invoices" },
-      { id: "receipts", label: "Phiếu thu", active: active === "receipts" },
-      { id: "payments", label: "Phiếu chi", active: active === "payments" },
+      { id: "invoices", label: "Công nợ" },
+      { id: "receipts", label: "Phiếu thu" },
+      { id: "payments", label: "Phiếu chi" },
     ],
   },
   {
     id: "management",
     title: "Quản trị",
     items: [
-      { id: "customers", label: "Khách hàng", active: active === "customers" },
-      { id: "employees", label: "Nhân viên", active: active === "employees" },
-      { id: "departments", label: "Phòng ban", active: active === "departments" },
-      {
-        id: "audit-logs",
-        label: "Nhật ký hoạt động",
-        active: active === "audit-logs",
-      },
-      { id: "roles", label: "Phân quyền", active: active === "roles" },
+      { id: "customers", label: "Khách hàng" },
+      { id: "employees", label: "Nhân viên" },
+      { id: "departments", label: "Phòng ban" },
+      { id: "audit-logs", label: "Nhật ký hoạt động" },
+      { id: "roles", label: "Phân quyền" },
     ],
   },
 ];
 
-const buildEmployeeSections = (
+const buildSections = (
   active: ResourcePageKey,
   accessible: ResourcePageKey[],
-): SidebarSection[] => {
-  const sections: SidebarSection[] = [];
-
-  const salesItems: SidebarSection["items"] = [];
-  if (accessible.includes("orders")) {
-    salesItems.push({ id: "orders", label: "Đơn hàng", active: active === "orders" });
-  }
-  if (accessible.includes("products")) {
-    salesItems.push({ id: "products", label: "Sản phẩm", active: active === "products" });
-  }
-  if (accessible.includes("categories")) {
-    salesItems.push({ id: "categories", label: "Danh mục", active: active === "categories" });
-  }
-
-  if (salesItems.length > 0) {
-    sections.push({
-      id: "sales",
-      title: "Kinh doanh",
-      items: salesItems,
-    });
-  }
-
-  if (
-    accessible.includes("suppliers") ||
-    accessible.includes("purchase") ||
-    accessible.includes("inventory") ||
-    accessible.includes("stock-adjustments")
-  ) {
-    sections.push({
-      id: "warehouse",
-      title: "Kho & Nhập hàng",
-      items: [
-        ...(accessible.includes("suppliers")
-          ? [{ id: "suppliers", label: "Nhà cung cấp", active: active === "suppliers" }]
-          : []),
-        ...(accessible.includes("purchase")
-          ? [{ id: "purchase", label: "Nhập hàng", active: active === "purchase" }]
-          : []),
-        ...(accessible.includes("inventory")
-          ? [{ id: "inventory", label: "Kho", active: active === "inventory" }]
-          : []),
-        ...(accessible.includes("stock-adjustments")
-          ? [
-              {
-                id: "stock-adjustments",
-                label: "Điều chỉnh kho",
-                active: active === "stock-adjustments",
-              },
-            ]
-          : []),
-      ],
-    });
-  }
-
-  if (accessible.includes("pos")) {
-    sections.push({
-      id: "sales",
-      title: "Bán hàng",
-      items: [{ id: "pos", label: "Tạo hoá đơn", active: active === "pos" }],
-    });
-  }
-
-  if (accessible.includes("roles")) {
-    sections.push({
-      id: "management",
-      title: "Quản trị",
-      items: [
-        { id: "roles", label: "Phân quyền", active: active === "roles" },
-      ],
-    });
-  }
-
-  if (
-    accessible.includes("receipts") ||
-    accessible.includes("payments") ||
-    accessible.includes("invoices")
-  ) {
-    sections.push({
-      id: "accounting",
-      title: "Thu chi",
-      items: [
-        ...(accessible.includes("invoices")
-          ? [{ id: "invoices", label: "Công nợ", active: active === "invoices" }]
-          : []),
-        ...(accessible.includes("receipts")
-          ? [{ id: "receipts", label: "Phiếu thu", active: active === "receipts" }]
-          : []),
-        ...(accessible.includes("payments")
-          ? [{ id: "payments", label: "Phiếu chi", active: active === "payments" }]
-          : []),
-      ],
-    });
-  }
-
-  return sections;
-};
+): SidebarSection[] =>
+  SECTION_DEFS.map((section) => ({
+    id: section.id,
+    title: section.title,
+    items: section.items
+      .filter((item) => accessible.includes(item.id))
+      .map((item) => ({ id: item.id, label: item.label, active: active === item.id })),
+  })).filter((section) => section.items.length > 0);
 
 const Resources: React.FC = () => {
   const location = useLocation();
@@ -200,19 +106,9 @@ const Resources: React.FC = () => {
   const user = useAuthStore((s) => s.user);
 
   const admin = isAdmin(user);
-  const employeePages = admin ? [] : getAccessibleEmployeePages(user);
-  const accessible: ResourcePageKey[] = admin
-    ? ADMIN_PAGES
-    : [
-        ...employeePages,
-        ...(canReadRoles(user) ? (["roles"] as ResourcePageKey[]) : []),
-      ];
-
+  const accessible = getAccessiblePages(user);
   const activeKey = getActiveKey(location.pathname);
-  const landingPath =
-    admin || employeePages.length > 0 || !canReadRoles(user)
-      ? getEmployeeLandingPath(user)
-      : "/roles";
+  const landingPath = getLandingPath(user);
 
   if (!admin && accessible.length === 0) {
     return <NotFound />;
@@ -222,9 +118,7 @@ const Resources: React.FC = () => {
     return <Navigate to={landingPath} replace />;
   }
 
-  const sections = (
-    admin ? ADMIN_SECTIONS(activeKey) : buildEmployeeSections(activeKey, accessible)
-  ).map((section) => ({
+  const sections = buildSections(activeKey, accessible).map((section) => ({
     ...section,
     items: section.items.map((item) => ({
       ...item,
@@ -234,7 +128,7 @@ const Resources: React.FC = () => {
 
   return (
     <DashboardLayout
-      roleTitle={admin ? "Admin" : getEmployeeRoleTitle(user)}
+      roleTitle={admin ? "Admin" : "Nhân viên"}
       sidebarSections={sections}
       sidebarTitle={PAGE_TITLES[activeKey]}
     >
