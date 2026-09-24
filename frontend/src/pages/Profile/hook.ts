@@ -155,6 +155,7 @@ export function useProfile() {
       await authService.changePassword({
         currentPassword: passwordData.currentPassword,
         newPassword: passwordData.newPassword,
+        newPasswordConfirmation: passwordData.confirmPassword,
       });
       toast.success("Đổi mật khẩu thành công!");
       setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
