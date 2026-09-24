@@ -1,51 +1,40 @@
-import { type IPasswordHasherPort } from '../../ports/password-hasher.port';
 import { AuthUser } from '../../../domain/auth-user.aggregate';
-import { type IAuthUsersCommandRepository } from '../../../domain/repositories/auth-users-command.repository';
 import { ICreateAuthUserRequest } from './create-auth-user.request';
-import { IUsersReaderPort } from 'apps/authentication-service/src/application/ports/users-reader.port';
 import { UserNotFoundException } from 'apps/authentication-service/src/domain/exceptions/user-not-found.exception';
 import { AuthUserAlreadyExistsException } from 'apps/authentication-service/src/domain/exceptions/auth-user-already-exists.exception';
+import { IFindUserByIdPort } from '../../ports/find-user-by-id.port';
+import { IAuthUsersRepository } from 'apps/authentication-service/src/domain/repositories/auth-users.repository';
 
 export class CreateAuthUserUseCase {
   public constructor(
-    private readonly authUsersCommandRepository: IAuthUsersCommandRepository,
-    private readonly passwordHasherPort: IPasswordHasherPort,
-    private readonly usersReaderPort: IUsersReaderPort,
+    private readonly authUsersRepository: IAuthUsersRepository,
+    private readonly findUserByIdPort: IFindUserByIdPort,
   ) {}
 
   public async execute(request: ICreateAuthUserRequest): Promise<void> {
-    const user = await this.usersReaderPort.findById(request.userId);
+    const user = await this.findUserByIdPort.execute(request.userId);
 
     if (!user) {
       throw new UserNotFoundException('userId', request.userId);
     }
 
-    const exists = await this.authUsersCommandRepository.existsByUserId(
-      user.id,
-    );
+    const exists = await this.authUsersRepository.findByUserId(user.id);
 
     if (exists) {
       throw new AuthUserAlreadyExistsException(user.id);
     }
 
-    const hashed = await this.passwordHasherPort.hash(request.password, 10);
-
-    const authUser = AuthUser.create({
+    const authUser = await AuthUser.create({
       userId: request.userId,
-      password: hashed,
+      password: request.password,
     });
 
-    await this.authUsersCommandRepository.create(authUser);
+    await this.authUsersRepository.create(authUser);
   }
 }
 
 export const createAuthUserUseCaseFactory = (
-  authUsersCommandRepository: IAuthUsersCommandRepository,
-  passwordHasherPort: IPasswordHasherPort,
-  usersReaderPort: IUsersReaderPort,
+  authUsersRepository: IAuthUsersRepository,
+  findUserByIdPort: IFindUserByIdPort,
 ): CreateAuthUserUseCase =>
-  new CreateAuthUserUseCase(
-    authUsersCommandRepository,
-    passwordHasherPort,
-    usersReaderPort,
-  );
+  new CreateAuthUserUseCase(authUsersRepository, findUserByIdPort);

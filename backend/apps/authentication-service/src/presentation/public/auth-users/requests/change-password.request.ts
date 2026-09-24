@@ -16,6 +16,10 @@ export class ChangePasswordRequest implements IChangePasswordRequest {
   @MaxLength(255)
   newPassword!: string;
 
-  // userId lấy từ token JWT, không nằm trong body request
-  userId!: string;
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty({ message: 'Mật khẩu mới không được để trống' })
+  @MinLength(8, { message: 'Mật khẩu mới phải dài tối thiểu 8 ký tự' })
+  @MaxLength(255)
+  newPasswordConfirmation!: string;
 }

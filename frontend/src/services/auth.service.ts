@@ -32,6 +32,7 @@ export type UserRole = "admin" | "employee" | "customer" | string;
 export interface ChangePasswordPayload {
   currentPassword: string;
   newPassword: string;
+  newPasswordConfirmation: string;
 }
 
 export interface TokenPayload {

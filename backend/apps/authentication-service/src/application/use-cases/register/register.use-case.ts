@@ -4,16 +4,16 @@ import { RegisterResponse } from './register.response';
 import { ICreateUserPort } from './ports/create-user.port';
 import { ICreateCustomerPort } from './ports/create-customer.port';
 import { ISignTokenPort } from '../../ports/sign-token.port';
-import { IUsersReaderPort } from 'apps/authentication-service/src/application/ports/users-reader.port';
 import { IRolePermissionReaderPort } from 'apps/authentication-service/src/application/ports/role-permission-reader.port';
 import { EmailAlreadyExistsException } from 'apps/authentication-service/src/domain/exceptions/email-already-exists.exception';
 import { PasswordNotMatchingException } from 'apps/authentication-service/src/domain/exceptions/password-not-matching.exception';
+import { IFindUserByEmailPort } from '../../ports/find-user-by-email.port';
 
 const REGISTER_ROLE_ID = 'customer';
 
 export class RegisterUseCase {
   public constructor(
-    private readonly usersReaderPort: IUsersReaderPort,
+    private readonly findUserByEmailPort: IFindUserByEmailPort,
     private readonly createUserPort: ICreateUserPort,
     private readonly createCustomerPort: ICreateCustomerPort,
     private readonly signTokenPort: ISignTokenPort,
@@ -21,7 +21,7 @@ export class RegisterUseCase {
   ) {}
 
   public async execute(request: IRegisterRequest): Promise<RegisterResponse> {
-    const user = await this.usersReaderPort.findByEmail(request.email);
+    const user = await this.findUserByEmailPort.execute(request.email);
 
     if (user) {
       throw new EmailAlreadyExistsException(request.email);
@@ -63,14 +63,14 @@ export class RegisterUseCase {
 }
 
 export const registerUseCaseFactory = (
-  usersReaderPort: IUsersReaderPort,
+  findUserByEmailPort: IFindUserByEmailPort,
   createUserPort: ICreateUserPort,
   createCustomerPort: ICreateCustomerPort,
   signTokenPort: ISignTokenPort,
   rolePermissionReaderPort: IRolePermissionReaderPort,
 ): RegisterUseCase =>
   new RegisterUseCase(
-    usersReaderPort,
+    findUserByEmailPort,
     createUserPort,
     createCustomerPort,
     signTokenPort,

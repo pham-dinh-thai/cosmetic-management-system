@@ -1,27 +1,33 @@
 import { type ISignTokenPort } from '../../ports/sign-token.port';
-import { type IUsersReaderPort } from '../../ports/users-reader.port';
-import { LoginResponse } from '../login/login.response';
 import { InvalidRefreshTokenException } from '../../../domain/exceptions/invalid-refresh-token.exception';
 import { UserDeactivatedException } from 'apps/authentication-service/src/domain/exceptions/user-deactivated.exception';
 import { PermissionResolver } from '../../services/permission.resolver';
+import { IFindUserByIdPort } from '../../ports/find-user-by-id.port';
 import { IRolePermissionReaderPort } from '../../ports/role-permission-reader.port';
+
+export class RefreshTokenResponse {
+  public constructor(
+    public readonly accessToken: string,
+    public readonly refreshToken: string,
+  ) {}
+}
 
 export class RefreshTokenUseCase {
   public constructor(
     private readonly signTokenPort: ISignTokenPort,
-    private readonly usersReaderPort: IUsersReaderPort,
+    private readonly findUserByIdPort: IFindUserByIdPort,
     private readonly permissionResolver: PermissionResolver,
     private readonly rolePermissionReaderPort: IRolePermissionReaderPort,
   ) {}
 
-  public async execute(refreshToken: string): Promise<LoginResponse> {
+  public async execute(refreshToken: string): Promise<RefreshTokenResponse> {
     const payload = await this.signTokenPort.verifyRefreshToken(refreshToken);
 
     if (!payload?.sub) {
       throw new InvalidRefreshTokenException();
     }
 
-    const user = await this.usersReaderPort.findById(payload.sub);
+    const user = await this.findUserByIdPort.execute(payload.sub);
 
     if (!user) {
       throw new InvalidRefreshTokenException();
@@ -36,7 +42,7 @@ export class RefreshTokenUseCase {
       user.roleId,
     );
 
-    return new LoginResponse(
+    return new RefreshTokenResponse(
       this.signTokenPort.signAccessToken({
         sub: user.id,
         email: user.email,
@@ -52,13 +58,13 @@ export class RefreshTokenUseCase {
 
 export const refreshTokenUseCaseFactory = (
   signTokenPort: ISignTokenPort,
-  usersReaderPort: IUsersReaderPort,
+  findUserByIdPort: IFindUserByIdPort,
   permissionResolver: PermissionResolver,
   rolePermissionReaderPort: IRolePermissionReaderPort,
 ): RefreshTokenUseCase =>
   new RefreshTokenUseCase(
     signTokenPort,
-    usersReaderPort,
+    findUserByIdPort,
     permissionResolver,
     rolePermissionReaderPort,
   );

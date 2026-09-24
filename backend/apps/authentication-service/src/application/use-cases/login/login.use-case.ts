@@ -1,26 +1,24 @@
-import { type IUsersReaderPort } from '../../ports/users-reader.port';
-import { type IPasswordHasherPort } from '../../ports/password-hasher.port';
-import { type IAuthUsersQueryRepository } from '../../../domain/repositories/auth-users-query.repository';
 import { ILoginRequest } from './login.request';
-import { type ISignTokenPort } from '../../ports/sign-token.port';
+import { ISignTokenPort } from '../../ports/sign-token.port';
 import { LoginResponse } from './login.response';
 import { InvalidCredentialsException } from 'apps/authentication-service/src/domain/exceptions/invalid-credentials.exception';
 import { UserDeactivatedException } from 'apps/authentication-service/src/domain/exceptions/user-deactivated.exception';
+import { IFindUserByEmailPort } from '../../ports/find-user-by-email.port';
+import { IAuthUsersRepository } from 'apps/authentication-service/src/domain/repositories/auth-users.repository';
 import { PermissionResolver } from '../../services/permission.resolver';
 import { IRolePermissionReaderPort } from '../../ports/role-permission-reader.port';
 
 export class LoginUseCase {
   public constructor(
-    private readonly usersReaderPort: IUsersReaderPort,
-    private readonly passwordHasherPort: IPasswordHasherPort,
-    private readonly authUsersQueryRepository: IAuthUsersQueryRepository,
+    private readonly findUserByEmailPort: IFindUserByEmailPort,
+    private readonly authUsersRepository: IAuthUsersRepository,
     private readonly signTokenPort: ISignTokenPort,
     private readonly permissionResolver: PermissionResolver,
     private readonly rolePermissionReaderPort: IRolePermissionReaderPort,
   ) {}
 
   public async execute(request: ILoginRequest): Promise<LoginResponse> {
-    const user = await this.usersReaderPort.findByEmail(request.email);
+    const user = await this.findUserByEmailPort.execute(request.email);
 
     if (!user?.id) {
       throw new InvalidCredentialsException();
@@ -30,17 +28,15 @@ export class LoginUseCase {
       throw new UserDeactivatedException();
     }
 
-    const authUser = await this.authUsersQueryRepository.findByUserId(user.id);
+    const authUser = await this.authUsersRepository.findByUserId(user.id);
     if (!authUser) {
       throw new InvalidCredentialsException();
     }
 
-    if (
-      !(await this.passwordHasherPort.compare(
-        request.password,
-        authUser.password,
-      ))
-    ) {
+    const isMatchedWithCurrentPassword = await authUser.comparePassword(
+      request.password,
+    );
+    if (!isMatchedWithCurrentPassword) {
       throw new InvalidCredentialsException();
     }
 
@@ -64,17 +60,15 @@ export class LoginUseCase {
 }
 
 export const loginUseCaseFactory = (
-  usersReaderPort: IUsersReaderPort,
-  passwordHasherPort: IPasswordHasherPort,
-  authUsersQueryRepository: IAuthUsersQueryRepository,
+  findUserByEmailPort: IFindUserByEmailPort,
+  authUsersRepository: IAuthUsersRepository,
   signTokenPort: ISignTokenPort,
   permissionResolver: PermissionResolver,
   rolePermissionReaderPort: IRolePermissionReaderPort,
 ): LoginUseCase =>
   new LoginUseCase(
-    usersReaderPort,
-    passwordHasherPort,
-    authUsersQueryRepository,
+    findUserByEmailPort,
+    authUsersRepository,
     signTokenPort,
     permissionResolver,
     rolePermissionReaderPort,
