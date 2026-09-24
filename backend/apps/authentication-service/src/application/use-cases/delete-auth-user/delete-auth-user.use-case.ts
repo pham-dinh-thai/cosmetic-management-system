@@ -1,16 +1,20 @@
-import { type IAuthUsersCommandRepository } from '../../../domain/repositories/auth-users-command.repository';
+import { AuthUserNotFoundException } from 'apps/authentication-service/src/domain/exceptions/auth-user-not-found.exception';
+import { IAuthUsersRepository } from 'apps/authentication-service/src/domain/repositories/auth-users.repository';
 
 export class DeleteAuthUserUseCase {
   public constructor(
-    private readonly authUsersCommandRepository: IAuthUsersCommandRepository,
+    private readonly authUsersRepository: IAuthUsersRepository,
   ) {}
 
   public async execute(userId: string): Promise<void> {
-    await this.authUsersCommandRepository.deleteByUserId(userId);
+    const deleted = await this.authUsersRepository.deleteByUserId(userId);
+
+    if (!deleted) {
+      throw new AuthUserNotFoundException(userId);
+    }
   }
 }
 
 export const deleteAuthUserUseCaseFactory = (
-  authUsersCommandRepository: IAuthUsersCommandRepository,
-): DeleteAuthUserUseCase =>
-  new DeleteAuthUserUseCase(authUsersCommandRepository);
+  authUsersRepository: IAuthUsersRepository,
+): DeleteAuthUserUseCase => new DeleteAuthUserUseCase(authUsersRepository);

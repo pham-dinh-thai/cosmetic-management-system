@@ -9,3 +9,9 @@ export class FindUserByIdReadModel {
     public readonly isActive: boolean,
   ) {}
 }
+
+export interface IFindUserByIdPort {
+  execute(id: string): Promise<FindUserByIdReadModel | null>;
+}
+
+export const FIND_USER_BY_ID_PORT = 'IFindUserByIdPort';

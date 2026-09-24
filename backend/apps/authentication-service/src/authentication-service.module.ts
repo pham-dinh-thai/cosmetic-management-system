@@ -12,14 +12,6 @@ import {
   DeleteAuthUserUseCase,
   deleteAuthUserUseCaseFactory,
 } from './application/use-cases/delete-auth-user/delete-auth-user.use-case';
-import { PASSWORD_HASHER_PORT } from './application/ports/password-hasher.port';
-import { BcryptPasswordHasherAdapter } from './infrastructure/adapters/bcrypt-password-hasher.adapter';
-import { AUTH_USERS_COMMAND_REPOSITORY } from './domain/repositories/auth-users-command.repository';
-import { MikroAuthUsersCommandRepository } from './infrastructure/repositories/mikro-auth-users-command.repository';
-import { USERS_READER_PORT } from './application/ports/users-reader.port';
-import { UsersReaderAdapter } from './infrastructure/adapters/users-reader.adapter';
-import { AUTH_USERS_QUERY_REPOSITORY } from './domain/repositories/auth-users-query.repository';
-import { MikroAuthUsersQueryRepository } from './infrastructure/repositories/mikro-auth-users-query.repository';
 import { JwtModule } from '@nestjs/jwt';
 import { SIGN_TOKEN_PORT } from './application/ports/sign-token.port';
 import { SignTokenAdapter } from './infrastructure/adapters/sign-token.adapter';
@@ -31,10 +23,6 @@ import {
   RefreshTokenUseCase,
   refreshTokenUseCaseFactory,
 } from './application/use-cases/refresh-token/refresh-token.use-case';
-import {
-  PermissionResolver,
-  permissionResolverFactory,
-} from './application/services/permission.resolver';
 import { AuthUsersController } from './presentation/public/auth-users/auth-users.controller';
 import { InternalAuthUsersController } from './presentation/internal/auth-users/auth-users.controller';
 import { CREATE_USER_PORT } from './application/use-cases/register/ports/create-user.port';
@@ -53,6 +41,16 @@ import {
   ChangePasswordUseCase,
   changePasswordUseCaseFactory,
 } from './application/use-cases/change-password/change-password.use-case';
+import { AUTH_USERS_REPOSITORY } from './domain/repositories/auth-users.repository';
+import { MikroAuthUsersRepository } from './infrastructure/repositories/mikro-auth-users.repository';
+import { FIND_USER_BY_ID_PORT } from './application/ports/find-user-by-id.port';
+import { FindUserByIdAdapter } from './infrastructure/adapters/find-user-by-id.adapter';
+import { FIND_USER_BY_EMAIL_PORT } from './application/ports/find-user-by-email.port';
+import { FindUserByEmailAdapter } from './infrastructure/adapters/find-user-by-email.adapter';
+import {
+  PermissionResolver,
+  permissionResolverFactory,
+} from './application/services/permission.resolver';
 
 @Module({
   imports: [
@@ -84,20 +82,12 @@ import {
   controllers: [AuthUsersController, InternalAuthUsersController],
   providers: [
     {
-      provide: PASSWORD_HASHER_PORT,
-      useClass: BcryptPasswordHasherAdapter,
+      provide: FIND_USER_BY_EMAIL_PORT,
+      useClass: FindUserByEmailAdapter,
     },
     {
-      provide: AUTH_USERS_COMMAND_REPOSITORY,
-      useClass: MikroAuthUsersCommandRepository,
-    },
-    {
-      provide: USERS_READER_PORT,
-      useClass: UsersReaderAdapter,
-    },
-    {
-      provide: AUTH_USERS_QUERY_REPOSITORY,
-      useClass: MikroAuthUsersQueryRepository,
+      provide: AUTH_USERS_REPOSITORY,
+      useClass: MikroAuthUsersRepository,
     },
     {
       provide: SIGN_TOKEN_PORT,
@@ -106,24 +96,19 @@ import {
     {
       provide: CreateAuthUserUseCase,
       useFactory: createAuthUserUseCaseFactory,
-      inject: [
-        AUTH_USERS_COMMAND_REPOSITORY,
-        PASSWORD_HASHER_PORT,
-        USERS_READER_PORT,
-      ],
+      inject: [AUTH_USERS_REPOSITORY, FIND_USER_BY_ID_PORT],
     },
     {
       provide: DeleteAuthUserUseCase,
       useFactory: deleteAuthUserUseCaseFactory,
-      inject: [AUTH_USERS_COMMAND_REPOSITORY],
+      inject: [AUTH_USERS_REPOSITORY],
     },
     {
       provide: LoginUseCase,
       useFactory: loginUseCaseFactory,
       inject: [
-        USERS_READER_PORT,
-        PASSWORD_HASHER_PORT,
-        AUTH_USERS_QUERY_REPOSITORY,
+        FIND_USER_BY_EMAIL_PORT,
+        AUTH_USERS_REPOSITORY,
         SIGN_TOKEN_PORT,
         PermissionResolver,
       ],
@@ -131,7 +116,7 @@ import {
     {
       provide: RefreshTokenUseCase,
       useFactory: refreshTokenUseCaseFactory,
-      inject: [SIGN_TOKEN_PORT, USERS_READER_PORT, PermissionResolver],
+      inject: [SIGN_TOKEN_PORT, FIND_USER_BY_ID_PORT, PermissionResolver],
     },
     {
       provide: PermissionResolver,
@@ -153,7 +138,7 @@ import {
       provide: RegisterUseCase,
       useFactory: registerUseCaseFactory,
       inject: [
-        USERS_READER_PORT,
+        FIND_USER_BY_EMAIL_PORT,
         CREATE_USER_PORT,
         CREATE_CUSTOMER_PORT,
         SIGN_TOKEN_PORT,
@@ -162,11 +147,7 @@ import {
     {
       provide: ChangePasswordUseCase,
       useFactory: changePasswordUseCaseFactory,
-      inject: [
-        AUTH_USERS_QUERY_REPOSITORY,
-        AUTH_USERS_COMMAND_REPOSITORY,
-        PASSWORD_HASHER_PORT,
-      ],
+      inject: [AUTH_USERS_REPOSITORY],
     },
     {
       provide: EMPLOYEE_PERMISSION_READER_PORT,
@@ -175,6 +156,10 @@ import {
     {
       provide: DEPARTMENT_PERMISSION_READER_PORT,
       useClass: DepartmentPermissionReaderAdapter,
+    },
+    {
+      provide: FIND_USER_BY_ID_PORT,
+      useClass: FindUserByIdAdapter,
     },
   ],
 })

@@ -11,7 +11,10 @@ import { AuthGuard } from '@app/security';
 import { Audit, AuditAction, responseId, userSubId } from '@app/audit-client';
 import { LoginUseCase } from 'apps/authentication-service/src/application/use-cases/login/login.use-case';
 import { LoginResponse } from 'apps/authentication-service/src/application/use-cases/login/login.response';
-import { RefreshTokenUseCase } from 'apps/authentication-service/src/application/use-cases/refresh-token/refresh-token.use-case';
+import {
+  RefreshTokenResponse,
+  RefreshTokenUseCase,
+} from 'apps/authentication-service/src/application/use-cases/refresh-token/refresh-token.use-case';
 import { RegisterUseCase } from 'apps/authentication-service/src/application/use-cases/register/register.use-case';
 import { RegisterResponse } from 'apps/authentication-service/src/application/use-cases/register/register.response';
 import { ChangePasswordUseCase } from 'apps/authentication-service/src/application/use-cases/change-password/change-password.use-case';
@@ -79,7 +82,7 @@ export class AuthUsersController {
   @Post('/refresh-token')
   public async refreshToken(
     @Headers('authorization') authorization?: string,
-  ): Promise<LoginResponse> {
+  ): Promise<RefreshTokenResponse> {
     const [type, token] = authorization?.split(' ') ?? [];
 
     if (type !== 'Bearer' || !token) {
@@ -103,10 +106,6 @@ export class AuthUsersController {
     const userId =
       (req as unknown as { user?: { sub?: string } }).user?.sub ?? '';
 
-    await this.changePasswordUseCase.execute({
-      userId,
-      currentPassword: request.currentPassword,
-      newPassword: request.newPassword,
-    });
+    await this.changePasswordUseCase.execute(userId, request);
   }
 }

@@ -1,56 +1,32 @@
-import { AuthUser } from '../../../domain/auth-user.aggregate';
-import { IAuthUsersCommandRepository } from '../../../domain/repositories/auth-users-command.repository';
-import { IAuthUsersQueryRepository } from '../../../domain/repositories/auth-users-query.repository';
-import { InvalidCredentialsException } from '../../../domain/exceptions/invalid-credentials.exception';
-import { IPasswordHasherPort } from '../../ports/password-hasher.port';
+import { AuthUserNotFoundException } from 'apps/authentication-service/src/domain/exceptions/auth-user-not-found.exception';
 import { IChangePasswordRequest } from './change-password.request';
+import { IAuthUsersRepository } from 'apps/authentication-service/src/domain/repositories/auth-users.repository';
 
 export class ChangePasswordUseCase {
   public constructor(
-    private readonly authUsersQueryRepository: IAuthUsersQueryRepository,
-    private readonly authUsersCommandRepository: IAuthUsersCommandRepository,
-    private readonly passwordHasherPort: IPasswordHasherPort,
+    private readonly authUsersRepository: IAuthUsersRepository,
   ) {}
 
-  public async execute(request: IChangePasswordRequest): Promise<void> {
-    const authUser = await this.authUsersQueryRepository.findByUserId(
-      request.userId,
-    );
+  public async execute(
+    userId: string,
+    request: IChangePasswordRequest,
+  ): Promise<void> {
+    const authUser = await this.authUsersRepository.findByUserId(userId);
 
     if (!authUser) {
-      throw new InvalidCredentialsException();
+      throw new AuthUserNotFoundException(userId);
     }
 
-    const currentPasswordMatches = await this.passwordHasherPort.compare(
+    await authUser.changePassword(
       request.currentPassword,
-      authUser.password,
-    );
-
-    if (!currentPasswordMatches) {
-      throw new InvalidCredentialsException();
-    }
-
-    const hashedPassword = await this.passwordHasherPort.hash(
       request.newPassword,
-      10,
+      request.newPasswordConfirmation,
     );
 
-    const updated = AuthUser.create({
-      userId: request.userId,
-      password: hashedPassword,
-    });
-
-    await this.authUsersCommandRepository.update(updated);
+    await this.authUsersRepository.changePassword(authUser);
   }
 }
 
 export const changePasswordUseCaseFactory = (
-  authUsersQueryRepository: IAuthUsersQueryRepository,
-  authUsersCommandRepository: IAuthUsersCommandRepository,
-  passwordHasherPort: IPasswordHasherPort,
-): ChangePasswordUseCase =>
-  new ChangePasswordUseCase(
-    authUsersQueryRepository,
-    authUsersCommandRepository,
-    passwordHasherPort,
-  );
+  authUsersRepository: IAuthUsersRepository,
+): ChangePasswordUseCase => new ChangePasswordUseCase(authUsersRepository);
