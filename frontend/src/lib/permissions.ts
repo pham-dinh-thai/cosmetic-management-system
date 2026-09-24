@@ -21,6 +21,9 @@ export const ADMIN_PAGES: ResourcePageKey[] = [
   "audit-logs",
   "roles",
   "pos",
+  "sales-dashboard",
+  "warehouse-dashboard",
+  "accounting-dashboard",
 ];
 
 /**
