@@ -1,9 +1,9 @@
 import { BaseDomainException } from './base-domain-exception';
 
-export class RoleAlreadyExistsException extends BaseDomainException {
+export class PermissionDeactivatedException extends BaseDomainException {
   public readonly statusCode = 409;
 
   public constructor(id: string) {
-    super(`Vai trò ${id} đã tồn tại`);
+    super(`Quyền ${id} đã bị vô hiệu hoá`);
   }
 }

@@ -7,9 +7,21 @@ export class FindRoleByIdUseCase {
   public async execute(id: string): Promise<FindRoleByIdReadModel | null> {
     const role = await this.rolesRepository.findById(id);
 
-    return role
-      ? new FindRoleByIdReadModel(role.getId(), role.getName())
-      : null;
+    if (!role) {
+      return null;
+    }
+
+    return new FindRoleByIdReadModel(
+      role.getId(),
+      role.getName(),
+      role.getIsActive(),
+      role.getPermissions().map((permission) => ({
+        id: permission.getId(),
+        resource: permission.getResource(),
+        action: permission.getAction(),
+        isActive: permission.getIsActive(),
+      })),
+    );
   }
 }
 
