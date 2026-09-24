@@ -13,5 +13,6 @@ export class FindAllEmployeeReadModel {
     public readonly lastName?: string,
     public readonly gender?: string,
     public readonly email?: string,
+    public readonly roleId?: string,
   ) {}
 }

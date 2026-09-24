@@ -9,6 +9,8 @@ import {
 } from "../../../../components/ui/Primitives";
 import { employeesService } from "../../../../services/employees.service";
 import { departmentsService } from "../../../../services/departments.service";
+import { rolesService, type RoleSummary } from "../../../../services/roles.service";
+import { userService } from "../../../../services/user.service";
 import type { Department } from "../Departments/type";
 import type { Employee } from "../Employees/type";
 import { isValidMobilePhone } from "../../../../lib/validators";
@@ -21,6 +23,10 @@ const EditEmployeePage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [departments, setDepartments] = useState<Department[]>([]);
+  const [roles, setRoles] = useState<RoleSummary[]>([]);
+  const [roleId, setRoleId] = useState("");
+  const [initialRoleId, setInitialRoleId] = useState("");
+  const [employeeUserId, setEmployeeUserId] = useState("");
   const [initialDepartmentId, setInitialDepartmentId] = useState("");
   const [initialPosition, setInitialPosition] = useState("");
   const [formData, setFormData] = useState<
@@ -41,6 +47,7 @@ const EditEmployeePage: React.FC = () => {
 
   useEffect(() => {
     departmentsService.getDepartments().then((data) => setDepartments(data));
+    rolesService.findAll().then((data) => setRoles(data));
   }, []);
 
   useEffect(() => {
@@ -74,6 +81,9 @@ const EditEmployeePage: React.FC = () => {
           });
           setInitialDepartmentId(data.departmentId || "");
           setInitialPosition(data.position || "");
+          setRoleId(data.roleId || "");
+          setInitialRoleId(data.roleId || "");
+          setEmployeeUserId(data.userId || "");
         })
         .catch((err) => {
           console.error(err);
@@ -118,6 +128,12 @@ const EditEmployeePage: React.FC = () => {
         previousDepartmentId: initialDepartmentId,
         previousPosition: initialPosition,
       });
+
+      // Tách riêng: đổi vai trò dùng public API /users/:userId/role
+      if (roleId && roleId !== initialRoleId && employeeUserId) {
+        await userService.updateRole(employeeUserId, roleId);
+      }
+
       toast.success("Đã cập nhật nhân viên thành công");
       navigate("/employees");
     } catch (error) {
@@ -174,6 +190,24 @@ const EditEmployeePage: React.FC = () => {
           { value: formData.position, label: formData.position },
         ]
       : positionOptions;
+
+  const activeRoleOptions = roles
+    .filter((r) => r.isActive)
+    .map((r) => ({ value: r.id, label: r.name }));
+  const currentRoleInOptions = activeRoleOptions.some(
+    (o) => o.value === roleId,
+  );
+  const currentRole = roles.find((r) => r.id === roleId);
+  const allRoleOptions =
+    roleId && !currentRoleInOptions
+      ? [
+          ...activeRoleOptions,
+          {
+            value: roleId,
+            label: currentRole ? currentRole.name : "Vai trò đã xóa",
+          },
+        ]
+      : activeRoleOptions;
 
   if (fetching) {
     return (
@@ -305,6 +339,24 @@ const EditEmployeePage: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
+                Vai trò đăng nhập <span className="text-red-500">*</span>
+              </label>
+              <Select
+                name="roleId"
+                value={roleId}
+                onChange={(e) => setRoleId(e.target.value)}
+                options={[
+                  { value: "", label: "Chọn vai trò đăng nhập" },
+                  ...allRoleOptions,
+                ]}
+              />
+              <p className="text-[11px] text-[#666666]">
+                Vai trò quyết định quyền truy cập. Thay đổi sẽ áp dụng sau khi
+                nhân viên đăng nhập lại.
+              </p>
+            </div>
             <div className="flex flex-col gap-1.5">
               <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
                 Trạng thái

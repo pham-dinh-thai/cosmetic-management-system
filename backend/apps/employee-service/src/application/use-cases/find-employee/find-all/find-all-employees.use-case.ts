@@ -20,6 +20,7 @@ export class FindAllEmployeesUseCase {
           lastName: string;
           gender: string;
           email?: string;
+          roleId?: string;
         } | null = null;
 
         try {
@@ -47,6 +48,7 @@ export class FindAllEmployeesUseCase {
           userInfo?.lastName,
           userInfo?.gender,
           userInfo?.email,
+          userInfo?.roleId,
         );
       }),
     );
