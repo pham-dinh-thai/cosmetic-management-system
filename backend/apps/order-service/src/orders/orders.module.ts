@@ -212,6 +212,7 @@ import {
         ORDERS_REPOSITORY,
         VARIANT_LABEL_READER_PORT,
         EMPLOYEE_CODE_READER_PORT,
+        CUSTOMER_NAME_READER_PORT,
       ],
     },
     {

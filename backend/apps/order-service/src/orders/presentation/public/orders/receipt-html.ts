@@ -36,6 +36,10 @@ function paymentMethodLabel(paymentMethod: string): string {
   return labels[paymentMethod] ?? paymentMethod;
 }
 
+function paymentStatusLabel(paymentStatus: string): string {
+  return paymentStatus === 'paid' ? 'Đã thanh toán' : 'Chưa thanh toán';
+}
+
 export function renderOrderReceiptHtml(receipt: OrderReceipt): string {
   const itemRows = receipt.lines
     .map(
@@ -46,16 +50,16 @@ export function renderOrderReceiptHtml(receipt: OrderReceipt): string {
       <tr class="item-row">
         <td class="left">${formatMoney(line.unitPrice)}</td>
         <td class="center">${line.quantity}</td>
-        <td class="center"></td>
+        <td class="center">-</td>
         <td class="right">${formatMoney(line.subtotal)}</td>
       </tr>`,
     )
     .join('');
 
-  const msch = '36366767';
+  const msch = receipt.customerCode || '-';
   const nv = receipt.employeeCode ?? '-';
   const ptt = paymentMethodLabel(receipt.paymentMethod);
-  const maCqt = 'M1-26-CPN7O-04138504425';
+  const tth = paymentStatusLabel(receipt.paymentStatus);
 
   return `<!doctype html>
 <html lang="vi">
@@ -122,8 +126,7 @@ export function renderOrderReceiptHtml(receipt: OrderReceipt): string {
   .barcode-section { display: flex; flex-direction: column; align-items: center; margin-bottom: 4px; }
   .barcode { width: 80%; height: 12mm; background: repeating-linear-gradient(90deg, #111 0 1.5px, transparent 1.5px 3px, #111 3px 6px, transparent 6px 7.5px, #111 7.5px 9px, transparent 9px 12px, #111 12px 13.5px, transparent 13.5px 15px); margin: 0 auto; }
 
-  .footer { display: flex; justify-content: space-between; align-items: center; font-size: 11px; margin-top: 4px; font-weight: 600; }
-  .phone-icon { font-size: 12px; margin-right: 2px; }
+  .footer { text-align: center; font-size: 11px; margin-top: 4px; font-weight: 600; }
 
   @media print { body { background: #fff; } .toolbar { display: none; } .receipt { box-shadow: none; margin: 0; padding: 0; } }
 </style>
@@ -136,9 +139,10 @@ export function renderOrderReceiptHtml(receipt: OrderReceipt): string {
     <div class="brand">Guardian</div>
     <div class="title">PHIẾU TÍNH TIỀN</div>
     <div class="info">
-      ${formatDate(receipt.createdAt)}|MSCH:${msch}|NV:${nv}<br>
-      PTT:${ptt}<br>
-      Mã CQT: ${maCqt}
+      ${formatDate(receipt.createdAt)}<br>
+      MSCH:${escapeHtml(msch)}|NV:${escapeHtml(nv)}<br>
+      PTT:${escapeHtml(ptt)}<br>
+      KH:${escapeHtml(receipt.customerName)}
     </div>
 
     <table class="items-table">
@@ -161,8 +165,8 @@ export function renderOrderReceiptHtml(receipt: OrderReceipt): string {
         <td class="bold">${formatMoney(receipt.totalAmount)}</td>
       </tr>
       <tr>
-        <td class="left">Tiền cần thanh toán</td>
-        <td class="bold">${formatMoney(receipt.totalAmount)}</td>
+        <td class="left">Thanh toán</td>
+        <td class="bold">${escapeHtml(tth)}</td>
       </tr>
     </table>
 
@@ -181,7 +185,6 @@ export function renderOrderReceiptHtml(receipt: OrderReceipt): string {
 
     <div class="footer">
       <div>Mã HĐ: ${escapeHtml(receipt.code)}</div>
-      <div><span class="phone-icon">&#9742;</span> 2471066866-41791</div>
     </div>
   </main>
 </body>

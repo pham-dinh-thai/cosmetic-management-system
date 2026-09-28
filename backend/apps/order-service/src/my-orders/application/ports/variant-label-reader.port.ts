@@ -10,4 +10,4 @@ export interface IVariantLabelReaderPort {
   ): Promise<Record<string, VariantLabelData>>;
 }
 
-export const VARIANT_LABEL_READER_PORT = 'IVariantLabelReaderPort';
+export const VARIANT_LABEL_READER_PORT = 'IMyOrdersVariantLabelReaderPort';

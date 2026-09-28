@@ -1,5 +1,11 @@
-export interface ICustomerNameReaderPort {
-  getCustomerName(customerId: string): Promise<string | null>;
+export interface CustomerLabel {
+  code: string;
+  name: string;
 }
 
-export const CUSTOMER_NAME_READER_PORT = 'ICustomerNameReaderPort';
+export interface ICustomerNameReaderPort {
+  getCustomerName(customerId: string): Promise<string | null>;
+  getCustomerLabel(customerId: string): Promise<CustomerLabel | null>;
+}
+
+export const CUSTOMER_NAME_READER_PORT = 'IOrdersCustomerNameReaderPort';

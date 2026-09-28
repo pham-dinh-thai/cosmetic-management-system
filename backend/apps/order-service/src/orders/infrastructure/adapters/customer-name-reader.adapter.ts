@@ -2,14 +2,17 @@ import { Inject, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Redis } from 'ioredis';
 import { REDIS_CLIENT } from '@app/redis-client';
-import { ICustomerNameReaderPort } from '../../application/ports/customer-name-reader.port';
+import {
+  CustomerLabel,
+  ICustomerNameReaderPort,
+} from '../../application/ports/customer-name-reader.port';
 
 type CustomerData = {
-  id?: string;
+  code?: string;
   name?: string;
 };
 
-const CACHE_KEY_PREFIX = 'order:customer-name:';
+const CACHE_KEY_PREFIX = 'order:customer-label:';
 const CACHE_TTL_SECONDS = 3600;
 
 export class CustomerNameReaderAdapter implements ICustomerNameReaderPort {
@@ -24,34 +27,64 @@ export class CustomerNameReaderAdapter implements ICustomerNameReaderPort {
   }
 
   public async getCustomerName(customerId: string): Promise<string | null> {
+    const label = await this.getCustomerLabel(customerId);
+
+    return label?.name ?? null;
+  }
+
+  public async getCustomerLabel(
+    customerId: string,
+  ): Promise<CustomerLabel | null> {
     const cacheKey = `${CACHE_KEY_PREFIX}${customerId}`;
 
     try {
       const cached = await this.redis.get(cacheKey);
 
       if (cached) {
-        return cached;
+        return this.parseLabel(cached);
       }
     } catch (error) {
       Logger.warn(error);
     }
 
-    const customerName = await this.fetchFromCustomerService(customerId);
+    const label = await this.fetchFromCustomerService(customerId);
 
-    if (customerName) {
+    if (label) {
       try {
-        await this.redis.set(cacheKey, customerName, 'EX', CACHE_TTL_SECONDS);
+        await this.redis.set(
+          cacheKey,
+          JSON.stringify(label),
+          'EX',
+          CACHE_TTL_SECONDS,
+        );
       } catch (error) {
         Logger.warn(error);
       }
     }
 
-    return customerName;
+    return label;
+  }
+
+  private parseLabel(cached: string): CustomerLabel | null {
+    try {
+      const parsed = JSON.parse(cached) as Partial<CustomerLabel>;
+
+      if (typeof parsed.name === 'string' && parsed.name.length > 0) {
+        return {
+          code: typeof parsed.code === 'string' ? parsed.code : '',
+          name: parsed.name,
+        };
+      }
+    } catch (error) {
+      Logger.warn(error);
+    }
+
+    return null;
   }
 
   private async fetchFromCustomerService(
     customerId: string,
-  ): Promise<string | null> {
+  ): Promise<CustomerLabel | null> {
     const response = await fetch(
       `${this.url}/api/internal/customers/${customerId}`,
     );
@@ -67,7 +100,12 @@ export class CustomerNameReaderAdapter implements ICustomerNameReaderPort {
     }
 
     const data = JSON.parse(text) as CustomerData;
+    const name = data.name?.trim();
 
-    return data.name?.trim() || null;
+    if (!name) {
+      return null;
+    }
+
+    return { code: data.code?.trim() ?? '', name };
   }
 }
