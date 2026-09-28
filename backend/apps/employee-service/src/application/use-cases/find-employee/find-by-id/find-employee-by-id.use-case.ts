@@ -1,5 +1,8 @@
 import { IEmployeesRepository } from 'apps/employee-service/src/domain/repositories/employees.repository';
-import { IFindUserInformationPort } from '../../update-employee-information/ports/find-user-information.port';
+import {
+  IFindUserInformationPort,
+  UserInformation,
+} from '../../update-employee-information/ports/find-user-information.port';
 import { IEmployeeLoggerPort } from 'apps/employee-service/src/application/ports/employee-logger.port';
 import { FindEmployeeByIdReadModel } from './read-models/find-employee-by-id.read-model';
 
@@ -17,13 +20,7 @@ export class FindEmployeeByIdUseCase {
       return null;
     }
 
-    let userInfo: {
-      firstName: string;
-      lastName: string;
-      gender: string;
-      email?: string;
-      roleId?: string;
-    } | null = null;
+    let userInfo: UserInformation | null = null;
 
     try {
       userInfo = await this.findUserInformationPort.execute(

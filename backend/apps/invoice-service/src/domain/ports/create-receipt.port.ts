@@ -4,6 +4,7 @@ export type CreateReceiptInput = {
   amount: number;
   note?: string;
   employeeId?: string;
+  dedupe?: boolean;
 };
 
 export interface ICreateReceiptPort {

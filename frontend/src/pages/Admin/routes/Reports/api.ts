@@ -121,9 +121,9 @@ export const reportsApi = {
     });
 
     const completedOrdersList = filteredOrders.filter(
-      (o) => o.status === "DELIVERED" || o.paymentStatus === "PAID",
+      (o) => o.status === "delivered" || o.status === "completed" || o.paymentStatus === "paid",
     );
-    const cancelledOrdersList = filteredOrders.filter((o) => o.status === "CANCELLED");
+    const cancelledOrdersList = filteredOrders.filter((o) => o.status === "cancelled");
 
     // Fetch detail lines for completed orders
     const completedDetails = await Promise.all(
@@ -227,7 +227,7 @@ export const reportsApi = {
 
     // Lấy tất cả đơn hoàn thành/đã thanh toán trong hệ thống để tính đúng chu kỳ năm/quý/tháng
     const allCompletedOrders = ordersRes.filter(
-      (o) => o.status === "DELIVERED" || o.paymentStatus === "PAID",
+      (o) => o.status === "delivered" || o.status === "completed" || o.paymentStatus === "paid",
     );
 
     // Điền dữ liệu vào các biểu đồ
@@ -301,8 +301,8 @@ export const reportsApi = {
         code: o.code,
         customerName: cust ? cust.name : "Khách vãng lai / POS",
         createdAt: o.createdAt,
-        paymentMethod: o.paymentMethod || "CASH",
-        paymentStatus: o.paymentStatus || "UNPAID",
+        paymentMethod: o.paymentMethod || "cash",
+        paymentStatus: o.paymentStatus || "unpaid",
         status: o.status,
         totalAmount: Number(o.totalAmount || 0),
         profit: orderProfitMap.get(o.id) || 0,
@@ -381,7 +381,7 @@ export const reportsApi = {
     for (const order of filteredOrders) {
       if (!order.customerId) continue;
       const prev = customerOrdersCount.get(order.customerId) || { count: 0, spend: 0, lastDate: null };
-      const isPaid = order.status === "DELIVERED" || order.paymentStatus === "PAID";
+      const isPaid = order.status === "delivered" || order.status === "completed" || order.paymentStatus === "paid";
       const spendAdd = isPaid ? Number(order.totalAmount || 0) : 0;
       const orderDate = order.createdAt;
 

@@ -14,9 +14,11 @@ export class DepartmentsReaderAdapter implements IDepartmentsReaderPort {
     this.baseUrl = url;
   }
 
-  public async findById(
-    id: string,
-  ): Promise<{ id: string; managerId: string | null; isActive: boolean } | null> {
+  public async findById(id: string): Promise<{
+    id: string;
+    managerId: string | null;
+    isActive: boolean;
+  } | null> {
     const response = await fetch(
       `${this.baseUrl}/api/internal/departments/${id}`,
     );

@@ -32,34 +32,6 @@ export class Cart {
     );
   }
 
-  public getId(): string {
-    return this.id;
-  }
-
-  public getCustomerId(): string {
-    return this.customerId;
-  }
-
-  public getStatus(): CartStatus {
-    return this.status;
-  }
-
-  public getItems(): CartItem[] {
-    return this.items;
-  }
-
-  public hasItem(variantId: string): boolean {
-    return this.items.some((item) => item.getVariantId() === variantId);
-  }
-
-  public getCreatedAt(): Date | undefined {
-    return this.createdAt;
-  }
-
-  public getUpdatedAt(): Date | undefined {
-    return this.updatedAt;
-  }
-
   public addItem(variantId: string, quantity: number): void {
     const existing = this.items.find(
       (item) => item.getVariantId() === variantId,
@@ -115,5 +87,33 @@ export class Cart {
 
   public markCheckedOut(): void {
     this.status = CartStatus.CHECKED_OUT;
+  }
+
+  public getId(): string {
+    return this.id;
+  }
+
+  public getCustomerId(): string {
+    return this.customerId;
+  }
+
+  public getStatus(): CartStatus {
+    return this.status;
+  }
+
+  public getItems(): CartItem[] {
+    return this.items;
+  }
+
+  public hasItem(variantId: string): boolean {
+    return this.items.some((item) => item.getVariantId() === variantId);
+  }
+
+  public getCreatedAt(): Date | undefined {
+    return this.createdAt;
+  }
+
+  public getUpdatedAt(): Date | undefined {
+    return this.updatedAt;
   }
 }

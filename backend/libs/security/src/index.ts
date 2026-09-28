@@ -1,4 +1,5 @@
 export * from './auth.guard';
+export * from './current-user.decorator';
 export * from './roles.guard';
 export * from './org.guard';
 export * from './permissions.guard';

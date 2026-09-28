@@ -471,6 +471,8 @@ services:
       BASKET_SERVICE_URL: ${BASKET_SERVICE_URL}
       INVOICE_SERVICE_URL: ${INVOICE_SERVICE_URL}
       CUSTOMER_SERVICE_URL: ${CUSTOMER_SERVICE_URL}
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
       AUDIT_SERVICE_URL: ${AUDIT_SERVICE_URL}
     ports:
@@ -592,6 +594,32 @@ services:
       - basket-service
       - audit-service
 
+  redis:
+    image: redis:7-alpine
+    container_name: cosmetic-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redisinsight:
+    image: redis/redisinsight:latest
+    container_name: cosmetic-redisinsight
+    ports:
+      - "5540:5540"
+    environment:
+      RI_ACCEPT_TERMS_AND_CONDITIONS: "true"
+    volumes:
+      - redisinsight-data:/data
+    depends_on:
+      - redis
+
   frontend:
     build: ./frontend
 
@@ -609,3 +637,5 @@ services:
 
 volumes:
   postgres-data:
+  redis-data:
+  redisinsight-data:

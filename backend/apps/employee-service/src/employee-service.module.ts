@@ -167,7 +167,12 @@ import {
     {
       provide: DeleteEmployeeUseCase,
       useFactory: deleteEmployeeUseCaseFactory,
-      inject: [EMPLOYEES_REPOSITORY, DELETE_USER_PORT, EMPLOYEE_LOGGER_PORT, DEPARTMENT_MANAGER_PORT],
+      inject: [
+        EMPLOYEES_REPOSITORY,
+        DELETE_USER_PORT,
+        EMPLOYEE_LOGGER_PORT,
+        DEPARTMENT_MANAGER_PORT,
+      ],
     },
     {
       provide: UpdateEmployeePositionUseCase,
@@ -195,7 +200,11 @@ import {
     {
       provide: FindAllEmployeesUseCase,
       useFactory: findAllEmployeesUseCaseFactory,
-      inject: [EMPLOYEES_REPOSITORY, FIND_USER_INFORMATION_PORT, EMPLOYEE_LOGGER_PORT],
+      inject: [
+        EMPLOYEES_REPOSITORY,
+        FIND_USER_INFORMATION_PORT,
+        EMPLOYEE_LOGGER_PORT,
+      ],
     },
     {
       provide: ActivateEmployeeUseCase,

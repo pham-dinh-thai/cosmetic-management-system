@@ -13,47 +13,52 @@ import {
 import { productsService, type CosmeticSummary } from '../../services/products.service';
 
 const statusMeta: Record<OrderStatus, { label: string; className: string; description: string }> = {
-  PENDING_CONFIRMATION: {
+  'pending': {
     label: 'Chờ xác nhận',
     className: 'bg-[#fcf9e8] text-[#856b10] border border-[#f0e6b5]',
     description: 'Đơn hàng đã được tạo thành công và đang chờ hệ thống xác nhận.',
   },
-  CONFIRMED: {
+  'confirmed': {
     label: 'Đã xác nhận',
     className: 'bg-[#edf5e6] text-[#1c3a13] border border-[#cbe1be]',
     description: 'Đơn hàng đã được xác nhận và chuyển tiếp sang bộ phận xử lý đóng gói.',
   },
-  PREPARING: {
+  'preparing': {
     label: 'Đang chuẩn bị hàng',
     className: 'bg-[#edf5e6] text-[#1c3a13] border border-[#cbe1be]',
     description: 'Các sản phẩm trong đơn hàng đang được kiểm tra và đóng gói cẩn thận.',
   },
-  SHIPPING: {
+  'shipping': {
     label: 'Đang giao hàng',
     className: 'bg-[#eaf2f8] text-[#19517d] border border-[#bdd8ec]',
     description: 'Đơn hàng đã được bàn giao cho đối tác vận chuyển và đang trên đường giao đến bạn.',
   },
-  DELIVERED: {
+  'delivered': {
     label: 'Giao thành công',
     className: 'bg-[#1c3a13] text-[#fcfcf7] border border-[#1c3a13]',
     description: 'Đơn hàng đã được giao thành công đến địa chỉ nhận hàng.',
   },
-  CANCELLED: {
+  'completed': {
+    label: 'Hoàn tất',
+    className: 'bg-[#1c3a13] text-[#fcfcf7] border border-[#1c3a13]',
+    description: 'Đơn hàng đã hoàn tất và được ghi nhận doanh thu.',
+  },
+  'cancelled': {
     label: 'Đã hủy',
     className: 'bg-[#fdf0ed] text-[#9c2b20] border border-[#f7c7c0]',
     description: 'Đơn hàng này đã bị hủy.',
   },
-  DELIVERY_FAILED: {
+  'delivery_failed': {
     label: 'Giao thất bại',
     className: 'bg-[#fdf0ed] text-[#9c2b20] border border-[#f7c7c0]',
     description: 'Đơn vị vận chuyển không liên lạc được với người nhận.',
   },
-  RETURNED: {
+  'returned': {
     label: 'Đã hoàn hàng',
     className: 'bg-[#fcf9e8] text-[#856b10] border border-[#f0e6b5]',
     description: 'Kiện hàng đã được hoàn trả về kho lưu trữ.',
   },
-  REFUNDED: {
+  'refunded': {
     label: 'Đã hoàn tiền',
     className: 'bg-[#f2f2ee] text-[#555555] border border-[#deded8]',
     description: 'Yêu cầu hoàn tiền cho đơn hàng đã hoàn tất.',
@@ -61,43 +66,46 @@ const statusMeta: Record<OrderStatus, { label: string; className: string; descri
 };
 
 const paymentStatusMeta: Record<OrderPaymentStatus, { label: string; className: string }> = {
-  UNPAID: { label: 'Chưa thanh toán', className: 'bg-[#fcf9e8] text-[#856b10] border border-[#f0e6b5]' },
-  PAID: { label: 'Đã thanh toán', className: 'bg-[#edf5e6] text-[#1c3a13] border border-[#cbe1be]' },
+  'unpaid': { label: 'Chưa thanh toán', className: 'bg-[#fcf9e8] text-[#856b10] border border-[#f0e6b5]' },
+  'paid': { label: 'Đã thanh toán', className: 'bg-[#edf5e6] text-[#1c3a13] border border-[#cbe1be]' },
 };
 
 const PAYMENT_METHOD_LABEL: Record<string, string> = {
-  CASH: 'Thanh toán tiền mặt khi nhận hàng (COD)',
-  BANK_TRANSFER: 'Chuyển khoản qua ngân hàng',
-  CARD: 'Thanh toán qua thẻ (Visa / Mastercard)',
+  'cash': 'Thanh toán tiền mặt khi nhận hàng (COD)',
+  'bank_transfer': 'Chuyển khoản qua ngân hàng',
+  'card': 'Thanh toán qua thẻ (Visa / Mastercard)',
 };
 
 const PROGRESS_STEPS: { key: OrderStatus; label: string; stepNumber: number }[] = [
-  { key: 'PENDING_CONFIRMATION', label: 'Đặt hàng', stepNumber: 1 },
-  { key: 'CONFIRMED', label: 'Xác nhận', stepNumber: 2 },
-  { key: 'PREPARING', label: 'Chuẩn bị hàng', stepNumber: 3 },
-  { key: 'SHIPPING', label: 'Đang vận chuyển', stepNumber: 4 },
-  { key: 'DELIVERED', label: 'Giao thành công', stepNumber: 5 },
+  { key: 'pending', label: 'Đặt hàng', stepNumber: 1 },
+  { key: 'confirmed', label: 'Xác nhận', stepNumber: 2 },
+  { key: 'preparing', label: 'Chuẩn bị hàng', stepNumber: 3 },
+  { key: 'shipping', label: 'Đang vận chuyển', stepNumber: 4 },
+  { key: 'delivered', label: 'Giao thành công', stepNumber: 5 },
+  { key: 'completed', label: 'Hoàn tất', stepNumber: 6 },
 ];
 
 function getActiveStepIndex(status: OrderStatus): number {
   switch (status) {
-    case 'PENDING_CONFIRMATION':
+    case 'pending':
       return 0;
-    case 'CONFIRMED':
+    case 'confirmed':
       return 1;
-    case 'PREPARING':
+    case 'preparing':
       return 2;
-    case 'SHIPPING':
+    case 'shipping':
       return 3;
-    case 'DELIVERED':
+    case 'delivered':
       return 4;
+    case 'completed':
+      return 5;
     default:
       return -1;
   }
 }
 
 const canBuyAgain = (status: OrderStatus): boolean =>
-  status === 'DELIVERED' || status === 'CANCELLED';
+  status === 'delivered' || status === 'completed' || status === 'cancelled';
 
 export const MyOrderDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -228,7 +236,7 @@ export const MyOrderDetailPage: React.FC = () => {
   }
 
   const activeStepIdx = getActiveStepIndex(order.status);
-  const isCancelled = order.status === 'CANCELLED' || order.status === 'DELIVERY_FAILED';
+  const isCancelled = order.status === 'cancelled' || order.status === 'delivery_failed';
   const meta = statusMeta[order.status] || {
     label: order.status,
     className: 'bg-[#eeeee9] text-[#666666]',
@@ -341,7 +349,7 @@ export const MyOrderDetailPage: React.FC = () => {
                 </button>
               )}
 
-              {order.status === 'PENDING_CONFIRMATION' && (
+              {order.status === 'pending' && (
                 <button
                   type="button"
                   onClick={() => setShowCancelModal(true)}

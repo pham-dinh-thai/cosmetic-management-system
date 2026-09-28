@@ -13,19 +13,20 @@ import {
 } from '../../services/orders.service';
 
 const statusMeta: Record<OrderStatus, { label: string; className: string }> = {
-  PENDING_CONFIRMATION: { label: 'Chờ xác nhận', className: 'bg-[#fcf9e8] text-[#856b10] border border-[#f0e6b5]' },
-  CONFIRMED: { label: 'Đã xác nhận', className: 'bg-[#edf5e6] text-[#1c3a13] border border-[#cbe1be]' },
-  PREPARING: { label: 'Đang chuẩn bị hàng', className: 'bg-[#edf5e6] text-[#1c3a13] border border-[#cbe1be]' },
-  SHIPPING: { label: 'Đang giao', className: 'bg-[#eaf2f8] text-[#19517d] border border-[#bdd8ec]' },
-  DELIVERED: { label: 'Giao thành công', className: 'bg-[#1c3a13] text-[#fcfcf7] border border-[#1c3a13]' },
-  CANCELLED: { label: 'Đã hủy', className: 'bg-[#fdf0ed] text-[#9c2b20] border border-[#f7c7c0]' },
-  DELIVERY_FAILED: { label: 'Giao hàng thất bại', className: 'bg-[#fdf0ed] text-[#9c2b20] border border-[#f7c7c0]' },
-  RETURNED: { label: 'Đã hoàn hàng', className: 'bg-[#fcf9e8] text-[#856b10] border border-[#f0e6b5]' },
-  REFUNDED: { label: 'Đã hoàn tiền', className: 'bg-[#f2f2ee] text-[#555555] border border-[#deded8]' },
+  'pending': { label: 'Chờ xác nhận', className: 'bg-[#fcf9e8] text-[#856b10] border border-[#f0e6b5]' },
+  'confirmed': { label: 'Đã xác nhận', className: 'bg-[#edf5e6] text-[#1c3a13] border border-[#cbe1be]' },
+  'preparing': { label: 'Đang chuẩn bị hàng', className: 'bg-[#edf5e6] text-[#1c3a13] border border-[#cbe1be]' },
+  'shipping': { label: 'Đang giao', className: 'bg-[#eaf2f8] text-[#19517d] border border-[#bdd8ec]' },
+  'delivered': { label: 'Giao thành công', className: 'bg-[#1c3a13] text-[#fcfcf7] border border-[#1c3a13]' },
+  'completed': { label: 'Hoàn tất', className: 'bg-[#1c3a13] text-[#fcfcf7] border border-[#1c3a13]' },
+  'cancelled': { label: 'Đã hủy', className: 'bg-[#fdf0ed] text-[#9c2b20] border border-[#f7c7c0]' },
+  'delivery_failed': { label: 'Giao hàng thất bại', className: 'bg-[#fdf0ed] text-[#9c2b20] border border-[#f7c7c0]' },
+  'returned': { label: 'Đã hoàn hàng', className: 'bg-[#fcf9e8] text-[#856b10] border border-[#f0e6b5]' },
+  'refunded': { label: 'Đã hoàn tiền', className: 'bg-[#f2f2ee] text-[#555555] border border-[#deded8]' },
 };
 
 const canBuyAgain = (status: OrderStatus): boolean =>
-  status === 'DELIVERED' || status === 'CANCELLED';
+  status === 'delivered' || status === 'completed' || status === 'cancelled';
 
 const MyOrdersPage: React.FC = () => {
   const user = useAuthStore((s) => s.user);
@@ -289,7 +290,7 @@ const MyOrdersPage: React.FC = () => {
                       </div>
 
                       <div className="flex items-center gap-3">
-                        {order.status === 'PENDING_CONFIRMATION' && (
+                        {order.status === 'pending' && (
                           <button
                             type="button"
                             onClick={(e) => {

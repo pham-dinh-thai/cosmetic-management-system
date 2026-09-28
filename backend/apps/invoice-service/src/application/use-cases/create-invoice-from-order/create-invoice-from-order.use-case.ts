@@ -1,5 +1,4 @@
 import { Invoice } from '../../../domain/invoice.aggregate';
-import { ICreateReceiptPort } from '../../../domain/ports/create-receipt.port';
 import { InvoicesRepository } from '../../../domain/repositories/invoices.repository';
 import { InvoiceCode } from '../../../domain/value-objects/invoice-code.value-object';
 
@@ -15,7 +14,6 @@ export type CreateInvoiceFromOrderInput = {
 export class CreateInvoiceFromOrderUseCase {
   public constructor(
     private readonly invoicesRepository: InvoicesRepository,
-    private readonly createReceiptPort: ICreateReceiptPort,
   ) {}
 
   public async execute(
@@ -41,24 +39,11 @@ export class CreateInvoiceFromOrderUseCase {
       invoice.applyPayment(input.totalAmount);
     }
 
-    const created = await this.invoicesRepository.create(invoice);
-
-    if (input.paid && input.totalAmount > 0) {
-      await this.createReceiptPort.execute({
-        invoiceId: created.id,
-        customerId: input.customerId,
-        amount: input.totalAmount,
-        note: `Thu tiền bán hàng theo hóa đơn ${invoice.getCode()}`,
-        employeeId: input.employeeId,
-      });
-    }
-
-    return created;
+    return await this.invoicesRepository.create(invoice);
   }
 }
 
 export const createInvoiceFromOrderUseCaseFactory = (
   invoicesRepository: InvoicesRepository,
-  createReceiptPort: ICreateReceiptPort,
 ): CreateInvoiceFromOrderUseCase =>
-  new CreateInvoiceFromOrderUseCase(invoicesRepository, createReceiptPort);
+  new CreateInvoiceFromOrderUseCase(invoicesRepository);

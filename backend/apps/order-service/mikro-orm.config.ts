@@ -1,9 +1,9 @@
 import { join } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import { defineConfig } from '@mikro-orm/postgresql';
-import { Order } from './src/infrastructure/entities/order.entity';
-import { OrderLine } from './src/infrastructure/entities/order-line.entity';
-import { OrderTransaction } from './src/infrastructure/entities/order-transaction.entity';
+import { Order } from './src/shared/infrastructure/entities/order.entity';
+import { OrderLine } from './src/shared/infrastructure/entities/order-line.entity';
+import { OrderTransaction } from './src/shared/infrastructure/entities/order-transaction.entity';
 
 loadEnv({ path: join(__dirname, '../../../.env') });
 

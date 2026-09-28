@@ -25,6 +25,7 @@ export class InternalReceiptsController {
       amount: request.amount,
       note: request.note,
       employeeId: request.employeeId,
+      dedupe: request.dedupe,
     });
 
     return result

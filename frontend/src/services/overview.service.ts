@@ -106,8 +106,8 @@ function daysAgo(days: number, base: Date = new Date()): Date {
 
 export const overviewService = {
   async getOrders(): Promise<Order[]> {
-    const { data } = await api.get<Order[]>("/orders");
-    return data;
+    const { data } = await api.get<{ items: Order[] }>('/orders');
+    return data.items;
   },
 
   async getOrderDetail(id: string): Promise<OrderDetail> {
@@ -144,7 +144,7 @@ export const overviewService = {
     const yesterdayStart = startOfDay(daysAgo(1, now));
 
     const deliveredOrders = orders.filter(
-      (o) => o.status === "DELIVERED",
+      (o) => o.status === "delivered",
     );
 
     const sumInRange = (
@@ -257,49 +257,54 @@ export const overviewService = {
 
     const orderStatusCounts = [
       {
-        status: "PENDING_CONFIRMATION",
+        status: "pending",
         label: "Chờ xác nhận",
-        count: orders.filter((o) => o.status === "PENDING_CONFIRMATION").length,
+        count: orders.filter((o) => o.status === "pending").length,
       },
       {
-        status: "CONFIRMED",
+        status: "confirmed",
         label: "Đã xác nhận",
-        count: orders.filter((o) => o.status === "CONFIRMED").length,
+        count: orders.filter((o) => o.status === "confirmed").length,
       },
       {
-        status: "PREPARING",
+        status: "preparing",
         label: "Đang chuẩn bị hàng",
-        count: orders.filter((o) => o.status === "PREPARING").length,
+        count: orders.filter((o) => o.status === "preparing").length,
       },
       {
-        status: "SHIPPING",
+        status: "shipping",
         label: "Đang giao",
-        count: orders.filter((o) => o.status === "SHIPPING").length,
+        count: orders.filter((o) => o.status === "shipping").length,
       },
       {
-        status: "DELIVERED",
+        status: "delivered",
         label: "Giao thành công",
-        count: orders.filter((o) => o.status === "DELIVERED").length,
+        count: orders.filter((o) => o.status === "delivered").length,
       },
       {
-        status: "CANCELLED",
+        status: "completed",
+        label: "Hoàn tất",
+        count: orders.filter((o) => o.status === "completed").length,
+      },
+      {
+        status: "cancelled",
         label: "Đã hủy",
-        count: orders.filter((o) => o.status === "CANCELLED").length,
+        count: orders.filter((o) => o.status === "cancelled").length,
       },
       {
-        status: "DELIVERY_FAILED",
+        status: "delivery_failed",
         label: "Giao hàng thất bại",
-        count: orders.filter((o) => o.status === "DELIVERY_FAILED").length,
+        count: orders.filter((o) => o.status === "delivery_failed").length,
       },
       {
-        status: "RETURNED",
+        status: "returned",
         label: "Đã hoàn hàng",
-        count: orders.filter((o) => o.status === "RETURNED").length,
+        count: orders.filter((o) => o.status === "returned").length,
       },
       {
-        status: "REFUNDED",
+        status: "refunded",
         label: "Đã hoàn tiền",
-        count: orders.filter((o) => o.status === "REFUNDED").length,
+        count: orders.filter((o) => o.status === "refunded").length,
       },
     ];
 

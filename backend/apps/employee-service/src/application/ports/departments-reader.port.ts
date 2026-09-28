@@ -1,7 +1,5 @@
 export interface IDepartmentsReaderPort {
-  findById(
-    id: string,
-  ): Promise<{
+  findById(id: string): Promise<{
     id: string;
     managerId: string | null;
     isActive: boolean;

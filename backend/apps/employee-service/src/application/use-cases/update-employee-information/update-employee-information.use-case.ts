@@ -53,11 +53,13 @@ export class UpdateEmployeeInformationUseCase {
         error instanceof Error ? error.stack : undefined,
       );
 
-      await this.updateUserInformationPort.execute(employee.getUserId(), {
-        firstName: previousUserInformation.firstName,
-        lastName: previousUserInformation.lastName,
-        gender: previousUserInformation.gender,
-      });
+      if (previousUserInformation) {
+        await this.updateUserInformationPort.execute(employee.getUserId(), {
+          firstName: previousUserInformation.firstName,
+          lastName: previousUserInformation.lastName,
+          gender: previousUserInformation.gender,
+        });
+      }
 
       throw error;
     }

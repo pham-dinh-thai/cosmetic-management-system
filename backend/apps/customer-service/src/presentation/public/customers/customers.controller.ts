@@ -15,7 +15,13 @@ import {
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { AuthGuard, Role, Roles, RolesGuard } from '@app/security';
-import { Audit, AuditAction, paramId, responseId, userSubId } from '@app/audit-client';
+import {
+  Audit,
+  AuditAction,
+  paramId,
+  responseId,
+  userSubId,
+} from '@app/audit-client';
 import { FindAllCustomersUseCase } from 'apps/customer-service/src/application/use-cases/find-customer/find-all/find-all-customers.use-case';
 import { FindAllCustomerReadModel } from 'apps/customer-service/src/application/use-cases/find-customer/find-all/read-models/find-all-customer.read-model';
 import { FindCustomerByIdUseCase } from 'apps/customer-service/src/application/use-cases/find-customer/find-by-id/find-customer-by-id.use-case';

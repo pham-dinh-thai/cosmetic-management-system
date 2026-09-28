@@ -144,6 +144,15 @@
         "tsConfigPath": "libs/audit-client/tsconfig.lib.json"
       }
     },
+    "redis-client": {
+      "type": "library",
+      "root": "libs/redis-client",
+      "entryFile": "index",
+      "sourceRoot": "libs/redis-client/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/redis-client/tsconfig.lib.json"
+      }
+    },
     "supplier-service": {
       "type": "application",
       "root": "apps/supplier-service",

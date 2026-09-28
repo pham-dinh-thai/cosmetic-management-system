@@ -10,7 +10,7 @@ export interface PosOrderItem {
   imageUrl?: string | null;
 }
 
-export type PaymentMethod = "CASH" | "BANK_TRANSFER" | "CARD";
+export type PaymentMethod = "cash" | "bank_transfer" | "card";
 
 export interface CreatePosOrderPayload {
   customerId?: string | null;
@@ -41,17 +41,18 @@ export interface BestSellerItem {
 }
 
 export type OrderStatus =
-  | 'PENDING_CONFIRMATION'
-  | 'CONFIRMED'
-  | 'PREPARING'
-  | 'SHIPPING'
-  | 'DELIVERED'
-  | 'CANCELLED'
-  | 'DELIVERY_FAILED'
-  | 'RETURNED'
-  | 'REFUNDED';
+  | 'pending'
+  | 'confirmed'
+  | 'preparing'
+  | 'shipping'
+  | 'delivered'
+  | 'completed'
+  | 'cancelled'
+  | 'delivery_failed'
+  | 'returned'
+  | 'refunded';
 
-export type OrderPaymentStatus = 'UNPAID' | 'PAID';
+export type OrderPaymentStatus = 'unpaid' | 'paid';
 
 export interface OrderReadModel {
   id: string;
@@ -93,6 +94,14 @@ export interface OrderDetailReadModel {
   updatedAt: string;
 }
 
+export interface OrdersListResult {
+  items: OrderReadModel[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 export const ordersService = {
   async createOrder(payload: CreatePosOrderPayload): Promise<PosOrderResponse> {
     const { data } = await api.post<PosOrderResponse>("/orders/pos", payload);
@@ -111,8 +120,14 @@ export const ordersService = {
     return data;
   },
 
-  async getOrders(params?: { search?: string; status?: OrderStatus; customerId?: string }): Promise<OrderReadModel[]> {
-    const { data } = await api.get<OrderReadModel[]>('/orders', { params });
+  async getOrders(params?: {
+    search?: string;
+    status?: OrderStatus;
+    customerId?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<OrdersListResult> {
+    const { data } = await api.get<OrdersListResult>('/orders', { params });
     return data;
   },
 

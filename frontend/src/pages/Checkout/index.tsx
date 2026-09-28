@@ -95,7 +95,7 @@ const CheckoutPage = () => {
     }
 
     const data = new FormData(form);
-    const paymentMethod = data.get("payment") === "BANK_TRANSFER" ? "BANK_TRANSFER" : "CASH";
+    const paymentMethod = data.get("payment") === "bank_transfer" ? "bank_transfer" : "cash";
 
     setSubmitting(true);
     try {
@@ -274,11 +274,11 @@ const CheckoutPage = () => {
                 <h2 className="text-[18px] text-forest-depths mb-4 mt-4" style={{ fontWeight: 400 }}>Thanh toán</h2>
                 <div className="border-[1.5px] border-warm-stone rounded-lg flex flex-col">
                   <label className="flex items-center gap-4 p-4 border-b border-warm-stone cursor-pointer">
-                    <input type="radio" name="payment" value="CASH" defaultChecked className="accent-forest-depths w-4 h-4" />
+                    <input type="radio" name="payment" value="cash" defaultChecked className="accent-forest-depths w-4 h-4" />
                     <span className="text-forest-depths">Thanh toán khi nhận hàng (COD)</span>
                   </label>
                   <label className="flex items-center gap-4 p-4 cursor-pointer bg-snow-white/50">
-                    <input type="radio" name="payment" value="BANK_TRANSFER" className="accent-forest-depths w-4 h-4" />
+                    <input type="radio" name="payment" value="bank_transfer" className="accent-forest-depths w-4 h-4" />
                     <span className="text-forest-depths">Chuyển khoản ngân hàng</span>
                   </label>
                 </div>

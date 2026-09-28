@@ -39,7 +39,7 @@ export function useOrders() {
     try {
       setLoading(true);
       const data = await ordersService.getOrders();
-      setOrders(data);
+      setOrders(data.items);
     } catch (error) {
       console.error(error);
       toast.error('Lỗi khi tải danh sách đơn hàng');
@@ -102,7 +102,7 @@ export function useOrders() {
     order: OrderReadModel,
     nextPaymentStatus: OrderPaymentStatus,
   ) => {
-    if (order.paymentStatus === 'PAID') {
+    if (order.paymentStatus === 'paid') {
       toast.error('Đơn hàng đã thanh toán, không thể thay đổi lại trạng thái.');
       return;
     }
@@ -110,7 +110,7 @@ export function useOrders() {
     try {
       await ordersService.updateOrderPaymentStatus(order.id, nextPaymentStatus);
       toast.success(
-        nextPaymentStatus === 'PAID'
+        nextPaymentStatus === 'paid'
           ? 'Đã cập nhật: Đã thanh toán'
           : 'Đã cập nhật: Chưa thanh toán'
       );

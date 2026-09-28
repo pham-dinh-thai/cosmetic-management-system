@@ -16,9 +16,9 @@ export const formatVND = (value: number) =>
   new Intl.NumberFormat("vi-VN").format(Math.round(value)) + "₫";
 
 export const PAYMENT_OPTIONS: PaymentOption[] = [
-  { value: "CASH", label: "Tiền mặt" },
-  { value: "BANK_TRANSFER", label: "Chuyển khoản" },
-  { value: "CARD", label: "Thẻ" },
+  { value: "cash", label: "Tiền mặt" },
+  { value: "bank_transfer", label: "Chuyển khoản" },
+  { value: "card", label: "Thẻ" },
 ];
 
 export const EMPTY_CUSTOMER: NewCustomerDraft = {
@@ -61,7 +61,7 @@ export function usePosPage() {
   const [addingCustomer, setAddingCustomer] = useState(false);
 
   const [cart, setCart] = useState<CartItem[]>([]);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("CASH");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cash");
   const [checkingOut, setCheckingOut] = useState(false);
 
   useEffect(() => {
