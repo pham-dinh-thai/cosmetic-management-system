@@ -14,7 +14,7 @@ import { CreateEmployeeUseCase } from 'apps/employee-service/src/application/use
 import { UpdateEmployeeInformationUseCase } from 'apps/employee-service/src/application/use-cases/update-employee-information/update-employee-information.use-case';
 import { CreateEmployeeRequest } from './requests/create-employee.request';
 import { UpdateEmployeeInformationRequest } from './requests/update-employee-information.request';
-import { AuthGuard, Role, Roles, RolesGuard } from '@app/security';
+import { AuthGuard, Permissions, PermissionsGuard } from '@app/security';
 import { Audit, AuditAction, paramId } from '@app/audit-client';
 import { AssignDepartmentToEmployeeUseCase } from 'apps/employee-service/src/application/use-cases/assign-department-to-employee/assign-department-to-employee.use-case';
 import { AssignDepartmentToEmployeeRequest } from './requests/assign-department-to-employee.request';
@@ -27,8 +27,8 @@ import { ActivateEmployeeUseCase } from 'apps/employee-service/src/application/u
 import { DeactivateEmployeeUseCase } from 'apps/employee-service/src/application/use-cases/deactivate-employee/deactivate-employee.use-case';
 
 @Controller('employees')
-@UseGuards(AuthGuard, RolesGuard)
-@Roles(Role.Admin)
+@UseGuards(AuthGuard, PermissionsGuard)
+@Permissions('employees:read')
 export class EmployeesController {
   public constructor(
     private readonly createEmployeeUseCase: CreateEmployeeUseCase,
@@ -46,12 +46,14 @@ export class EmployeesController {
     return await this.findAllEmployeesUseCase.execute();
   }
 
+  @Permissions('employees:write')
   @Post()
   @Audit({ entityType: 'employee', action: AuditAction.CREATE })
   public async create(@Body() request: CreateEmployeeRequest): Promise<void> {
     await this.createEmployeeUseCase.execute(request);
   }
 
+  @Permissions('employees:write')
   @Patch(':id')
   @Audit({
     entityType: 'employee',
@@ -65,6 +67,7 @@ export class EmployeesController {
     await this.updateEmployeeInformationUseCase.execute(id, request);
   }
 
+  @Permissions('employees:write')
   @Patch(':id/department')
   @Audit({
     entityType: 'employee',
@@ -78,6 +81,7 @@ export class EmployeesController {
     await this.assignDepartmentToEmployeeUseCase.execute(id, request);
   }
 
+  @Permissions('employees:write')
   @Patch(':id/position')
   @Audit({
     entityType: 'employee',
@@ -92,6 +96,7 @@ export class EmployeesController {
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
+  @Permissions('employees:delete')
   @Delete(':id')
   @Audit({
     entityType: 'employee',
@@ -103,6 +108,7 @@ export class EmployeesController {
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
+  @Permissions('employees:write')
   @Patch(':id/activate')
   @Audit({
     entityType: 'employee',
@@ -114,6 +120,7 @@ export class EmployeesController {
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
+  @Permissions('employees:write')
   @Patch(':id/deactivate')
   @Audit({
     entityType: 'employee',

@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { CreateDepartmentUseCase } from 'apps/department-service/src/application/use-cases/create-department/create-department.use-case';
 import { CreateDepartmentRequest } from './requests/create-department.request';
-import { AuthGuard, Role, Roles, RolesGuard } from '@app/security';
+import { AuthGuard, Permissions, PermissionsGuard } from '@app/security';
 import { Audit, AuditAction, paramId } from '@app/audit-client';
 import { UpdateDepartmentUseCase } from 'apps/department-service/src/application/use-cases/update-department/update-department.use-case';
 import { UpdateDepartmentRequest } from './requests/update-department.request';
@@ -26,8 +26,8 @@ import { AssignManagerToDepartmentUseCase } from 'apps/department-service/src/ap
 import { AssignManagerToDepartmentRequest } from './requests/assign-manager-to-department.request';
 
 @Controller('departments')
-@UseGuards(AuthGuard, RolesGuard)
-@Roles(Role.Admin)
+@UseGuards(AuthGuard, PermissionsGuard)
+@Permissions('departments:read')
 export class DepartmentsController {
   public constructor(
     private readonly findAllDepartmentUseCase: FindAllDepartmentUseCase,
@@ -44,12 +44,14 @@ export class DepartmentsController {
     return await this.findAllDepartmentUseCase.execute();
   }
 
+  @Permissions('departments:write')
   @Post()
   @Audit({ entityType: 'department', action: AuditAction.CREATE })
   public async create(@Body() request: CreateDepartmentRequest): Promise<void> {
     await this.createDepartmentUseCase.execute(request);
   }
 
+  @Permissions('departments:write')
   @Put(':id')
   @Audit({
     entityType: 'department',
@@ -63,6 +65,7 @@ export class DepartmentsController {
     await this.updateDepartmentUseCase.execute(id, request);
   }
 
+  @Permissions('departments:delete')
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Audit({
@@ -74,6 +77,7 @@ export class DepartmentsController {
     await this.deleteDepartmentUseCase.execute(id);
   }
 
+  @Permissions('departments:write')
   @Patch(':id/deactivate')
   @Audit({
     entityType: 'department',
@@ -84,6 +88,7 @@ export class DepartmentsController {
     await this.deactivateDepartmentUseCase.execute(id);
   }
 
+  @Permissions('departments:write')
   @Patch(':id/activate')
   @Audit({
     entityType: 'department',
@@ -94,6 +99,7 @@ export class DepartmentsController {
     await this.activateDepartmentUseCase.execute(id);
   }
 
+  @Permissions('departments:write')
   @Patch(':id/manager')
   @Audit({
     entityType: 'department',

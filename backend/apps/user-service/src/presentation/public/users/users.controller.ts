@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
-import { AuthGuard, Role, Roles, RolesGuard } from '@app/security';
+import { AuthGuard, Permissions, PermissionsGuard } from '@app/security';
 import { Audit, AuditAction, paramId } from '@app/audit-client';
 import { UpdateUserRoleRequest } from './requests/update-user-role.request';
 import { UpdateUserRoleUseCase } from 'apps/user-service/src/application/use-cases/update-user-role/update-user-role.use-case';
@@ -8,8 +8,8 @@ import { FindAllUserReadModel } from 'apps/user-service/src/application/use-case
 import { ActivateUserUseCase } from 'apps/user-service/src/application/use-cases/activate-user/activate-user.use-case';
 import { DeactivateUserUseCase } from 'apps/user-service/src/application/use-cases/deactivate-user/deactivate-user.use-case';
 
-@UseGuards(AuthGuard, RolesGuard)
-@Roles(Role.Admin)
+@UseGuards(AuthGuard, PermissionsGuard)
+@Permissions('users:read')
 @Controller('users')
 export class UsersController {
   public constructor(
@@ -24,6 +24,7 @@ export class UsersController {
     return await this.findAllUserUseCase.execute();
   }
 
+  @Permissions('users:write')
   @Patch(':id/role')
   @Audit({
     entityType: 'user',
@@ -37,6 +38,7 @@ export class UsersController {
     await this.updateUserRoleUseCase.execute(id, request);
   }
 
+  @Permissions('users:write')
   @Patch(':id/activate')
   @Audit({
     entityType: 'user',
@@ -47,6 +49,7 @@ export class UsersController {
     await this.activateUserUseCase.execute(id);
   }
 
+  @Permissions('users:write')
   @Patch(':id/deactivate')
   @Audit({
     entityType: 'user',
