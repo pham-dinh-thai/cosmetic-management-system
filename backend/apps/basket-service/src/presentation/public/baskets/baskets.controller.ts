@@ -12,7 +12,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import type { Request } from 'express';
-import { AuthGuard, Role, Roles, RolesGuard } from '@app/security';
+import { AuthGuard } from '@app/security';
 import { GetCartUseCase } from 'apps/basket-service/src/application/use-cases/get-cart/get-cart.use-case';
 import { CartReadModel } from 'apps/basket-service/src/application/use-cases/get-cart/get-cart.read-model';
 import { AddCartItemUseCase } from 'apps/basket-service/src/application/use-cases/add-cart-item/add-cart-item.use-case';
@@ -21,8 +21,7 @@ import { RemoveCartItemUseCase } from 'apps/basket-service/src/application/use-c
 import { AddCartItemRequest } from './requests/add-cart-item.request';
 import { UpdateCartItemRequest } from './requests/update-cart-item.request';
 
-@UseGuards(AuthGuard, RolesGuard)
-@Roles(Role.Customer)
+@UseGuards(AuthGuard)
 @Controller('baskets')
 export class BasketsController {
   public constructor(

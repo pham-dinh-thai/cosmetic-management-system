@@ -14,7 +14,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import type { Request } from 'express';
-import { AuthGuard, Role, Roles, RolesGuard } from '@app/security';
+import { AuthGuard, Permissions, PermissionsGuard } from '@app/security';
 import {
   Audit,
   AuditAction,
@@ -43,8 +43,8 @@ import { ActivateCustomerUseCase } from 'apps/customer-service/src/application/u
 import { DeactivateCustomerUseCase } from 'apps/customer-service/src/application/use-cases/deactivate-customer/deactivate-customer.use-case';
 import { CustomerNotFoundException } from 'apps/customer-service/src/domain/exceptions/customer-not-found.exception';
 
-@UseGuards(AuthGuard, RolesGuard)
-@Roles(Role.Admin, Role.Employee)
+@UseGuards(AuthGuard, PermissionsGuard)
+@Permissions('customers:read')
 @Controller('customers')
 export class CustomersController {
   public constructor(
@@ -69,7 +69,7 @@ export class CustomersController {
     return await this.findAllCustomersUseCase.execute(search);
   }
 
-  @Roles(Role.Customer, Role.Admin, Role.Employee)
+  @Permissions()
   @Get('me')
   public async findMe(
     @Req() request: Request,
@@ -88,7 +88,7 @@ export class CustomersController {
     return await this.findCustomerByIdUseCase.execute(customer.id);
   }
 
-  @Roles(Role.Customer, Role.Admin, Role.Employee)
+  @Permissions()
   @Post('me')
   @Audit({
     entityType: 'customer',
@@ -127,6 +127,7 @@ export class CustomersController {
     return await this.findCustomerByIdUseCase.execute(id);
   }
 
+  @Permissions('customers:write')
   @Post()
   @Audit({
     entityType: 'customer',
@@ -139,7 +140,7 @@ export class CustomersController {
     return await this.createCustomerUseCase.execute(request);
   }
 
-  @Roles(Role.Customer, Role.Admin, Role.Employee)
+  @Permissions()
   @HttpCode(HttpStatus.NO_CONTENT)
   @Put('me')
   @Audit({
@@ -163,6 +164,7 @@ export class CustomersController {
     await this.updateCustomerUseCase.execute(customer.id, body);
   }
 
+  @Permissions('customers:write')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Put(':id')
   @Audit({
@@ -177,6 +179,7 @@ export class CustomersController {
     await this.updateCustomerUseCase.execute(id, request);
   }
 
+  @Permissions('customers:delete')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   @Audit({
@@ -188,6 +191,7 @@ export class CustomersController {
     await this.deleteCustomerUseCase.execute(id);
   }
 
+  @Permissions('customers:write')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id/activate')
   @Audit({
@@ -199,6 +203,7 @@ export class CustomersController {
     await this.activateCustomerUseCase.execute(id);
   }
 
+  @Permissions('customers:write')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id/deactivate')
   @Audit({
@@ -210,6 +215,7 @@ export class CustomersController {
     await this.deactivateCustomerUseCase.execute(id);
   }
 
+  @Permissions('customers:write')
   @Post(':id/addresses')
   @Audit({
     entityType: 'customer-address',
@@ -223,6 +229,7 @@ export class CustomersController {
     await this.addAddressUseCase.execute(id, request);
   }
 
+  @Permissions('customers:write')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id/addresses/:addressId')
   @Audit({
@@ -237,6 +244,7 @@ export class CustomersController {
     await this.removeAddressUseCase.execute(id, addressId);
   }
 
+  @Permissions('customers:write')
   @Post(':id/phones')
   @Audit({
     entityType: 'customer-phone',
@@ -250,6 +258,7 @@ export class CustomersController {
     await this.addPhoneUseCase.execute(id, request);
   }
 
+  @Permissions('customers:write')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id/phones/:phoneId')
   @Audit({
