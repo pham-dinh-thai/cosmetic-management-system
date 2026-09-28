@@ -31,9 +31,6 @@ type MyOrderDetailView = Omit<MyOrderDetailReadModel, 'lines'> & {
   lines: MyOrderDetailLine[];
 };
 
-// Chỉ yêu cầu đăng nhập: mọi vai trò (kể cả role tùy chỉnh như
-// warehouse-manager, sales-employee) đều xem được đơn của chính mình.
-// Việc sở hữu đơn được kiểm tra bên trong qua customerId của user.
 @UseGuards(AuthGuard)
 @Controller('orders')
 export class MyOrdersController {
