@@ -7,4 +7,4 @@ export interface IFinalizeInvoicePort {
   execute(input: FinalizeInvoiceInput): Promise<void>;
 }
 
-export const FINALIZE_INVOICE_PORT = 'IFinalizeInvoicePort';
+export const FINALIZE_INVOICE_PORT = 'IOrdersFinalizeInvoicePort';

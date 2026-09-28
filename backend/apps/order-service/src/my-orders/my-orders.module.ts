@@ -20,7 +20,7 @@ import { CREATE_INVOICE_PORT } from './application/ports/create-invoice.port';
 import { FINALIZE_INVOICE_PORT } from './application/ports/finalize-invoice.port';
 import { RESTORE_STOCK_PORT } from './application/ports/restore-stock.port';
 import { CUSTOMER_ID_READER_PORT } from './application/ports/customer-id-reader.port';
-import { CUSTOMER_NAME_READER_PORT } from './application/ports/customer-name-reader.port';
+import { MY_ORDERS_CUSTOMER_NAME_READER_PORT } from './application/ports/customer-name-reader.port';
 import { VARIANT_LABEL_READER_PORT } from './application/ports/variant-label-reader.port';
 import { VariantsReaderAdapter } from './infrastructure/adapters/variants-reader.adapter';
 import { RemoveStockAdapter } from './infrastructure/adapters/remove-stock.adapter';
@@ -113,7 +113,7 @@ import {
       inject: [ConfigService],
     },
     {
-      provide: CUSTOMER_NAME_READER_PORT,
+      provide: MY_ORDERS_CUSTOMER_NAME_READER_PORT,
       useFactory: (config: ConfigService, redis: Redis) =>
         new CustomerNameReaderAdapter(config, redis),
       inject: [ConfigService, REDIS_CLIENT],
@@ -141,12 +141,12 @@ import {
     {
       provide: FindMyOrdersUseCase,
       useFactory: findMyOrdersUseCaseFactory,
-      inject: [MY_ORDERS_REPOSITORY, CUSTOMER_NAME_READER_PORT],
+      inject: [MY_ORDERS_REPOSITORY, MY_ORDERS_CUSTOMER_NAME_READER_PORT],
     },
     {
       provide: ViewMyOrderUseCase,
       useFactory: viewMyOrderUseCaseFactory,
-      inject: [MY_ORDERS_REPOSITORY, CUSTOMER_NAME_READER_PORT],
+      inject: [MY_ORDERS_REPOSITORY, MY_ORDERS_CUSTOMER_NAME_READER_PORT],
     },
     {
       provide: CancelMyOrderUseCase,

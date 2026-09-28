@@ -8,4 +8,4 @@ export interface ICustomerNameReaderPort {
   getCustomerLabel(customerId: string): Promise<CustomerLabel | null>;
 }
 
-export const CUSTOMER_NAME_READER_PORT = 'ICustomerNameReaderPort';
+export const CUSTOMER_NAME_READER_PORT = 'IOrdersCustomerNameReaderPort';
