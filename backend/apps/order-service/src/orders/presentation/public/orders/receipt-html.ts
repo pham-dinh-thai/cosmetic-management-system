@@ -126,8 +126,7 @@ export function renderOrderReceiptHtml(receipt: OrderReceipt): string {
   .barcode-section { display: flex; flex-direction: column; align-items: center; margin-bottom: 4px; }
   .barcode { width: 80%; height: 12mm; background: repeating-linear-gradient(90deg, #111 0 1.5px, transparent 1.5px 3px, #111 3px 6px, transparent 6px 7.5px, #111 7.5px 9px, transparent 9px 12px, #111 12px 13.5px, transparent 13.5px 15px); margin: 0 auto; }
 
-  .footer { display: flex; justify-content: space-between; align-items: center; font-size: 11px; margin-top: 4px; font-weight: 600; }
-  .phone-icon { font-size: 12px; margin-right: 2px; }
+  .footer { text-align: center; font-size: 11px; margin-top: 4px; font-weight: 600; }
 
   @media print { body { background: #fff; } .toolbar { display: none; } .receipt { box-shadow: none; margin: 0; padding: 0; } }
 </style>
@@ -186,7 +185,6 @@ export function renderOrderReceiptHtml(receipt: OrderReceipt): string {
 
     <div class="footer">
       <div>Mã HĐ: ${escapeHtml(receipt.code)}</div>
-      <div><span class="phone-icon">&#9742;</span> 2471066866-41791</div>
     </div>
   </main>
 </body>
