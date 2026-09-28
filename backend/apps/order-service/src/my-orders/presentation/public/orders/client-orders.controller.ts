@@ -6,12 +6,12 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard, RolesGuard } from '@app/security';
+import { AuthGuard } from '@app/security';
 import { Audit, AuditAction, responseId } from '@app/audit-client';
 import { PlaceOrderUseCase } from '../../../application/use-cases/place-order/place-order.use-case';
 import { PlaceOrderRequest } from './requests/place-order.request';
 
-@UseGuards(AuthGuard, RolesGuard)
+@UseGuards(AuthGuard)
 @Controller('orders')
 export class ClientOrdersController {
   public constructor(private readonly placeOrderUseCase: PlaceOrderUseCase) {}

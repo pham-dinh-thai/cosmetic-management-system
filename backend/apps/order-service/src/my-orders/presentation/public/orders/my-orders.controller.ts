@@ -9,7 +9,7 @@ import {
   Patch,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard, CurrentUser, Role, Roles, RolesGuard } from '@app/security';
+import { AuthGuard, CurrentUser } from '@app/security';
 import { Audit, AuditAction, paramId } from '@app/audit-client';
 import { FindMyOrdersUseCase } from '../../../application/use-cases/find-my-orders/find-my-orders.use-case';
 import { ViewMyOrderUseCase } from '../../../application/use-cases/view-my-order/view-my-order.use-case';
@@ -31,8 +31,10 @@ type MyOrderDetailView = Omit<MyOrderDetailReadModel, 'lines'> & {
   lines: MyOrderDetailLine[];
 };
 
-@UseGuards(AuthGuard, RolesGuard)
-@Roles(Role.Customer, Role.Admin, Role.Employee)
+// Chỉ yêu cầu đăng nhập: mọi vai trò (kể cả role tùy chỉnh như
+// warehouse-manager, sales-employee) đều xem được đơn của chính mình.
+// Việc sở hữu đơn được kiểm tra bên trong qua customerId của user.
+@UseGuards(AuthGuard)
 @Controller('orders')
 export class MyOrdersController {
   public constructor(
