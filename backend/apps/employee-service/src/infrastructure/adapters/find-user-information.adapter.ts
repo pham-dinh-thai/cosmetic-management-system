@@ -2,7 +2,10 @@ import {
   BadRequestException,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { IFindUserInformationPort } from '../../application/use-cases/update-employee-information/ports/find-user-information.port';
+import {
+  IFindUserInformationPort,
+  UserInformation,
+} from '../../application/use-cases/update-employee-information/ports/find-user-information.port';
 import { ConfigService } from '@nestjs/config';
 import { type IEmployeeLoggerPort } from '../../application/ports/employee-logger.port';
 
@@ -18,13 +21,7 @@ export class FindUserInformationAdapter implements IFindUserInformationPort {
     this.url = this.config.getOrThrow<string>('USER_SERVICE_URL');
   }
 
-  public async execute(userId: string): Promise<{
-    firstName: string;
-    lastName: string;
-    gender: string;
-    email?: string;
-    roleId?: string;
-  }> {
+  public async execute(userId: string): Promise<UserInformation | null> {
     const response = await fetch(
       `${this.url}/api/internal/users/by-id/${userId}`,
     );
@@ -43,14 +40,12 @@ export class FindUserInformationAdapter implements IFindUserInformationPort {
     }
 
     const text = await response.text();
-    const body: unknown = JSON.parse(text);
 
-    return body as {
-      firstName: string;
-      lastName: string;
-      gender: string;
-      email?: string;
-      roleId?: string;
-    };
+    if (!text.trim()) {
+      this.logger.warn(`User ${userId} not found`);
+      return null;
+    }
+
+    return JSON.parse(text) as UserInformation;
   }
 }

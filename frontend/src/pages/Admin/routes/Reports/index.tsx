@@ -671,9 +671,9 @@ const ReportsPage: React.FC = () => {
                           </td>
                           <td className="py-3 px-3 text-[#666666] text-[12px]">
                             <span className="inline-block rounded px-2 py-0.5 bg-[#eeeee9]">
-                              {o.paymentMethod === "CASH"
+                              {o.paymentMethod === "cash"
                                 ? "Tiền mặt (COD)"
-                                : o.paymentMethod === "BANK_TRANSFER"
+                                : o.paymentMethod === "bank_transfer"
                                   ? "Chuyển khoản"
                                   : o.paymentMethod}
                             </span>
@@ -681,18 +681,18 @@ const ReportsPage: React.FC = () => {
                           <td className="py-3 px-3 text-[12px]">
                             <span
                               className={`inline-block px-2.5 py-0.5 rounded-full font-medium text-[11px] ${
-                                o.status === "DELIVERED"
+                                o.status === "delivered"
                                   ? "bg-[#d3fa99]/40 text-[#1c3a13]"
-                                  : o.status === "CANCELLED"
+                                  : o.status === "cancelled"
                                     ? "bg-[#ffdede] text-[#8f3f2a]"
                                     : "bg-[#eeeee9] text-[#757c5d]"
                               }`}
                             >
-                              {o.status === "DELIVERED"
+                              {o.status === "delivered"
                                 ? "Giao thành công"
-                                : o.status === "CANCELLED"
+                                : o.status === "cancelled"
                                   ? "Đã hủy"
-                                  : o.status === "SHIPPING"
+                                  : o.status === "shipping"
                                     ? "Đang giao"
                                     : "Đang xử lý"}
                             </span>

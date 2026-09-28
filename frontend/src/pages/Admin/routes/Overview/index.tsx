@@ -15,15 +15,16 @@ function formatCompact(amount: number): string {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  PENDING_CONFIRMATION: "#9f995b",
-  CONFIRMED: "#757c5d",
-  PREPARING: "#757c5d",
-  SHIPPING: "#2a4a6b",
-  DELIVERED: "#1c3a13",
-  CANCELLED: "#8f3f2a",
-  DELIVERY_FAILED: "#8f3f2a",
-  RETURNED: "#9f995b",
-  REFUNDED: "#666666",
+  'pending': "#9f995b",
+  'confirmed': "#757c5d",
+  'preparing': "#757c5d",
+  'shipping': "#2a4a6b",
+  'delivered': "#1c3a13",
+  'completed': "#1c3a13",
+  'cancelled': "#8f3f2a",
+  'delivery_failed': "#8f3f2a",
+  'returned': "#9f995b",
+  'refunded': "#666666",
 };
 
 const Overview: React.FC = () => {

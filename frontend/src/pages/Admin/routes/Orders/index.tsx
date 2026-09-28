@@ -11,38 +11,40 @@ import type {
 
 const STATUS_OPTIONS = [
   { value: 'all', label: 'Tất cả trạng thái' },
-  { value: 'PENDING_CONFIRMATION', label: 'Chờ xác nhận' },
-  { value: 'CONFIRMED', label: 'Đã xác nhận' },
-  { value: 'PREPARING', label: 'Đang chuẩn bị hàng' },
-  { value: 'SHIPPING', label: 'Đang giao' },
-  { value: 'DELIVERED', label: 'Giao thành công' },
-  { value: 'CANCELLED', label: 'Đã hủy' },
-  { value: 'DELIVERY_FAILED', label: 'Giao hàng thất bại' },
-  { value: 'RETURNED', label: 'Đã hoàn hàng' },
-  { value: 'REFUNDED', label: 'Đã hoàn tiền' },
+  { value: 'pending', label: 'Chờ xác nhận' },
+  { value: 'confirmed', label: 'Đã xác nhận' },
+  { value: 'preparing', label: 'Đang chuẩn bị hàng' },
+  { value: 'shipping', label: 'Đang giao' },
+  { value: 'delivered', label: 'Giao thành công' },
+  { value: 'completed', label: 'Hoàn tất' },
+  { value: 'cancelled', label: 'Đã hủy' },
+  { value: 'delivery_failed', label: 'Giao hàng thất bại' },
+  { value: 'returned', label: 'Đã hoàn hàng' },
+  { value: 'refunded', label: 'Đã hoàn tiền' },
 ];
 
 const statusMeta: Record<OrderStatus, { label: string; className: string }> = {
-  PENDING_CONFIRMATION: { label: 'Chờ xác nhận', className: 'bg-[#f3f0d9] text-[#9f995b]' },
-  CONFIRMED: { label: 'Đã xác nhận', className: 'bg-[#e3ecd9] text-[#1c3a13]' },
-  PREPARING: { label: 'Đang chuẩn bị hàng', className: 'bg-[#e3ecd9] text-[#1c3a13]' },
-  SHIPPING: { label: 'Đang giao', className: 'bg-[#dbe7f0] text-[#2a4a6b]' },
-  DELIVERED: { label: 'Giao thành công', className: 'bg-[#1c3a13] text-[#fcfcf7]' },
-  CANCELLED: { label: 'Đã hủy', className: 'bg-[#f0ded9] text-[#8f3f2a]' },
-  DELIVERY_FAILED: { label: 'Giao hàng thất bại', className: 'bg-[#f0ded9] text-[#8f3f2a]' },
-  RETURNED: { label: 'Đã hoàn hàng', className: 'bg-[#f3f0d9] text-[#9f995b]' },
-  REFUNDED: { label: 'Đã hoàn tiền', className: 'bg-[#eeeee9] text-[#666666]' },
+  'pending': { label: 'Chờ xác nhận', className: 'bg-[#f3f0d9] text-[#9f995b]' },
+  'confirmed': { label: 'Đã xác nhận', className: 'bg-[#e3ecd9] text-[#1c3a13]' },
+  'preparing': { label: 'Đang chuẩn bị hàng', className: 'bg-[#e3ecd9] text-[#1c3a13]' },
+  'shipping': { label: 'Đang giao', className: 'bg-[#dbe7f0] text-[#2a4a6b]' },
+  'delivered': { label: 'Giao thành công', className: 'bg-[#1c3a13] text-[#fcfcf7]' },
+  'completed': { label: 'Hoàn tất', className: 'bg-[#1c3a13] text-[#fcfcf7]' },
+  'cancelled': { label: 'Đã hủy', className: 'bg-[#f0ded9] text-[#8f3f2a]' },
+  'delivery_failed': { label: 'Giao hàng thất bại', className: 'bg-[#f0ded9] text-[#8f3f2a]' },
+  'returned': { label: 'Đã hoàn hàng', className: 'bg-[#f3f0d9] text-[#9f995b]' },
+  'refunded': { label: 'Đã hoàn tiền', className: 'bg-[#eeeee9] text-[#666666]' },
 };
 
 const paymentStatusMeta: Record<OrderPaymentStatus, { label: string; className: string }> = {
-  UNPAID: { label: 'Chưa thanh toán', className: 'bg-[#f3f0d9] text-[#9f995b]' },
-  PAID: { label: 'Đã thanh toán', className: 'bg-[#e3ecd9] text-[#1c3a13]' },
+  'unpaid': { label: 'Chưa thanh toán', className: 'bg-[#f3f0d9] text-[#9f995b]' },
+  'paid': { label: 'Đã thanh toán', className: 'bg-[#e3ecd9] text-[#1c3a13]' },
 };
 
 const PAYMENT_METHOD_LABEL: Record<string, string> = {
-  CASH: 'Tiền mặt',
-  BANK_TRANSFER: 'Chuyển khoản',
-  CARD: 'Thẻ',
+  'cash': 'Tiền mặt',
+  'bank_transfer': 'Chuyển khoản',
+  'card': 'Thẻ',
 };
 
 type NextAction = {
@@ -52,31 +54,32 @@ type NextAction = {
 };
 
 const NEXT_ACTIONS: Record<OrderStatus, NextAction[]> = {
-  PENDING_CONFIRMATION: [
-    { status: 'CONFIRMED', label: 'Xác nhận' },
-    { status: 'CANCELLED', label: 'Hủy đơn', destructive: true },
+  'pending': [
+    { status: 'confirmed', label: 'Xác nhận' },
+    { status: 'cancelled', label: 'Hủy đơn', destructive: true },
   ],
-  CONFIRMED: [
-    { status: 'PREPARING', label: 'Chuẩn bị hàng' },
-    { status: 'CANCELLED', label: 'Hủy đơn', destructive: true },
+  'confirmed': [
+    { status: 'preparing', label: 'Chuẩn bị hàng' },
+    { status: 'cancelled', label: 'Hủy đơn', destructive: true },
   ],
-  PREPARING: [
-    { status: 'SHIPPING', label: 'Bắt đầu giao' },
-    { status: 'CANCELLED', label: 'Hủy đơn', destructive: true },
+  'preparing': [
+    { status: 'shipping', label: 'Bắt đầu giao' },
+    { status: 'cancelled', label: 'Hủy đơn', destructive: true },
   ],
-  SHIPPING: [
-    { status: 'DELIVERED', label: 'Giao thành công' },
-    { status: 'DELIVERY_FAILED', label: 'Giao thất bại', destructive: true },
-    { status: 'CANCELLED', label: 'Hủy đơn', destructive: true },
+  'shipping': [
+    { status: 'delivered', label: 'Giao thành công' },
+    { status: 'delivery_failed', label: 'Giao thất bại', destructive: true },
+    { status: 'cancelled', label: 'Hủy đơn', destructive: true },
   ],
-  DELIVERED: [],
-  CANCELLED: [{ status: 'REFUNDED', label: 'Đã hoàn tiền' }],
-  DELIVERY_FAILED: [
-    { status: 'RETURNED', label: 'Đã hoàn hàng' },
-    { status: 'CANCELLED', label: 'Hủy đơn', destructive: true },
+  'delivered': [{ status: 'completed', label: 'Hoàn tất' }],
+  'completed': [{ status: 'returned', label: 'Đã hoàn hàng' }],
+  'cancelled': [{ status: 'refunded', label: 'Đã hoàn tiền' }],
+  'delivery_failed': [
+    { status: 'returned', label: 'Đã hoàn hàng' },
+    { status: 'cancelled', label: 'Hủy đơn', destructive: true },
   ],
-  RETURNED: [{ status: 'REFUNDED', label: 'Đã hoàn tiền' }],
-  REFUNDED: [],
+  'returned': [{ status: 'refunded', label: 'Đã hoàn tiền' }],
+  'refunded': [],
 };
 
 const OrdersPage: React.FC = () => {
@@ -135,7 +138,7 @@ const OrdersPage: React.FC = () => {
           const badgeClass = `inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em] whitespace-nowrap ${paymentStatusMeta[o.paymentStatus]?.className || 'bg-[#eeeee9] text-[#666666]'}`;
 
           // Nếu đã thanh toán thì chặn không cho đổi nữa (hiển thị badge tĩnh)
-          if (o.paymentStatus === 'PAID') {
+          if (o.paymentStatus === 'paid') {
             return (
               <span className={badgeClass}>
                 {paymentStatusMeta[o.paymentStatus]?.label || o.paymentStatus}
@@ -154,8 +157,8 @@ const OrdersPage: React.FC = () => {
               }}
               className={`${badgeClass} border-0 cursor-pointer focus:outline-none whitespace-nowrap`}
             >
-              <option value="UNPAID">Chưa thanh toán</option>
-              <option value="PAID">Đã thanh toán</option>
+              <option value="unpaid">Chưa thanh toán</option>
+              <option value="paid">Đã thanh toán</option>
             </select>
           );
         },

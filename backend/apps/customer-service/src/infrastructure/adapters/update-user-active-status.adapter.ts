@@ -2,9 +2,7 @@ import { BadRequestException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { IUpdateUserActiveStatusPort } from '../../application/use-cases/update-customer/ports/update-user-active-status.port';
 
-export class UpdateUserActiveStatusAdapter
-  implements IUpdateUserActiveStatusPort
-{
+export class UpdateUserActiveStatusAdapter implements IUpdateUserActiveStatusPort {
   private readonly logger = new Logger(UpdateUserActiveStatusAdapter.name);
   private readonly url: string;
 
@@ -36,9 +34,7 @@ export class UpdateUserActiveStatusAdapter
       );
 
       if (response.status >= 400 && response.status < 500) {
-        throw new BadRequestException(
-          `Failed to ${action} user account`,
-        );
+        throw new BadRequestException(`Failed to ${action} user account`);
       }
 
       throw new Error(`Failed to ${action} user account`);

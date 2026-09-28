@@ -3,7 +3,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { OrderServiceModule } from './order-service.module';
 import { ORDER_SERVICE_PORT } from 'constants/ports';
-import { DomainErrorFilter } from './presentation/filters/domain-error.filter';
+import { DomainErrorFilter } from './shared/presentation/filters/domain-error.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(OrderServiceModule);

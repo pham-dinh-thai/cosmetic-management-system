@@ -2,7 +2,10 @@ import { CustomerNotFoundException } from '../../../domain/exceptions/customer-n
 import { type ICustomersRepository } from '../../../domain/repositories/customers.repository';
 import { IUpdateCustomerRequest } from './update-customer.request';
 import { type IUpdateUserInformationPort } from './ports/update-user-information.port';
-import { type IFindUserInformationPort } from './ports/find-user-information.port';
+import {
+  type IFindUserInformationPort,
+  type UserInformation,
+} from './ports/find-user-information.port';
 import { PhoneValidationService } from '../../../domain/services/phone-validation.service';
 import { Logger } from '@nestjs/common';
 
@@ -33,7 +36,7 @@ export class UpdateCustomerUseCase {
       this.phoneValidationService.ensureValidPhone(phone);
     }
 
-    const previousUserInformation = customer.getUserId()
+    const previousUserInformation: UserInformation | null = customer.getUserId()
       ? await this.findUserInformationPort.execute(customer.getUserId())
       : null;
 

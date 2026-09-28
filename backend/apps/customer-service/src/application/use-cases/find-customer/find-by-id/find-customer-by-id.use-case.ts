@@ -1,6 +1,9 @@
 import { type ICustomersRepository } from '../../../../domain/repositories/customers.repository';
 import { FindCustomerByIdReadModel } from './read-models/find-customer-by-id.read-model';
-import { type IFindUserInformationPort } from '../../update-customer/ports/find-user-information.port';
+import {
+  type IFindUserInformationPort,
+  type UserInformation,
+} from '../../update-customer/ports/find-user-information.port';
 import { Logger } from '@nestjs/common';
 
 export class FindCustomerByIdUseCase {
@@ -18,13 +21,7 @@ export class FindCustomerByIdUseCase {
       return null;
     }
 
-    let userInfo: {
-      firstName: string;
-      lastName: string;
-      gender: string;
-      email?: string;
-      isActive?: boolean;
-    } | null = null;
+    let userInfo: UserInformation | null = null;
 
     if (customer.getUserId()) {
       try {

@@ -1,0 +1,59 @@
+import { HttpException, InternalServerErrorException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { InsufficientStockException } from '../../../orders/domain/exceptions/insufficient-stock.exception';
+import {
+  BatchDeduction,
+  IRemoveStockPort,
+} from '../../application/ports/remove-stock.port';
+
+export class RemoveStockAdapter implements IRemoveStockPort {
+  private readonly url: string;
+
+  public constructor(private readonly config: ConfigService) {
+    this.url = this.config.getOrThrow<string>('INVENTORY_SERVICE_URL');
+  }
+
+  public async execute(
+    variantId: string,
+    quantity: number,
+  ): Promise<BatchDeduction[]> {
+    const response = await fetch(`${this.url}/api/internal/inventories/sale`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ variantId, quantity }),
+    });
+
+    if (response.ok) {
+      const body = (await response.json()) as {
+        deductions: { batchId: string; quantity: number }[];
+      };
+      return body.deductions;
+    }
+
+    let message: string | undefined;
+    try {
+      const body = (await response.json()) as { message?: string };
+      message = body?.message;
+    } catch {
+      // ignore parse errors
+    }
+
+    if (response.status === 409) {
+      throw new InsufficientStockException(
+        variantId,
+        quantity,
+        0,
+        message ??
+          `Insufficient stock for variant "${variantId}": requested ${quantity}`,
+      );
+    }
+
+    if (message) {
+      throw new HttpException(message, response.status);
+    }
+
+    throw new InternalServerErrorException(
+      `Failed to remove stock for variant "${variantId}" (status ${response.status})`,
+    );
+  }
+}

@@ -6,27 +6,29 @@ import { formatVnd } from "../../../../services/overview.service";
 const VN_DAYS = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
 
 const STATUS_LABEL: Record<string, string> = {
-  PENDING_CONFIRMATION: "Chờ xác nhận",
-  CONFIRMED: "Đã xác nhận",
-  PREPARING: "Đang chuẩn bị hàng",
-  SHIPPING: "Đang giao",
-  DELIVERED: "Giao thành công",
-  CANCELLED: "Đã hủy",
-  DELIVERY_FAILED: "Giao thất bại",
-  RETURNED: "Đã hoàn hàng",
-  REFUNDED: "Đã hoàn tiền",
+  'pending': "Chờ xác nhận",
+  'confirmed': "Đã xác nhận",
+  'preparing': "Đang chuẩn bị hàng",
+  'shipping': "Đang giao",
+  'delivered': "Giao thành công",
+  'completed': "Hoàn tất",
+  'cancelled': "Đã hủy",
+  'delivery_failed': "Giao thất bại",
+  'returned': "Đã hoàn hàng",
+  'refunded': "Đã hoàn tiền",
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  PENDING_CONFIRMATION: "#9f995b",
-  CONFIRMED: "#757c5d",
-  PREPARING: "#757c5d",
-  SHIPPING: "#2a4a6b",
-  DELIVERED: "#1c3a13",
-  CANCELLED: "#8f3f2a",
-  DELIVERY_FAILED: "#8f3f2a",
-  RETURNED: "#9f995b",
-  REFUNDED: "#666666",
+  'pending': "#9f995b",
+  'confirmed': "#757c5d",
+  'preparing': "#757c5d",
+  'shipping': "#2a4a6b",
+  'delivered': "#1c3a13",
+  'completed': "#1c3a13",
+  'cancelled': "#8f3f2a",
+  'delivery_failed': "#8f3f2a",
+  'returned': "#9f995b",
+  'refunded': "#666666",
 };
 
 function startOfDay(date: Date): Date {
@@ -75,7 +77,7 @@ function buildSalesData(orders: OrderReadModel[]) {
   const todayStart = startOfDay(now);
   const yesterdayStart = startOfDay(daysAgo(1, now));
 
-  const delivered = orders.filter((o) => o.status === "DELIVERED");
+  const delivered = orders.filter((o) => o.status === "delivered");
   const amountOf = (o: OrderReadModel) => Number(o.totalAmount ?? 0);
 
   const revenueToday = delivered
@@ -155,7 +157,7 @@ const SalesDashboard: React.FC = () => {
       try {
         const orders = await ordersService.getOrders();
         if (!active) return;
-        setData(buildSalesData(orders));
+        setData(buildSalesData(orders.items));
       } catch (err) {
         if (!active) return;
         setError("Không thể tải dữ liệu bán hàng. Vui lòng thử lại.");
@@ -237,7 +239,7 @@ const SalesDashboard: React.FC = () => {
         <Kpi
           label="Đơn chờ xác nhận"
           value={String(
-            data.statusCounts.find((s) => s.status === "PENDING_CONFIRMATION")?.count ?? 0,
+            data.statusCounts.find((s) => s.status === "pending")?.count ?? 0,
           )}
           caption="cần xử lý"
           accent="olive"

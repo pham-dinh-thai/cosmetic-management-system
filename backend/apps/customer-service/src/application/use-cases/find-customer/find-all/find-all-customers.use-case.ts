@@ -1,6 +1,9 @@
 import { type ICustomersRepository } from '../../../../domain/repositories/customers.repository';
 import { FindAllCustomerReadModel } from './read-models/find-all-customer.read-model';
-import { type IFindUserInformationPort } from '../../update-customer/ports/find-user-information.port';
+import {
+  type IFindUserInformationPort,
+  type UserInformation,
+} from '../../update-customer/ports/find-user-information.port';
 import { Logger } from '@nestjs/common';
 
 export class FindAllCustomersUseCase {
@@ -16,13 +19,7 @@ export class FindAllCustomersUseCase {
 
     const readModels = await Promise.all(
       customers.map(async (customer) => {
-        let userInfo: {
-          firstName: string;
-          lastName: string;
-          gender: string;
-          email?: string;
-          isActive?: boolean;
-        } | null = null;
+        let userInfo: UserInformation | null = null;
         try {
           userInfo = await this.findUserInformationPort.execute(
             customer.getUserId(),

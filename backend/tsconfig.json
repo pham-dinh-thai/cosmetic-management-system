@@ -44,6 +44,12 @@
       "@app/audit-client/*": [
         "./libs/audit-client/src/*"
       ],
+      "@app/redis-client": [
+        "./libs/redis-client/src"
+      ],
+      "@app/redis-client/*": [
+        "./libs/redis-client/src/*"
+      ],
       "constants/*": [
         "./constants/*"
       ]

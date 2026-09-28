@@ -18,6 +18,10 @@ import {
   createInvoiceFromOrderUseCaseFactory,
 } from './application/use-cases/create-invoice-from-order/create-invoice-from-order.use-case';
 import {
+  FinalizeInvoiceFromOrderUseCase,
+  finalizeInvoiceFromOrderUseCaseFactory,
+} from './application/use-cases/finalize-invoice-from-order/finalize-invoice-from-order.use-case';
+import {
   FindAllInvoicesUseCase,
   findAllInvoicesUseCaseFactory,
 } from './application/use-cases/find-all-invoices/find-all-invoices.use-case';
@@ -84,6 +88,11 @@ import {
     {
       provide: CreateInvoiceFromOrderUseCase,
       useFactory: createInvoiceFromOrderUseCaseFactory,
+      inject: [INVOICES_REPOSITORY],
+    },
+    {
+      provide: FinalizeInvoiceFromOrderUseCase,
+      useFactory: finalizeInvoiceFromOrderUseCaseFactory,
       inject: [INVOICES_REPOSITORY, CREATE_RECEIPT_PORT],
     },
     {

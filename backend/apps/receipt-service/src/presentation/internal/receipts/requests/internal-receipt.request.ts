@@ -1,4 +1,10 @@
-import { IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import {
+  IsBoolean,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateReceiptFromInvoicePaymentRequest {
@@ -21,4 +27,8 @@ export class CreateReceiptFromInvoicePaymentRequest {
   @IsOptional()
   @IsString()
   employeeId?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  dedupe?: boolean;
 }

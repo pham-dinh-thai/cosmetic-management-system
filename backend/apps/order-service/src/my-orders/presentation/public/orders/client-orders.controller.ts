@@ -1,0 +1,31 @@
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+import { AuthGuard, RolesGuard } from '@app/security';
+import { Audit, AuditAction, responseId } from '@app/audit-client';
+import { PlaceOrderUseCase } from '../../../application/use-cases/place-order/place-order.use-case';
+import { PlaceOrderRequest } from './requests/place-order.request';
+
+@UseGuards(AuthGuard, RolesGuard)
+@Controller('orders')
+export class ClientOrdersController {
+  public constructor(private readonly placeOrderUseCase: PlaceOrderUseCase) {}
+
+  @HttpCode(HttpStatus.CREATED)
+  @Post('place')
+  @Audit({
+    entityType: 'order',
+    action: AuditAction.CREATE,
+    entityId: responseId(),
+  })
+  public async place(
+    @Body() request: PlaceOrderRequest,
+  ): Promise<{ id: string }> {
+    return await this.placeOrderUseCase.execute(request, 'WEB');
+  }
+}

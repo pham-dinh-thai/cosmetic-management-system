@@ -9,6 +9,7 @@ export type CreateReceiptFromInvoicePaymentEvent = {
   amount: number;
   note?: string;
   employeeId?: string;
+  dedupe?: boolean;
 };
 
 export class CreateReceiptFromInvoicePaymentUseCase {
@@ -17,6 +18,16 @@ export class CreateReceiptFromInvoicePaymentUseCase {
   public async execute(
     event: CreateReceiptFromInvoicePaymentEvent,
   ): Promise<{ id: string } | null> {
+    if (event.dedupe) {
+      const existing = await this.receiptsRepository.findByInvoiceId(
+        event.invoiceId,
+      );
+
+      if (existing) {
+        return null;
+      }
+    }
+
     const maxCodeSequence = await this.receiptsRepository.findMaxCodeSequence();
     const code = ReceiptCode.generate((maxCodeSequence ?? 0) + 1);
 

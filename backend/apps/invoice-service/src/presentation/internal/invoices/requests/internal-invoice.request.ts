@@ -24,3 +24,12 @@ export class CreateInvoiceFromOrderRequest {
   @IsString()
   employeeId?: string;
 }
+
+export class FinalizeInvoiceFromOrderRequest {
+  @IsString()
+  orderId!: string;
+
+  @IsOptional()
+  @IsString()
+  employeeId?: string;
+}
