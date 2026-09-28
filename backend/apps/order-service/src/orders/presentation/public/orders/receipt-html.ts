@@ -36,6 +36,10 @@ function paymentMethodLabel(paymentMethod: string): string {
   return labels[paymentMethod] ?? paymentMethod;
 }
 
+function paymentStatusLabel(paymentStatus: string): string {
+  return paymentStatus === 'paid' ? 'Đã thanh toán' : 'Chưa thanh toán';
+}
+
 export function renderOrderReceiptHtml(receipt: OrderReceipt): string {
   const itemRows = receipt.lines
     .map(
@@ -46,16 +50,16 @@ export function renderOrderReceiptHtml(receipt: OrderReceipt): string {
       <tr class="item-row">
         <td class="left">${formatMoney(line.unitPrice)}</td>
         <td class="center">${line.quantity}</td>
-        <td class="center"></td>
+        <td class="center">-</td>
         <td class="right">${formatMoney(line.subtotal)}</td>
       </tr>`,
     )
     .join('');
 
-  const msch = '36366767';
+  const msch = receipt.customerCode || '-';
   const nv = receipt.employeeCode ?? '-';
   const ptt = paymentMethodLabel(receipt.paymentMethod);
-  const maCqt = 'M1-26-CPN7O-04138504425';
+  const tth = paymentStatusLabel(receipt.paymentStatus);
 
   return `<!doctype html>
 <html lang="vi">
@@ -136,9 +140,10 @@ export function renderOrderReceiptHtml(receipt: OrderReceipt): string {
     <div class="brand">Guardian</div>
     <div class="title">PHIẾU TÍNH TIỀN</div>
     <div class="info">
-      ${formatDate(receipt.createdAt)}|MSCH:${msch}|NV:${nv}<br>
-      PTT:${ptt}<br>
-      Mã CQT: ${maCqt}
+      ${formatDate(receipt.createdAt)}<br>
+      MSCH:${escapeHtml(msch)}|NV:${escapeHtml(nv)}<br>
+      PTT:${escapeHtml(ptt)}<br>
+      KH:${escapeHtml(receipt.customerName)}
     </div>
 
     <table class="items-table">
@@ -161,8 +166,8 @@ export function renderOrderReceiptHtml(receipt: OrderReceipt): string {
         <td class="bold">${formatMoney(receipt.totalAmount)}</td>
       </tr>
       <tr>
-        <td class="left">Tiền cần thanh toán</td>
-        <td class="bold">${formatMoney(receipt.totalAmount)}</td>
+        <td class="left">Thanh toán</td>
+        <td class="bold">${escapeHtml(tth)}</td>
       </tr>
     </table>
 
