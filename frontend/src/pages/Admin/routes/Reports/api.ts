@@ -41,12 +41,47 @@ export interface RawOrderDetail extends RawOrder {
   lines: RawOrderLine[];
 }
 
+interface RawOrderPage {
+  items: RawOrder[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+const ORDERS_PAGE_SIZE = 100;
+
+// Báo cáo tổng hợp trên toàn bộ đơn nên phải gom hết các trang,
+// GET /orders chỉ trả tối đa 100 bản ghi mỗi trang.
+async function fetchAllOrders(): Promise<RawOrder[]> {
+  const orders: RawOrder[] = [];
+  let page = 1;
+  let totalPages = 1;
+
+  while (page <= totalPages) {
+    const result = await api
+      .get<RawOrderPage>("/orders", { params: { page, limit: ORDERS_PAGE_SIZE } })
+      .then((r) => r.data)
+      .catch(() => null);
+
+    if (!result) {
+      break;
+    }
+
+    orders.push(...result.items);
+    totalPages = result.totalPages;
+    page += 1;
+  }
+
+  return orders;
+}
+
 export const reportsApi = {
   fetchFullReports: async (timeRange: TimeRangeOption = "30"): Promise<FullReportsData> => {
     // 1. Fetch Orders, Cosmetics, Categories, Inventories, Customers in parallel
     const [ordersRes, cosmeticsListRes, categoriesRes, inventoryItems, customersRes] =
       await Promise.all([
-        api.get<RawOrder[]>("/orders").then((r) => r.data).catch(() => []),
+        fetchAllOrders().catch(() => []),
         productsService.getCosmetics().catch(() => []),
         api.get<{ id: string; name: string }[]>("/categories").then((r) => r.data).catch(() => []),
         inventoryApi.fetchInventory().catch(() => []),
