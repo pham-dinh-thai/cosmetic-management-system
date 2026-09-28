@@ -28,15 +28,19 @@ export const ADMIN_PAGES: ResourcePageKey[] = [
 
 /**
  * Permission cần có (phải đủ TẤT CẢ) để non-admin truy cập từng trang.
- * Trang không có trong map là admin-only (reports, customers, employees,
- * departments, audit-logs).
+ * Mỗi trang đều có entry: quyền xem trang nằm ở DB, ai được cấp thì vào được.
  */
-export const PERMISSION_PAGE_MAP: Partial<Record<ResourcePageKey, string[]>> = {
+export const PERMISSION_PAGE_MAP: Record<ResourcePageKey, string[]> = {
   overview: ["dashboard:overview"],
   "sales-dashboard": ["dashboard:sales"],
   "warehouse-dashboard": ["dashboard:warehouse"],
   "accounting-dashboard": ["dashboard:accounting"],
   orders: ["orders:read"],
+  customers: ["customers:read"],
+  employees: ["employees:read"],
+  departments: ["departments:read"],
+  "audit-logs": ["audit_logs:read"],
+  reports: ["reports:read"],
   products: ["cosmetics:read"],
   categories: ["categories:read"],
   suppliers: ["suppliers:read"],
@@ -111,9 +115,9 @@ function canAccessPage(
   user: UserProfile | null,
   page: ResourcePageKey,
 ): boolean {
-  const required = PERMISSION_PAGE_MAP[page];
-  if (!required) return false;
-  return required.every((permission) => hasPermission(user, permission));
+  return PERMISSION_PAGE_MAP[page].every((permission) =>
+    hasPermission(user, permission),
+  );
 }
 
 /**
