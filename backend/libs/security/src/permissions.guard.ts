@@ -5,10 +5,11 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Role } from './role.enum';
-import { RequestUser } from './org.guard';
+import type { JwtUser } from './current-user.decorator';
 import { PERMISSIONS_KEY } from './permissions.decorator';
 import { IS_PUBLIC_KEY } from './public.decorator';
+
+const ADMIN_ROLE_ID = 'admin';
 
 @Injectable()
 export class PermissionsGuard implements CanActivate {
@@ -35,14 +36,14 @@ export class PermissionsGuard implements CanActivate {
 
     const { user } = context
       .switchToHttp()
-      .getRequest<{ user?: RequestUser }>();
+      .getRequest<{ user?: Partial<JwtUser> }>();
 
     if (!user?.roleId) {
       throw new ForbiddenException();
     }
 
     // Admin always allowed — mọi thao tác quản trị đều được phép.
-    if (user.roleId === Role.Admin) {
+    if (user.roleId === ADMIN_ROLE_ID) {
       return true;
     }
 
