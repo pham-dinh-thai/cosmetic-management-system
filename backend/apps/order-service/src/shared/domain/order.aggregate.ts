@@ -1,10 +1,10 @@
 import { OrderLine } from './entities/order-line.entity';
-import { OrderPaymentMethod } from '../../shared/domain/enums/order-payment-method.enum';
-import { OrderPaymentStatus } from '../../shared/domain/enums/order-payment-status.enum';
-import { OrderStatus } from '../../shared/domain/enums/order-status.enum';
+import { OrderPaymentMethod } from './enums/order-payment-method.enum';
+import { OrderPaymentStatus } from './enums/order-payment-status.enum';
+import { OrderStatus } from './enums/order-status.enum';
 import { CanNotUpdateOrderStatusException } from './exceptions/can-not-update-order-status.exception';
 import { OrderConfirmed } from './events/order-confirmed.event';
-import { AggregateRoot } from '../../shared/domain/aggregate-root';
+import { AggregateRoot } from './aggregate-root';
 import { OrderPreparing } from './events/order-preparing.event';
 import { OrderShipping } from './events/order-shipping.event';
 import { OrderDelivered } from './events/order-delivered.event';
@@ -13,7 +13,7 @@ import { OrderCancelled } from './events/order-cancelled.event';
 import { OrderDeliveryFailed } from './events/order-delivery-failed.event';
 import { OrderReturned } from './events/order-returned.event';
 import { OrderRefunded } from './events/order-refunded.event';
-import { OrderDomainEvent } from '../../shared/domain/events/order-domain.event';
+import { OrderDomainEvent } from './events/order-domain.event';
 
 export type OrderLineProps = {
   id: string;

@@ -1,5 +1,5 @@
-import { Order } from '../../../domain/order.aggregate';
-import { OrderNotFoundException } from '../../../domain/exceptions/order-not-found.exception';
+import { Order } from '../../../../shared/domain/order.aggregate';
+import { OrderNotFoundException } from '../../../../shared/domain/exceptions/order-not-found.exception';
 import { IOrdersRepository } from '../../../domain/repositories/orders.repository';
 import {
   CreateInvoiceInput,
@@ -8,11 +8,14 @@ import {
 import { OrderPaymentMethod } from '../../../../shared/domain/enums/order-payment-method.enum';
 import { OrderPaymentStatus } from '../../../../shared/domain/enums/order-payment-status.enum';
 import { OrderStatus } from '../../../../shared/domain/enums/order-status.enum';
+import { IOrderEventPublisherPort } from 'apps/order-service/src/shared/application/ports/order-event-publisher.port';
+import { pullOrderEventEnvelopes } from 'apps/order-service/src/shared/application/order-event-envelope';
 
 export class ConfirmOrderUseCase {
   public constructor(
     private readonly ordersRepository: IOrdersRepository,
     private readonly createInvoicePort: ICreateInvoicePort,
+    private readonly orderEventPublisherPort: IOrderEventPublisherPort,
   ) {}
 
   public async execute(
@@ -33,7 +36,7 @@ export class ConfirmOrderUseCase {
 
     await this.ordersRepository.updateStatus(order);
 
-    order.pullDomainEvents();
+    await this.orderEventPublisherPort.publish(pullOrderEventEnvelopes(order));
 
     return { id, status: order.getStatus() };
   }
@@ -58,5 +61,10 @@ export class ConfirmOrderUseCase {
 export const confirmOrderUseCaseFactory = (
   ordersRepository: IOrdersRepository,
   createInvoicePort: ICreateInvoicePort,
+  orderEventPublisherPort: IOrderEventPublisherPort,
 ): ConfirmOrderUseCase =>
-  new ConfirmOrderUseCase(ordersRepository, createInvoicePort);
+  new ConfirmOrderUseCase(
+    ordersRepository,
+    createInvoicePort,
+    orderEventPublisherPort,
+  );

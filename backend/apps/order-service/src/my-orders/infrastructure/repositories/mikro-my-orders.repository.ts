@@ -3,8 +3,8 @@ import { EntityManager } from '@mikro-orm/postgresql';
 import { IMyOrdersRepository } from '../../domain/repositories/my-orders.repository';
 import { Order as OrderMikro } from 'apps/order-service/src/shared/infrastructure/entities/order.entity';
 import { OrderLine as OrderLineMikro } from 'apps/order-service/src/shared/infrastructure/entities/order-line.entity';
-import { Order } from '../../../orders/domain/order.aggregate';
-import { ORDER_CODE_PREFIX } from '../../../orders/domain/value-objects/order-code.value-object';
+import { Order } from '../../../shared/domain/order.aggregate';
+import { ORDER_CODE_PREFIX } from '../../../shared/domain/value-objects/order-code.value-object';
 import { maxSequenceFromCodes } from '@app/codes';
 
 @Injectable()

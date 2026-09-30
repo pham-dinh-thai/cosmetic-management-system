@@ -1,4 +1,4 @@
-import { OrderTransaction } from '../../../domain/entities/order-transaction.entity';
+import { OrderTransaction } from 'apps/order-service/src/shared/domain/entities/order-transaction.entity';
 
 export class OrderTransactionReadModel {
   private constructor(

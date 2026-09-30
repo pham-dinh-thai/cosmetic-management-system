@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from '@mikro-orm/postgresql';
-import { OrderTransaction as OrderTransactionMikro } from '../../../shared/infrastructure/entities/order-transaction.entity';
-import { OrderTransaction } from '../../domain/entities/order-transaction.entity';
+import { OrderTransaction as OrderTransactionMikro } from 'apps/order-service/src/shared/infrastructure/entities/order-transaction.entity';
+import { OrderTransaction } from 'apps/order-service/src/shared/domain/entities/order-transaction.entity';
 import {
   FindOrderTransactionsFilters,
   IOrderTransactionsRepository,
   OrderTransactionProps,
-} from '../../application/ports/order-transactions.repository';
+} from 'apps/order-service/src/order-transactions/domain/repositories/order-transactions.repository';
 
 @Injectable()
 export class MikroOrderTransactionsRepository implements IOrderTransactionsRepository {

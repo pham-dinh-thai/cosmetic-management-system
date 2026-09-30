@@ -1,4 +1,4 @@
-import { Order } from '../../../domain/order.aggregate';
+import { Order } from '../../../../shared/domain/order.aggregate';
 
 export class FindAllOrdersReadModel {
   private constructor(

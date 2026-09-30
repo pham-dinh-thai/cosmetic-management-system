@@ -1,6 +1,6 @@
-import { Order } from '../../../../orders/domain/order.aggregate';
+import { Order } from '../../../../shared/domain/order.aggregate';
 import { IMyOrdersRepository } from '../../../domain/repositories/my-orders.repository';
-import { OrderCode } from '../../../../orders/domain/value-objects/order-code.value-object';
+import { OrderCode } from '../../../../shared/domain/value-objects/order-code.value-object';
 import { OrderStatus } from '../../../../shared/domain/enums/order-status.enum';
 import { OrderPaymentMethod } from '../../../../shared/domain/enums/order-payment-method.enum';
 import { OrderPaymentStatus } from '../../../../shared/domain/enums/order-payment-status.enum';

@@ -2,7 +2,7 @@ import { Controller, Get, Query } from '@nestjs/common';
 import {
   BestSellerReadModel,
   FindBestSellersUseCase,
-} from '../../../application/use-cases/find-best-sellers/find-best-sellers.use-case';
+} from 'apps/order-service/src/order-reports/application/use-cases/find-best-sellers/find-best-sellers.use-case';
 
 @Controller('orders')
 export class BestSellersController {

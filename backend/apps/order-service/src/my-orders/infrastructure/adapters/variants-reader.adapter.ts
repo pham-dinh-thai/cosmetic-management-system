@@ -1,5 +1,5 @@
 import { ConfigService } from '@nestjs/config';
-import { VariantNotFoundException } from '../../../orders/domain/exceptions/variant-not-found.exception';
+import { VariantNotFoundException } from '../../../shared/domain/exceptions/variant-not-found.exception';
 import { IVariantsReaderPort } from '../../application/ports/variants-reader.port';
 
 export class VariantsReaderAdapter implements IVariantsReaderPort {

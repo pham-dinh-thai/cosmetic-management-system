@@ -1,9 +1,14 @@
-import { OrderNotFoundException } from '../../../domain/exceptions/order-not-found.exception';
+import { OrderNotFoundException } from '../../../../shared/domain/exceptions/order-not-found.exception';
 import { IOrdersRepository } from '../../../domain/repositories/orders.repository';
 import { OrderStatus } from '../../../../shared/domain/enums/order-status.enum';
+import { IOrderEventPublisherPort } from 'apps/order-service/src/shared/application/ports/order-event-publisher.port';
+import { pullOrderEventEnvelopes } from 'apps/order-service/src/shared/application/order-event-envelope';
 
 export class PrepareOrderUseCase {
-  public constructor(private readonly ordersRepository: IOrdersRepository) {}
+  public constructor(
+    private readonly ordersRepository: IOrdersRepository,
+    private readonly orderEventPublisherPort: IOrderEventPublisherPort,
+  ) {}
 
   public async execute(
     id: string,
@@ -18,7 +23,7 @@ export class PrepareOrderUseCase {
 
     await this.ordersRepository.updateStatus(order);
 
-    order.pullDomainEvents();
+    await this.orderEventPublisherPort.publish(pullOrderEventEnvelopes(order));
 
     return { id, status: order.getStatus() };
   }
@@ -26,4 +31,6 @@ export class PrepareOrderUseCase {
 
 export const prepareOrderUseCaseFactory = (
   ordersRepository: IOrdersRepository,
-): PrepareOrderUseCase => new PrepareOrderUseCase(ordersRepository);
+  orderEventPublisherPort: IOrderEventPublisherPort,
+): PrepareOrderUseCase =>
+  new PrepareOrderUseCase(ordersRepository, orderEventPublisherPort);

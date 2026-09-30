@@ -1,11 +1,16 @@
-import { OrderNotFoundException } from '../../../domain/exceptions/order-not-found.exception';
+import { OrderNotFoundException } from '../../../../shared/domain/exceptions/order-not-found.exception';
 import { IOrdersRepository } from '../../../domain/repositories/orders.repository';
 import { OrderPaymentMethod } from '../../../../shared/domain/enums/order-payment-method.enum';
 import { OrderPaymentStatus } from '../../../../shared/domain/enums/order-payment-status.enum';
 import { OrderStatus } from '../../../../shared/domain/enums/order-status.enum';
+import { IOrderEventPublisherPort } from 'apps/order-service/src/shared/application/ports/order-event-publisher.port';
+import { pullOrderEventEnvelopes } from 'apps/order-service/src/shared/application/order-event-envelope';
 
 export class UpdateOrderPaymentStatusUseCase {
-  public constructor(private readonly ordersRepository: IOrdersRepository) {}
+  public constructor(
+    private readonly ordersRepository: IOrdersRepository,
+    private readonly orderEventPublisherPort: IOrderEventPublisherPort,
+  ) {}
 
   public async execute(
     id: string,
@@ -43,6 +48,8 @@ export class UpdateOrderPaymentStatusUseCase {
       await this.ordersRepository.setStatus(id, order.getStatus());
     }
 
+    await this.orderEventPublisherPort.publish(pullOrderEventEnvelopes(order));
+
     return {
       id,
       status: order.getStatus(),
@@ -53,5 +60,9 @@ export class UpdateOrderPaymentStatusUseCase {
 
 export const updateOrderPaymentStatusUseCaseFactory = (
   ordersRepository: IOrdersRepository,
+  orderEventPublisherPort: IOrderEventPublisherPort,
 ): UpdateOrderPaymentStatusUseCase =>
-  new UpdateOrderPaymentStatusUseCase(ordersRepository);
+  new UpdateOrderPaymentStatusUseCase(
+    ordersRepository,
+    orderEventPublisherPort,
+  );

@@ -1,6 +1,6 @@
 import { ForbiddenException } from '@nestjs/common';
-import { Order } from '../../../../orders/domain/order.aggregate';
-import { OrderNotFoundException } from '../../../../orders/domain/exceptions/order-not-found.exception';
+import { Order } from '../../../../shared/domain/order.aggregate';
+import { OrderNotFoundException } from '../../../../shared/domain/exceptions/order-not-found.exception';
 import { IMyOrdersRepository } from '../../../domain/repositories/my-orders.repository';
 import { ICustomerNameReaderPort } from '../../ports/customer-name-reader.port';
 import { MyOrderDetailReadModel } from './my-order-detail.read-model';

@@ -1,4 +1,4 @@
-import { Order } from '../../../../orders/domain/order.aggregate';
+import { Order } from '../../../../shared/domain/order.aggregate';
 
 export type MyOrderDetailLineReadModel = {
   id: string;

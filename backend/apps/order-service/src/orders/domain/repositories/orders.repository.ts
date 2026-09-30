@@ -1,6 +1,6 @@
 import { OrderStatus } from '../../../shared/domain/enums/order-status.enum';
-import { Order } from '../order.aggregate';
-import { CreateOrderLineProps } from '../order.aggregate';
+import { Order } from '../../../shared/domain/order.aggregate';
+import { CreateOrderLineProps } from '../../../shared/domain/order.aggregate';
 import { OrderPaymentStatus } from '../../../shared/domain/enums/order-payment-status.enum';
 
 export type OrderListFilters = {

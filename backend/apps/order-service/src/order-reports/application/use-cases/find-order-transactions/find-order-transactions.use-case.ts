@@ -1,4 +1,4 @@
-import { IOrderTransactionsRepository } from '../../ports/order-transactions.repository';
+import { IOrderTransactionsRepository } from 'apps/order-service/src/order-transactions/domain/repositories/order-transactions.repository';
 import { OrderTransactionReadModel } from './order-transaction.read-model';
 
 export class FindOrderTransactionsUseCase {

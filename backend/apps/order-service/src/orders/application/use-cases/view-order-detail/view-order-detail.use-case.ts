@@ -1,4 +1,4 @@
-import { OrderNotFoundException } from '../../../domain/exceptions/order-not-found.exception';
+import { OrderNotFoundException } from '../../../../shared/domain/exceptions/order-not-found.exception';
 import { IOrdersRepository } from '../../../domain/repositories/orders.repository';
 import { ICustomerNameReaderPort } from '../../ports/customer-name-reader.port';
 import { ViewOrderDetailReadModel } from './view-order-detail.read-model';

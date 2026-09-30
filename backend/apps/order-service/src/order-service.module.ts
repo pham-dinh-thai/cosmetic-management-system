@@ -9,6 +9,7 @@ import { Order } from './shared/infrastructure/entities/order.entity';
 import { OrderLine } from './shared/infrastructure/entities/order-line.entity';
 import { OrderTransaction } from './shared/infrastructure/entities/order-transaction.entity';
 import { MyOrdersModule } from './my-orders/my-orders.module';
+import { OrderReportsModule } from './order-reports/order-reports.module';
 import { OrdersModule } from './orders/orders.module';
 
 @Module({
@@ -40,6 +41,7 @@ import { OrdersModule } from './orders/orders.module';
       inject: [ConfigService],
     }),
     MyOrdersModule,
+    OrderReportsModule,
     OrdersModule,
   ],
 })

@@ -1,4 +1,4 @@
-import { IOrdersRepository } from '../../../domain/repositories/orders.repository';
+import { IOrdersRepository } from 'apps/order-service/src/orders/domain/repositories/orders.repository';
 
 export type BestSellerReadModel = {
   variantId: string;
