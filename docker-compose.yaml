@@ -54,6 +54,9 @@ services:
       AUDIT_DB_USER: ${AUDIT_DB_USER}
       AUDIT_DB_PASSWORD: ${AUDIT_DB_PASSWORD}
       AUDIT_DB_NAME: ${AUDIT_DB_NAME}
+      NOTIFICATION_DB_USER: ${NOTIFICATION_DB_USER}
+      NOTIFICATION_DB_PASSWORD: ${NOTIFICATION_DB_PASSWORD}
+      NOTIFICATION_DB_NAME: ${NOTIFICATION_DB_NAME}
     ports:
       - "5432:5432"
     volumes:
@@ -210,6 +213,11 @@ services:
       AUDIT_DB_USER: ${AUDIT_DB_USER}
       AUDIT_DB_PASSWORD: ${AUDIT_DB_PASSWORD}
       AUDIT_DB_NAME: ${AUDIT_DB_NAME}
+      NOTIFICATION_DB_HOST: ${NOTIFICATION_DB_HOST}
+      NOTIFICATION_DB_PORT: "${NOTIFICATION_DB_PORT}"
+      NOTIFICATION_DB_USER: ${NOTIFICATION_DB_USER}
+      NOTIFICATION_DB_PASSWORD: ${NOTIFICATION_DB_PASSWORD}
+      NOTIFICATION_DB_NAME: ${NOTIFICATION_DB_NAME}
     volumes:
       - ./docker/postgres/migrate.sh:/scripts/migrate.sh:ro
     depends_on:
@@ -555,6 +563,32 @@ services:
       migration:
         condition: service_completed_successfully
 
+  notification-service:
+    image: cosmetic-management-system-backend
+    pull_policy: never
+    command: ["node", "dist/apps/notification-service/main.js"]
+    environment:
+      NOTIFICATION_DB_HOST: ${NOTIFICATION_DB_HOST}
+      NOTIFICATION_DB_PORT: "${NOTIFICATION_DB_PORT}"
+      NOTIFICATION_DB_USER: ${NOTIFICATION_DB_USER}
+      NOTIFICATION_DB_PASSWORD: ${NOTIFICATION_DB_PASSWORD}
+      NOTIFICATION_DB_NAME: ${NOTIFICATION_DB_NAME}
+      CUSTOMER_SERVICE_URL: ${CUSTOMER_SERVICE_URL}
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      EMAIL_DELIVERY_MODE: ${EMAIL_DELIVERY_MODE}
+      DEV_EMAIL_INBOX: ${DEV_EMAIL_INBOX}
+      EMAIL_FROM: ${EMAIL_FROM}
+      EMAIL_REPLY_TO: ${EMAIL_REPLY_TO}
+    ports:
+      - "3018:3018"
+    depends_on:
+      migration:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started
+
   gateway-service:
     image: cosmetic-management-system-backend
     pull_policy: never
@@ -577,6 +611,7 @@ services:
       BASKET_SERVICE_URL: ${BASKET_SERVICE_URL}
       STORAGE_SERVICE_URL: ${STORAGE_SERVICE_URL}
       AUDIT_SERVICE_URL: ${AUDIT_SERVICE_URL}
+      NOTIFICATION_SERVICE_URL: ${NOTIFICATION_SERVICE_URL}
     ports:
       - "3000:3000"
     depends_on:
@@ -593,6 +628,7 @@ services:
       - receipt-service
       - basket-service
       - audit-service
+      - notification-service
 
   redis:
     image: redis:7-alpine

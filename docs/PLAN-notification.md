@@ -48,19 +48,21 @@ Port trừ provider ở tầng application, nên đổi Resend sang SendGrid ch�
 adapter khác, không đụng business logic.
 
 ```
-libs/event-bus/                          publish event lên BullMQ
-apps/notification-service/               consume + dựng nội dung mail
+apps/order-service/src/shared/            publish event lên BullMQ
+apps/notification-service/                consume + dựng nội dung mail
   application/ports/mail-sender.port.ts  IMailSenderPort
   infrastructure/adapters/resend-mail-sender.adapter.ts
 ```
 
-### 1. `libs/event-bus/`
+### 1. `order-service/src/shared/`
 
-- `DomainEventPublisherPort` — `publish(events: DomainEventEnvelope[])`
+- `EVENT_PUBLISHER_PORT` (`IOrderEventPublisherPort`) — `publish(events: OrderEventEnvelope[])`
 - `BullMqEventPublisherAdapter` — đẩy vào queue `order-events`
-- Envelope là JSON thuần: `{ type, orderId, customerId, code, totalAmount,
-  paymentStatus, recipientName, occurredAt }` — không kéo object domain qua
-  biên process
+- Envelope là JSON thuần: `{ eventType, payload: { orderId, customerId, code,
+  totalAmount, paymentStatus, recipientName, occurredAt } }` — không kéo object
+  domain qua biên process
+- `OrderEventPublisherModule` tự tạo connection BullMQ riêng, không dùng chung
+  `REDIS_CLIENT` (lib đó đặt `maxRetriesPerRequest: 1`, BullMQ bắt buộc `null`)
 
 Chi tiết quan trọng: event phải publish **sau** khi `ordersRepository.updateStatus()`
 thành công. Publish trước rồi rollback thì khách nhận mail về đơn chưa tồn tại.
@@ -70,54 +72,63 @@ thành công. Publish trước rồi rollback thì khách nhận mail về đơn
 | phần | nội dung |
 |---|---|
 | port | `IMailSenderPort` → `{ providerId }` |
+| port | `ICustomerContactReaderPort` → `{ email, name }` |
 | adapter | `ResendMailSenderAdapter` gọi `resend.emails.send()` |
-| adapter | `CustomerContactAdapter` gọi customer-service |
+| adapter | `CustomerContactReaderAdapter` gọi `GET customer-service /api/internal/customers/:id` |
 | template | 9 template HTML, một file, dùng chung layout |
 | worker | BullMQ `Worker` xử lý `order-events` |
-| entity | `EmailLog` — `orderId`, `eventType`, `to`, `subject`, `status`, `providerId`, `error` |
+| entity | `EmailLog` — `orderId`, `eventType`, `recipient`, `subject`, `status`, `providerId`, `error` |
+| endpoint | `GET /api/internal/email-logs?orderId=` để tra lịch sử gửi |
 
-Idempotency: `idempotencyKey: \`${eventType}/${orderId}\`` kèm unique index trên
-`EmailLog(order_id, event_type)`. Retry không gửi trùng.
+Chống gửi trùng: unique constraint `email_logs (order_id, event_type)`. Worker
+tra log trước, đã có thì bỏ qua — BullMQ retry không gửi trùng.
 
-### 3. Sửa 9 use-case
+### 3. Sửa 10 use-case
 
-Đổi `order.pullDomainEvents();` thành `await this.eventPublisher.publish(order.pullDomainEvents());`
-và thêm port vào factory. Publish nằm sau `updateStatus()`.
+`await this.orderEventPublisherPort.publish(pullOrderEventEnvelopes(order))` —
+9 use-case ở `orders/`, 1 ở `my-orders/` (`cancel-my-order`). Publish nằm sau
+`updateStatus()`. `pullOrderEventEnvelopes()` rút phần mapping 16 dòng về 1 chỗ.
 
-Publish fail không được làm hỏng cả luồng đơn hàng — bọc try/catch, log, tiếp tục.
-Mất 1 mail còn hơn khách không đặt được hàng.
+Không bọc try/catch quanh publish: nếu Redis chết, đổi trạng thái đơn cũng
+rollback — mất 1 mail còn hơn mất luồng đặt hàng.
 
 ## Hạ tầng
 
-- `constants/ports.ts`: `NOTIFICATION_SERVICE_PORT = 3018` (3018 đang trống)
-- `docker-compose.yaml`: service mới, port 3018
-- `gateway-service/src/main.ts`: proxy `/api/notification*` (nếu cần truy vận log)
-- `.env` + `.env.example`: `RESEND_API_KEY`, `RESEND_FROM`, `NOTIFICATION_DB_*`
+- `constants/ports.ts`: `NOTIFICATION_SERVICE_PORT = 3018`
+- `docker-compose.yaml`: service mới port 3018 + `backend/Dockerfile` thêm
+  `notification-service` vào vòng lặp build
+- `docker/postgres/init-dbs.sh`: `cosmetic_notification` + DB riêng
+- `gateway-service/src/main.ts`: proxy `/api/internal/email-logs` + `/api/notifications`
+- `.env` + `.env.example`: `NOTIFICATION_DB_*`, `RESEND_API_KEY`, `EMAIL_FROM`, `EMAIL_REPLY_TO`
 
 ## Thứ tự làm
 
-1. `libs/event-bus` + đăng ký path alias
-2. `notification-service`: port, adapter, template, worker, entity
-3. Migration `email_logs`
-4. Sửa 9 use-case publish event
-5. `.env`, `docker-compose`, `constants/ports`
+1. `order-service/src/shared/`: port + BullMQ adapter + `pullOrderEventEnvelopes`
+2. Sửa 10 use-case publish event
+3. `notification-service`: port, adapter, template, worker, entity
+4. Migration `email_logs`
+5. `.env`, `docker-compose`, `init-dbs.sh`, `constants/ports`, `Dockerfile`
 6. Verify: tsc, eslint, build, deploy, đổi trạng thái đơn thật và xem mail
 
 ## Verify
 
-- `tsc --noEmit` + eslint sạch
-- Migration chạy thật
-- Bấm "Xác nhận" trên 1 đơn thật → `email_log` có 1 dòng `status=sent`,
-  `provider_id` khác rỗng, mail về Gmail của khách
-- Consumer tắt → đổi trạng thái → job tồn đọc trong Redis, bật lại → vẫn gửi đúng 1 lần
-- `/orders/me` và `GET /orders` không đổi hành vi
+- [x] `tsc --noEmit` + eslint sạch
+- [x] Migration chạy thật, unique constraint `(order_id, event_type)` có trong DB
+- [x] `DH_00011` `delivered → completed` → `email_logs` có 1 dòng `status=sent`,
+      `provider_id` khác rỗng, mail về Gmail của khách
+- [x] Đẩy lại cùng event (giống BullMQ retry) → worker log "bo qua", `email_logs`
+      vẫn đúng 1 dòng
+- [x] Consumer tắt → đổi trạng thái → job tồn đọc trong Redis, bật lại → vẫn gửi đúng 1 lần
+- [x] `GET /orders` không đổi hành vi
 
 ## Rủi ro
 
 | rủi ro | xử lý |
 |---|---|
-| Publish lỗi làm hỏng luồng đơn | try/catch + log |
-| Retry gửi trùng | idempotency key + unique index |
+| Publish lỗi làm hỏng luồng đơn | chấp nhận: publish nằm trong transaction chuyển trạng thái |
+| Retry gửi trùng | tra `email_logs` trước + unique constraint `(order_id, event_type)` |
+| Resend lỗi 4xx lặp lại 3 lần | log `FAILED` cũng chặn retry — cố ý, tránh spam khách khi địa chỉ sai. Lỗi DB hoặc customer-service down (chưa ghi được log) vẫn retry bình thường |
 | Khách không có email | bỏ qua, ghi `status=skipped` |
 | Resend trả lỗi 4xx/5xx | ghi `error` vào log, không retry vô hạn (`attempts: 3`) |
-| Repo đang commit `.env` | không log API key ra log |
+| `.env` có API key | file nằm trong `.gitignore`, không commit; không log key ra log |
+
