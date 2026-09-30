@@ -1,9 +1,11 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsEmail,
   IsIn,
   IsNotEmpty,
+  IsOptional,
   IsString,
+  Matches,
   MaxLength,
   MinLength,
 } from 'class-validator';
@@ -49,4 +51,20 @@ export class RegisterRequest implements IRegisterRequest {
   @MinLength(8, { message: 'Mật khẩu phải dài tối thiểu 8 ký tự' })
   @MaxLength(255)
   passwordConfirmation!: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @Matches(/^(03|05|07|08|09)[0-9]{8}$/, {
+    message:
+      'Số điện thoại không hợp lệ (phải là 10 số, bắt đầu 03/05/07/08/09)',
+  })
+  phone?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty({ message: 'Địa chỉ không được để trống' })
+  @MaxLength(255)
+  address?: string;
 }

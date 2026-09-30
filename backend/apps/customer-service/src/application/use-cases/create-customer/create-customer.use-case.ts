@@ -4,6 +4,7 @@ import { type ICustomersRepository } from '../../../domain/repositories/customer
 import { type ICreateUserPort } from './ports/create-user.port';
 import { type IDeleteUserPort } from './ports/delete-user.port';
 import { MissingCustomerUserException } from '../../../domain/exceptions/missing-customer-user.exception';
+import { CustomerCode } from '../../../domain/value-objects/customer-code.value-object';
 import { Logger } from '@nestjs/common';
 
 export class CreateCustomerUseCase {
@@ -37,12 +38,10 @@ export class CreateCustomerUseCase {
       userId = user.id;
     }
 
-    const customers = await this.customersRepository.findAll();
+    const maxCodeSequence =
+      await this.customersRepository.findMaxCodeSequence();
 
-    const code =
-      request.code && request.code.trim().length > 0
-        ? request.code
-        : `KH-${String(customers.length + 1).padStart(3, '0')}`;
+    const code = CustomerCode.generate((maxCodeSequence ?? 0) + 1);
 
     try {
       const customer = Customer.create({

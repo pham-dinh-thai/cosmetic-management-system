@@ -34,7 +34,7 @@ export class FindAllCustomersUseCase {
         return new FindAllCustomerReadModel(
           customer.getId(),
           customer.getUserId(),
-          customer.getCode(),
+          customer.getCode().getValue(),
           [userInfo?.firstName, userInfo?.lastName]
             .filter(Boolean)
             .join(' ')

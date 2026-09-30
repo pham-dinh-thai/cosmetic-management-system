@@ -1,12 +1,13 @@
 import { Address } from './entities/address.entity';
 import { Phone } from './entities/phone.entity';
 import { CreateCustomerProps, FromPersistentCustomerProps } from './types';
+import { CustomerCode } from './value-objects/customer-code.value-object';
 
 export class Customer {
   public constructor(
     private readonly id: string,
     private readonly userId: string,
-    private readonly code: string,
+    private readonly code: CustomerCode,
     private addresses: Address[],
     private phones: Phone[],
     private readonly createdAt?: Date,
@@ -60,7 +61,7 @@ export class Customer {
     return this.userId;
   }
 
-  public getCode(): string {
+  public getCode(): CustomerCode {
     return this.code;
   }
 

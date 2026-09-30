@@ -46,7 +46,7 @@ export class FindCustomerByIdUseCase {
     return new FindCustomerByIdReadModel(
       customer.getId(),
       customer.getUserId(),
-      customer.getCode(),
+      customer.getCode().getValue(),
       name,
       userInfo?.gender ?? '',
       userInfo?.email ?? '',

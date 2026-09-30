@@ -8,10 +8,4 @@ export class CreateCustomerRequest implements ICreateCustomerRequest {
   @IsString()
   @MaxLength(255)
   userId?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  @MaxLength(255)
-  code?: string;
 }

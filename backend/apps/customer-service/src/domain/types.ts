@@ -1,3 +1,5 @@
+import { CustomerCode } from './value-objects/customer-code.value-object';
+
 export type AddressProps = {
   id: string;
   city: string;
@@ -15,13 +17,13 @@ export type PhoneProps = {
 
 export type CreateCustomerProps = {
   userId: string;
-  code: string;
+  code: CustomerCode;
 };
 
 export type FromPersistentCustomerProps = {
   id: string;
   userId: string;
-  code: string;
+  code: CustomerCode;
   addresses: AddressProps[];
   phones: PhoneProps[];
   createdAt: Date;

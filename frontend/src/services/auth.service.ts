@@ -19,6 +19,8 @@ export interface RegisterPayload {
   email: string;
   password: string;
   passwordConfirmation: string;
+  phone?: string;
+  address?: string;
 }
 
 export interface RegisterResponse {

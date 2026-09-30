@@ -12,7 +12,10 @@ export class FindCustomerByUserUseCase {
     const customer = await this.customersRepository.findByUserId(userId);
 
     return customer
-      ? new FindCustomerByUserReadModel(customer.getId(), customer.getCode())
+      ? new FindCustomerByUserReadModel(
+          customer.getId(),
+          customer.getCode().getValue(),
+        )
       : null;
   }
 }

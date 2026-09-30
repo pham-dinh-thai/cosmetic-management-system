@@ -9,6 +9,5 @@ export interface ICreateCustomerUserRequest {
 
 export interface ICreateCustomerRequest {
   userId?: string;
-  code?: string;
   user?: ICreateCustomerUserRequest;
 }
