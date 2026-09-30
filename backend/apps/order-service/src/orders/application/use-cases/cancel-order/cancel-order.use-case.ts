@@ -1,13 +1,16 @@
-import { Order } from '../../../domain/order.aggregate';
-import { OrderNotFoundException } from '../../../domain/exceptions/order-not-found.exception';
+import { Order } from '../../../../shared/domain/order.aggregate';
+import { OrderNotFoundException } from '../../../../shared/domain/exceptions/order-not-found.exception';
 import { IOrdersRepository } from '../../../domain/repositories/orders.repository';
 import { IRestoreStockPort } from '../../ports/restore-stock.port';
 import { OrderStatus } from '../../../../shared/domain/enums/order-status.enum';
+import { IOrderEventPublisherPort } from 'apps/order-service/src/shared/application/ports/order-event-publisher.port';
+import { pullOrderEventEnvelopes } from 'apps/order-service/src/shared/application/order-event-envelope';
 
 export class CancelOrderUseCase {
   public constructor(
     private readonly ordersRepository: IOrdersRepository,
     private readonly restoreStockPort: IRestoreStockPort,
+    private readonly orderEventPublisherPort: IOrderEventPublisherPort,
   ) {}
 
   public async execute(
@@ -25,7 +28,7 @@ export class CancelOrderUseCase {
 
     await this.ordersRepository.updateStatus(order);
 
-    order.pullDomainEvents();
+    await this.orderEventPublisherPort.publish(pullOrderEventEnvelopes(order));
 
     return { id, status: order.getStatus() };
   }
@@ -43,5 +46,10 @@ export class CancelOrderUseCase {
 export const cancelOrderUseCaseFactory = (
   ordersRepository: IOrdersRepository,
   restoreStockPort: IRestoreStockPort,
+  orderEventPublisherPort: IOrderEventPublisherPort,
 ): CancelOrderUseCase =>
-  new CancelOrderUseCase(ordersRepository, restoreStockPort);
+  new CancelOrderUseCase(
+    ordersRepository,
+    restoreStockPort,
+    orderEventPublisherPort,
+  );

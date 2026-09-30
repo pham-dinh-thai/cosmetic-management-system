@@ -41,8 +41,6 @@ import { PrintOrderUseCase } from '../../../application/use-cases/print-order/pr
 import { UpdateOrderUseCase } from '../../../application/use-cases/update-order/update-order.use-case';
 import { UpdateOrderPaymentStatusUseCase } from '../../../application/use-cases/update-order-payment-status/update-order-payment-status.use-case';
 import { DeleteOrderUseCase } from '../../../application/use-cases/delete-order/delete-order.use-case';
-import { FindOrderTransactionsUseCase } from '../../../application/use-cases/find-order-transactions/find-order-transactions.use-case';
-import { OrderTransactionReadModel } from '../../../application/use-cases/find-order-transactions/order-transaction.read-model';
 import { OrderListQuery } from './queries/order-list.query';
 import { UpdateOrderRequest } from './requests/update-order.request';
 import { UpdateOrderPaymentStatusRequest } from './requests/update-order-payment-status.request';
@@ -75,7 +73,6 @@ export class OrdersController {
     private readonly updateOrderUseCase: UpdateOrderUseCase,
     private readonly updateOrderPaymentStatusUseCase: UpdateOrderPaymentStatusUseCase,
     private readonly deleteOrderUseCase: DeleteOrderUseCase,
-    private readonly findOrderTransactionsUseCase: FindOrderTransactionsUseCase,
   ) {}
 
   private readonly statusHandlers: Partial<
@@ -106,19 +103,6 @@ export class OrdersController {
       customerId: query.customerId,
       page: query.page,
       limit: query.limit,
-    });
-  }
-
-  @Get('transactions')
-  public async findTransactions(
-    @Query('orderId') orderId?: string,
-    @Query('variantId') variantId?: string,
-    @Query('employeeId') employeeId?: string,
-  ): Promise<OrderTransactionReadModel[]> {
-    return await this.findOrderTransactionsUseCase.execute({
-      orderId,
-      variantId,
-      employeeId,
     });
   }
 

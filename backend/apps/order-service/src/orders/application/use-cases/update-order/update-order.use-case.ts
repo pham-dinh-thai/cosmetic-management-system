@@ -1,6 +1,6 @@
-import { OrderNotFoundException } from '../../../domain/exceptions/order-not-found.exception';
+import { OrderNotFoundException } from '../../../../shared/domain/exceptions/order-not-found.exception';
 import { IOrdersRepository } from '../../../domain/repositories/orders.repository';
-import { CreateOrderLineProps } from '../../../domain/order.aggregate';
+import { CreateOrderLineProps } from '../../../../shared/domain/order.aggregate';
 
 export interface IUpdateOrderRequest {
   lines: CreateOrderLineProps[];

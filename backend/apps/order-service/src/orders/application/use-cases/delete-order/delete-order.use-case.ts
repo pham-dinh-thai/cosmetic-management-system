@@ -1,5 +1,5 @@
-import { CanNotUpdateOrderStatusException } from '../../../domain/exceptions/can-not-update-order-status.exception';
-import { OrderNotFoundException } from '../../../domain/exceptions/order-not-found.exception';
+import { CanNotUpdateOrderStatusException } from '../../../../shared/domain/exceptions/can-not-update-order-status.exception';
+import { OrderNotFoundException } from '../../../../shared/domain/exceptions/order-not-found.exception';
 import { IOrdersRepository } from '../../../domain/repositories/orders.repository';
 import { OrderStatus } from '../../../../shared/domain/enums/order-status.enum';
 

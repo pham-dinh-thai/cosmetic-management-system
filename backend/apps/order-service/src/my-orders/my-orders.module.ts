@@ -9,6 +9,8 @@ import { OrderTransaction } from '../shared/infrastructure/entities/order-transa
 import { MyOrdersController } from './presentation/public/orders/my-orders.controller';
 import { ClientOrdersController } from './presentation/public/orders/client-orders.controller';
 import { PosOrdersController } from './presentation/public/orders/pos-orders.controller';
+import { EVENT_PUBLISHER_PORT } from '../shared/application/ports/order-event-publisher.port';
+import { OrderEventPublisherModule } from '../shared/infrastructure/queue/order-event-publisher.module';
 import { MY_ORDERS_REPOSITORY } from './domain/repositories/my-orders.repository';
 import { MikroMyOrdersRepository } from './infrastructure/repositories/mikro-my-orders.repository';
 import { VARIANT_READER_PORT } from './application/ports/variants-reader.port';
@@ -52,6 +54,7 @@ import {
 
 @Module({
   imports: [
+    OrderEventPublisherModule,
     RedisClientModule,
     MikroOrmModule.forFeature([Order, OrderLine, OrderTransaction]),
   ],
@@ -151,7 +154,12 @@ import {
     {
       provide: CancelMyOrderUseCase,
       useFactory: cancelMyOrderUseCaseFactory,
-      inject: [MY_ORDERS_REPOSITORY, RESTORE_STOCK_PORT, ViewMyOrderUseCase],
+      inject: [
+        MY_ORDERS_REPOSITORY,
+        RESTORE_STOCK_PORT,
+        ViewMyOrderUseCase,
+        EVENT_PUBLISHER_PORT,
+      ],
     },
   ],
 })

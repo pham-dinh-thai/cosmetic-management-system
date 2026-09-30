@@ -1,12 +1,15 @@
-import { OrderNotFoundException } from '../../../domain/exceptions/order-not-found.exception';
+import { OrderNotFoundException } from '../../../../shared/domain/exceptions/order-not-found.exception';
 import { IOrdersRepository } from '../../../domain/repositories/orders.repository';
 import { IFinalizeInvoicePort } from '../../ports/finalize-invoice.port';
 import { OrderStatus } from '../../../../shared/domain/enums/order-status.enum';
+import { IOrderEventPublisherPort } from 'apps/order-service/src/shared/application/ports/order-event-publisher.port';
+import { pullOrderEventEnvelopes } from 'apps/order-service/src/shared/application/order-event-envelope';
 
 export class CompleteOrderUseCase {
   public constructor(
     private readonly ordersRepository: IOrdersRepository,
     private readonly finalizeInvoicePort: IFinalizeInvoicePort,
+    private readonly orderEventPublisherPort: IOrderEventPublisherPort,
   ) {}
 
   public async execute(
@@ -28,7 +31,7 @@ export class CompleteOrderUseCase {
 
     await this.ordersRepository.updateStatus(order);
 
-    order.pullDomainEvents();
+    await this.orderEventPublisherPort.publish(pullOrderEventEnvelopes(order));
 
     return { id, status: order.getStatus() };
   }
@@ -37,5 +40,10 @@ export class CompleteOrderUseCase {
 export const completeOrderUseCaseFactory = (
   ordersRepository: IOrdersRepository,
   finalizeInvoicePort: IFinalizeInvoicePort,
+  orderEventPublisherPort: IOrderEventPublisherPort,
 ): CompleteOrderUseCase =>
-  new CompleteOrderUseCase(ordersRepository, finalizeInvoicePort);
+  new CompleteOrderUseCase(
+    ordersRepository,
+    finalizeInvoicePort,
+    orderEventPublisherPort,
+  );

@@ -1,6 +1,6 @@
 import { HttpException, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { InsufficientStockException } from '../../../orders/domain/exceptions/insufficient-stock.exception';
+import { InsufficientStockException } from '../../../shared/domain/exceptions/insufficient-stock.exception';
 import {
   BatchDeduction,
   IRemoveStockPort,

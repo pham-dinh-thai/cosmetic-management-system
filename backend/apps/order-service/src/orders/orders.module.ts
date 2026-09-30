@@ -5,14 +5,14 @@ import { Redis } from 'ioredis';
 import { RedisClientModule, REDIS_CLIENT } from '@app/redis-client';
 import { Order } from '../shared/infrastructure/entities/order.entity';
 import { OrderLine } from '../shared/infrastructure/entities/order-line.entity';
-import { OrderTransaction } from '../shared/infrastructure/entities/order-transaction.entity';
 import { OrdersController } from './presentation/public/orders/orders.controller';
-import { BestSellersController } from './presentation/public/orders/best-sellers.controller';
 import { InternalOrdersController } from './presentation/internal/orders/internal-orders.controller';
+import { EVENT_PUBLISHER_PORT } from '../shared/application/ports/order-event-publisher.port';
+import { OrderEventPublisherModule } from '../shared/infrastructure/queue/order-event-publisher.module';
 import { ORDERS_REPOSITORY } from './domain/repositories/orders.repository';
-import { ORDER_TRANSACTIONS_REPOSITORY } from './application/ports/order-transactions.repository';
+import { ORDER_TRANSACTIONS_REPOSITORY } from '../order-transactions/domain/repositories/order-transactions.repository';
+import { OrderTransactionsModule } from '../order-transactions/order-transactions.module';
 import { MikroOrdersRepository } from './infrastructure/repositories/mikro-orders.repository';
-import { MikroOrderTransactionsRepository } from './infrastructure/repositories/mikro-order-transactions.repository';
 import { CustomerNameReaderAdapter } from './infrastructure/adapters/customer-name-reader.adapter';
 import { CreateInvoiceAdapter } from './infrastructure/adapters/create-invoice.adapter';
 import { RestoreStockAdapter } from './infrastructure/adapters/restore-stock.adapter';
@@ -86,36 +86,22 @@ import {
   deleteOrderUseCaseFactory,
 } from './application/use-cases/delete-order/delete-order.use-case';
 import {
-  FindOrderTransactionsUseCase,
-  findOrderTransactionsUseCaseFactory,
-} from './application/use-cases/find-order-transactions/find-order-transactions.use-case';
-import {
-  FindBestSellersUseCase,
-  findBestSellersUseCaseFactory,
-} from './application/use-cases/find-best-sellers/find-best-sellers.use-case';
-import {
   FindVariantsInUseUseCase,
   findVariantsInUseUseCaseFactory,
 } from './application/use-cases/find-variants-in-use/find-variants-in-use.use-case';
 
 @Module({
   imports: [
+    OrderEventPublisherModule,
+    OrderTransactionsModule,
     RedisClientModule,
-    MikroOrmModule.forFeature([Order, OrderLine, OrderTransaction]),
+    MikroOrmModule.forFeature([Order, OrderLine]),
   ],
-  controllers: [
-    BestSellersController,
-    OrdersController,
-    InternalOrdersController,
-  ],
+  controllers: [OrdersController, InternalOrdersController],
   providers: [
     {
       provide: ORDERS_REPOSITORY,
       useClass: MikroOrdersRepository,
-    },
-    {
-      provide: ORDER_TRANSACTIONS_REPOSITORY,
-      useClass: MikroOrderTransactionsRepository,
     },
     {
       provide: CUSTOMER_NAME_READER_PORT,
@@ -163,47 +149,51 @@ import {
     {
       provide: ConfirmOrderUseCase,
       useFactory: confirmOrderUseCaseFactory,
-      inject: [ORDERS_REPOSITORY, CREATE_INVOICE_PORT],
+      inject: [ORDERS_REPOSITORY, CREATE_INVOICE_PORT, EVENT_PUBLISHER_PORT],
     },
     {
       provide: PrepareOrderUseCase,
       useFactory: prepareOrderUseCaseFactory,
-      inject: [ORDERS_REPOSITORY],
+      inject: [ORDERS_REPOSITORY, EVENT_PUBLISHER_PORT],
     },
     {
       provide: ShipOrderUseCase,
       useFactory: shipOrderUseCaseFactory,
-      inject: [ORDERS_REPOSITORY, ORDER_TRANSACTIONS_REPOSITORY],
+      inject: [
+        ORDERS_REPOSITORY,
+        ORDER_TRANSACTIONS_REPOSITORY,
+        EVENT_PUBLISHER_PORT,
+      ],
     },
     {
       provide: DeliverOrderUseCase,
       useFactory: deliverOrderUseCaseFactory,
-      inject: [ORDERS_REPOSITORY],
+      inject: [ORDERS_REPOSITORY, EVENT_PUBLISHER_PORT],
     },
     {
       provide: CompleteOrderUseCase,
       useFactory: completeOrderUseCaseFactory,
-      inject: [ORDERS_REPOSITORY, FINALIZE_INVOICE_PORT],
+      inject: [ORDERS_REPOSITORY, FINALIZE_INVOICE_PORT, EVENT_PUBLISHER_PORT],
     },
     {
       provide: CancelOrderUseCase,
       useFactory: cancelOrderUseCaseFactory,
-      inject: [ORDERS_REPOSITORY, RESTORE_STOCK_PORT],
+      inject: [ORDERS_REPOSITORY, RESTORE_STOCK_PORT, EVENT_PUBLISHER_PORT],
     },
     {
       provide: DeliveryFailedOrderUseCase,
       useFactory: deliveryFailedOrderUseCaseFactory,
-      inject: [ORDERS_REPOSITORY],
+      inject: [ORDERS_REPOSITORY, EVENT_PUBLISHER_PORT],
     },
     {
       provide: ReturnOrderUseCase,
       useFactory: returnOrderUseCaseFactory,
-      inject: [ORDERS_REPOSITORY, RESTORE_STOCK_PORT],
+      inject: [ORDERS_REPOSITORY, RESTORE_STOCK_PORT, EVENT_PUBLISHER_PORT],
     },
     {
       provide: RefundOrderUseCase,
       useFactory: refundOrderUseCaseFactory,
-      inject: [ORDERS_REPOSITORY],
+      inject: [ORDERS_REPOSITORY, EVENT_PUBLISHER_PORT],
     },
     {
       provide: PrintOrderUseCase,
@@ -223,21 +213,11 @@ import {
     {
       provide: UpdateOrderPaymentStatusUseCase,
       useFactory: updateOrderPaymentStatusUseCaseFactory,
-      inject: [ORDERS_REPOSITORY],
+      inject: [ORDERS_REPOSITORY, EVENT_PUBLISHER_PORT],
     },
     {
       provide: DeleteOrderUseCase,
       useFactory: deleteOrderUseCaseFactory,
-      inject: [ORDERS_REPOSITORY],
-    },
-    {
-      provide: FindOrderTransactionsUseCase,
-      useFactory: findOrderTransactionsUseCaseFactory,
-      inject: [ORDER_TRANSACTIONS_REPOSITORY],
-    },
-    {
-      provide: FindBestSellersUseCase,
-      useFactory: findBestSellersUseCaseFactory,
       inject: [ORDERS_REPOSITORY],
     },
     {

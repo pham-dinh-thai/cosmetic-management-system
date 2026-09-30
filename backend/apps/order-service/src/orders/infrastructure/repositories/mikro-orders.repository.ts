@@ -7,8 +7,8 @@ import {
 } from '../../domain/repositories/orders.repository';
 import { Order as OrderMikro } from 'apps/order-service/src/shared/infrastructure/entities/order.entity';
 import { OrderLine as OrderLineMikro } from 'apps/order-service/src/shared/infrastructure/entities/order-line.entity';
-import { Order } from '../../domain/order.aggregate';
-import { CreateOrderLineProps } from '../../domain/order.aggregate';
+import { Order } from '../../../shared/domain/order.aggregate';
+import { CreateOrderLineProps } from '../../../shared/domain/order.aggregate';
 import { OrderStatus } from '../../../shared/domain/enums/order-status.enum';
 import { OrderPaymentStatus } from '../../../shared/domain/enums/order-payment-status.enum';
 
