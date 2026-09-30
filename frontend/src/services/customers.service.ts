@@ -1,7 +1,5 @@
 import api from "../config/axios";
 
-const DEFAULT_PASSWORD = "Customer@123456";
-
 export function splitName(name: string): {
   firstName: string;
   lastName: string;
@@ -108,28 +106,6 @@ export const customersService = {
 
   async getCustomerById(id: string): Promise<CustomerDetail> {
     const { data } = await api.get<CustomerDetail>(`/customers/${id}`);
-    return data;
-  },
-
-  async createCustomer(payload: {
-    name?: string;
-    email?: string;
-    password?: string;
-    gender?: string;
-  }): Promise<{ id: string }> {
-    const { firstName, lastName } = splitName(payload.name || "");
-
-    const { data } = await api.post<{ id: string }>("/customers", {
-      user: {
-        firstName,
-        lastName,
-        gender: payload.gender || "other",
-        email: payload.email || "",
-        password: payload.password || DEFAULT_PASSWORD,
-        roleId: "customer",
-      },
-    });
-
     return data;
   },
 

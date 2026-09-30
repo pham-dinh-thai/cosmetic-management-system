@@ -115,17 +115,9 @@ const PosPage: React.FC = () => {
         <div className="lg:col-span-4 flex flex-col gap-5 lg:sticky lg:top-24">
           {/* Customer */}
           <Card className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-[#666666]">
-                Khách hàng
-              </p>
-              <button
-                onClick={() => s.setShowAddCustomer((v) => !v)}
-                className="text-[12px] uppercase tracking-[0.12em] font-medium text-[#1c3a13] hover:underline"
-              >
-                {s.showAddCustomer ? "Đóng" : "+ Thêm khách hàng"}
-              </button>
-            </div>
+            <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-[#666666]">
+              Khách hàng
+            </p>
 
             {s.selectedCustomer ? (
               <div className="rounded-[12px] bg-[#eeeee9] p-3 flex items-center justify-between">
@@ -191,50 +183,6 @@ const PosPage: React.FC = () => {
                     )}
                   </div>
                 )}
-              </div>
-            )}
-
-            {s.showAddCustomer && (
-              <div className="rounded-[12px] border border-[#eeeee9] p-3 flex flex-col gap-3">
-                <input
-                  value={s.newCustomer.name}
-                  onChange={(e) =>
-                    s.setNewCustomer((p) => ({ ...p, name: e.target.value }))
-                  }
-                  placeholder="Họ và tên *"
-                  className="h-10 rounded-[8px] border-[1.5px] border-[#c4c7c4] bg-[#fcfcf7] px-3 text-[14px] focus:outline-none focus:border-[#1c3a13]"
-                />
-                <input
-                  value={s.newCustomer.phone}
-                  onChange={(e) =>
-                    s.setNewCustomer((p) => ({ ...p, phone: e.target.value }))
-                  }
-                  placeholder="Số điện thoại *"
-                  className="h-10 rounded-[8px] border-[1.5px] border-[#c4c7c4] bg-[#fcfcf7] px-3 text-[14px] focus:outline-none focus:border-[#1c3a13]"
-                />
-                <input
-                  value={s.newCustomer.email}
-                  onChange={(e) =>
-                    s.setNewCustomer((p) => ({ ...p, email: e.target.value }))
-                  }
-                  placeholder="Email"
-                  className="h-10 rounded-[8px] border-[1.5px] border-[#c4c7c4] bg-[#fcfcf7] px-3 text-[14px] focus:outline-none focus:border-[#1c3a13]"
-                />
-                <input
-                  value={s.newCustomer.address}
-                  onChange={(e) =>
-                    s.setNewCustomer((p) => ({ ...p, address: e.target.value }))
-                  }
-                  placeholder="Địa chỉ"
-                  className="h-10 rounded-[8px] border-[1.5px] border-[#c4c7c4] bg-[#fcfcf7] px-3 text-[14px] focus:outline-none focus:border-[#1c3a13]"
-                />
-                <button
-                  onClick={s.handleAddCustomer}
-                  disabled={s.addingCustomer}
-                  className="h-10 rounded-full bg-[#1c3a13] text-[#fcfcf7] text-[14px] font-medium hover:opacity-90 disabled:opacity-50 transition-colors"
-                >
-                  {s.addingCustomer ? "Đang lưu…" : "Lưu khách hàng"}
-                </button>
               </div>
             )}
           </Card>

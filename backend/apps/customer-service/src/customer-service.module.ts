@@ -15,10 +15,6 @@ import {
   CreateCustomerUseCase,
   createCustomerUseCaseFactory,
 } from './application/use-cases/create-customer/create-customer.use-case';
-import { CREATE_USER_PORT } from './application/use-cases/create-customer/ports/create-user.port';
-import { CreateUserAdapter } from './infrastructure/adapters/create-user.adapter';
-import { DELETE_USER_PORT } from './application/use-cases/create-customer/ports/delete-user.port';
-import { DeleteUserAdapter } from './infrastructure/adapters/delete-user.adapter';
 import { UPDATE_USER_INFORMATION_PORT } from './application/use-cases/update-customer/ports/update-user-information.port';
 import { FIND_USER_INFORMATION_PORT } from './application/use-cases/update-customer/ports/find-user-information.port';
 import {
@@ -104,16 +100,6 @@ import { PhoneValidationService } from './domain/services/phone-validation.servi
   providers: [
     { provide: CUSTOMERS_REPOSITORY, useClass: MikroCustomersRepository },
     {
-      provide: CREATE_USER_PORT,
-      useFactory: (config: ConfigService) => new CreateUserAdapter(config),
-      inject: [ConfigService],
-    },
-    {
-      provide: DELETE_USER_PORT,
-      useFactory: (config: ConfigService) => new DeleteUserAdapter(config),
-      inject: [ConfigService],
-    },
-    {
       provide: UPDATE_USER_INFORMATION_PORT,
       useFactory: (config: ConfigService) =>
         new UpdateUserInformationAdapter(config),
@@ -129,7 +115,7 @@ import { PhoneValidationService } from './domain/services/phone-validation.servi
     {
       provide: CreateCustomerUseCase,
       useFactory: createCustomerUseCaseFactory,
-      inject: [CREATE_USER_PORT, CUSTOMERS_REPOSITORY, DELETE_USER_PORT],
+      inject: [CUSTOMERS_REPOSITORY],
     },
     {
       provide: UpdateCustomerUseCase,

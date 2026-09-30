@@ -34,7 +34,6 @@ import WarehouseDashboardPage from "./pages/Admin/routes/WarehouseDashboard";
 import AccountingDashboardPage from "./pages/Admin/routes/AccountingDashboard";
 import ReportsPage from "./pages/Admin/routes/Reports";
 import CustomersPage from "./pages/Admin/routes/Customers";
-import AddCustomerPage from "./pages/Admin/routes/AddCustomer";
 import EditCustomerPage from "./pages/Admin/routes/EditCustomer";
 import EmployeesPage from "./pages/Admin/routes/Employees";
 import AddEmployeePage from "./pages/Admin/routes/AddEmployee";
@@ -127,7 +126,6 @@ function App() {
             <Route path="/pos" element={<PosPage />} />
             <Route path="/orders" element={<OrdersPage />} />
             <Route path="/customers" element={<CustomersPage />} />
-            <Route path="/customers/add" element={<RequireWrite perm="customers:write"><AddCustomerPage /></RequireWrite>} />
             <Route path="/customers/:id/edit" element={<RequireWrite perm="customers:write"><EditCustomerPage /></RequireWrite>} />
             <Route path="/employees" element={<EmployeesPage />} />
             <Route path="/employees/add" element={<RequireWrite perm="employees:write"><AddEmployeePage /></RequireWrite>} />

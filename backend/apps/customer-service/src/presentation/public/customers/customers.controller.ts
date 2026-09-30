@@ -15,13 +15,7 @@ import {
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { AuthGuard, Permissions, PermissionsGuard } from '@app/security';
-import {
-  Audit,
-  AuditAction,
-  paramId,
-  responseId,
-  userSubId,
-} from '@app/audit-client';
+import { Audit, AuditAction, paramId, userSubId } from '@app/audit-client';
 import { FindAllCustomersUseCase } from 'apps/customer-service/src/application/use-cases/find-customer/find-all/find-all-customers.use-case';
 import { FindAllCustomerReadModel } from 'apps/customer-service/src/application/use-cases/find-customer/find-all/read-models/find-all-customer.read-model';
 import { FindCustomerByIdUseCase } from 'apps/customer-service/src/application/use-cases/find-customer/find-by-id/find-customer-by-id.use-case';
@@ -29,7 +23,6 @@ import { FindCustomerByIdReadModel } from 'apps/customer-service/src/application
 import { FindCustomerByUserUseCase } from 'apps/customer-service/src/application/use-cases/find-customer/find-by-user/find-customer-by-user.use-case';
 import { FindCustomerByUserReadModel } from 'apps/customer-service/src/application/use-cases/find-customer/find-by-user/read-models/find-customer-by-user.read-model';
 import { CreateCustomerUseCase } from 'apps/customer-service/src/application/use-cases/create-customer/create-customer.use-case';
-import { CreateCustomerRequest } from './requests/create-customer.request';
 import { UpdateCustomerUseCase } from 'apps/customer-service/src/application/use-cases/update-customer/update-customer.use-case';
 import { UpdateCustomerRequest } from './requests/update-customer.request';
 import { DeleteCustomerUseCase } from 'apps/customer-service/src/application/use-cases/delete-customer/delete-customer.use-case';
@@ -125,19 +118,6 @@ export class CustomersController {
     @Param('id') id: string,
   ): Promise<FindCustomerByIdReadModel | null> {
     return await this.findCustomerByIdUseCase.execute(id);
-  }
-
-  @Permissions('customers:write')
-  @Post()
-  @Audit({
-    entityType: 'customer',
-    action: AuditAction.CREATE,
-    entityId: responseId(),
-  })
-  public async create(
-    @Body() request: CreateCustomerRequest,
-  ): Promise<{ id: string }> {
-    return await this.createCustomerUseCase.execute(request);
   }
 
   @Permissions()

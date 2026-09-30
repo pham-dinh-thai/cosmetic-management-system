@@ -7,6 +7,5 @@ export const posApi = {
   getCosmetics: () => productsService.getCosmetics(),
   getCosmeticById: (id: string) => productsService.getCosmeticById(id),
   searchCustomers: (q?: string) => customersService.getCustomers(q),
-  createCustomer: customersService.createCustomer,
   createOrder: (payload: CreatePosOrderPayload) => ordersService.createOrder(payload),
 };

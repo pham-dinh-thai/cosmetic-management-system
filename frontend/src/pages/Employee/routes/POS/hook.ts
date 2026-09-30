@@ -1,14 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useAuthStore } from "../../../../store/useAuthStore";
-import { customersService } from "../../../../services/customers.service";
 import { posApi } from "./api";
 import type {
   CartItem,
   CosmeticDetail,
   CosmeticSummary,
   CustomerSummary,
-  NewCustomerDraft,
   PaymentMethod,
   PaymentOption,
 } from "./type";
@@ -21,13 +19,6 @@ export const PAYMENT_OPTIONS: PaymentOption[] = [
   { value: "bank_transfer", label: "Chuyển khoản" },
   { value: "card", label: "Thẻ" },
 ];
-
-export const EMPTY_CUSTOMER: NewCustomerDraft = {
-  name: "",
-  phone: "",
-  email: "",
-  address: "",
-};
 
 export function usePosPage() {
   const user = useAuthStore((s) => s.user);
@@ -56,11 +47,6 @@ export function usePosPage() {
   const [showCustomerList, setShowCustomerList] = useState(false);
   const [selectedCustomer, setSelectedCustomer] =
     useState<CustomerSummary | null>(null);
-
-  const [showAddCustomer, setShowAddCustomer] = useState(false);
-  const [newCustomer, setNewCustomer] =
-    useState<NewCustomerDraft>(EMPTY_CUSTOMER);
-  const [addingCustomer, setAddingCustomer] = useState(false);
 
   const [cart, setCart] = useState<CartItem[]>([]);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cash");
@@ -191,33 +177,6 @@ export function usePosPage() {
     [],
   );
 
-  const handleAddCustomer = useCallback(async () => {
-    if (!newCustomer.name || !newCustomer.phone) {
-      toast.error("Vui lòng nhập tên và số điện thoại.");
-      return;
-    }
-    setAddingCustomer(true);
-    try {
-      const { id } = await posApi.createCustomer({
-        name: newCustomer.name,
-        email: newCustomer.email,
-      });
-
-      await customersService.addPhone(id, newCustomer.phone);
-      if (newCustomer.address.trim()) {
-        await customersService.addAddress(id, newCustomer.address.trim());
-      }
-
-      toast.success("Đã thêm khách hàng.");
-      setNewCustomer(EMPTY_CUSTOMER);
-      setShowAddCustomer(false);
-    } catch {
-      toast.error("Không thể thêm khách hàng.");
-    } finally {
-      setAddingCustomer(false);
-    }
-  }, [newCustomer]);
-
   const clearCustomer = useCallback(() => {
     setSelectedCustomer(null);
     setCustomerSearch("");
@@ -272,12 +231,6 @@ export function usePosPage() {
     selectedCustomer,
     setSelectedCustomer,
     clearCustomer,
-    showAddCustomer,
-    setShowAddCustomer,
-    newCustomer,
-    setNewCustomer,
-    addingCustomer,
-    handleAddCustomer,
     cart,
     addToCart,
     updateQty,

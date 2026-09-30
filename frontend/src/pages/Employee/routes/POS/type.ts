@@ -14,13 +14,6 @@ export interface CartItem {
   minStock: number;
 }
 
-export interface NewCustomerDraft {
-  name: string;
-  phone: string;
-  email: string;
-  address: string;
-}
-
 export interface PaymentOption {
   value: PaymentMethod;
   label: string;
