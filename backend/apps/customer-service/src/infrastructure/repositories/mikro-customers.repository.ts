@@ -52,21 +52,6 @@ export class MikroCustomersRepository implements ICustomersRepository {
     return { id: customerMikro.id };
   }
 
-  public async update(customer: Customer): Promise<void> {
-    const customerMikro = await this.entityManager.findOne(CustomerMikro, {
-      id: customer.getId(),
-    });
-
-    if (!customerMikro) {
-      return;
-    }
-
-    customerMikro.phone = customer.getPhone();
-    customerMikro.address = customer.getAddress();
-
-    await this.entityManager.flush();
-  }
-
   public async delete(id: string): Promise<Customer | null> {
     const customerMikro = await this.entityManager.findOne(
       CustomerMikro,
@@ -126,6 +111,16 @@ export class MikroCustomersRepository implements ICustomersRepository {
 
     this.entityManager.persist(phoneMikro);
     await this.entityManager.flush();
+  }
+
+  public async findPhoneOwnerId(phone: string): Promise<string | null> {
+    const phoneMikro = await this.entityManager.findOne(
+      PhoneMikro,
+      { phone },
+      { populate: ['customer'] },
+    );
+
+    return phoneMikro?.customer.id ?? null;
   }
 
   public async removePhone(phoneId: string): Promise<void> {

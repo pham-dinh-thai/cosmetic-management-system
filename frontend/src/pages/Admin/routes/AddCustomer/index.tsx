@@ -46,14 +46,20 @@ const AddCustomerPage: React.FC = () => {
     }
     setLoading(true);
     try {
-      await customersService.createCustomer({
+      const { id } = await customersService.createCustomer({
         name: `${formData.firstName.trim()} ${formData.lastName.trim()}`,
         gender: formData.gender || "other",
-        phone: formData.phone,
         email: formData.email,
-        address: formData.address,
         password,
       });
+
+      if (formData.phone.trim()) {
+        await customersService.addPhone(id, formData.phone.trim());
+      }
+      if (formData.address.trim()) {
+        await customersService.addAddress(id, formData.address.trim());
+      }
+
       toast.success("Đã thêm khách hàng");
       navigate("/customers");
     } catch (error) {

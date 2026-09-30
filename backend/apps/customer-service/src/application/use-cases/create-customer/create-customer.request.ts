@@ -11,6 +11,4 @@ export interface ICreateCustomerRequest {
   userId?: string;
   code?: string;
   user?: ICreateCustomerUserRequest;
-  phone?: string;
-  address?: string;
 }

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useAuthStore } from "../../../../store/useAuthStore";
+import { customersService } from "../../../../services/customers.service";
 import { posApi } from "./api";
 import type {
   CartItem,
@@ -57,7 +58,8 @@ export function usePosPage() {
     useState<CustomerSummary | null>(null);
 
   const [showAddCustomer, setShowAddCustomer] = useState(false);
-  const [newCustomer, setNewCustomer] = useState<NewCustomerDraft>(EMPTY_CUSTOMER);
+  const [newCustomer, setNewCustomer] =
+    useState<NewCustomerDraft>(EMPTY_CUSTOMER);
   const [addingCustomer, setAddingCustomer] = useState(false);
 
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -165,28 +167,23 @@ export function usePosPage() {
     [cart],
   );
 
-  const updateQty = useCallback(
-    (variantId: string, qty: number) => {
-      setCart((prev) => {
-        const item = prev.find((c) => c.variantId === variantId);
-        if (!item) return prev;
+  const updateQty = useCallback((variantId: string, qty: number) => {
+    setCart((prev) => {
+      const item = prev.find((c) => c.variantId === variantId);
+      if (!item) return prev;
 
-        if (qty > item.availableStock) {
-          toast.warning("Số lượng vượt quá tồn kho");
-          return prev;
-        }
+      if (qty > item.availableStock) {
+        toast.warning("Số lượng vượt quá tồn kho");
+        return prev;
+      }
 
-        const next = prev.map((c) =>
-          c.variantId === variantId
-            ? { ...c, quantity: Math.max(0, qty) }
-            : c,
-        );
+      const next = prev.map((c) =>
+        c.variantId === variantId ? { ...c, quantity: Math.max(0, qty) } : c,
+      );
 
-        return next.filter((c) => c.quantity > 0);
-      });
-    },
-    [],
-  );
+      return next.filter((c) => c.quantity > 0);
+    });
+  }, []);
 
   const removeFromCart = useCallback(
     (variantId: string) =>
@@ -201,12 +198,16 @@ export function usePosPage() {
     }
     setAddingCustomer(true);
     try {
-      await posApi.createCustomer({
+      const { id } = await posApi.createCustomer({
         name: newCustomer.name,
-        phone: newCustomer.phone,
         email: newCustomer.email,
-        address: newCustomer.address,
       });
+
+      await customersService.addPhone(id, newCustomer.phone);
+      if (newCustomer.address.trim()) {
+        await customersService.addAddress(id, newCustomer.address.trim());
+      }
+
       toast.success("Đã thêm khách hàng.");
       setNewCustomer(EMPTY_CUSTOMER);
       setShowAddCustomer(false);

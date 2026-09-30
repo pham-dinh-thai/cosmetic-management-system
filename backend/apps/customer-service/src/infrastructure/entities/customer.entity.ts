@@ -10,8 +10,6 @@ const CustomerSchema = defineEntity({
     id: p.uuid().primary().defaultRaw('gen_random_uuid()'),
     userId: p.string().unique(),
     code: p.string().unique(),
-    phone: p.string(),
-    address: p.string(),
     addresses: () => p.oneToMany(Address).mappedBy('customer'),
     phones: () => p.oneToMany(Phone).mappedBy('customer'),
     createdAt: p.datetime().onCreate(() => new Date()),

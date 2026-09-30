@@ -9,8 +9,6 @@ export interface ICustomersRepository {
 
   create(customer: Customer): Promise<{ id: string }>;
 
-  update(customer: Customer): Promise<void>;
-
   delete(id: string): Promise<Customer | null>;
 
   createAddress(
@@ -22,6 +20,8 @@ export interface ICustomersRepository {
   removeAddress(addressId: string): Promise<void>;
 
   createPhone(customerId: string, phone: string): Promise<void>;
+
+  findPhoneOwnerId(phone: string): Promise<string | null>;
 
   removePhone(phoneId: string): Promise<void>;
 }

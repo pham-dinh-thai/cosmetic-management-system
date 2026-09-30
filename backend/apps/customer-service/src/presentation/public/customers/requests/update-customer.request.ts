@@ -1,9 +1,8 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { IUpdateCustomerRequest } from 'apps/customer-service/src/application/use-cases/update-customer/update-customer.request';
 import {
   IsDefined,
   IsNotEmpty,
-  IsOptional,
   IsString,
   MaxLength,
   ValidateNested,
@@ -35,16 +34,4 @@ export class UpdateCustomerRequest implements IUpdateCustomerRequest {
   @ValidateNested()
   @Type(() => UpdateCustomerUserDto)
   user!: UpdateCustomerUserDto;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  @MaxLength(255)
-  phone?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  @MaxLength(255)
-  address?: string;
 }

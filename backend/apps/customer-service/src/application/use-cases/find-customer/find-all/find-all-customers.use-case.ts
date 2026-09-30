@@ -41,8 +41,8 @@ export class FindAllCustomersUseCase {
             .trim(),
           userInfo?.gender ?? '',
           userInfo?.email ?? '',
-          customer.getPhone(),
-          customer.getAddress(),
+          customer.getPhones()[0]?.getPhone() ?? '',
+          customer.getAddresses()[0]?.getStreet() ?? '',
           userInfo?.isActive ?? true,
         );
       }),

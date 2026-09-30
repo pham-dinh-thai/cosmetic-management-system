@@ -164,6 +164,54 @@ export class CustomersController {
     await this.updateCustomerUseCase.execute(customer.id, body);
   }
 
+  @Permissions()
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Post('me/phones')
+  @Audit({
+    entityType: 'customer-phone',
+    action: AuditAction.CREATE,
+    entityId: userSubId(),
+  })
+  public async addMyPhone(
+    @Req() request: Request,
+    @Body() body: AddPhoneRequest,
+  ): Promise<void> {
+    const userId =
+      (request as unknown as { user?: { sub?: string } }).user?.sub ?? '';
+
+    const customer = await this.findCustomerByUserUseCase.execute(userId);
+
+    if (!customer) {
+      throw new CustomerNotFoundException(userId);
+    }
+
+    await this.addPhoneUseCase.execute(customer.id, body);
+  }
+
+  @Permissions()
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Post('me/addresses')
+  @Audit({
+    entityType: 'customer-address',
+    action: AuditAction.CREATE,
+    entityId: userSubId(),
+  })
+  public async addMyAddress(
+    @Req() request: Request,
+    @Body() body: AddAddressRequest,
+  ): Promise<void> {
+    const userId =
+      (request as unknown as { user?: { sub?: string } }).user?.sub ?? '';
+
+    const customer = await this.findCustomerByUserUseCase.execute(userId);
+
+    if (!customer) {
+      throw new CustomerNotFoundException(userId);
+    }
+
+    await this.addAddressUseCase.execute(customer.id, body);
+  }
+
   @Permissions('customers:write')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Put(':id')

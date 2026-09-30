@@ -7,8 +7,6 @@ export class CustomersMapper {
       id: customerMikro.id,
       userId: customerMikro.userId,
       code: customerMikro.code,
-      phone: customerMikro.phone,
-      address: customerMikro.address,
       addresses: customerMikro.addresses.getItems().map((address) => ({
         id: address.id,
         city: address.city,
@@ -32,8 +30,6 @@ export class CustomersMapper {
 
     customerMikro.userId = customer.getUserId();
     customerMikro.code = customer.getCode();
-    customerMikro.phone = customer.getPhone();
-    customerMikro.address = customer.getAddress();
 
     return customerMikro;
   }

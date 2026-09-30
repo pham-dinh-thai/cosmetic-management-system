@@ -106,9 +106,13 @@ const Register: React.FC = () => {
             lastName: lastName.trim(),
             gender: gender as string,
           },
-          phone: phone.trim(),
-          address: address.trim(),
         });
+        if (phone.trim()) {
+          await customersService.addMyPhone(phone.trim());
+        }
+        if (address.trim()) {
+          await customersService.addMyAddress(address.trim());
+        }
       } catch (profileErr) {
         console.warn("Không thể lưu bổ sung số điện thoại/địa chỉ:", profileErr);
       }
