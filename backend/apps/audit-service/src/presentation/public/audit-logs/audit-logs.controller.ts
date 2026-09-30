@@ -1,16 +1,11 @@
 import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
-import {
-  AuthGuard,
-  OrgGuard,
-  Permissions,
-  PermissionsGuard,
-} from '@app/security';
+import { AuthGuard, Permissions, PermissionsGuard } from '@app/security';
 import { FindAllAuditLogsUseCase } from 'apps/audit-service/src/application/use-cases/find-all-audit-logs/find-all-audit-logs.use-case';
 import { FindAuditLogByIdUseCase } from 'apps/audit-service/src/application/use-cases/find-audit-log-by-id/find-audit-log-by-id.use-case';
 import { AuditLogDetailReadModel } from 'apps/audit-service/src/application/use-cases/find-audit-log-by-id/read-models/audit-log-detail.read-model';
 import { FindAllAuditLogsQuery } from './requests/audit-log.requests';
 
-@UseGuards(AuthGuard, OrgGuard, PermissionsGuard)
+@UseGuards(AuthGuard, PermissionsGuard)
 @Permissions('audit_logs:read')
 @Controller('audit-logs')
 export class AuditLogsController {

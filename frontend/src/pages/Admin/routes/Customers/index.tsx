@@ -25,10 +25,6 @@ const CustomersPage: React.FC = () => {
   const { customers, loading, q, setQ, status, setStatus, handleToggleStatus } =
     useCustomers();
 
-  const openAdd = () => {
-    navigate("/customers/add");
-  };
-
   const openEdit = (c: Customer) => {
     navigate(`/customers/${c.id}/edit`);
   };
@@ -117,13 +113,6 @@ const CustomersPage: React.FC = () => {
         eyebrow="Quản lý / Khách hàng"
         title="Danh sách khách hàng"
         description="Quản lý thông tin khách hàng và lịch sử mua sắm."
-        actions={
-          canWrite && (
-            <Button variant="primary" onClick={openAdd}>
-              + Thêm khách hàng
-            </Button>
-          )
-        }
       />
       <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
         <div className="md:col-span-7">

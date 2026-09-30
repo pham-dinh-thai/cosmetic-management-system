@@ -27,8 +27,18 @@ import { AuthUsersController } from './presentation/public/auth-users/auth-users
 import { InternalAuthUsersController } from './presentation/internal/auth-users/auth-users.controller';
 import { CREATE_USER_PORT } from './application/use-cases/register/ports/create-user.port';
 import { CreateUserAdapter } from './infrastructure/adapters/create-user.adapter';
-import { CREATE_CUSTOMER_PORT } from './application/use-cases/register/ports/create-customer.port';
+import {
+  CREATE_CUSTOMER_PORT,
+  CREATE_CUSTOMER_PHONE_PORT,
+  CREATE_CUSTOMER_ADDRESS_PORT,
+} from './application/use-cases/register/ports/create-customer.port';
 import { CreateCustomerAdapter } from './infrastructure/adapters/create-customer.adapter';
+import { CreateCustomerPhoneAdapter } from './infrastructure/adapters/create-customer-phone.adapter';
+import { CreateCustomerAddressAdapter } from './infrastructure/adapters/create-customer-address.adapter';
+import { DELETE_CUSTOMER_PORT } from './application/use-cases/register/ports/delete-customer.port';
+import { DeleteCustomerAdapter } from './infrastructure/adapters/delete-customer.adapter';
+import { DELETE_USER_PORT } from './application/use-cases/register/ports/delete-user.port';
+import { DeleteUserAdapter } from './infrastructure/adapters/delete-user.adapter';
 import {
   RegisterUseCase,
   registerUseCaseFactory,
@@ -143,12 +153,32 @@ import {
       useClass: CreateCustomerAdapter,
     },
     {
+      provide: CREATE_CUSTOMER_PHONE_PORT,
+      useClass: CreateCustomerPhoneAdapter,
+    },
+    {
+      provide: CREATE_CUSTOMER_ADDRESS_PORT,
+      useClass: CreateCustomerAddressAdapter,
+    },
+    {
+      provide: DELETE_CUSTOMER_PORT,
+      useClass: DeleteCustomerAdapter,
+    },
+    {
+      provide: DELETE_USER_PORT,
+      useClass: DeleteUserAdapter,
+    },
+    {
       provide: RegisterUseCase,
       useFactory: registerUseCaseFactory,
       inject: [
         FIND_USER_BY_EMAIL_PORT,
         CREATE_USER_PORT,
         CREATE_CUSTOMER_PORT,
+        CREATE_CUSTOMER_PHONE_PORT,
+        CREATE_CUSTOMER_ADDRESS_PORT,
+        DELETE_CUSTOMER_PORT,
+        DELETE_USER_PORT,
         SIGN_TOKEN_PORT,
         ROLE_PERMISSION_READER_PORT,
       ],

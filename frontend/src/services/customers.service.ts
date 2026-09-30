@@ -1,8 +1,9 @@
 import api from "../config/axios";
 
-const DEFAULT_PASSWORD = "Customer@123456";
-
-export function splitName(name: string): { firstName: string; lastName: string } {
+export function splitName(name: string): {
+  firstName: string;
+  lastName: string;
+} {
   const trimmed = name.trim();
   const index = trimmed.lastIndexOf(" ");
   if (index === -1) {
@@ -65,10 +66,35 @@ export const customersService = {
 
   async updateMe(payload: {
     user: { firstName: string; lastName: string; gender: string };
-    phone?: string;
-    address?: string;
   }): Promise<void> {
     await api.put<void>("/customers/me", payload);
+  },
+
+  async addMyPhone(phone: string): Promise<void> {
+    await api.post<void>("/customers/me/phones", { phone });
+  },
+
+  async addMyAddress(street: string): Promise<void> {
+    await api.post<void>("/customers/me/addresses", { city: "", street });
+  },
+
+  async addPhone(customerId: string, phone: string): Promise<void> {
+    await api.post<void>(`/customers/${customerId}/phones`, { phone });
+  },
+
+  async addAddress(customerId: string, street: string): Promise<void> {
+    await api.post<void>(`/customers/${customerId}/addresses`, {
+      city: "",
+      street,
+    });
+  },
+
+  async removePhone(customerId: string, phoneId: string): Promise<void> {
+    await api.delete<void>(`/customers/${customerId}/phones/${phoneId}`);
+  },
+
+  async removeAddress(customerId: string, addressId: string): Promise<void> {
+    await api.delete<void>(`/customers/${customerId}/addresses/${addressId}`);
   },
 
   async getCustomers(search?: string): Promise<CustomerSummary[]> {
@@ -83,38 +109,10 @@ export const customersService = {
     return data;
   },
 
-  async createCustomer(payload: {
-    name?: string;
-    email?: string;
-    phone?: string;
-    address?: string;
-    password?: string;
-    gender?: string;
-  }): Promise<{ id: string }> {
-    const { firstName, lastName } = splitName(payload.name || "");
-
-    const { data } = await api.post<{ id: string }>("/customers", {
-      user: {
-        firstName,
-        lastName,
-        gender: payload.gender || "other",
-        email: payload.email || "",
-        password: payload.password || DEFAULT_PASSWORD,
-        roleId: "customer",
-      },
-      phone: payload.phone || undefined,
-      address: payload.address || undefined,
-    });
-
-    return data;
-  },
-
   async updateCustomer(
     id: string,
     payload: {
       name?: string;
-      phone?: string;
-      address?: string;
       gender?: string;
     },
   ): Promise<void> {
@@ -126,8 +124,6 @@ export const customersService = {
         lastName,
         gender: payload.gender || "other",
       },
-      phone: payload.phone || undefined,
-      address: payload.address || undefined,
     });
   },
 

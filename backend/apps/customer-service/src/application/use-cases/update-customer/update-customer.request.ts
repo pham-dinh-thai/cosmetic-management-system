@@ -6,6 +6,4 @@ export interface IUpdateCustomerUserRequest {
 
 export interface IUpdateCustomerRequest {
   user: IUpdateCustomerUserRequest;
-  phone?: string;
-  address?: string;
 }

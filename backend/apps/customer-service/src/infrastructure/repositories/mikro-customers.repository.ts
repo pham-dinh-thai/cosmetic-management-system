@@ -6,6 +6,8 @@ import { Address as AddressMikro } from '../entities/address.entity';
 import { Phone as PhoneMikro } from '../entities/phone.entity';
 import { CustomersMapper } from '../mappers/customers.mapper';
 import { Customer } from '../../domain/customer.aggregate';
+import { maxSequenceFromCodes } from '@app/codes';
+import { CUSTOMER_CODE_PREFIX } from '../../domain/value-objects/customer-code.value-object';
 
 @Injectable()
 export class MikroCustomersRepository implements ICustomersRepository {
@@ -43,6 +45,25 @@ export class MikroCustomersRepository implements ICustomersRepository {
     return customerMikro ? CustomersMapper.toDomain(customerMikro) : null;
   }
 
+  public async findMaxCodeSequence(): Promise<number | null> {
+    const customersMikro = await this.entityManager.find(
+      CustomerMikro,
+      {},
+      {
+        fields: ['code'],
+      },
+    );
+
+    if (customersMikro.length === 0) {
+      return null;
+    }
+
+    return maxSequenceFromCodes(
+      CUSTOMER_CODE_PREFIX,
+      customersMikro.map((customerMikro) => customerMikro.code),
+    );
+  }
+
   public async create(customer: Customer): Promise<{ id: string }> {
     const customerMikro = CustomersMapper.toMikro(customer);
 
@@ -50,21 +71,6 @@ export class MikroCustomersRepository implements ICustomersRepository {
     await this.entityManager.flush();
 
     return { id: customerMikro.id };
-  }
-
-  public async update(customer: Customer): Promise<void> {
-    const customerMikro = await this.entityManager.findOne(CustomerMikro, {
-      id: customer.getId(),
-    });
-
-    if (!customerMikro) {
-      return;
-    }
-
-    customerMikro.phone = customer.getPhone();
-    customerMikro.address = customer.getAddress();
-
-    await this.entityManager.flush();
   }
 
   public async delete(id: string): Promise<Customer | null> {
@@ -126,6 +132,16 @@ export class MikroCustomersRepository implements ICustomersRepository {
 
     this.entityManager.persist(phoneMikro);
     await this.entityManager.flush();
+  }
+
+  public async findPhoneOwnerId(phone: string): Promise<string | null> {
+    const phoneMikro = await this.entityManager.findOne(
+      PhoneMikro,
+      { phone },
+      { populate: ['customer'] },
+    );
+
+    return phoneMikro?.customer.id ?? null;
   }
 
   public async removePhone(phoneId: string): Promise<void> {

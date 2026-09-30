@@ -1,24 +1,51 @@
-import { randomUUID } from 'node:crypto';
 import { IRegisterRequest } from './register.request';
 import { RegisterResponse } from './register.response';
 import { ICreateUserPort } from './ports/create-user.port';
-import { ICreateCustomerPort } from './ports/create-customer.port';
+import {
+  ICreateCustomerPort,
+  ICreateCustomerPhonePort,
+  ICreateCustomerAddressPort,
+} from './ports/create-customer.port';
+import { IDeleteCustomerPort } from './ports/delete-customer.port';
+import { IDeleteUserPort } from './ports/delete-user.port';
 import { ISignTokenPort } from '../../ports/sign-token.port';
 import { IRolePermissionReaderPort } from 'apps/authentication-service/src/application/ports/role-permission-reader.port';
 import { EmailAlreadyExistsException } from 'apps/authentication-service/src/domain/exceptions/email-already-exists.exception';
 import { PasswordNotMatchingException } from 'apps/authentication-service/src/domain/exceptions/password-not-matching.exception';
 import { IFindUserByEmailPort } from '../../ports/find-user-by-email.port';
+import { Logger } from '@nestjs/common';
 
 const REGISTER_ROLE_ID = 'customer';
 
 export class RegisterUseCase {
+  private readonly logger = new Logger(RegisterUseCase.name);
+
   public constructor(
     private readonly findUserByEmailPort: IFindUserByEmailPort,
     private readonly createUserPort: ICreateUserPort,
     private readonly createCustomerPort: ICreateCustomerPort,
+    private readonly createCustomerPhonePort: ICreateCustomerPhonePort,
+    private readonly createCustomerAddressPort: ICreateCustomerAddressPort,
+    private readonly deleteCustomerPort: IDeleteCustomerPort,
+    private readonly deleteUserPort: IDeleteUserPort,
     private readonly signTokenPort: ISignTokenPort,
     private readonly rolePermissionReaderPort: IRolePermissionReaderPort,
   ) {}
+
+  private async rollbackRegistration(
+    customerId: string,
+    userId: string,
+  ): Promise<void> {
+    try {
+      await this.deleteCustomerPort.execute(customerId);
+      await this.deleteUserPort.execute(userId);
+    } catch (error) {
+      this.logger.error(
+        `Failed to rollback registration for user ${userId}`,
+        error instanceof Error ? error.message : undefined,
+      );
+    }
+  }
 
   public async execute(request: IRegisterRequest): Promise<RegisterResponse> {
     const user = await this.findUserByEmailPort.execute(request.email);
@@ -40,14 +67,32 @@ export class RegisterUseCase {
       roleId: REGISTER_ROLE_ID,
     });
 
-    await this.createCustomerPort.execute({
+    const { id: customerId } = await this.createCustomerPort.execute({
       userId,
-      code: `CUS-${randomUUID().slice(0, 8).toUpperCase()}`,
     });
 
-    const permissions = await this.rolePermissionReaderPort.findByRoleId(
-      REGISTER_ROLE_ID,
-    );
+    try {
+      if (request.phone?.trim()) {
+        await this.createCustomerPhonePort.execute({
+          customerId,
+          phone: request.phone.trim(),
+        });
+      }
+
+      if (request.address?.trim()) {
+        await this.createCustomerAddressPort.execute({
+          customerId,
+          street: request.address.trim(),
+        });
+      }
+    } catch (error) {
+      await this.rollbackRegistration(customerId, userId);
+
+      throw error;
+    }
+
+    const permissions =
+      await this.rolePermissionReaderPort.findByRoleId(REGISTER_ROLE_ID);
 
     return new RegisterResponse(
       this.signTokenPort.signAccessToken({
@@ -66,6 +111,10 @@ export const registerUseCaseFactory = (
   findUserByEmailPort: IFindUserByEmailPort,
   createUserPort: ICreateUserPort,
   createCustomerPort: ICreateCustomerPort,
+  createCustomerPhonePort: ICreateCustomerPhonePort,
+  createCustomerAddressPort: ICreateCustomerAddressPort,
+  deleteCustomerPort: IDeleteCustomerPort,
+  deleteUserPort: IDeleteUserPort,
   signTokenPort: ISignTokenPort,
   rolePermissionReaderPort: IRolePermissionReaderPort,
 ): RegisterUseCase =>
@@ -73,6 +122,10 @@ export const registerUseCaseFactory = (
     findUserByEmailPort,
     createUserPort,
     createCustomerPort,
+    createCustomerPhonePort,
+    createCustomerAddressPort,
+    deleteCustomerPort,
+    deleteUserPort,
     signTokenPort,
     rolePermissionReaderPort,
   );

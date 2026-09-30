@@ -7,9 +7,9 @@ export interface ICustomersRepository {
 
   findByUserId(userId: string): Promise<Customer | null>;
 
-  create(customer: Customer): Promise<{ id: string }>;
+  findMaxCodeSequence(): Promise<number | null>;
 
-  update(customer: Customer): Promise<void>;
+  create(customer: Customer): Promise<{ id: string }>;
 
   delete(id: string): Promise<Customer | null>;
 
@@ -22,6 +22,8 @@ export interface ICustomersRepository {
   removeAddress(addressId: string): Promise<void>;
 
   createPhone(customerId: string, phone: string): Promise<void>;
+
+  findPhoneOwnerId(phone: string): Promise<string | null>;
 
   removePhone(phoneId: string): Promise<void>;
 }

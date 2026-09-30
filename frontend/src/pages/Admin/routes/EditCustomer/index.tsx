@@ -85,9 +85,28 @@ const EditCustomerPage: React.FC = () => {
       await customersService.updateCustomer(id, {
         name: `${formData.firstName.trim()} ${formData.lastName.trim()}`,
         gender: formData.gender || "other",
-        phone: formData.phone,
-        address: formData.address,
       });
+
+      const current = await customersService.getCustomerById(id);
+      const phone = formData.phone.trim();
+      const address = formData.address.trim();
+
+      const [oldPhone] = current.phones ?? [];
+      if (oldPhone && oldPhone.phone !== phone) {
+        await customersService.removePhone(id, oldPhone.id);
+      }
+      if (phone && !current.phones?.some((p) => p.phone === phone)) {
+        await customersService.addPhone(id, phone);
+      }
+
+      const [oldAddress] = current.addresses ?? [];
+      if (oldAddress && oldAddress.street !== address) {
+        await customersService.removeAddress(id, oldAddress.id);
+      }
+      if (address && !current.addresses?.some((a) => a.street === address)) {
+        await customersService.addAddress(id, address);
+      }
+
       toast.success("Đã cập nhật khách hàng");
       navigate("/customers");
     } catch (error) {

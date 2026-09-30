@@ -1,14 +1,13 @@
 import { Customer } from '../../domain/customer.aggregate';
 import { Customer as CustomerMikro } from '../entities/customer.entity';
+import { CustomerCode } from '../../domain/value-objects/customer-code.value-object';
 
 export class CustomersMapper {
   public static toDomain(customerMikro: CustomerMikro): Customer {
     return Customer.fromPersistent({
       id: customerMikro.id,
       userId: customerMikro.userId,
-      code: customerMikro.code,
-      phone: customerMikro.phone,
-      address: customerMikro.address,
+      code: CustomerCode.fromPersistent(customerMikro.code),
       addresses: customerMikro.addresses.getItems().map((address) => ({
         id: address.id,
         city: address.city,
@@ -31,9 +30,7 @@ export class CustomersMapper {
     const customerMikro = new CustomerMikro();
 
     customerMikro.userId = customer.getUserId();
-    customerMikro.code = customer.getCode();
-    customerMikro.phone = customer.getPhone();
-    customerMikro.address = customer.getAddress();
+    customerMikro.code = customer.getCode().getValue();
 
     return customerMikro;
   }

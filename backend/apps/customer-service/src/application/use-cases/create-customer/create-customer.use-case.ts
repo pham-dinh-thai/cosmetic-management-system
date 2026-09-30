@@ -1,92 +1,34 @@
 import { ICreateCustomerRequest } from './create-customer.request';
 import { Customer } from '../../../domain/customer.aggregate';
 import { type ICustomersRepository } from '../../../domain/repositories/customers.repository';
-import { type ICreateUserPort } from './ports/create-user.port';
-import { type IDeleteUserPort } from './ports/delete-user.port';
-import { PhoneValidationService } from '../../../domain/services/phone-validation.service';
 import { MissingCustomerUserException } from '../../../domain/exceptions/missing-customer-user.exception';
-import { Logger } from '@nestjs/common';
+import { CustomerCode } from '../../../domain/value-objects/customer-code.value-object';
 
 export class CreateCustomerUseCase {
-  private readonly logger = new Logger(CreateCustomerUseCase.name);
-
   public constructor(
-    private readonly createUserPort: ICreateUserPort,
     private readonly customersRepository: ICustomersRepository,
-    private readonly deleteUserPort: IDeleteUserPort,
-    private readonly phoneValidationService: PhoneValidationService,
   ) {}
 
   public async execute(
     request: ICreateCustomerRequest,
   ): Promise<{ id: string }> {
-    const phone = request.phone ?? '';
+    const userId = request.userId ?? '';
 
-    // Validate số điện thoại trước khi tạo user (tránh phải bù trừ).
-    if (phone.trim().length > 0) {
-      this.phoneValidationService.ensureValidPhone(phone);
-    }
-
-    let userId = request.userId ?? '';
-
-    if (!userId && !request.user) {
+    if (!userId) {
       throw new MissingCustomerUserException();
     }
 
-    if (request.user) {
-      const user = await this.createUserPort.execute({
-        firstName: request.user.firstName,
-        lastName: request.user.lastName,
-        gender: request.user.gender,
-        email: request.user.email,
-        password: request.user.password,
-        roleId: request.user.roleId,
-      });
+    const maxCodeSequence =
+      await this.customersRepository.findMaxCodeSequence();
 
-      userId = user.id;
-    }
+    const code = CustomerCode.generate((maxCodeSequence ?? 0) + 1);
 
-    const customers = await this.customersRepository.findAll();
+    const customer = Customer.create({ userId, code });
 
-    const code =
-      request.code && request.code.trim().length > 0
-        ? request.code
-        : `KH-${String(customers.length + 1).padStart(3, '0')}`;
-
-    try {
-      const customer = Customer.create({
-        userId,
-        code,
-        phone,
-        address: request.address ?? '',
-      });
-
-      return await this.customersRepository.create(customer);
-    } catch (error) {
-      if (request.user && userId) {
-        const isUserDeleted = await this.deleteUserPort.execute(userId);
-
-        if (!isUserDeleted) {
-          this.logger.error(
-            `Failed to delete user ${userId} during create-customer compensation`,
-          );
-        }
-      }
-
-      throw error;
-    }
+    return await this.customersRepository.create(customer);
   }
 }
 
 export const createCustomerUseCaseFactory = (
-  createUserPort: ICreateUserPort,
   customersRepository: ICustomersRepository,
-  deleteUserPort: IDeleteUserPort,
-  phoneValidationService: PhoneValidationService,
-): CreateCustomerUseCase =>
-  new CreateCustomerUseCase(
-    createUserPort,
-    customersRepository,
-    deleteUserPort,
-    phoneValidationService,
-  );
+): CreateCustomerUseCase => new CreateCustomerUseCase(customersRepository);

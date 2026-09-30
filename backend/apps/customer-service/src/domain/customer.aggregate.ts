@@ -1,18 +1,13 @@
 import { Address } from './entities/address.entity';
 import { Phone } from './entities/phone.entity';
-import {
-  CreateCustomerProps,
-  FromPersistentCustomerProps,
-  UpdateCustomerProps,
-} from './types';
+import { CreateCustomerProps, FromPersistentCustomerProps } from './types';
+import { CustomerCode } from './value-objects/customer-code.value-object';
 
 export class Customer {
   public constructor(
     private readonly id: string,
     private readonly userId: string,
-    private readonly code: string,
-    private phone: string,
-    private address: string,
+    private readonly code: CustomerCode,
     private addresses: Address[],
     private phones: Phone[],
     private readonly createdAt?: Date,
@@ -24,8 +19,6 @@ export class Customer {
       undefined as unknown as string,
       props.userId,
       props.code,
-      props.phone,
-      props.address,
       [],
       [],
     );
@@ -36,8 +29,6 @@ export class Customer {
       props.id,
       props.userId,
       props.code,
-      props.phone,
-      props.address,
       props.addresses.map((address) =>
         Address.fromPersistent({
           id: address.id,
@@ -62,11 +53,6 @@ export class Customer {
     );
   }
 
-  public update(props: UpdateCustomerProps): void {
-    this.phone = props.phone;
-    this.address = props.address;
-  }
-
   public getId(): string {
     return this.id;
   }
@@ -75,16 +61,8 @@ export class Customer {
     return this.userId;
   }
 
-  public getCode(): string {
+  public getCode(): CustomerCode {
     return this.code;
-  }
-
-  public getPhone(): string {
-    return this.phone;
-  }
-
-  public getAddress(): string {
-    return this.address;
   }
 
   public getAddresses(): Address[] {

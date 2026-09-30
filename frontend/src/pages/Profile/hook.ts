@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useAuthStore } from "../../store/useAuthStore";
 import { customersService, splitName } from "../../services/customers.service";
 import { authService } from "../../services/auth.service";
-import { profileApi } from "./api";
 import type { ProfileFormData, PasswordFormData } from "./type";
 import { toast } from "sonner";
 
@@ -10,8 +9,7 @@ export function useProfile() {
   const user = useAuthStore((s) => s.user);
   const setUserProfile = useAuthStore((s) => s.setUserProfile);
 
-  const isCustomer = user?.role === "customer";
-  const [isLoading, setIsLoading] = useState(isCustomer);
+  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isPasswordSaving, setIsPasswordSaving] = useState(false);
 
@@ -31,9 +29,9 @@ export function useProfile() {
     confirmPassword: "",
   });
 
-  // Load hồ sơ thật từ backend (chỉ khách hàng mới có hồ sơ ở customer-service)
+  // Load hồ sơ thật từ backend (mọi role đều có thể có hồ sơ ở customer-service)
   useEffect(() => {
-    if (!isCustomer || !user?.id) {
+    if (!user?.id) {
       return;
     }
 
@@ -41,12 +39,7 @@ export function useProfile() {
 
     (async () => {
       try {
-        let profile = await customersService.getMe();
-
-        if (!profile) {
-          await customersService.ensureMe();
-          profile = await customersService.getMe();
-        }
+        const profile = await customersService.getMe();
 
         if (!cancelled && profile) {
           const { firstName, lastName } = splitName(profile.name ?? "");
@@ -72,10 +65,12 @@ export function useProfile() {
     return () => {
       cancelled = true;
     };
-  }, [isCustomer, user?.id, user?.email]);
+  }, [user?.id, user?.email]);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >,
   ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -99,38 +94,45 @@ export function useProfile() {
     if (!user?.id) return;
     setIsSaving(true);
     try {
-      if (isCustomer) {
-        await customersService.updateMe({
-          user: {
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            gender: formData.gender,
-          },
-          phone: formData.phone,
-          address: formData.address,
-        });
-      } else {
-        await profileApi.updateProfile(user.id, {
+      const phone = formData.phone.trim();
+      const address = formData.address.trim();
+
+      let profile = await customersService.getMe();
+
+      if (!profile && (phone || address)) {
+        profile = await customersService.ensureMe();
+      }
+
+      if (!profile) {
+        toast.error(
+          "Bạn chưa có hồ sơ khách hàng. Nhập số điện thoại hoặc địa chỉ để tạo hồ sơ.",
+        );
+        return;
+      }
+
+      await customersService.updateMe({
+        user: {
           firstName: formData.firstName,
           lastName: formData.lastName,
-          phone: formData.phone,
           gender: formData.gender,
-          address: formData.address,
-        });
+        },
+      });
+
+      if (phone && phone !== (profile.phone ?? "")) {
+        await customersService.addMyPhone(phone);
       }
+
+      if (address && address !== (profile.address ?? "")) {
+        await customersService.addMyAddress(address);
+      }
+
       syncStore();
       toast.success("Cập nhật thông tin cá nhân thành công!");
     } catch (error: any) {
-      if (isCustomer) {
-        toast.error(
-          error?.response?.data?.message ??
-            "Không thể cập nhật thông tin. Vui lòng thử lại.",
-        );
-      } else {
-        // Nhân viên/Admin chưa có endpoint tự cập nhật → chỉ lưu vào Zustand để UX không bị gián đoạn
-        syncStore();
-        toast.success("Đã lưu thông tin cá nhân!");
-      }
+      toast.error(
+        error?.response?.data?.message ??
+          "Không thể cập nhật thông tin. Vui lòng thử lại.",
+      );
     } finally {
       setIsSaving(false);
     }
@@ -158,10 +160,15 @@ export function useProfile() {
         newPasswordConfirmation: passwordData.confirmPassword,
       });
       toast.success("Đổi mật khẩu thành công!");
-      setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
     } catch (err: any) {
       toast.error(
-        err?.response?.data?.message ?? "Lỗi khi đổi mật khẩu. Vui lòng thử lại.",
+        err?.response?.data?.message ??
+          "Lỗi khi đổi mật khẩu. Vui lòng thử lại.",
       );
     } finally {
       setIsPasswordSaving(false);

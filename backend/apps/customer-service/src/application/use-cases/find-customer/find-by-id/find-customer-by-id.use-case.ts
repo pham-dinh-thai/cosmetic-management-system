@@ -40,15 +40,18 @@ export class FindCustomerByIdUseCase {
       ? `${userInfo.firstName} ${userInfo.lastName}`.trim()
       : '';
 
+    const [primaryPhone] = customer.getPhones();
+    const [primaryAddress] = customer.getAddresses();
+
     return new FindCustomerByIdReadModel(
       customer.getId(),
       customer.getUserId(),
-      customer.getCode(),
+      customer.getCode().getValue(),
       name,
       userInfo?.gender ?? '',
       userInfo?.email ?? '',
-      customer.getPhone(),
-      customer.getAddress(),
+      primaryPhone?.getPhone() ?? '',
+      primaryAddress?.getStreet() ?? '',
       userInfo?.isActive ?? true,
       customer.getAddresses().map((a) => ({
         id: a.getId(),

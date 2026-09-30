@@ -7,7 +7,6 @@ import type {
   CosmeticDetail,
   CosmeticSummary,
   CustomerSummary,
-  NewCustomerDraft,
   PaymentMethod,
   PaymentOption,
 } from "./type";
@@ -20,13 +19,6 @@ export const PAYMENT_OPTIONS: PaymentOption[] = [
   { value: "bank_transfer", label: "Chuyển khoản" },
   { value: "card", label: "Thẻ" },
 ];
-
-export const EMPTY_CUSTOMER: NewCustomerDraft = {
-  name: "",
-  phone: "",
-  email: "",
-  address: "",
-};
 
 export function usePosPage() {
   const user = useAuthStore((s) => s.user);
@@ -55,10 +47,6 @@ export function usePosPage() {
   const [showCustomerList, setShowCustomerList] = useState(false);
   const [selectedCustomer, setSelectedCustomer] =
     useState<CustomerSummary | null>(null);
-
-  const [showAddCustomer, setShowAddCustomer] = useState(false);
-  const [newCustomer, setNewCustomer] = useState<NewCustomerDraft>(EMPTY_CUSTOMER);
-  const [addingCustomer, setAddingCustomer] = useState(false);
 
   const [cart, setCart] = useState<CartItem[]>([]);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cash");
@@ -165,57 +153,29 @@ export function usePosPage() {
     [cart],
   );
 
-  const updateQty = useCallback(
-    (variantId: string, qty: number) => {
-      setCart((prev) => {
-        const item = prev.find((c) => c.variantId === variantId);
-        if (!item) return prev;
+  const updateQty = useCallback((variantId: string, qty: number) => {
+    setCart((prev) => {
+      const item = prev.find((c) => c.variantId === variantId);
+      if (!item) return prev;
 
-        if (qty > item.availableStock) {
-          toast.warning("Số lượng vượt quá tồn kho");
-          return prev;
-        }
+      if (qty > item.availableStock) {
+        toast.warning("Số lượng vượt quá tồn kho");
+        return prev;
+      }
 
-        const next = prev.map((c) =>
-          c.variantId === variantId
-            ? { ...c, quantity: Math.max(0, qty) }
-            : c,
-        );
+      const next = prev.map((c) =>
+        c.variantId === variantId ? { ...c, quantity: Math.max(0, qty) } : c,
+      );
 
-        return next.filter((c) => c.quantity > 0);
-      });
-    },
-    [],
-  );
+      return next.filter((c) => c.quantity > 0);
+    });
+  }, []);
 
   const removeFromCart = useCallback(
     (variantId: string) =>
       setCart((prev) => prev.filter((c) => c.variantId !== variantId)),
     [],
   );
-
-  const handleAddCustomer = useCallback(async () => {
-    if (!newCustomer.name || !newCustomer.phone) {
-      toast.error("Vui lòng nhập tên và số điện thoại.");
-      return;
-    }
-    setAddingCustomer(true);
-    try {
-      await posApi.createCustomer({
-        name: newCustomer.name,
-        phone: newCustomer.phone,
-        email: newCustomer.email,
-        address: newCustomer.address,
-      });
-      toast.success("Đã thêm khách hàng.");
-      setNewCustomer(EMPTY_CUSTOMER);
-      setShowAddCustomer(false);
-    } catch {
-      toast.error("Không thể thêm khách hàng.");
-    } finally {
-      setAddingCustomer(false);
-    }
-  }, [newCustomer]);
 
   const clearCustomer = useCallback(() => {
     setSelectedCustomer(null);
@@ -271,12 +231,6 @@ export function usePosPage() {
     selectedCustomer,
     setSelectedCustomer,
     clearCustomer,
-    showAddCustomer,
-    setShowAddCustomer,
-    newCustomer,
-    setNewCustomer,
-    addingCustomer,
-    handleAddCustomer,
     cart,
     addToCart,
     updateQty,

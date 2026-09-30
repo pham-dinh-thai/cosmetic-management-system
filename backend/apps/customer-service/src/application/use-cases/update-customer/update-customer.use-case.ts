@@ -2,21 +2,11 @@ import { CustomerNotFoundException } from '../../../domain/exceptions/customer-n
 import { type ICustomersRepository } from '../../../domain/repositories/customers.repository';
 import { IUpdateCustomerRequest } from './update-customer.request';
 import { type IUpdateUserInformationPort } from './ports/update-user-information.port';
-import {
-  type IFindUserInformationPort,
-  type UserInformation,
-} from './ports/find-user-information.port';
-import { PhoneValidationService } from '../../../domain/services/phone-validation.service';
-import { Logger } from '@nestjs/common';
 
 export class UpdateCustomerUseCase {
-  private readonly logger = new Logger(UpdateCustomerUseCase.name);
-
   public constructor(
     private readonly customersRepository: ICustomersRepository,
     private readonly updateUserInformationPort: IUpdateUserInformationPort,
-    private readonly findUserInformationPort: IFindUserInformationPort,
-    private readonly phoneValidationService: PhoneValidationService,
   ) {}
 
   public async execute(
@@ -29,17 +19,6 @@ export class UpdateCustomerUseCase {
       throw new CustomerNotFoundException(id);
     }
 
-    const phone = request.phone ?? customer.getPhone();
-
-    // Validate số điện thoại trước khi cập nhật thông tin user.
-    if (phone.trim().length > 0) {
-      this.phoneValidationService.ensureValidPhone(phone);
-    }
-
-    const previousUserInformation: UserInformation | null = customer.getUserId()
-      ? await this.findUserInformationPort.execute(customer.getUserId())
-      : null;
-
     if (customer.getUserId()) {
       await this.updateUserInformationPort.execute(customer.getUserId(), {
         firstName: request.user.firstName,
@@ -47,42 +26,11 @@ export class UpdateCustomerUseCase {
         gender: request.user.gender,
       });
     }
-
-    try {
-      customer.update({
-        phone,
-        address: request.address ?? customer.getAddress(),
-      });
-
-      await this.customersRepository.update(customer);
-    } catch (error) {
-      if (previousUserInformation) {
-        this.logger.warn(
-          `Failed to update customer ${id} after user update, rolling back user info`,
-          error instanceof Error ? error.stack : undefined,
-        );
-
-        await this.updateUserInformationPort.execute(customer.getUserId(), {
-          firstName: previousUserInformation.firstName,
-          lastName: previousUserInformation.lastName,
-          gender: previousUserInformation.gender,
-        });
-      }
-
-      throw error;
-    }
   }
 }
 
 export const updateCustomerUseCaseFactory = (
   customersRepository: ICustomersRepository,
   updateUserInformationPort: IUpdateUserInformationPort,
-  findUserInformationPort: IFindUserInformationPort,
-  phoneValidationService: PhoneValidationService,
 ): UpdateCustomerUseCase =>
-  new UpdateCustomerUseCase(
-    customersRepository,
-    updateUserInformationPort,
-    findUserInformationPort,
-    phoneValidationService,
-  );
+  new UpdateCustomerUseCase(customersRepository, updateUserInformationPort);
