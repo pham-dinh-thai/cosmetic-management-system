@@ -111,6 +111,18 @@ export function canWriteSuppliers(user: UserProfile | null): boolean {
   return hasPermission(user, "suppliers:write");
 }
 
+export function canWriteCustomers(user: UserProfile | null): boolean {
+  return hasPermission(user, "customers:write");
+}
+
+export function canWriteEmployees(user: UserProfile | null): boolean {
+  return hasPermission(user, "employees:write");
+}
+
+export function canWriteDepartments(user: UserProfile | null): boolean {
+  return hasPermission(user, "departments:write");
+}
+
 function canAccessPage(
   user: UserProfile | null,
   page: ResourcePageKey,

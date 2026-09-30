@@ -3,7 +3,7 @@ import { Toaster } from "sonner";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { AuthProvider } from "./contexts/AuthProvider";
 import { useAuthStore } from "./store/useAuthStore";
-import { canWriteSuppliers } from "./lib/permissions";
+import { hasPermission } from "./lib/permissions";
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -20,9 +20,12 @@ import NotFound from "./pages/NotFound";
 import RoleRoute from "./components/RoleRoute";
 import type React from "react";
 
-const AdminSuppliersWrite: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const RequireWrite: React.FC<{ perm: string; children: React.ReactNode }> = ({
+  perm,
+  children,
+}) => {
   const user = useAuthStore((s) => s.user);
-  return canWriteSuppliers(user) ? <>{children}</> : <NotFound />;
+  return hasPermission(user, perm) ? <>{children}</> : <NotFound />;
 };
 
 import OverviewPage from "./pages/Admin/routes/Overview";
@@ -124,17 +127,17 @@ function App() {
             <Route path="/pos" element={<PosPage />} />
             <Route path="/orders" element={<OrdersPage />} />
             <Route path="/customers" element={<CustomersPage />} />
-            <Route path="/customers/add" element={<AddCustomerPage />} />
-            <Route path="/customers/:id/edit" element={<EditCustomerPage />} />
+            <Route path="/customers/add" element={<RequireWrite perm="customers:write"><AddCustomerPage /></RequireWrite>} />
+            <Route path="/customers/:id/edit" element={<RequireWrite perm="customers:write"><EditCustomerPage /></RequireWrite>} />
             <Route path="/employees" element={<EmployeesPage />} />
-            <Route path="/employees/add" element={<AddEmployeePage />} />
-            <Route path="/employees/:id/edit" element={<EditEmployeePage />} />
+            <Route path="/employees/add" element={<RequireWrite perm="employees:write"><AddEmployeePage /></RequireWrite>} />
+            <Route path="/employees/:id/edit" element={<RequireWrite perm="employees:write"><EditEmployeePage /></RequireWrite>} />
             <Route path="/departments" element={<DepartmentsPage />} />
-            <Route path="/departments/add" element={<AddDepartmentPage />} />
-            <Route path="/departments/:id/edit" element={<EditDepartmentPage />} />
+            <Route path="/departments/add" element={<RequireWrite perm="departments:write"><AddDepartmentPage /></RequireWrite>} />
+            <Route path="/departments/:id/edit" element={<RequireWrite perm="departments:write"><EditDepartmentPage /></RequireWrite>} />
             <Route path="/suppliers" element={<SuppliersPage />} />
-            <Route path="/suppliers/add" element={<AdminSuppliersWrite><AddSupplierPage /></AdminSuppliersWrite>} />
-            <Route path="/suppliers/:id/edit" element={<AdminSuppliersWrite><EditSupplierPage /></AdminSuppliersWrite>} />
+            <Route path="/suppliers/add" element={<RequireWrite perm="suppliers:write"><AddSupplierPage /></RequireWrite>} />
+            <Route path="/suppliers/:id/edit" element={<RequireWrite perm="suppliers:write"><EditSupplierPage /></RequireWrite>} />
             <Route path="/products" element={<ProductsPage />} />
             <Route path="/products/add" element={<AddProductPage />} />
             <Route path="/products/:id/edit" element={<EditProductPage />} />

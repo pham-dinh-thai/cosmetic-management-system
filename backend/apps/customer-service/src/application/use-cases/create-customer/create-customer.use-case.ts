@@ -4,6 +4,7 @@ import { type ICustomersRepository } from '../../../domain/repositories/customer
 import { type ICreateUserPort } from './ports/create-user.port';
 import { type IDeleteUserPort } from './ports/delete-user.port';
 import { PhoneValidationService } from '../../../domain/services/phone-validation.service';
+import { MissingCustomerUserException } from '../../../domain/exceptions/missing-customer-user.exception';
 import { Logger } from '@nestjs/common';
 
 export class CreateCustomerUseCase {
@@ -27,6 +28,10 @@ export class CreateCustomerUseCase {
     }
 
     let userId = request.userId ?? '';
+
+    if (!userId && !request.user) {
+      throw new MissingCustomerUserException();
+    }
 
     if (request.user) {
       const user = await this.createUserPort.execute({

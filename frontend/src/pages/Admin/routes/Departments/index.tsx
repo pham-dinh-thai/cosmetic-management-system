@@ -8,6 +8,8 @@ import {
 } from "../../../../components/ui/Primitives";
 import { DataTable, type Column } from "../../../../components/ui/DataTable";
 import { useDepartments, type DepartmentStatusFilter } from "./hook";
+import { useAuthStore } from "../../../../store/useAuthStore";
+import { canWriteDepartments } from "../../../../lib/permissions";
 import type { Department } from "./type";
 
 const STATUS_OPTIONS = [
@@ -18,6 +20,8 @@ const STATUS_OPTIONS = [
 
 const DepartmentsPage: React.FC = () => {
   const navigate = useNavigate();
+  const user = useAuthStore((s) => s.user);
+  const canWrite = canWriteDepartments(user);
   const {
     departments,
     loading,
@@ -86,21 +90,25 @@ const DepartmentsPage: React.FC = () => {
         className: "text-right",
         render: (d) => (
           <div className="flex justify-end gap-2">
-            <Button variant="outline" size="sm" onClick={() => openEdit(d)}>
-              Sửa
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleToggleStatus(d)}
-            >
-              {d.isActive ? "Vô hiệu hoá" : "Kích hoạt"}
-            </Button>
+            {canWrite && (
+              <>
+                <Button variant="outline" size="sm" onClick={() => openEdit(d)}>
+                  Sửa
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleToggleStatus(d)}
+                >
+                  {d.isActive ? "Vô hiệu hoá" : "Kích hoạt"}
+                </Button>
+              </>
+            )}
           </div>
         ),
       },
     ],
-    [handleToggleStatus],
+    [handleToggleStatus, canWrite],
   );
 
   return (
@@ -110,9 +118,11 @@ const DepartmentsPage: React.FC = () => {
         title="Danh sách phòng ban"
         description="Quản lý thông tin phòng ban."
         actions={
-          <Button variant="primary" onClick={openAdd}>
-            + Thêm phòng ban
-          </Button>
+          canWrite && (
+            <Button variant="primary" onClick={openAdd}>
+              + Thêm phòng ban
+            </Button>
+          )
         }
       />
       <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
