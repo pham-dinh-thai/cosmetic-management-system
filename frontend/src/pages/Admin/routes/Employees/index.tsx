@@ -8,6 +8,8 @@ import {
 } from "../../../../components/ui/Primitives";
 import { DataTable, type Column } from "../../../../components/ui/DataTable";
 import { useEmployees, type EmployeeStatusFilter } from "./hook";
+import { useAuthStore } from "../../../../store/useAuthStore";
+import { canWriteEmployees } from "../../../../lib/permissions";
 import type { Employee } from "./type";
 
 const STATUS_OPTIONS = [
@@ -18,6 +20,8 @@ const STATUS_OPTIONS = [
 
 const EmployeesPage: React.FC = () => {
   const navigate = useNavigate();
+  const user = useAuthStore((s) => s.user);
+  const canWrite = canWriteEmployees(user);
   const { employees, loading, q, setQ, status, setStatus, handleToggleStatus } =
     useEmployees();
 
@@ -97,21 +101,25 @@ const EmployeesPage: React.FC = () => {
         className: "text-right",
         render: (e) => (
           <div className="flex justify-end gap-2">
-            <Button variant="outline" size="sm" onClick={() => openEdit(e)}>
-              Sửa
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleToggleStatus(e)}
-            >
-              {e.status === "ACTIVE" ? "Vô hiệu hoá" : "Kích hoạt"}
-            </Button>
+            {canWrite && (
+              <>
+                <Button variant="outline" size="sm" onClick={() => openEdit(e)}>
+                  Sửa
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleToggleStatus(e)}
+                >
+                  {e.status === "ACTIVE" ? "Vô hiệu hoá" : "Kích hoạt"}
+                </Button>
+              </>
+            )}
           </div>
         ),
       },
     ],
-    [handleToggleStatus],
+    [handleToggleStatus, canWrite],
   );
 
   return (
@@ -121,9 +129,11 @@ const EmployeesPage: React.FC = () => {
         title="Danh sách nhân viên"
         description="Quản lý thông tin và tài khoản nhân viên trong hệ thống."
         actions={
-          <Button variant="primary" onClick={openAdd}>
-            + Thêm nhân viên
-          </Button>
+          canWrite && (
+            <Button variant="primary" onClick={openAdd}>
+              + Thêm nhân viên
+            </Button>
+          )
         }
       />
       <div className="grid grid-cols-1 md:grid-cols-12 gap-3">

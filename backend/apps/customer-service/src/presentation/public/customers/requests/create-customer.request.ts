@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ICreateCustomerRequest } from 'apps/customer-service/src/application/use-cases/create-customer/create-customer.request';
 import {
+  IsDefined,
   IsEmail,
   IsNotEmpty,
   IsOptional,
@@ -50,6 +51,7 @@ class CreateCustomerUserDto {
 
 export class CreateCustomerRequest implements ICreateCustomerRequest {
   @ApiProperty({ type: CreateCustomerUserDto })
+  @IsDefined()
   @ValidateNested()
   @Type(() => CreateCustomerUserDto)
   user!: CreateCustomerUserDto;

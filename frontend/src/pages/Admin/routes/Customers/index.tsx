@@ -8,6 +8,8 @@ import {
 } from "../../../../components/ui/Primitives";
 import { DataTable, type Column } from "../../../../components/ui/DataTable";
 import { useCustomers, type CustomerStatusFilter } from "./hook";
+import { useAuthStore } from "../../../../store/useAuthStore";
+import { canWriteCustomers } from "../../../../lib/permissions";
 import type { Customer } from "./type";
 
 const STATUS_OPTIONS = [
@@ -18,6 +20,8 @@ const STATUS_OPTIONS = [
 
 const CustomersPage: React.FC = () => {
   const navigate = useNavigate();
+  const user = useAuthStore((s) => s.user);
+  const canWrite = canWriteCustomers(user);
   const { customers, loading, q, setQ, status, setStatus, handleToggleStatus } =
     useCustomers();
 
@@ -86,21 +90,25 @@ const CustomersPage: React.FC = () => {
         className: "text-right",
         render: (c) => (
           <div className="flex justify-end gap-2">
-            <Button variant="outline" size="sm" onClick={() => openEdit(c)}>
-              Sửa
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleToggleStatus(c)}
-            >
-              {c.isActive ? "Vô hiệu hoá" : "Kích hoạt"}
-            </Button>
+            {canWrite && (
+              <>
+                <Button variant="outline" size="sm" onClick={() => openEdit(c)}>
+                  Sửa
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleToggleStatus(c)}
+                >
+                  {c.isActive ? "Vô hiệu hoá" : "Kích hoạt"}
+                </Button>
+              </>
+            )}
           </div>
         ),
       },
     ],
-    [handleToggleStatus],
+    [handleToggleStatus, canWrite],
   );
 
   return (
@@ -110,9 +118,11 @@ const CustomersPage: React.FC = () => {
         title="Danh sách khách hàng"
         description="Quản lý thông tin khách hàng và lịch sử mua sắm."
         actions={
-          <Button variant="primary" onClick={openAdd}>
-            + Thêm khách hàng
-          </Button>
+          canWrite && (
+            <Button variant="primary" onClick={openAdd}>
+              + Thêm khách hàng
+            </Button>
+          )
         }
       />
       <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
