@@ -190,9 +190,7 @@ async function bootstrap() {
       target: process.env.INVENTORY_SERVICE_URL,
       changeOrigin: true,
       pathFilter: (pathname) =>
-        /^\/api\/(inventories|internal\/inventories|stock-adjustments)(\/|$)/.test(
-          pathname,
-        ),
+        /^\/api\/(inventories|stock-adjustments)(\/|$)/.test(pathname),
     }),
   );
   app.use(
@@ -221,9 +219,7 @@ async function bootstrap() {
       target: process.env.RECEIPT_SERVICE_URL,
       changeOrigin: true,
       pathFilter: (pathname) =>
-        /^\/api\/(receipts|payments|internal\/receipts|internal\/payments)(\/|$)/.test(
-          pathname,
-        ),
+        /^\/api\/(receipts|payments)(\/|$)/.test(pathname),
     }),
   );
   app.use(
@@ -244,8 +240,7 @@ async function bootstrap() {
     createProxyMiddleware({
       target: process.env.NOTIFICATION_SERVICE_URL,
       changeOrigin: true,
-      pathFilter: (pathname) =>
-        /^\/api\/(internal\/email-logs|notifications)(\/|$)/.test(pathname),
+      pathFilter: (pathname) => /^\/api\/notifications(\/|$)/.test(pathname),
     }),
   );
 
