@@ -397,6 +397,7 @@ services:
     command: ["node", "dist/apps/storage-service/main.js"]
     environment:
       UPLOAD_ROOT: /app/uploads
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
     volumes:
       - ./backend/uploads:/app/uploads
     depends_on:
