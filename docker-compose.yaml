@@ -458,6 +458,7 @@ services:
       CUSTOMER_SERVICE_URL: ${CUSTOMER_SERVICE_URL}
       REDIS_HOST: redis
       REDIS_PORT: "6379"
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
       AUDIT_SERVICE_URL: ${AUDIT_SERVICE_URL}
     depends_on:
@@ -543,6 +544,7 @@ services:
       CUSTOMER_SERVICE_URL: ${CUSTOMER_SERVICE_URL}
       REDIS_HOST: redis
       REDIS_PORT: "6379"
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
       RESEND_API_KEY: ${RESEND_API_KEY}
       EMAIL_DELIVERY_MODE: ${EMAIL_DELIVERY_MODE}
       DEV_EMAIL_INBOX: ${DEV_EMAIL_INBOX}
@@ -598,28 +600,42 @@ services:
   redis:
     image: redis:7-alpine
     container_name: cosmetic-redis
-    ports:
-      - "6379:6379"
     volumes:
       - redis-data:/data
-    command: ["redis-server", "--appendonly", "yes"]
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
+      - --requirepass
+      - ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test:
+        - CMD-SHELL
+        - REDISCLI_AUTH=$$REDIS_PASSWORD redis-cli ping | grep -q PONG
       interval: 5s
       timeout: 3s
       retries: 10
 
+  # Dev only. Excluded from a plain `docker compose up -d` so a deployment
+  # never publishes a database GUI. Start it with:
+  #   docker compose --profile dev up -d
+  # Then add the connection once in the UI (http://127.0.0.1:5540):
+  #   host redis, port 6379, password = REDIS_PASSWORD in .env
   redisinsight:
     image: redis/redisinsight:latest
     container_name: cosmetic-redisinsight
+    profiles: ["dev"]
     ports:
-      - "5540:5540"
+      - "127.0.0.1:5540:5540"
     environment:
       RI_ACCEPT_TERMS_AND_CONDITIONS: "true"
     volumes:
       - redisinsight-data:/data
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
 
   frontend:
     build: ./frontend
