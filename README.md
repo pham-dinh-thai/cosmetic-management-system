@@ -106,6 +106,16 @@ docker compose logs -f        # xem log tất cả service
 docker compose logs -f cosmetic-service   # xem log 1 service
 ```
 
+### Xem dữ liệu Redis khi dev
+
+RedisInsight nằm trong profile `dev`, nên `docker compose up -d` thường **không** chạy nó — tránh mở GUI database ra `0.0.0.0` khi deploy.
+
+```bash
+docker compose --profile dev up -d redisinsight
+```
+
+Mở <http://127.0.0.1:5540> và thêm connection một lần: host `redis`, port `6379`, password lấy từ `REDIS_PASSWORD` trong `.env`. RedisInsight không tự lấy mật khẩu qua biến môi trường.
+
 ### Rebuild sau khi sửa code
 
 - **Sửa backend**:
