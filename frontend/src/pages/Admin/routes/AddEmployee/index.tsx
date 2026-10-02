@@ -100,6 +100,10 @@ const AddEmployeePage: React.FC = () => {
       );
       return;
     }
+    if (password.length < 8) {
+      toast.error("Mật khẩu phải có tối thiểu 8 ký tự");
+      return;
+    }
     setLoading(true);
     try {
       const { firstName, lastName, ...rest } = formData;
@@ -244,14 +248,15 @@ const AddEmployeePage: React.FC = () => {
             <Input
               type="password"
               name="password"
+              required
               minLength={8}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Tối thiểu 8 ký tự"
             />
             <p className="text-[11px] text-[#666666]">
-              Để trống sẽ dùng mật khẩu mặc định:{" "}
-              <code className="font-mono">Employee@123456</code>
+              Nhân viên sẽ dùng mật khẩu này để đăng nhập. Hãy truyền tay trực
+              tiếp, không gửi qua kênh chung.
             </p>
           </div>
 

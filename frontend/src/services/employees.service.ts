@@ -17,8 +17,6 @@ export interface EmployeeSummary {
   roleId?: string | null;
 }
 
-const DEFAULT_PASSWORD = "Employee@123456";
-
 function splitName(name: string): { firstName: string; lastName: string } {
   const trimmed = name.trim();
   const index = trimmed.lastIndexOf(" ");
@@ -73,7 +71,7 @@ export const employeesService = {
     departmentId?: string;
     position?: string;
     hiredAt?: string;
-    password?: string;
+    password: string;
     gender?: string;
     roleId?: string;
   }): Promise<void> {
@@ -85,7 +83,7 @@ export const employeesService = {
         lastName,
         gender: payload.gender || "other",
         email: payload.email || "",
-        password: payload.password || DEFAULT_PASSWORD,
+        password: payload.password,
         roleId: payload.roleId || "employee",
       },
       departmentId: payload.departmentId,
