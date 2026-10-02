@@ -63,6 +63,7 @@ import {
   PermissionResolver,
   permissionResolverFactory,
 } from './application/services/permission.resolver';
+import { HttpClientModule } from '@nestjs/http-client';
 
 @Module({
   imports: [
@@ -90,6 +91,7 @@ import {
       }),
       inject: [ConfigService],
     }),
+    HttpClientModule.register({ timeout: '5s' }),
   ],
   controllers: [AuthUsersController, InternalAuthUsersController],
   providers: [
