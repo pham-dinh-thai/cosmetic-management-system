@@ -4,10 +4,14 @@ import {
   ICreateUserPortRequest,
 } from '../../application/use-cases/register/ports/create-user.port';
 import { ConfigService } from '@nestjs/config';
+import { HttpClient, HttpResponseError } from '@nestjs/http-client';
 
 @Injectable()
 export class CreateUserAdapter implements ICreateUserPort {
-  public constructor(private readonly config: ConfigService) {}
+  public constructor(
+    private readonly config: ConfigService,
+    private readonly httpClient: HttpClient,
+  ) {}
 
   public async execute(
     request: ICreateUserPortRequest,
@@ -18,19 +22,24 @@ export class CreateUserAdapter implements ICreateUserPort {
       throw new Error('USER_SERVICE_URL is not configured');
     }
 
-    const response = await fetch(`${url}/api/internal/users`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(request),
-    });
-
-    if (!response.ok) {
-      const body = await response.text().catch(() => '');
-      throw new Error(
-        `Failed to create user: ${response.status} ${response.statusText}${body ? ` - ${body}` : ''}`,
+    try {
+      const { data } = await this.httpClient.post<{ id: string }>(
+        `${url}/api/internal/users`,
+        {
+          json: request,
+        },
       );
-    }
 
-    return (await response.json()) as { id: string };
+      return data;
+    } catch (error) {
+      if (error instanceof HttpResponseError) {
+        throw new Error(
+          `Failed to create user: ${error.status} ${error.statusText}`,
+          { cause: error },
+        );
+      }
+
+      throw error;
+    }
   }
 }

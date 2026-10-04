@@ -5,10 +5,14 @@ import {
   ICreateCustomerPhonePortRequest,
 } from '../../application/use-cases/register/ports/create-customer.port';
 import { CustomerContactRejectedException } from '../../domain/exceptions/customer-contact-rejected.exception';
+import { HttpClient, HttpResponseError } from '@nestjs/http-client';
 
 @Injectable()
 export class CreateCustomerPhoneAdapter implements ICreateCustomerPhonePort {
-  public constructor(private readonly config: ConfigService) {}
+  public constructor(
+    private readonly config: ConfigService,
+    private readonly httpClient: HttpClient,
+  ) {}
 
   public async execute(
     request: ICreateCustomerPhonePortRequest,
@@ -19,29 +23,27 @@ export class CreateCustomerPhoneAdapter implements ICreateCustomerPhonePort {
       throw new Error('CUSTOMER_SERVICE_URL is not configured');
     }
 
-    const response = await fetch(
-      `${url}/api/internal/customers/${request.customerId}/phones`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: request.phone }),
-      },
-    );
-
-    if (!response.ok) {
-      const body = (await response.json().catch(() => null)) as {
-        statusCode?: number;
-        message?: string | string[];
-      } | null;
-
-      const message = Array.isArray(body?.message)
-        ? body?.message.join(', ')
-        : (body?.message ?? `${response.status} ${response.statusText}`);
-
-      throw new CustomerContactRejectedException(
-        body?.statusCode ?? response.status,
-        message,
+    try {
+      await this.httpClient.post(
+        `${url}/api/internal/customers/${request.customerId}/phones`,
+        {
+          json: request,
+        },
       );
+    } catch (error) {
+      if (error instanceof HttpResponseError) {
+        const body = error.body as {
+          message?: string | string[];
+        } | null;
+
+        const message = Array.isArray(body?.message)
+          ? body.message.join(', ')
+          : (body?.message ?? `${error.status} ${error.statusText}`);
+
+        throw new CustomerContactRejectedException(error.status, message);
+      }
+
+      throw error;
     }
   }
 }
