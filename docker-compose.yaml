@@ -127,6 +127,32 @@ services:
       postgres:
         condition: service_healthy
 
+  create-demo-admin:
+    image: postgres:16-alpine
+    command: ["sh", "/scripts/create-demo-admin.sh"]
+    profiles: ["setup"]
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      USER_DB_NAME: ${USER_DB_NAME}
+      AUTH_DB_NAME: ${AUTH_DB_NAME}
+      DEPARTMENT_DB_NAME: ${DEPARTMENT_DB_NAME}
+      EMPLOYEE_DB_NAME: ${EMPLOYEE_DB_NAME}
+      DEMO_ADMIN_EMAIL: ${DEMO_ADMIN_EMAIL}
+      DEMO_ADMIN_PASSWORD: ${DEMO_ADMIN_PASSWORD}
+      DEMO_ADMIN_PASSWORD_HASH: ${DEMO_ADMIN_PASSWORD_HASH}
+      DEMO_ADMIN_FIRST_NAME: ${DEMO_ADMIN_FIRST_NAME}
+      DEMO_ADMIN_LAST_NAME: ${DEMO_ADMIN_LAST_NAME}
+      DEMO_ADMIN_USER_ID: ${DEMO_ADMIN_USER_ID}
+      DEMO_ADMIN_DEPARTMENT_ID: ${DEMO_ADMIN_DEPARTMENT_ID}
+    volumes:
+      - ./docker/postgres/create-demo-admin.sh:/scripts/create-demo-admin.sh:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   migration:
     image: cosmetic-management-system-backend
     pull_policy: never

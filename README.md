@@ -30,8 +30,8 @@ backend/                 # toàn bộ backend (monorepo NestJS)
     storage-service/     # Upload file
 frontend/                # React app
 docker/                  # Scripts khởi tạo DB, migrations, cấu hình Nginx
-sql/schema.sql           # Mô tả toàn bộ schema 13 database
-db-exports/              # Bản dump database mẫu (optional)
+sql/schema.sql           # Mô tả schema các database nghiệp vụ
+db-exports/demo-data.sql # Dữ liệu tối thiểu để hệ thống chạy được (không chứa tài khoản)
 docs/                    # Tài liệu kiến trúc
 docker-compose.yaml      # Định nghĩa toàn bộ hệ thống
 .env.example             # Mẫu biến môi trường
@@ -85,7 +85,7 @@ docker-compose.yaml      # Định nghĩa toàn bộ hệ thống
    ```
 
    Luồng khởi động được tự động hóa:
-   - `postgres` khởi tạo 15 user/database theo `.env`.
+   - `postgres` khởi tạo 17 user/database theo `.env`.
    - `sync-users` đồng bộ quyền (GRANT) giữa các database.
    - `migration` chạy MikroORM migrations cho từng service.
    - Các service backend + `gateway-service` + `frontend` + `nginx` lần lượt đi lên.
@@ -95,6 +95,45 @@ docker-compose.yaml      # Định nghĩa toàn bộ hệ thống
    ```bash
    docker compose ps
    ```
+
+6. Nạp sẵn dữ liệu mẫu (danh mục, sản phẩm, tồn kho, phòng ban):
+
+   ```bash
+   set -a && . ./.env && set +a
+   docker compose exec -T postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" \
+     < db-exports/demo-data.sql
+   ```
+
+   `db-exports/demo-data.sql` chỉ chứa dữ liệu tối thiểu để hệ thống không lỗi:
+   7 phòng ban, 13 danh mục, 21 sản phẩm, 28 biến thể và dữ liệu tồn kho tương ứng.
+   **Không có** tài khoản, khách hàng, nhân viên, đơn hàng, hóa đơn hay thông tin liên hệ.
+
+   Bộ quyền (9 vai trò, 60 quyền, 167 liên kết vai trò ↔ quyền) không nằm trong file này —
+   migration đã tạo sẵn, nên đăng nhập là dùng được ngay, không phải gán tay.
+
+   Bước này phải chạy **sau** bước 4, vì schema do migration tự tạo — chạy trước sẽ lỗi
+   trùng bảng. Bỏ bước này cũng chạy được, chỉ là các màn hình danh mục / sản phẩm / kho
+   sẽ trống.
+   Nạp lại nhiều lần cũng không sao, file có `ON CONFLICT DO NOTHING`.
+
+7. Tạo tài khoản admin đầu tiên:
+
+   ```bash
+   docker compose --profile setup run --rm create-demo-admin
+   ```
+
+   | | |
+   |---|---|
+   | Email | `admin@example.com` |
+   | Mật khẩu | `Admin@123456` |
+
+   Script gán nhân viên vào phòng ban có id trong `DEMO_ADMIN_DEPARTMENT_ID` (mặc định là
+   phòng ban `IT`). Muốn dùng phòng ban khác thì tạo phòng ban trong giao diện trước,
+   rồi đổi id trong `.env`.
+
+   > Mật khẩu này nằm công khai trong repo. Sau khi đăng nhập được, hãy tạo tài khoản
+   > riêng của bạn rồi xoá tài khoản demo. Script chạy lại nhiều lần cũng không sao —
+   > nếu email đã tồn tại thì nó bỏ qua.
 
 ## Chạy lại & vận hành
 
@@ -185,7 +224,9 @@ npm run db:up               # chỉ khởi động postgres
   docker compose run --rm migration
   ```
 
-- Tài liệu mô tả toàn bộ schema 13 database: `sql/schema.sql`.
+- Mô tả schema các database nghiệp vụ: `sql/schema.sql`.
+- Dữ liệu mẫu tối thiểu (không có tài khoản, khách hàng, nhân viên, đơn hàng):
+  `db-exports/demo-data.sql`.
 
 ## Kiểm tra chất lượng code (local)
 
