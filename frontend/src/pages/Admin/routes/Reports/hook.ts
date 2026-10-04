@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 import { reportsApi } from "./api";
+import { exportXlsx } from "./export-xlsx";
 import type { FullReportsData, ReportType, TimeRangeOption } from "./type";
 
 export function useReports() {
@@ -40,6 +42,19 @@ export function useReports() {
     }
   }, [data, reportType]);
 
+  const handleExportXlsx = useCallback(async () => {
+    if (!data) return;
+    setExporting(true);
+    try {
+      await exportXlsx(data, reportType);
+    } catch (err) {
+      console.error("Failed to export Excel:", err);
+      toast.error("Không thể xuất tệp Excel. Vui lòng thử lại.");
+    } finally {
+      setExporting(false);
+    }
+  }, [data, reportType]);
+
   return {
     timeRange,
     setTimeRange,
@@ -51,5 +66,6 @@ export function useReports() {
     exporting,
     refetch: () => loadData(timeRange),
     exportCsv: handleExportCsv,
+    exportXlsx: handleExportXlsx,
   };
 }
