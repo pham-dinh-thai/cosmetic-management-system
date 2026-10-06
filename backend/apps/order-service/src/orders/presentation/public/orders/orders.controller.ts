@@ -6,6 +6,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Inject,
   Param,
   Patch,
   Put,
@@ -20,6 +21,8 @@ import {
   Permissions,
   PermissionsGuard,
 } from '@app/security';
+import { VARIANT_LABEL_READER_PORT } from '../../../application/ports/variant-label-reader.port';
+import type { IVariantLabelReaderPort } from '../../../application/ports/variant-label-reader.port';
 import { Audit, AuditAction, paramId } from '@app/audit-client';
 import {
   FindAllOrdersResponse,
@@ -53,6 +56,15 @@ type ChangeOrderStatusHandler = (
   employeeId?: string,
 ) => Promise<{ id: string; status: OrderStatus }>;
 
+type OrderDetailLineView = ViewOrderDetailReadModel['lines'][number] & {
+  name?: string;
+  variantName?: string;
+};
+
+type OrderDetailView = Omit<ViewOrderDetailReadModel, 'lines'> & {
+  lines: OrderDetailLineView[];
+};
+
 @UseGuards(AuthGuard, PermissionsGuard)
 @Permissions('orders:read')
 @Controller('orders')
@@ -73,6 +85,8 @@ export class OrdersController {
     private readonly updateOrderUseCase: UpdateOrderUseCase,
     private readonly updateOrderPaymentStatusUseCase: UpdateOrderPaymentStatusUseCase,
     private readonly deleteOrderUseCase: DeleteOrderUseCase,
+    @Inject(VARIANT_LABEL_READER_PORT)
+    private readonly variantLabelReader: IVariantLabelReaderPort,
   ) {}
 
   private readonly statusHandlers: Partial<
@@ -118,10 +132,21 @@ export class OrdersController {
   }
 
   @Get(':id')
-  public async viewDetail(
-    @Param('id') id: string,
-  ): Promise<ViewOrderDetailReadModel> {
-    return await this.viewOrderDetailUseCase.execute(id);
+  public async viewDetail(@Param('id') id: string): Promise<OrderDetailView> {
+    const detail = await this.viewOrderDetailUseCase.execute(id);
+
+    const variantData = await this.variantLabelReader.getVariantData(
+      detail.lines.map((line) => line.variantId),
+    );
+
+    return {
+      ...detail,
+      lines: detail.lines.map((line) => ({
+        ...line,
+        name: variantData[line.variantId]?.cosmeticName,
+        variantName: variantData[line.variantId]?.variantName ?? undefined,
+      })),
+    };
   }
 
   @Permissions('orders:write')
