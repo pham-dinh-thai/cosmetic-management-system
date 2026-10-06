@@ -9,7 +9,25 @@ export interface UpdateProfilePayload {
   gender?: string;
 }
 
+export interface CurrentUserProfile {
+  id: string;
+  firstName: string;
+  lastName: string;
+  gender: string;
+  email: string;
+  roleId: string;
+}
+
 export const userService = {
+  async getMe(): Promise<CurrentUserProfile | null> {
+    const { data } = await api.get<CurrentUserProfile | null>("/users/me");
+    return data;
+  },
+
+  async updateMe(payload: Pick<CurrentUserProfile, "firstName" | "lastName" | "gender">): Promise<void> {
+    await api.patch("/users/me", payload);
+  },
+
   /**
    * Lấy thông tin profile mở rộng của người dùng từ backend.
    * Token payload chỉ chứa: sub, email, roleId, departmentCode, position.

@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useAuthStore } from "../../store/useAuthStore";
-import { customersService, splitName } from "../../services/customers.service";
+import { customersService } from "../../services/customers.service";
+import { employeesService } from "../../services/employees.service";
 import { authService } from "../../services/auth.service";
+import { userService } from "../../services/user.service";
 import type { ProfileFormData, PasswordFormData } from "./type";
 import { toast } from "sonner";
 
@@ -29,7 +31,8 @@ export function useProfile() {
     confirmPassword: "",
   });
 
-  // Load hồ sơ thật từ backend (mọi role đều có thể có hồ sơ ở customer-service)
+  // User-service là nguồn hồ sơ chung cho mọi role. Thông tin liên hệ nằm ở
+  // customer-service với khách hàng và employee-service với admin/nhân viên.
   useEffect(() => {
     if (!user?.id) {
       return;
@@ -39,19 +42,39 @@ export function useProfile() {
 
     (async () => {
       try {
-        const profile = await customersService.getMe();
+        const profile = await userService.getMe();
 
         if (!cancelled && profile) {
-          const { firstName, lastName } = splitName(profile.name ?? "");
-
           setFormData({
-            firstName,
-            lastName,
+            firstName: profile.firstName ?? "",
+            lastName: profile.lastName ?? "",
             email: profile.email || user.email || "",
-            phone: profile.phone ?? "",
+            phone: user.phone ?? "",
             gender: profile.gender || "female",
-            address: profile.address ?? "",
+            address: user.address ?? "",
           });
+
+          if (user.role === "customer") {
+            const customerProfile = await customersService.getMe();
+            if (!cancelled && customerProfile) {
+              setFormData((current) => ({
+                ...current,
+                phone: customerProfile.phone ?? "",
+                address: customerProfile.address ?? "",
+              }));
+            }
+          } else {
+            const employee = (await employeesService.getEmployees()).find(
+              (item) => item.userId === user.id,
+            );
+            if (!cancelled && employee) {
+              setFormData((current) => ({
+                ...current,
+                phone: employee.phone ?? "",
+                address: employee.address ?? "",
+              }));
+            }
+          }
         }
       } catch {
         // Không load được thì giữ nguyên dữ liệu hiện có trong store
@@ -97,33 +120,43 @@ export function useProfile() {
       const phone = formData.phone.trim();
       const address = formData.address.trim();
 
-      let profile = await customersService.getMe();
-
-      if (!profile && (phone || address)) {
-        profile = await customersService.ensureMe();
-      }
-
-      if (!profile) {
-        toast.error(
-          "Bạn chưa có hồ sơ khách hàng. Nhập số điện thoại hoặc địa chỉ để tạo hồ sơ.",
-        );
-        return;
-      }
-
-      await customersService.updateMe({
-        user: {
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          gender: formData.gender,
-        },
+      await userService.updateMe({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        gender: formData.gender,
       });
 
-      if (phone && phone !== (profile.phone ?? "")) {
-        await customersService.addMyPhone(phone);
-      }
+      if (user.role === "customer") {
+        let profile = await customersService.getMe();
 
-      if (address && address !== (profile.address ?? "")) {
-        await customersService.addMyAddress(address);
+        if (!profile && (phone || address)) {
+          profile = await customersService.ensureMe();
+        }
+
+        if (profile) {
+          if (phone && phone !== (profile.phone ?? "")) {
+            await customersService.addMyPhone(phone);
+          }
+
+          if (address && address !== (profile.address ?? "")) {
+            await customersService.addMyAddress(address);
+          }
+        }
+      } else {
+        const employee = (await employeesService.getEmployees()).find(
+          (item) => item.userId === user.id,
+        );
+
+        if (employee) {
+          await employeesService.updateEmployee(employee.id, {
+            name: [formData.firstName, formData.lastName]
+              .filter(Boolean)
+              .join(" "),
+            gender: formData.gender,
+            phone: phone || undefined,
+            address: address || undefined,
+          });
+        }
       }
 
       syncStore();
