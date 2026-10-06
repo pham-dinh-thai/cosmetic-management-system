@@ -16,6 +16,10 @@ const EditCustomerPage: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const [addresses, setAddresses] = useState<
+    { id: string; city: string; street: string }[]
+  >([]);
+  const [newAddress, setNewAddress] = useState("");
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -45,8 +49,9 @@ const EditCustomerPage: React.FC = () => {
             gender: data.gender || "other",
             phone: data.phone || "",
             email: data.email || "",
-            address: data.address || "",
+            address: "",
           });
+          setAddresses(data.addresses ?? []);
         })
         .catch((err) => {
           console.error(err);
@@ -89,7 +94,6 @@ const EditCustomerPage: React.FC = () => {
 
       const current = await customersService.getCustomerById(id);
       const phone = formData.phone.trim();
-      const address = formData.address.trim();
 
       const [oldPhone] = current.phones ?? [];
       if (oldPhone && oldPhone.phone !== phone) {
@@ -99,14 +103,6 @@ const EditCustomerPage: React.FC = () => {
         await customersService.addPhone(id, phone);
       }
 
-      const [oldAddress] = current.addresses ?? [];
-      if (oldAddress && oldAddress.street !== address) {
-        await customersService.removeAddress(id, oldAddress.id);
-      }
-      if (address && !current.addresses?.some((a) => a.street === address)) {
-        await customersService.addAddress(id, address);
-      }
-
       toast.success("Đã cập nhật khách hàng");
       navigate("/customers");
     } catch (error) {
@@ -114,6 +110,34 @@ const EditCustomerPage: React.FC = () => {
       toast.error("Đã có lỗi xảy ra khi cập nhật khách hàng");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAddAddress = async () => {
+    if (!id || !newAddress.trim()) return;
+    try {
+      await customersService.addAddress(id, newAddress.trim());
+      const customer = await customersService.getCustomerById(id);
+      setAddresses(customer.addresses ?? []);
+      setNewAddress("");
+      toast.success("Đã thêm địa chỉ");
+    } catch {
+      toast.error("Không thể thêm địa chỉ");
+    }
+  };
+
+  const handleRemoveAddress = async (addressId: string) => {
+    if (!id) return;
+    if (addresses.length <= 1) {
+      toast.error("Mỗi người dùng phải có ít nhất một địa chỉ.");
+      return;
+    }
+    try {
+      await customersService.removeAddress(id, addressId);
+      setAddresses((current) => current.filter((address) => address.id !== addressId));
+      toast.success("Đã xóa địa chỉ");
+    } catch {
+      toast.error("Không thể xóa địa chỉ");
     }
   };
 
@@ -200,16 +224,18 @@ const EditCustomerPage: React.FC = () => {
               placeholder="Ví dụ: nguyenvana@gmail.com"
             />
           </div>
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
-              Địa chỉ
-            </label>
-            <Input
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              placeholder="Ví dụ: 123 Đường ABC, Quận X"
-            />
+          <div className="flex flex-col gap-3">
+            <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">Địa chỉ giao hàng</label>
+            {addresses.map((address) => (
+              <div key={address.id} className="flex items-center justify-between gap-3 rounded-lg border border-[#eeeee9] px-3 py-2 text-[14px]">
+                <span>{[address.street, address.city].filter(Boolean).join(", ")}</span>
+                <Button type="button" variant="primary" onClick={() => handleRemoveAddress(address.id)} disabled={addresses.length <= 1} className="!bg-red-600 hover:!bg-red-700 disabled:!bg-red-300">Xóa</Button>
+              </div>
+            ))}
+            <div className="flex gap-2">
+              <Input value={newAddress} onChange={(e) => setNewAddress(e.target.value)} placeholder="Thêm địa chỉ mới" />
+              <Button type="button" variant="outline" onClick={handleAddAddress}>Thêm</Button>
+            </div>
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-[#eeeee9]">

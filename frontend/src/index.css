@@ -55,8 +55,17 @@
   --color-warm-stone: #eeeee9;
   --color-frosted-glass: #c4c7c4;
   --color-ash: #b3b3b3;
-  --color-pewter: #666666;
   --color-ink: #000000;
+
+  --font-seed-sans: "Inter", "Seed Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-seed-sans-mono: "JetBrains Mono", "Seed Sans Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+input,
+button,
+select,
+textarea {
+  font-family: inherit;
 }
 
 html,

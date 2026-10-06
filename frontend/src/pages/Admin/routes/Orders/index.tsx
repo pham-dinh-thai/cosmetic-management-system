@@ -332,7 +332,7 @@ const OrdersPage: React.FC = () => {
                   <table className="w-full text-[13px]">
                     <thead>
                       <tr className="bg-[#f5f5ef] text-left text-[#8a8a8a]">
-                        <th className="px-4 py-2.5 font-medium">Sản phẩm (Variant)</th>
+                        <th className="px-4 py-2.5 font-medium">Sản phẩm</th>
                         <th className="px-4 py-2.5 font-medium text-right">Đơn giá</th>
                         <th className="px-4 py-2.5 font-medium text-right">SL</th>
                         <th className="px-4 py-2.5 font-medium text-right">Thành tiền</th>
@@ -341,7 +341,16 @@ const OrdersPage: React.FC = () => {
                     <tbody>
                       {detailOrder.detail.lines.map((line) => (
                         <tr key={line.id} className="border-t border-[#eeeee9]">
-                          <td className="px-4 py-2.5 font-mono text-[12px]">{line.variantId}</td>
+                          <td className="px-4 py-2.5">
+                            <span className="font-medium text-[#1c3a13]">
+                              {line.name || line.variantId}
+                            </span>
+                            {line.variantName && (
+                              <span className="block text-[11px] text-[#8a8a8a]">
+                                {line.variantName}
+                              </span>
+                            )}
+                          </td>
                           <td className="px-4 py-2.5 text-right font-mono">
                             {line.unitPrice.toLocaleString('vi-VN')}₫
                           </td>

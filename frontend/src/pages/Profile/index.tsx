@@ -9,12 +9,18 @@ const ProfilePage: React.FC = () => {
     isLoading,
     isSaving,
     isPasswordSaving,
+    isAddressSaving,
     formData,
     passwordData,
+    addresses,
+    newAddress,
     handleInputChange,
     handlePasswordChange,
     handleSaveProfile,
     handleSavePassword,
+    setNewAddress,
+    handleAddAddress,
+    handleRemoveAddress,
   } = useProfile();
 
   // Thông tin từ token: sub, email, roleId, departmentCode, position
@@ -40,7 +46,6 @@ const ProfilePage: React.FC = () => {
           description="Quản lý hồ sơ, cập nhật thông tin liên hệ và bảo mật tài khoản."
         />
 
-        {/* User Card Top Banner — dữ liệu thật từ token */}
         <Card className="p-8 flex flex-col md:flex-row items-center justify-between gap-6 bg-[#f7f7f2] border border-[#eeeee9]">
           <div className="flex items-center gap-6">
             <div className="relative">
@@ -53,20 +58,16 @@ const ProfilePage: React.FC = () => {
             </div>
             <div className="flex flex-col gap-1">
               <h2 className="text-[22px] font-medium text-[#1c3a13]">{userDisplayName}</h2>
-              {/* email lấy từ token */}
               <span className="text-[14px] text-[#666666]">{user?.email}</span>
               <div className="flex items-center gap-2 mt-1">
-                {/* roleId từ token */}
                 <span className="inline-flex items-center px-3 py-0.5 rounded-full text-[11px] font-medium uppercase tracking-[0.15em] bg-[#1c3a13] text-[#fcfcf7]">
                   {userRoleDisplay}
                 </span>
-                {/* departmentCode từ token */}
                 {user?.departmentCode && (
                   <span className="inline-flex items-center px-3 py-0.5 rounded-full text-[11px] font-medium bg-[#eeeee9] text-[#1c3a13]">
                     Phòng: {user.departmentCode}
                   </span>
                 )}
-                {/* position từ token */}
                 {user?.position && (
                   <span className="inline-flex items-center px-3 py-0.5 rounded-full text-[11px] font-medium bg-[#d3fa99] text-[#1c3a13]">
                     {user.position}
@@ -75,23 +76,10 @@ const ProfilePage: React.FC = () => {
               </div>
             </div>
           </div>
-          {/* sub (ID) từ token */}
-          <div className="text-right text-[13px] text-[#666666]">
-            User ID:{" "}
-            <span className="font-mono text-[#1c3a13] font-medium text-[12px]">{user?.id}</span>
-          </div>
         </Card>
-
-        {/* Two Column Grid */}
+        
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-          {/* Left Form: Personal Info — người dùng tự điền, lưu vào Zustand store */}
           <Card className="lg:col-span-2 p-8 flex flex-col gap-6">
-            <div className="border-b border-[#eeeee9] pb-4">
-              <h3 className="text-[20px] font-medium text-[#1c3a13]">Hồ sơ cá nhân</h3>
-              <p className="text-[13px] text-[#666666] mt-1">
-                Cập nhật thông tin liên hệ. Email và ID được lấy trực tiếp từ hệ thống, không thể thay đổi.
-              </p>
-            </div>
 
             {isLoading ? (
               <div className="flex flex-col gap-6" aria-busy="true">
@@ -133,7 +121,7 @@ const ProfilePage: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex flex-col gap-2">
                   <label className="text-[12px] font-medium uppercase tracking-[0.1em] text-[#666666]">
-                    Email <span className="text-[#aaa] normal-case tracking-normal">(từ token – chỉ đọc)</span>
+                    Email <span className="text-[#aaa] normal-case tracking-normal"></span>
                   </label>
                   <Input
                     name="email"
@@ -171,20 +159,6 @@ const ProfilePage: React.FC = () => {
                 </select>
               </div>
 
-              <div className="flex flex-col gap-2">
-                <label className="text-[12px] font-medium uppercase tracking-[0.1em] text-[#666666]">
-                  Địa chỉ liên hệ
-                </label>
-                <textarea
-                  name="address"
-                  rows={3}
-                  value={formData.address}
-                  onChange={handleInputChange}
-                  placeholder="Nhập địa chỉ nhà, tên đường, phường/xã..."
-                  className="w-full p-4 rounded-[12px] border border-[#1c3a13] bg-[#fcfcf7] text-[14px] text-[#1c3a13] outline-none resize-none"
-                />
-              </div>
-
               <div className="flex justify-end pt-4 border-t border-[#eeeee9]">
                 <Button type="submit" variant="primary" disabled={isSaving}>
                   {isSaving ? "Đang lưu..." : "Lưu thay đổi"}
@@ -192,6 +166,27 @@ const ProfilePage: React.FC = () => {
               </div>
               </form>
             )}
+
+            <div className="border-t border-[#eeeee9] pt-6 flex flex-col gap-4">
+              <div>
+                <h3 className="text-[18px] font-medium text-[#1c3a13]">Địa chỉ giao hàng</h3>
+                <p className="text-[13px] text-[#666666] mt-1">Bạn có thể lưu nhiều địa chỉ để dùng khi đặt hàng.</p>
+              </div>
+              {addresses.length > 0 && (
+                <div className="flex flex-col gap-2">
+                  {addresses.map((address) => (
+                    <div key={address.id} className="flex items-center justify-between gap-4 rounded-[12px] border border-[#eeeee9] px-4 py-3">
+                      <span className="text-[14px] text-[#1c3a13]">{[address.street, address.city].filter(Boolean).join(", ")}</span>
+                      <Button type="button" variant="primary" onClick={() => handleRemoveAddress(address.id)} disabled={isAddressSaving || addresses.length <= 1} className="!bg-red-600 hover:!bg-red-700 disabled:!bg-red-300">Xóa</Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Input value={newAddress} onChange={(e) => setNewAddress(e.target.value)} placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành" />
+                <Button type="button" variant="outline" onClick={handleAddAddress} disabled={isAddressSaving}>{isAddressSaving ? "Đang lưu..." : "Thêm địa chỉ"}</Button>
+              </div>
+            </div>
           </Card>
 
           {/* Right Form: Change Password */}
@@ -244,7 +239,7 @@ const ProfilePage: React.FC = () => {
                 />
               </div>
               <div className="pt-2">
-                <Button type="submit" variant="outline" className="w-full" disabled={isPasswordSaving}>
+                <Button type="submit" variant="primary" className="w-full" disabled={isPasswordSaving}>
                   {isPasswordSaving ? "Đang đổi..." : "Cập nhật mật khẩu"}
                 </Button>
               </div>

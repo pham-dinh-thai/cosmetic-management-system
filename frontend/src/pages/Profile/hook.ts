@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useAuthStore } from "../../store/useAuthStore";
-import { customersService, splitName } from "../../services/customers.service";
+import { customersService } from "../../services/customers.service";
+import { employeesService } from "../../services/employees.service";
 import { authService } from "../../services/auth.service";
+import { userService } from "../../services/user.service";
 import type { ProfileFormData, PasswordFormData } from "./type";
 import { toast } from "sonner";
 
@@ -12,6 +14,11 @@ export function useProfile() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isPasswordSaving, setIsPasswordSaving] = useState(false);
+  const [addresses, setAddresses] = useState<
+    { id: string; city: string; street: string }[]
+  >([]);
+  const [newAddress, setNewAddress] = useState("");
+  const [isAddressSaving, setIsAddressSaving] = useState(false);
 
   // Khởi tạo form từ Zustand store (nguồn thật từ token + dữ liệu người dùng đã từng lưu)
   const [formData, setFormData] = useState<ProfileFormData>({
@@ -29,7 +36,8 @@ export function useProfile() {
     confirmPassword: "",
   });
 
-  // Load hồ sơ thật từ backend (mọi role đều có thể có hồ sơ ở customer-service)
+  // User-service là nguồn hồ sơ chung. Danh sách địa chỉ dùng customer-service
+  // cho mọi user, nên một tài khoản có thể có nhiều địa chỉ giao hàng.
   useEffect(() => {
     if (!user?.id) {
       return;
@@ -39,19 +47,41 @@ export function useProfile() {
 
     (async () => {
       try {
-        const profile = await customersService.getMe();
+        const profile = await userService.getMe();
 
         if (!cancelled && profile) {
-          const { firstName, lastName } = splitName(profile.name ?? "");
-
           setFormData({
-            firstName,
-            lastName,
+            firstName: profile.firstName ?? "",
+            lastName: profile.lastName ?? "",
             email: profile.email || user.email || "",
-            phone: profile.phone ?? "",
+            phone: user.phone ?? "",
             gender: profile.gender || "female",
-            address: profile.address ?? "",
+            address: user.address ?? "",
           });
+
+          const customerProfile = await customersService.getMe();
+          if (!cancelled && customerProfile) {
+            setAddresses(customerProfile.addresses ?? []);
+
+            if (user.role === "customer") {
+              setFormData((current) => ({
+                ...current,
+                phone: customerProfile.phone ?? "",
+              }));
+            }
+          }
+
+          if (user.role !== "customer") {
+            const employee = (await employeesService.getEmployees()).find(
+              (item) => item.userId === user.id,
+            );
+            if (!cancelled && employee) {
+              setFormData((current) => ({
+                ...current,
+                phone: employee.phone ?? "",
+              }));
+            }
+          }
         }
       } catch {
         // Không load được thì giữ nguyên dữ liệu hiện có trong store
@@ -95,35 +125,40 @@ export function useProfile() {
     setIsSaving(true);
     try {
       const phone = formData.phone.trim();
-      const address = formData.address.trim();
 
-      let profile = await customersService.getMe();
-
-      if (!profile && (phone || address)) {
-        profile = await customersService.ensureMe();
-      }
-
-      if (!profile) {
-        toast.error(
-          "Bạn chưa có hồ sơ khách hàng. Nhập số điện thoại hoặc địa chỉ để tạo hồ sơ.",
-        );
-        return;
-      }
-
-      await customersService.updateMe({
-        user: {
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          gender: formData.gender,
-        },
+      await userService.updateMe({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        gender: formData.gender,
       });
 
-      if (phone && phone !== (profile.phone ?? "")) {
-        await customersService.addMyPhone(phone);
-      }
+      if (user.role === "customer") {
+        let profile = await customersService.getMe();
 
-      if (address && address !== (profile.address ?? "")) {
-        await customersService.addMyAddress(address);
+        if (!profile && phone) {
+          profile = await customersService.ensureMe();
+        }
+
+        if (profile) {
+          if (phone && phone !== (profile.phone ?? "")) {
+            await customersService.addMyPhone(phone);
+          }
+
+        }
+      } else {
+        const employee = (await employeesService.getEmployees()).find(
+          (item) => item.userId === user.id,
+        );
+
+        if (employee) {
+          await employeesService.updateEmployee(employee.id, {
+            name: [formData.firstName, formData.lastName]
+              .filter(Boolean)
+              .join(" "),
+            gender: formData.gender,
+            phone: phone || undefined,
+          });
+        }
       }
 
       syncStore();
@@ -135,6 +170,51 @@ export function useProfile() {
       );
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const refreshAddresses = async () => {
+    const profile = await customersService.getMe();
+    setAddresses(profile?.addresses ?? []);
+  };
+
+  const handleAddAddress = async () => {
+    const street = newAddress.trim();
+    if (!street) {
+      toast.error("Vui lòng nhập địa chỉ.");
+      return;
+    }
+
+    setIsAddressSaving(true);
+    try {
+      let profile = await customersService.getMe();
+      if (!profile) profile = await customersService.ensureMe();
+      await customersService.addMyAddress(street);
+      await refreshAddresses();
+      setNewAddress("");
+      toast.success("Đã thêm địa chỉ.");
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message ?? "Không thể thêm địa chỉ.");
+    } finally {
+      setIsAddressSaving(false);
+    }
+  };
+
+  const handleRemoveAddress = async (addressId: string) => {
+    if (addresses.length <= 1) {
+      toast.error("Mỗi người dùng phải có ít nhất một địa chỉ.");
+      return;
+    }
+
+    setIsAddressSaving(true);
+    try {
+      await customersService.removeMyAddress(addressId);
+      await refreshAddresses();
+      toast.success("Đã xóa địa chỉ.");
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message ?? "Không thể xóa địa chỉ.");
+    } finally {
+      setIsAddressSaving(false);
     }
   };
 
@@ -180,11 +260,17 @@ export function useProfile() {
     isLoading,
     isSaving,
     isPasswordSaving,
+    isAddressSaving,
     formData,
     passwordData,
+    addresses,
+    newAddress,
     handleInputChange,
     handlePasswordChange,
     handleSaveProfile,
     handleSavePassword,
+    setNewAddress,
+    handleAddAddress,
+    handleRemoveAddress,
   };
 }

@@ -78,6 +78,12 @@ export const customersService = {
     await api.post<void>("/customers/me/addresses", { city: "", street });
   },
 
+  async removeMyAddress(addressId: string): Promise<void> {
+    const profile = await this.getMe();
+    if (!profile) return;
+    await api.delete<void>(`/customers/${profile.id}/addresses/${addressId}`);
+  },
+
   async addPhone(customerId: string, phone: string): Promise<void> {
     await api.post<void>(`/customers/${customerId}/phones`, { phone });
   },
