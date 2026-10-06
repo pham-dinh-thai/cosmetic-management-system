@@ -6,8 +6,17 @@ import {
   type ShopProduct,
 } from "../../services/landing.service";
 
+const LINE_1 = "Cảm nhận làn da tái sinh cùng";
+const LINE_2 = "công nghệ chăm sóc thế hệ mới.";
+const TOTAL_LENGTH = LINE_1.length + LINE_2.length;
+
 const LandingPage = () => {
   const [products, setProducts] = useState<ShopProduct[]>(PRODUCTS);
+  const [line1Text, setLine1Text] = useState("");
+  const [line2Text, setLine2Text] = useState("");
+  const [isTypingStarted, setIsTypingStarted] = useState(false);
+  const [isSplitLayout, setIsSplitLayout] = useState(false);
+  const [showRemainingElements, setShowRemainingElements] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -18,11 +27,54 @@ const LandingPage = () => {
         }
       })
       .catch(() => {
-        // Keep the static showcase when the API is unavailable.
       });
     return () => {
       active = false;
     };
+  }, []);
+
+  // Typewriter effect & dynamic hero transitions (strictly 2 lines, graceful slow motion)
+  useEffect(() => {
+    let currentIndex = 0;
+    setLine1Text("");
+    setLine2Text("");
+    setIsTypingStarted(false);
+    setIsSplitLayout(false);
+    setShowRemainingElements(false);
+
+    // Initial pause so the page starts clean/empty
+    const startTimeout = setTimeout(() => {
+      setIsTypingStarted(true);
+
+      const interval = setInterval(() => {
+        currentIndex++;
+
+        if (currentIndex <= LINE_1.length) {
+          setLine1Text(LINE_1.slice(0, currentIndex));
+          setLine2Text("");
+        } else {
+          setLine1Text(LINE_1);
+          const line2Index = currentIndex - LINE_1.length;
+          setLine2Text(LINE_2.slice(0, line2Index));
+        }
+
+        if (currentIndex >= TOTAL_LENGTH) {
+          clearInterval(interval);
+          // Wait 0.65s after typing finishes so user can read the slogan comfortably
+          setTimeout(() => {
+            setIsSplitLayout(true);
+            // Delay (450ms) before sub-elements smoothly push up from below
+            setTimeout(() => {
+              setShowRemainingElements(true);
+            }, 450);
+          }, 650);
+        }
+      }, 35); // 35ms per char (~1.5x faster than 52ms)
+
+      return () => clearInterval(interval);
+    }, 350);
+
+    return () => clearTimeout(startTimeout);
   }, []);
 
   return (
@@ -30,64 +82,122 @@ const LandingPage = () => {
       <Header roleTitle="Customer" />
 
       <main className="flex-1">
-        {/* HERO — Snow White canvas, 50/50 split, whisper-light headline */}
-        <section className="px-6 sm:px-12 pt-12 pb-24 sm:pt-16 sm:pb-32">
-          <div className="max-w-[1200px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            <div>
-              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[--color-forest-depths] text-[10px] font-medium uppercase tracking-[0.18em] text-[--color-forest-depths]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[--color-lime-pulse]" />
-                Bộ sưu tập mới — Xuân 2026
-              </span>
-
-              <h1
-                className="mt-8 text-[--color-forest-depths] font-light leading-[1.05] tracking-[-0.02em]"
-                style={{
-                  fontWeight: 350,
-                  fontSize: "clamp(40px, 6vw, 64px)",
-                  letterSpacing: "-0.02em",
-                }}
+        {/* HERO — Exact 1 computer screen height, strictly 2 lines, original layout restored */}
+        <section className="px-6 sm:px-12 lg:h-[calc(100vh-80px)] min-h-[calc(100vh-80px)] flex items-center justify-center relative overflow-hidden bg-[--color-snow-white]">
+          <style>{`
+            @keyframes hero-cursor-blink {
+              0%, 45% { opacity: 1; }
+              50%, 95% { opacity: 0; }
+              100% { opacity: 1; }
+            }
+          `}</style>
+          <div className="max-w-[1200px] w-full mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center py-4 lg:py-6 relative">
+            {/* Left Column — Original natural structure */}
+            <div className="flex flex-col justify-center">
+              {/* Slogan H1 — exactly 2 lines, glides from center to left */}
+              <div
+                className={`transition-all duration-[1500ms] ease-[cubic-bezier(0.22,1,0.36,1)] flex flex-col ${
+                  isSplitLayout
+                    ? "lg:translate-x-0 items-center lg:items-start text-center lg:text-left scale-100"
+                    : "lg:translate-x-[calc(50%+2rem)] items-center text-center scale-[1.12]"
+                }`}
               >
-                Da khỏe,
-                <br />
-                vẻ đẹp tự nhiên,
-                <br />
-                <span className="text-[--color-sage-moss]">
-                  khoa học định hình.
-                </span>
-              </h1>
-
-              <p className="mt-6 max-w-md text-[16px] leading-[1.6] text-[--color-pewter]">
-                Mỹ phẩm được bào chế theo phương pháp lâm sàng — với hệ vi sinh
-                khỏe mạnh, thành phần minh bạch, và công thức whisper-light dành
-                cho làn da nhạy cảm.
-              </p>
-
-              <div className="mt-10 flex flex-wrap items-center gap-4">
-                <Link
-                  to="/shop"
-                  className="inline-flex items-center justify-center rounded-full bg-[--color-forest-depths] text-[--color-snow-white] px-6 py-4 text-[14px] font-normal tracking-[0.02em] hover:opacity-90 transition-opacity"
+                <h1
+                  className="text-[--color-forest-depths] font-light leading-[1.22] tracking-[-0.02em] transition-all duration-[1500ms]"
+                  style={{
+                    fontWeight: 350,
+                    fontSize: isSplitLayout
+                      ? "clamp(24px, 2.8vw, 38px)"
+                      : "clamp(28px, 3.6vw, 44px)",
+                    letterSpacing: "-0.02em",
+                  }}
                 >
-                  Khám phá sản phẩm →
-                </Link>
-                <a
-                  href="#science"
-                  className="inline-flex items-center gap-2 text-[14px] text-[--color-forest-depths] underline underline-offset-[6px] decoration-[1.5px] hover:opacity-70 transition-opacity"
-                >
-                  Câu chuyện khoa học
-                </a>
+                  <span className="block whitespace-nowrap">
+                    {line1Text}
+                    {isTypingStarted && line2Text.length === 0 && (
+                      <span
+                        className="inline-block font-light ml-0.5 text-[--color-forest-depths] select-none align-baseline"
+                        style={{
+                          animation: "hero-cursor-blink 0.9s infinite",
+                        }}
+                        aria-hidden="true"
+                      >
+                        |
+                      </span>
+                    )}
+                  </span>
+                  <span className="block whitespace-nowrap mt-1 min-h-[1.22em]">
+                    {line2Text}
+                    {line2Text.length > 0 && (
+                      <span
+                        className="inline-block font-light ml-0.5 text-[--color-forest-depths] select-none align-baseline"
+                        style={{
+                          animation: "hero-cursor-blink 0.9s infinite",
+                        }}
+                        aria-hidden="true"
+                      >
+                        |
+                      </span>
+                    )}
+                  </span>
+                </h1>
               </div>
 
-              <div className="mt-16 grid grid-cols-3 gap-6 max-w-md">
-                <Stat label="Sản phẩm" value="99+" />
-                <Stat label="Thành phần hoạt tính" value="62" />
-                <Stat label="Quốc gia" value="108" />
+              {/* Sub-elements: Original clean order (p -> CTA buttons -> Stats) */}
+              <div
+                className={`transition-all duration-[1000ms] ease-out ${
+                  showRemainingElements
+                    ? "opacity-100 translate-y-0 pointer-events-auto"
+                    : "opacity-0 translate-y-8 pointer-events-none"
+                }`}
+              >
+                <p className="mt-6 max-w-md text-[15px] sm:text-[16px] leading-[1.65] text-[--color-pewter] text-center lg:text-left mx-auto lg:mx-0">
+                  Chắt lọc tinh túy thực vật qua lăng kính khoa học — cân bằng
+                  hệ vi sinh với bảng thành phần minh bạch, nhẹ êm như không cho
+                  làn da nhạy cảm.
+                </p>
+
+                <div className="mt-8 sm:mt-10 flex flex-wrap items-center justify-center lg:justify-start gap-4">
+                  <Link
+                    to="/shop"
+                    className="group inline-flex items-center justify-center gap-2.5 rounded-full bg-[#1c3a13] hover:bg-[#162e0f] text-[#fcfcf7] px-7 py-3.5 text-[14px] sm:text-[15px] font-medium tracking-[0.02em] shadow-[0_2px_8px_rgba(28,58,19,0.12)] hover:shadow-[0_4px_16px_rgba(28,58,19,0.18)] active:scale-[0.98] transition-all duration-200"
+                  >
+                    <span>Khám phá sản phẩm</span>
+                    <svg
+                      className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M14 5l7 7m0 0l-7 7m7-7H3"
+                      />
+                    </svg>
+                  </Link>
+                </div>
+
+                <div className="mt-12 sm:mt-14 grid grid-cols-3 gap-6 max-w-md mx-auto lg:mx-0">
+                  <Stat label="Sản phẩm" value="99+" />
+                  <Stat label="Thành phần hoạt tính" value="62" />
+                  <Stat label="Quốc gia" value="108" />
+                </div>
               </div>
             </div>
 
-            {/* Right — botanical-clinical visual composition */}
-            <div className="relative">
+            {/* Right Column — Enlarged botanical-clinical visual composition */}
+            <div
+              className={`relative transition-all duration-[1500ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                isSplitLayout
+                  ? "opacity-100 scale-100 translate-x-0 pointer-events-auto"
+                  : "opacity-0 scale-[0.2] -translate-x-12 pointer-events-none"
+              }`}
+              style={{ transformOrigin: "left center" }}
+            >
               <div
-                className="aspect-[4/5] w-full rounded-[32px] overflow-hidden relative"
+                className="aspect-[4/5] h-[420px] sm:h-[480px] lg:h-[520px] w-auto mx-auto lg:ml-auto lg:mr-0 rounded-[32px] overflow-hidden relative shadow-none"
                 style={{ backgroundColor: "#1c3a13", color: "#fcfcf7" }}
               >
                 <div
@@ -303,11 +413,13 @@ const LandingPage = () => {
               >
                 Thành phần được gọi tên.
                 <br />
-                <span className="text-[--color-sage-moss]">Không che giấu.</span>
+                <span className="text-[--color-sage-moss]">
+                  Không che giấu.
+                </span>
               </h2>
               <p className="text-[14px] text-[--color-pewter] max-w-sm">
-                Chúng tôi công bố đầy đủ hàm lượng hoạt chất trên mỗi nhãn —
-                vì làn da bạn xứng đáng được tôn trọng.
+                Chúng tôi công bố đầy đủ hàm lượng hoạt chất trên mỗi nhãn — vì
+                làn da bạn xứng đáng được tôn trọng.
               </p>
             </div>
 
