@@ -26,6 +26,9 @@ const CheckoutPage = () => {
   const [placed, setPlaced] = useState(false);
   const [orderRef, setOrderRef] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [savedAddresses, setSavedAddresses] = useState<
+    { id: string; city: string; street: string }[]
+  >([]);
 
   // Hồ sơ khách hàng đã lưu trong DB — dùng để điền sẵn thông tin giao hàng
   const [formValues, setFormValues] = useState({
@@ -55,6 +58,8 @@ const CheckoutPage = () => {
         const { firstName, lastName } = splitName(profile.name ?? "");
         const firstAddress = profile.addresses?.[0];
         const address = profile.address || firstAddress?.street || "";
+
+        setSavedAddresses(profile.addresses ?? []);
 
         setFormValues({
           firstName,
@@ -266,6 +271,26 @@ const CheckoutPage = () => {
                     }
                     className="w-full bg-transparent border-[1.5px] border-warm-stone focus:border-forest-depths rounded-lg px-4 py-3 text-forest-depths outline-none transition-colors"
                   />
+
+                  {savedAddresses.length > 0 && (
+                    <select
+                      aria-label="Chọn địa chỉ đã lưu"
+                      value={savedAddresses.some((item) => item.street === formValues.address) ? formValues.address : ""}
+                      onChange={(e) => {
+                        if (e.target.value) {
+                          setFormValues((v) => ({ ...v, address: e.target.value }));
+                        }
+                      }}
+                      className="w-full bg-transparent border-[1.5px] border-warm-stone focus:border-forest-depths rounded-lg px-4 py-3 text-forest-depths outline-none transition-colors"
+                    >
+                      <option value="">Chọn địa chỉ đã lưu</option>
+                      {savedAddresses.map((address) => (
+                        <option key={address.id} value={address.street}>
+                          {[address.street, address.city].filter(Boolean).join(", ")}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
               </section>
 

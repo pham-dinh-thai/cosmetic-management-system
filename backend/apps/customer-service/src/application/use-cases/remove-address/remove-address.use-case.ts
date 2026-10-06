@@ -1,4 +1,5 @@
 import { type ICustomersRepository } from '../../../domain/repositories/customers.repository';
+import { LastAddressRemovalException } from '../../../domain/exceptions/last-address-removal.exception';
 
 export class RemoveAddressUseCase {
   public constructor(
@@ -10,6 +11,10 @@ export class RemoveAddressUseCase {
 
     if (!customer) {
       return;
+    }
+
+    if (customer.getAddresses().length <= 1) {
+      throw new LastAddressRemovalException();
     }
 
     await this.customersRepository.removeAddress(addressId);
