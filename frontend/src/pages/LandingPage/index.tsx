@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import Header from "../../components/Header";
 import {
@@ -18,6 +18,45 @@ const LandingPage = () => {
   const [isSplitLayout, setIsSplitLayout] = useState(false);
   const [showRemainingElements, setShowRemainingElements] = useState(false);
 
+  const shopWrapperRef = useRef<HTMLDivElement>(null);
+  const [zoomProgress, setZoomProgress] = useState(0);
+
+  useEffect(() => {
+    let rafId: number;
+
+    const handleScroll = () => {
+      if (!shopWrapperRef.current) return;
+      const rect = shopWrapperRef.current.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+
+      const startY = windowHeight;
+      const targetY = (windowHeight - rect.height) / 2;
+      const totalDistance = startY - targetY;
+
+      if (totalDistance <= 0) return;
+
+      const currentDistance = startY - rect.top;
+      const progress = Math.min(Math.max(currentDistance / totalDistance, 0), 1);
+
+      setZoomProgress(progress);
+    };
+
+    const onScroll = () => {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(handleScroll);
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    handleScroll();
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      cancelAnimationFrame(rafId);
+    };
+  }, []);
+
   useEffect(() => {
     let active = true;
     fetchShopProducts(PRODUCTS)
@@ -33,7 +72,6 @@ const LandingPage = () => {
     };
   }, []);
 
-  // Typewriter effect & dynamic hero transitions (strictly 2 lines, graceful slow motion)
   useEffect(() => {
     let currentIndex = 0;
     setLine1Text("");
@@ -42,7 +80,6 @@ const LandingPage = () => {
     setIsSplitLayout(false);
     setShowRemainingElements(false);
 
-    // Initial pause so the page starts clean/empty
     const startTimeout = setTimeout(() => {
       setIsTypingStarted(true);
 
@@ -60,16 +97,14 @@ const LandingPage = () => {
 
         if (currentIndex >= TOTAL_LENGTH) {
           clearInterval(interval);
-          // Wait 0.65s after typing finishes so user can read the slogan comfortably
           setTimeout(() => {
             setIsSplitLayout(true);
-            // Delay (450ms) before sub-elements smoothly push up from below
             setTimeout(() => {
               setShowRemainingElements(true);
             }, 450);
           }, 650);
         }
-      }, 35); // 35ms per char (~1.5x faster than 52ms)
+      }, 35); 
 
       return () => clearInterval(interval);
     }, 350);
@@ -82,7 +117,6 @@ const LandingPage = () => {
       <Header roleTitle="Customer" />
 
       <main className="flex-1">
-        {/* HERO — Exact 1 computer screen height, strictly 2 lines, original layout restored */}
         <section className="px-6 sm:px-12 lg:h-[calc(100vh-80px)] min-h-[calc(100vh-80px)] flex items-center justify-center relative overflow-hidden bg-[--color-snow-white]">
           <style>{`
             @keyframes hero-cursor-blink {
@@ -92,9 +126,7 @@ const LandingPage = () => {
             }
           `}</style>
           <div className="max-w-[1200px] w-full mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center py-4 lg:py-6 relative">
-            {/* Left Column — Original natural structure */}
             <div className="flex flex-col justify-center">
-              {/* Slogan H1 — exactly 2 lines, glides from center to left */}
               <div
                 className={`transition-all duration-[1500ms] ease-[cubic-bezier(0.22,1,0.36,1)] flex flex-col ${
                   isSplitLayout
@@ -143,7 +175,6 @@ const LandingPage = () => {
                 </h1>
               </div>
 
-              {/* Sub-elements: Original clean order (p -> CTA buttons -> Stats) */}
               <div
                 className={`transition-all duration-[1000ms] ease-out ${
                   showRemainingElements
@@ -187,7 +218,6 @@ const LandingPage = () => {
               </div>
             </div>
 
-            {/* Right Column — Enlarged botanical-clinical visual composition */}
             <div
               className={`relative transition-all duration-[1500ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
                 isSplitLayout
@@ -224,24 +254,35 @@ const LandingPage = () => {
           </div>
         </section>
 
-        {/* DARK SECTION — Product showcase on Forest Depths */}
-        <section
-          id="shop"
-          className="w-full"
-          style={{ backgroundColor: "#1c3a13", color: "#fcfcf7" }}
+        <div
+          ref={shopWrapperRef}
+          className="w-full mt-24 sm:mt-32 lg:mt-40 min-h-screen lg:h-screen relative flex items-center justify-center"
         >
-          <div className="px-6 sm:px-12 py-24 sm:py-32 text-[--color-snow-white]">
-            <div className="max-w-[1200px] mx-auto">
-              <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-16">
+          <section
+            id="shop"
+            className="w-full h-full min-h-screen lg:h-screen flex items-center justify-center transition-all duration-300 ease-out origin-center"
+            style={{
+              backgroundColor: "#1c3a13",
+              color: "#fcfcf7",
+              transform: `scale(${0.35 + 0.65 * zoomProgress})`,
+              borderRadius: `${(1 - zoomProgress) * 44}px`,
+              boxShadow:
+                zoomProgress < 0.98
+                  ? "0 35px 90px -20px rgba(0, 0, 0, 0.45)"
+                  : "none",
+            }}
+          >
+            <div className="w-full max-w-[1280px] xl:max-w-[1340px] mx-auto px-6 sm:px-12 lg:px-16 py-10 sm:py-14 lg:py-16 text-[--color-snow-white]">
+              <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-10 lg:mb-12">
                 <div>
-                  <p className="text-[10px] font-medium uppercase tracking-[0.24em] opacity-70">
-                    Bộ sưu tập lõi
+                  <p className="text-[11px] font-medium uppercase tracking-[0.26em] opacity-75">
+                    Bộ sưu tập
                   </p>
                   <h2
-                    className="mt-4 leading-[1.1]"
+                    className="mt-3 leading-[1.12]"
                     style={{
                       fontWeight: 350,
-                      fontSize: "clamp(32px, 4vw, 48px)",
+                      fontSize: "clamp(30px, 3.8vw, 46px)",
                       letterSpacing: "-0.02em",
                     }}
                   >
@@ -252,22 +293,21 @@ const LandingPage = () => {
                 </div>
                 <Link
                   to="/shop"
-                  className="inline-flex items-center gap-2 text-[14px] underline underline-offset-[6px] decoration-[1.5px] hover:opacity-70 transition-opacity"
+                  className="inline-flex items-center gap-2 text-[15px] underline underline-offset-[6px] decoration-[1.5px] hover:opacity-70 transition-opacity"
                 >
                   Xem tất cả sản phẩm →
                 </Link>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8">
                 {products.map((p) => (
                   <ProductCard key={p.code} product={p} />
                 ))}
               </div>
             </div>
-          </div>
-        </section>
+          </section>
+        </div>
 
-        {/* SCIENCE — Snow White canvas, 40/60 split */}
         <section
           id="science"
           className="px-6 sm:px-12 py-24 sm:py-32"
@@ -396,7 +436,6 @@ const LandingPage = () => {
           </div>
         </section>
 
-        {/* INGREDIENTS — Warm Stone alternating band */}
         <section
           className="px-6 sm:px-12 py-24 sm:py-32"
           style={{ backgroundColor: "#eeeee9" }}
@@ -458,7 +497,6 @@ const LandingPage = () => {
           </div>
         </section>
 
-        {/* RITUAL — Dark section with editorial layout */}
         <section
           className="w-full"
           style={{ backgroundColor: "#1c3a13", color: "#fcfcf7" }}
@@ -786,12 +824,12 @@ const PRODUCTS: ShopProduct[] = [
 ];
 
 const ProductCard = ({ product }: { product: ShopProduct }) => (
-  <article className="flex flex-col gap-5">
+  <article className="flex flex-col gap-4">
     <div
-      className="aspect-[3/4] rounded-[16px] flex items-center justify-center relative overflow-hidden"
+      className="aspect-[3/4] w-full min-h-[260px] sm:min-h-[280px] lg:min-h-[300px] xl:min-h-[320px] rounded-[20px] flex items-center justify-center relative overflow-hidden"
       style={{ backgroundColor: product.accent }}
     >
-      <span className="absolute top-3 left-3 inline-flex items-center px-2 py-1 rounded-full bg-[--color-snow-white]/20 text-[--color-snow-white] text-[10px] font-medium uppercase tracking-[0.18em] backdrop-blur-[8px]">
+      <span className="absolute top-3 left-3 inline-flex items-center px-2.5 py-1 rounded-full bg-[--color-snow-white]/25 text-[--color-snow-white] text-[10px] font-medium uppercase tracking-[0.18em] backdrop-blur-[8px]">
         Mới
       </span>
       {product.imageUrl ? (
@@ -815,23 +853,23 @@ const ProductCard = ({ product }: { product: ShopProduct }) => (
         {product.code}
       </span>
       <h3
-        className="text-[--color-snow-white]"
+        className="text-[--color-snow-white] line-clamp-1"
         style={{
           fontWeight: 350,
-          fontSize: "24px",
-          lineHeight: 1.15,
-          letterSpacing: "-0.48px",
+          fontSize: "22px",
+          lineHeight: 1.25,
+          letterSpacing: "-0.4px",
         }}
       >
         {product.name}
       </h3>
-      <p className="font-[var(--font-seed-sans-mono)] text-[12px] font-medium uppercase tracking-[0.18em] text-[--color-snow-white]/70">
+      <p className="font-[var(--font-seed-sans-mono)] text-[13px] font-medium uppercase tracking-[0.18em] text-[--color-snow-white]/70">
         {product.price}
       </p>
     </div>
     <Link
       to={`/product/${encodeURIComponent(product.code)}`}
-      className="self-start inline-flex items-center justify-center rounded-full bg-[--color-snow-white] text-[--color-forest-depths] px-5 py-3 text-[14px] hover:opacity-90 transition-opacity"
+      className="self-start inline-flex items-center justify-center rounded-full bg-[--color-snow-white] text-[--color-forest-depths] px-5 py-2.5 text-[14px] font-medium hover:bg-white active:scale-95 transition-all shadow-sm"
     >
       Mua ngay →
     </Link>
