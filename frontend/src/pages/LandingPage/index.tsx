@@ -254,13 +254,14 @@ const LandingPage = () => {
           </div>
         </section>
 
+        {/* SHOP SECTION — Scroll-driven zoom to fullscreen with margin whitespace */}
         <div
           ref={shopWrapperRef}
-          className="w-full mt-24 sm:mt-32 lg:mt-40 min-h-screen lg:h-screen relative flex items-center justify-center"
+          className="w-full mt-16 sm:mt-24 lg:mt-32 min-h-[calc(100vh+60px)] lg:min-h-[calc(100vh+80px)] relative flex items-center justify-center"
         >
           <section
             id="shop"
-            className="w-full h-full min-h-screen lg:h-screen flex items-center justify-center transition-all duration-300 ease-out origin-center"
+            className="w-full min-h-[calc(100vh+60px)] lg:min-h-[calc(100vh+80px)] flex flex-col justify-center items-center transition-all duration-300 ease-out origin-center"
             style={{
               backgroundColor: "#1c3a13",
               color: "#fcfcf7",
@@ -272,36 +273,37 @@ const LandingPage = () => {
                   : "none",
             }}
           >
-            <div className="w-full max-w-[1280px] xl:max-w-[1340px] mx-auto px-6 sm:px-12 lg:px-16 py-10 sm:py-14 lg:py-16 text-[--color-snow-white]">
-              <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-10 lg:mb-12">
+            <div className="w-full max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-12 pt-12 sm:pt-16 lg:pt-20 pb-28 sm:pb-32 lg:pb-36 xl:pb-40 text-[--color-snow-white]">
+              <div className="relative z-20 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8 sm:mb-10 lg:mb-12 xl:mb-14">
                 <div>
-                  <p className="text-[11px] font-medium uppercase tracking-[0.26em] opacity-75">
+                  <p className="text-[11px] sm:text-[12px] font-medium uppercase tracking-[0.24em] opacity-80 text-[#d3fa99]">
                     Bộ sưu tập
                   </p>
                   <h2
-                    className="mt-3 leading-[1.12]"
+                    className="mt-1.5 leading-[1.12]"
                     style={{
                       fontWeight: 350,
-                      fontSize: "clamp(30px, 3.8vw, 46px)",
+                      fontSize: "clamp(26px, 3.2vw, 42px)",
                       letterSpacing: "-0.02em",
                     }}
                   >
                     Bốn công thức.
-                    <br />
-                    Một hệ sinh học.
+                    <br className="hidden sm:inline" />
+                    {" "}Một hệ sinh học.
                   </h2>
                 </div>
                 <Link
                   to="/shop"
-                  className="inline-flex items-center gap-2 text-[15px] underline underline-offset-[6px] decoration-[1.5px] hover:opacity-70 transition-opacity"
+                  className="inline-flex items-center gap-1.5 text-[14px] font-medium text-[--color-snow-white] hover:text-[#d3fa99] underline underline-offset-[6px] decoration-[1.5px] transition-colors mb-1 sm:mb-2"
                 >
-                  Xem tất cả sản phẩm →
+                  <span>Xem tất cả sản phẩm</span>
+                  <span>→</span>
                 </Link>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8">
-                {products.map((p) => (
-                  <ProductCard key={p.code} product={p} />
+              <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 items-start">
+                {products.map((p, index) => (
+                  <ProductCard key={p.code} product={p} index={index} />
                 ))}
               </div>
             </div>
@@ -823,58 +825,90 @@ const PRODUCTS: ShopProduct[] = [
   },
 ];
 
-const ProductCard = ({ product }: { product: ShopProduct }) => (
-  <article className="flex flex-col gap-4">
-    <div
-      className="aspect-[3/4] w-full min-h-[260px] sm:min-h-[280px] lg:min-h-[300px] xl:min-h-[320px] rounded-[20px] flex items-center justify-center relative overflow-hidden"
-      style={{ backgroundColor: product.accent }}
+const ProductCard = ({
+  product,
+  index,
+}: {
+  product: ShopProduct;
+  index: number;
+}) => {
+  const isShiftedDown = index % 2 === 1;
+  const productDetailUrl = `/product/${encodeURIComponent(product.code)}`;
+
+  return (
+    <article
+      className={`flex flex-col gap-3 transition-transform duration-300 ${
+        isShiftedDown
+          ? "lg:translate-y-4 xl:translate-y-5"
+          : "lg:-translate-y-4 xl:-translate-y-5"
+      }`}
     >
-      <span className="absolute top-3 left-3 inline-flex items-center px-2.5 py-1 rounded-full bg-[--color-snow-white]/25 text-[--color-snow-white] text-[10px] font-medium uppercase tracking-[0.18em] backdrop-blur-[8px]">
-        Mới
-      </span>
-      {product.imageUrl ? (
-        <img
-          src={product.imageUrl}
-          alt={product.name}
-          className="w-full h-full object-cover"
-        />
-      ) : (
-        <div
-          className="w-1/2 aspect-square rounded-full"
-          style={{
-            backgroundColor: "rgba(252,252,247,0.18)",
-            backdropFilter: "blur(20px)",
-          }}
-        />
-      )}
-    </div>
-    <div className="flex flex-col gap-2">
-      <span className="inline-flex w-fit items-center px-2.5 py-1 rounded-full border-[1.5px] border-[--color-snow-white] text-[10px] font-medium uppercase tracking-[0.2em] text-[--color-snow-white]">
-        {product.code}
-      </span>
-      <h3
-        className="text-[--color-snow-white] line-clamp-1"
+      <Link
+        to={productDetailUrl}
+        className="group/img block aspect-[4/5] max-h-[320px] sm:max-h-[360px] lg:max-h-[370px] xl:max-h-[420px] w-full rounded-[22px] relative overflow-hidden transition-all duration-300 hover:scale-[1.025] hover:shadow-[0_16px_36px_rgba(0,0,0,0.38)] cursor-pointer border border-white/15"
         style={{
-          fontWeight: 350,
-          fontSize: "22px",
-          lineHeight: 1.25,
-          letterSpacing: "-0.4px",
+          backgroundColor:
+            product.accent === "#1c3a13" ? "#224419" : product.accent,
         }}
+        title={`Xem chi tiết ${product.name}`}
       >
-        {product.name}
-      </h3>
-      <p className="font-[var(--font-seed-sans-mono)] text-[13px] font-medium uppercase tracking-[0.18em] text-[--color-snow-white]/70">
-        {product.price}
-      </p>
-    </div>
-    <Link
-      to={`/product/${encodeURIComponent(product.code)}`}
-      className="self-start inline-flex items-center justify-center rounded-full bg-[--color-snow-white] text-[--color-forest-depths] px-5 py-2.5 text-[14px] font-medium hover:bg-white active:scale-95 transition-all shadow-sm"
-    >
-      Mua ngay →
-    </Link>
-  </article>
-);
+        <span className="absolute top-3.5 left-3.5 z-10 inline-flex items-center px-2.5 py-0.5 rounded-full bg-[--color-snow-white]/25 text-[--color-snow-white] text-[9.5px] font-medium uppercase tracking-[0.18em] backdrop-blur-[8px]">
+          Mới
+        </span>
+        {product.imageUrl ? (
+          <img
+            src={product.imageUrl}
+            alt={product.name}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-105"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <div
+              className="w-20 h-20 sm:w-24 sm:h-24 rounded-full transition-transform duration-500 group-hover/img:scale-110 shadow-lg"
+              style={{
+                backgroundColor: "rgba(252,252,247,0.2)",
+                backdropFilter: "blur(20px)",
+              }}
+            />
+          </div>
+        )}
+      </Link>
+      <div className="flex flex-col gap-1.5">
+        <span className="inline-flex w-fit items-center px-2 py-0.5 rounded-full border border-[--color-snow-white]/50 text-[9px] font-medium uppercase tracking-[0.2em] text-[--color-snow-white]/90">
+          {product.code}
+        </span>
+        <Link
+          to={productDetailUrl}
+          className="group/title block focus:outline-none"
+        >
+          <h3
+            className="text-[--color-snow-white] group-hover/title:text-[#d3fa99] transition-colors duration-200 line-clamp-1"
+            style={{
+              fontWeight: 350,
+              fontSize: "17.5px",
+              lineHeight: 1.3,
+              letterSpacing: "-0.2px",
+            }}
+          >
+            {product.name}
+          </h3>
+        </Link>
+        <p className="font-[var(--font-seed-sans-mono)] text-[12.5px] font-medium uppercase tracking-[0.16em] text-[--color-snow-white]/80">
+          {product.price}
+        </p>
+      </div>
+      <Link
+        to={productDetailUrl}
+        className="group/btn self-start inline-flex items-center justify-center gap-1.5 rounded-full bg-[#fcfcf7] hover:bg-[#d3fa99] text-[#1c3a13] px-5 py-2.5 text-[13px] font-semibold tracking-[0.02em] shadow-[0_4px_14px_rgba(0,0,0,0.22)] hover:shadow-[0_4px_20px_rgba(211,250,153,0.45)] border border-white/50 hover:border-[#d3fa99] active:scale-[0.96] transition-all duration-200 cursor-pointer"
+      >
+        <span>Mua ngay</span>
+        <span className="transition-transform duration-200 group-hover/btn:translate-x-1 font-bold">
+          →
+        </span>
+      </Link>
+    </article>
+  );
+};
 
 const INGREDIENTS = [
   {

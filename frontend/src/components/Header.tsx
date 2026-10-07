@@ -448,12 +448,6 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
               >
                 Đăng nhập
               </Link>
-              <Link
-                to="/membership"
-                className="hidden sm:inline-flex items-center justify-center px-6 py-2.5 bg-[#1c3a13] text-[#fcfcf7] text-[14px] font-medium rounded-full hover:opacity-90 transition-all whitespace-nowrap"
-              >
-                Trở thành hội viên
-              </Link>
             </>
           )}
 
