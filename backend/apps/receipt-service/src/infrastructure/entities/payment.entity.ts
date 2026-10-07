@@ -8,11 +8,7 @@ const PaymentSchema = defineEntity({
   properties: {
     id: p.uuid().primary().defaultRaw('gen_random_uuid()'),
     code: p.string().unique(),
-    amount: p
-      .decimal('number')
-      .precision(12)
-      .scale(2)
-      .default(0),
+    amount: p.decimal('number').precision(12).scale(2).default(0),
     category: p.enum(PaymentCategory).default(PaymentCategory.OTHER),
     source: p.enum(PaymentSource).default(PaymentSource.MANUAL),
     purchaseOrderId: p.string().fieldName('purchase_order_id').nullable(),
@@ -33,12 +29,7 @@ const PaymentSchema = defineEntity({
 
 export class Payment extends PaymentSchema.class {
   [OptionalProps]?:
-    | 'category'
-    | 'source'
-    | 'note'
-    | 'employeeId'
-    | 'createdAt'
-    | 'updatedAt';
+    'category' | 'source' | 'note' | 'employeeId' | 'createdAt' | 'updatedAt';
 }
 
 PaymentSchema.setClass(Payment);
