@@ -112,6 +112,7 @@ export class MikroCosmeticsRepository implements ICosmeticsRepository {
       brand: string | null;
       origin: string | null;
       description: string | null;
+      imageUrl?: string;
       categoryIds?: string[];
     },
   ): Promise<Cosmetic | null> {
@@ -131,6 +132,12 @@ export class MikroCosmeticsRepository implements ICosmeticsRepository {
     cosmeticMikro.brand = data.brand;
     cosmeticMikro.origin = data.origin;
     cosmeticMikro.description = data.description;
+
+    // Only write image_url when the client actually sends imageUrl, so a PUT
+    // payload without imageUrl keeps the existing image untouched.
+    if (data.imageUrl !== undefined) {
+      cosmeticMikro.imageUrl = data.imageUrl || null;
+    }
 
     if (data.categoryIds) {
       await this.entityManager.nativeDelete(CosmeticCategoryMikro, {

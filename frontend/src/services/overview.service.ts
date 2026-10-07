@@ -104,6 +104,56 @@ function daysAgo(days: number, base: Date = new Date()): Date {
   return d;
 }
 
+// Nginx limit_req: 30r/s voi burst=50 (tra ve 429 neu vuot). Trang Overview
+// can goi ~100 loi goi chi tiet (N+1) nen phai tu pacingphia client bang
+// token bucket cung thong so, neu khong thiPromise.all se reject -> loi toan bo.
+const RATE_PER_SECOND = 30;
+const RATE_BURST = 50;
+const DETAIL_CONCURRENCY = 10;
+
+let rateTokens = RATE_BURST;
+let rateLastRefill = Date.now();
+
+async function acquireRateToken(): Promise<void> {
+  for (;;) {
+    const now = Date.now();
+    rateTokens = Math.min(
+      RATE_BURST,
+      rateTokens + ((now - rateLastRefill) * RATE_PER_SECOND) / 1000,
+    );
+    rateLastRefill = now;
+    if (rateTokens >= 1) {
+      rateTokens -= 1;
+      return;
+    }
+    await new Promise((resolve) =>
+      setTimeout(
+        resolve,
+        Math.ceil((1 - rateTokens) * 1000) / RATE_PER_SECOND,
+      ),
+    );
+  }
+}
+
+async function mapWithConcurrency<T, R>(
+  items: readonly T[],
+  concurrency: number,
+  fn: (item: T) => Promise<R>,
+): Promise<R[]> {
+  const results: R[] = new Array<R>(items.length);
+  let next = 0;
+  const worker = async (): Promise<void> => {
+    while (next < items.length) {
+      const index = next++;
+      results[index] = await fn(items[index]);
+    }
+  };
+  await Promise.all(
+    Array.from({ length: Math.min(concurrency, items.length) }, worker),
+  );
+  return results;
+}
+
 export const overviewService = {
   async getOrders(): Promise<Order[]> {
     const { data } = await api.get<{ items: Order[] }>('/orders');
@@ -122,14 +172,18 @@ export const overviewService = {
 
   async getCosmeticDetails(): Promise<CosmeticDetail[]> {
     const { data } = await api.get<{ id: string }[]>("/cosmetics");
-    const details = await Promise.all(
-      data.map((cosmetic) =>
-        api.get<CosmeticDetail | null>(`/cosmetics/${cosmetic.id}`),
-      ),
+    const details = await mapWithConcurrency(
+      data,
+      DETAIL_CONCURRENCY,
+      async (cosmetic) => {
+        await acquireRateToken();
+        return api
+          .get<CosmeticDetail | null>(`/cosmetics/${cosmetic.id}`)
+          .then(({ data: detail }) => detail)
+          .catch((): CosmeticDetail | null => null);
+      },
     );
-    return details
-      .map(({ data: detail }) => detail)
-      .filter((d): d is CosmeticDetail => d !== null);
+    return details.filter((d): d is CosmeticDetail => d !== null);
   },
 
   async fetchOverview(): Promise<OverviewData> {
@@ -223,15 +277,22 @@ export const overviewService = {
       }
     }
 
-    const lineDetails = await Promise.all(
-      deliveredOrders.map((o) => this.getOrderDetail(o.id)),
+    const lineDetails = await mapWithConcurrency(
+      deliveredOrders,
+      DETAIL_CONCURRENCY,
+      async (o) => {
+        await acquireRateToken();
+        return this.getOrderDetail(o.id).catch((): OrderDetail | null => null);
+      },
     );
 
     const byVariant = new Map<
       string,
       { quantity: number; subtotal: number }
     >();
-    for (const line of lineDetails.flatMap((d) => d.lines)) {
+    for (const line of lineDetails
+      .filter((d): d is OrderDetail => d !== null)
+      .flatMap((d) => d.lines)) {
       const current = byVariant.get(line.variantId) ?? {
         quantity: 0,
         subtotal: 0,

@@ -11,6 +11,7 @@ import type { Request } from 'express';
 import { AuditAction } from './audit-action.enum';
 import { AUDIT_KEY, AuditOptions } from './audit.decorator';
 import { AuditLogger } from './audit-logger';
+import { redactSensitiveFields } from './redact';
 
 const METHOD_DEFAULTS: Record<
   string,
@@ -77,22 +78,6 @@ function errorMessage(error: unknown): string {
   }
 
   return 'Lỗi không xác định';
-}
-
-/** Che các field nhạy cảm (password, secret, token) trước khi lưu payload vào log. */
-function redactSensitiveFields(value: unknown): unknown {
-  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-    return value;
-  }
-
-  const record = value as Record<string, unknown>;
-  const result: Record<string, unknown> = {};
-  for (const key of Object.keys(record)) {
-    result[key] = /password|secret|token/i.test(key)
-      ? '<redacted>'
-      : redactSensitiveFields(record[key]);
-  }
-  return result;
 }
 
 @Injectable()
