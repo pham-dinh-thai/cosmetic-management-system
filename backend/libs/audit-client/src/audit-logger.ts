@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { RecordAuditLogInput } from './audit-action.enum';
+import { redactSensitiveFields } from './redact';
 
 @Injectable()
 export class AuditLogger {
@@ -27,7 +28,23 @@ export class AuditLogger {
       const response = await fetch(`${this.url}/api/internal/audit-logs`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(input),
+        // Chốt chặn duy nhất: che token/password trước khi rời khỏi service,
+        // bất kể nơi nào gọi record() (interceptor hay gọi trực tiếp).
+        body: JSON.stringify({
+          ...input,
+          before:
+            input.before === undefined
+              ? undefined
+              : redactSensitiveFields(input.before),
+          after:
+            input.after === undefined
+              ? undefined
+              : redactSensitiveFields(input.after),
+          metadata:
+            input.metadata === undefined
+              ? undefined
+              : redactSensitiveFields(input.metadata),
+        }),
       });
 
       if (!response.ok) {
