@@ -28,24 +28,42 @@ const LandingPage = () => {
   const [isScienceTyping, setIsScienceTyping] = useState(false);
   const [isScienceComplete, setIsScienceComplete] = useState(false);
 
+  const testimonialsRef = useRef<HTMLElement>(null);
+  const [isTestimonialsInView, setIsTestimonialsInView] = useState(false);
+
+  const guardianRef = useRef<HTMLElement>(null);
+  const [guardianLift, setGuardianLift] = useState(0);
+
   useEffect(() => {
     let rafId: number;
 
     const handleScroll = () => {
-      if (!shopWrapperRef.current) return;
-      const rect = shopWrapperRef.current.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
+      if (shopWrapperRef.current) {
+        const rect = shopWrapperRef.current.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
 
-      const startY = windowHeight;
-      const targetY = (windowHeight - rect.height) / 2;
-      const totalDistance = startY - targetY;
+        const startY = windowHeight;
+        const targetY = (windowHeight - rect.height) / 2;
+        const totalDistance = startY - targetY;
 
-      if (totalDistance <= 0) return;
+        if (totalDistance > 0) {
+          const currentDistance = startY - rect.top;
+          const progress = Math.min(Math.max(currentDistance / totalDistance, 0), 1);
+          setZoomProgress(progress);
+        }
+      }
 
-      const currentDistance = startY - rect.top;
-      const progress = Math.min(Math.max(currentDistance / totalDistance, 0), 1);
+      if (guardianRef.current) {
+        const gRect = guardianRef.current.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
 
-      setZoomProgress(progress);
+        const totalTravel = windowHeight + gRect.height;
+        const currentPos = windowHeight - gRect.top;
+        const progress = Math.min(Math.max(currentPos / totalTravel, 0), 1);
+
+        const maxLift = Math.min(Math.max(window.innerWidth * 0.045, 24), 65);
+        setGuardianLift(progress * maxLift);
+      }
     };
 
     const onScroll = () => {
@@ -62,6 +80,28 @@ const LandingPage = () => {
       window.removeEventListener("resize", onScroll);
       cancelAnimationFrame(rafId);
     };
+  }, []);
+
+  useEffect(() => {
+    const el = testimonialsRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting) {
+          setIsTestimonialsInView(true);
+          observer.disconnect();
+        }
+      },
+      {
+        threshold: 0.15,
+        rootMargin: "0px 0px -40px 0px",
+      }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
@@ -305,7 +345,6 @@ const LandingPage = () => {
           </div>
         </section>
 
-        {/* SHOP SECTION — Scroll-driven zoom to fullscreen with margin whitespace */}
         <div
           ref={shopWrapperRef}
           className="w-full mt-16 sm:mt-24 lg:mt-32 min-h-[calc(100vh+60px)] lg:min-h-[calc(100vh+80px)] relative flex items-center justify-center"
@@ -641,16 +680,25 @@ const LandingPage = () => {
 
         {/* TESTIMONIALS — Snow White */}
         <section
-          className="px-6 sm:px-12 py-24 sm:py-32"
+          ref={testimonialsRef}
+          className="px-6 sm:px-12 py-24 sm:py-32 overflow-hidden"
           style={{ backgroundColor: "#fcfcf7" }}
         >
           <div className="max-w-[1200px] mx-auto">
             <div className="max-w-xl mb-12">
-              <p className="text-[10px] font-medium uppercase tracking-[0.24em] text-[--color-pewter]">
+              <p
+                className={`text-[10px] font-medium uppercase tracking-[0.24em] text-[--color-pewter] transition-opacity duration-700 ${
+                  isTestimonialsInView ? "opacity-100" : "opacity-0"
+                }`}
+              >
                 Nhật ký người dùng
               </p>
               <h2
-                className="mt-4 leading-[1.1] text-[--color-forest-depths]"
+                className={`mt-4 leading-[1.1] text-[--color-forest-depths] transition-all duration-700 ease-out ${
+                  isTestimonialsInView
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 -translate-y-6"
+                }`}
                 style={{
                   fontWeight: 350,
                   fontSize: "clamp(32px, 4vw, 48px)",
@@ -666,42 +714,85 @@ const LandingPage = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {TESTIMONIALS.map((t) => (
-                <figure
-                  key={t.author}
-                  className="rounded-[16px] p-6 flex flex-col gap-6"
-                  style={{
-                    backgroundColor: "#eeeee9",
-                  }}
-                >
-                  <blockquote
-                    className="text-[--color-forest-depths]"
+              {TESTIMONIALS.map((t, idx) => {
+                const isFromTop = idx % 2 === 0;
+                const initialTranslate = isFromTop
+                  ? "-translate-y-16"
+                  : "translate-y-16";
+                const delay = `${idx * 200 + 150}ms`;
+
+                return (
+                  <figure
+                    key={t.author}
+                    className={`rounded-[16px] p-6 flex flex-col gap-6 transition-all duration-800 ease-out ${
+                      isTestimonialsInView
+                        ? "opacity-100 translate-y-0"
+                        : `opacity-0 ${initialTranslate}`
+                    }`}
                     style={{
-                      fontWeight: 350,
-                      fontSize: "20px",
-                      lineHeight: 1.3,
-                      letterSpacing: "-0.48px",
+                      backgroundColor: "#eeeee9",
+                      transitionDelay: delay,
                     }}
                   >
-                    “{t.quote}”
-                  </blockquote>
-                  <figcaption className="mt-auto">
-                    <p className="text-[12px] font-medium uppercase tracking-[0.18em] text-[--color-forest-depths]">
-                      {t.author}
-                    </p>
-                    <p className="text-[12px] text-[--color-pewter] mt-1">
-                      {t.meta}
-                    </p>
-                  </figcaption>
-                </figure>
-              ))}
+                    <blockquote
+                      className="text-[--color-forest-depths]"
+                      style={{
+                        fontWeight: 350,
+                        fontSize: "20px",
+                        lineHeight: 1.3,
+                        letterSpacing: "-0.48px",
+                      }}
+                    >
+                      “{t.quote}”
+                    </blockquote>
+                    <figcaption className="mt-auto">
+                      <p className="text-[12px] font-medium uppercase tracking-[0.18em] text-[--color-forest-depths]">
+                        {t.author}
+                      </p>
+                      <p className="text-[12px] text-[--color-pewter] mt-1">
+                        {t.meta}
+                      </p>
+                    </figcaption>
+                  </figure>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* GUARDIAN BRAND DISPLAY SECTION */}
+        <section
+          ref={guardianRef}
+          className="w-full min-h-[50vh] sm:min-h-[70vh] flex flex-col items-center justify-center relative overflow-hidden py-24 sm:py-36 select-none"
+          style={{ backgroundColor: "#fcfcf7" }}
+        >
+          <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-8 text-center flex flex-col items-center justify-center">
+            <div
+              className="flex items-baseline justify-center text-black leading-none font-bold uppercase select-none"
+              style={{
+                fontFamily: "var(--font-seed-sans)",
+                fontWeight: 700,
+                fontSize: "clamp(52px, 14vw, 220px)",
+                letterSpacing: "-0.02em",
+                color: "#000000",
+              }}
+            >
+              <span className="inline-block">GUARDI</span>
+              <span
+                className="inline-block will-change-transform"
+                style={{
+                  transform: `translateY(-${guardianLift}px)`,
+                }}
+              >
+                AN
+              </span>
             </div>
           </div>
         </section>
 
         {/* FOOTER */}
         <footer
-          className="w-full border-t border-[--color-warm-stone]"
+          className="w-full"
           style={{ backgroundColor: "#fcfcf7" }}
         >
           <div className="max-w-[1200px] mx-auto px-6 sm:px-12 py-16 grid grid-cols-2 md:grid-cols-5 gap-10">
@@ -715,9 +806,6 @@ const LandingPage = () => {
               <p className="mt-4 text-[13px] leading-[1.6] text-[--color-pewter] max-w-xs">
                 Mỹ phẩm khoa học — được phát triển cho hệ vi sinh khỏe mạnh và
                 hành tinh bền vững.
-              </p>
-              <p className="mt-8 font-[var(--font-seed-sans-mono)] text-[11px] text-[--color-pewter]">
-                DS-01® · AM-02™ · DM-02™ · PM-02™
               </p>
             </div>
 
@@ -995,42 +1083,25 @@ const ProductCard = ({
   );
 };
 
-const INGREDIENTS = [
-  {
-    code: "ING-001",
-    name: "Prebiotic Complex",
-    desc: "Hỗn hợp prebiotic từ rễ cây bồ công anh và inulin, nuôi dưỡng vi khuẩn có lợi trên da.",
-    spec: "5% w/w · pH 5.5 · Vegan",
-  },
-  {
-    code: "ING-014",
-    name: "Niacinamide 5%",
-    desc: "Dạng vitamin B3 tinh khiết — làm đều tông da, giảm tiết dầu, củng cố hàng rào bảo vệ.",
-    spec: "5% w/w · Mỹ phẩm · ISO 16128",
-  },
-  {
-    code: "ING-027",
-    name: "Centella Asiatica",
-    desc: "Chiết xuất rau má tiêu chuẩn hóa, làm dịu và phục hồi làn da nhạy cảm.",
-    spec: "Madecassoside 0.5% · COSMOS",
-  },
-];
 
 
 const TESTIMONIALS = [
   {
-    quote: "Sau hai tuần, da tôi bớt đỏ hẳn — và tôi không còn sợ mỗi lần rửa mặt nữa.",
-    author: "Linh P.",
+    quote:
+      "Sau hai tuần, da tôi bớt đỏ hẳn và tôi không còn sợ mỗi lần rửa mặt nữa.",
+    author: "Phạm Thị Linh",
     meta: "Da nhạy cảm · Hà Nội · Tuần 3",
   },
   {
-    quote: "Thành phần được gọi tên rõ ràng — cuối cùng tôi cũng tin được một thương hiệu mỹ phẩm.",
-    author: "Trang Đ.",
+    quote:
+      "Bảng thành phần lành tính, không mùi cồn hay hương liệu nồng. Cảm giác da được 'thở' mà vẫn căng mọng cả ngày dài.",
+    author: "Trần Thị Quỳnh Anh",
     meta: "Da dầu mụn · TP.HCM · Tuần 6",
   },
   {
-    quote: "Một nghi lễ yên tĩnh thật sự. Bước nào rõ ràng, công dụng rõ ràng.",
-    author: "Mai K.",
+    quote:
+      "Chất kem mỏng nhẹ tênh như không thoa gì, thấm nhanh mà không hề bết rít hay châm chích. Da mình cực kỳ nhạy cảm nhưng dùng trộm vía rất êm, nền da khỏe và mướt mịn rõ rệt sau 2 tuần.",
+    author: "Nguyễn Thị Thu Mai",
     meta: "Da khô · Đà Nẵng · Tuần 8",
   },
 ];
