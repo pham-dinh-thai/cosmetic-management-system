@@ -9,6 +9,7 @@ import {
 const LINE_1 = "Cảm nhận làn da tái sinh cùng";
 const LINE_2 = "công nghệ chăm sóc thế hệ mới.";
 const TOTAL_LENGTH = LINE_1.length + LINE_2.length;
+const SCIENCE_HEADING = "Cân bằng hệ vi sinh. Đánh thức sức sống làn da.";
 
 const LandingPage = () => {
   const [products, setProducts] = useState<ShopProduct[]>(PRODUCTS);
@@ -20,6 +21,12 @@ const LandingPage = () => {
 
   const shopWrapperRef = useRef<HTMLDivElement>(null);
   const [zoomProgress, setZoomProgress] = useState(0);
+
+  const scienceRef = useRef<HTMLElement>(null);
+  const [isScienceInView, setIsScienceInView] = useState(false);
+  const [scienceTypedText, setScienceTypedText] = useState("");
+  const [isScienceTyping, setIsScienceTyping] = useState(false);
+  const [isScienceComplete, setIsScienceComplete] = useState(false);
 
   useEffect(() => {
     let rafId: number;
@@ -111,6 +118,50 @@ const LandingPage = () => {
 
     return () => clearTimeout(startTimeout);
   }, []);
+
+  useEffect(() => {
+    const el = scienceRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting) {
+          setIsScienceInView(true);
+          observer.disconnect();
+        }
+      },
+      {
+        threshold: 0.15,
+        rootMargin: "0px 0px -40px 0px",
+      }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!isScienceInView) return;
+
+    let index = 0;
+    setIsScienceTyping(true);
+    setScienceTypedText("");
+    setIsScienceComplete(false);
+
+    const interval = setInterval(() => {
+      index++;
+      setScienceTypedText(SCIENCE_HEADING.slice(0, index));
+
+      if (index >= SCIENCE_HEADING.length) {
+        clearInterval(interval);
+        setIsScienceTyping(false);
+        setIsScienceComplete(true);
+      }
+    }, 35);
+
+    return () => clearInterval(interval);
+  }, [isScienceInView]);
 
   return (
     <div className="min-h-screen font-[var(--font-seed-sans)] antialiased flex flex-col">
@@ -288,8 +339,7 @@ const LandingPage = () => {
                     }}
                   >
                     Bốn công thức.
-                    <br className="hidden sm:inline" />
-                    {" "}Một hệ sinh học.
+                    <br className="hidden sm:inline" /> Một hệ sinh học.
                   </h2>
                 </div>
                 <Link
@@ -311,262 +361,283 @@ const LandingPage = () => {
         </div>
 
         <section
+          id="partners"
+          className="w-full py-16 sm:py-20 lg:py-24 relative overflow-hidden bg-white border-t border-b border-black/[0.06]"
+        >
+          <div className="text-center max-w-2xl mx-auto px-6 mb-10 sm:mb-14">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#1c3a13]/[0.06] text-[#1c3a13] text-[11px] font-semibold uppercase tracking-[0.24em]">
+              Thương hiệu hợp tác
+            </span>
+            <h3
+              className="mt-3 text-[--color-forest-depths]"
+              style={{
+                fontWeight: 350,
+                fontSize: "clamp(24px, 2.8vw, 36px)",
+                letterSpacing: "-0.02em",
+                lineHeight: 1.2,
+              }}
+            >
+              Hội tụ các biểu tượng sắc đẹp hàng đầu
+            </h3>
+            <p className="mt-2.5 text-[14px] sm:text-[15px] text-[--color-pewter] max-w-lg mx-auto">
+              Guardian tự hào phân phối chính hãng 100% từ các tập đoàn dược mỹ
+              phẩm và thời trang danh tiếng toàn cầu.
+            </p>
+          </div>
+
+          <div className="relative w-full overflow-hidden py-10 sm:py-14">
+            <div
+              className="pointer-events-none absolute inset-y-0 left-0 w-24 sm:w-44 z-20"
+              style={{
+                background:
+                  "linear-gradient(to right, #ffffff 25%, rgba(255,255,255,0) 100%)",
+              }}
+            />
+            <div
+              className="pointer-events-none absolute inset-y-0 right-0 w-24 sm:w-44 z-20"
+              style={{
+                background:
+                  "linear-gradient(to left, #ffffff 25%, rgba(255,255,255,0) 100%)",
+              }}
+            />
+
+            <div className="flex animate-brand-marquee group w-max items-center">
+              {[...BRAND_PARTNERS, ...BRAND_PARTNERS, ...BRAND_PARTNERS].map(
+                (brand, idx) => (
+                  <div
+                    key={`${brand.name}-${idx}`}
+                    className="flex-shrink-0 px-7 sm:px-10 lg:px-14 brand-sine-wave flex items-center justify-center"
+                    style={{
+                      animationDelay: `${(idx % 10) * -0.42}s`,
+                    }}
+                  >
+                    <div
+                      className="group/logo flex items-center justify-center transition-transform duration-300 hover:scale-120 cursor-pointer"
+                      title={brand.name}
+                    >
+                      <img
+                        src={brand.logo}
+                        alt={brand.alt}
+                        className={`h-13 sm:h-16 lg:h-20 max-w-[190px] sm:max-w-[240px] lg:max-w-[280px] w-auto object-contain select-none opacity-80 hover:opacity-100 transition-all duration-300 ${
+                          brand.customClass ?? ""
+                        }`}
+                        loading="lazy"
+                      />
+                    </div>
+                  </div>
+                ),
+              )}
+            </div>
+          </div>
+        </section>
+
+        <section
           id="science"
-          className="px-6 sm:px-12 py-24 sm:py-32"
+          ref={scienceRef}
+          className="px-6 sm:px-12 py-24 sm:py-32 overflow-hidden"
           style={{ backgroundColor: "#fcfcf7" }}
         >
           <div className="max-w-[1200px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             <div className="lg:col-span-5">
-              <p className="text-[10px] font-medium uppercase tracking-[0.24em] text-[--color-pewter]">
-                Khoa học đằng sau
+              <p
+                className={`text-[10px] font-medium uppercase tracking-[0.24em] text-[--color-pewter] transition-opacity duration-700 ${
+                  isScienceInView ? "opacity-100" : "opacity-0"
+                }`}
+              >
+                Được kiểm chứng bởi chuyên gia khoa học
               </p>
               <h2
-                className="mt-4 leading-[1.1] text-[--color-forest-depths]"
+                className="mt-4 leading-[1.1] text-[--color-forest-depths] min-h-[2.2em]"
                 style={{
                   fontWeight: 350,
                   fontSize: "clamp(32px, 4vw, 48px)",
                   letterSpacing: "-0.02em",
                 }}
               >
-                Nuôi dưỡng hệ vi sinh
-                <br />
-                <span className="text-[--color-sage-moss]">
-                  là gốc rễ của làn da khỏe.
-                </span>
+                {scienceTypedText}
+                {isScienceTyping && !isScienceComplete && (
+                  <span
+                    className="inline-block font-light ml-0.5 text-[--color-forest-depths] select-none align-baseline"
+                    style={{
+                      animation: "hero-cursor-blink 0.9s infinite",
+                    }}
+                    aria-hidden="true"
+                  >
+                    |
+                  </span>
+                )}
               </h2>
-              <p className="mt-6 text-[16px] leading-[1.7] text-[--color-pewter] max-w-md">
-                Mỗi công thức được phát triển cùng các bác sĩ da liễu và nhà vi
-                sinh vật học, với bảng thành phần minh bạch — không hương liệu
-                tổng hợp, không cồn khô, không paraben.
+              <p
+                className={`mt-6 text-[16px] leading-[1.7] text-[--color-pewter] max-w-md transition-all duration-700 ease-out ${
+                  isScienceComplete
+                    ? "opacity-100 translate-x-0"
+                    : "opacity-0 -translate-x-12"
+                }`}
+                style={{ transitionDelay: "100ms" }}
+              >
+                Đồng nghiên cứu bởi chuyên gia da liễu và các nhà vi sinh học.
+                Minh bạch tuyệt đối, loại bỏ cồn xấu, paraben và hương liệu tổng
+                hợp.
               </p>
 
               <div className="mt-10 space-y-5">
                 <ScienceRow
-                  title="Lớp bảo vệ tự nhiên"
-                  desc="Prebiotics & postbiotics giúp củng cố hàng rào sinh học của da."
+                  title="Hàng rào sinh học"
+                  desc="Nuôi dưỡng hệ vi sinh khỏe mạnh với phức hợp Prebiotic & Postbiotic."
+                  className={`transition-all duration-700 ease-out ${
+                    isScienceComplete
+                      ? "opacity-100 translate-x-0"
+                      : "opacity-0 translate-x-12"
+                  }`}
+                  style={{ transitionDelay: "300ms" }}
                 />
                 <ScienceRow
                   title="Thử nghiệm lâm sàng"
-                  desc="Kiểm nghiệm độc lập trên 1.200+ tình nguyện viên, mọi loại da."
+                  desc="Hiệu quả được chứng thực qua 1.200+ thử nghiệm trên đa dạng nền da."
+                  className={`transition-all duration-700 ease-out ${
+                    isScienceComplete
+                      ? "opacity-100 translate-x-0"
+                      : "opacity-0 -translate-x-12"
+                  }`}
+                  style={{ transitionDelay: "500ms" }}
                 />
                 <ScienceRow
-                  title="Bao bì khí hậu trung tính"
-                  desc="Chai thủy tinh có thể tái chế, vận chuyển carbon-balanced."
+                  title="Cam kết vì hành tinh"
+                  desc="Chai thủy tinh tái sinh 100%, bù trừ carbon trên mọi dặm đường."
+                  className={`transition-all duration-700 ease-out ${
+                    isScienceComplete
+                      ? "opacity-100 translate-x-0"
+                      : "opacity-0 translate-x-12"
+                  }`}
+                  style={{ transitionDelay: "700ms" }}
                 />
               </div>
             </div>
 
-            {/* Right visual */}
             <div className="lg:col-span-7">
               <div className="relative grid grid-cols-2 gap-4">
                 <div
-                  className="aspect-square rounded-[32px] flex items-end p-6"
-                  style={{ backgroundColor: "#d3fa99" }}
-                >
-                  <div>
-                    <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-[--color-forest-depths]">
-                      Bằng chứng
-                    </p>
-                    <p
-                      className="mt-3 text-[--color-forest-depths]"
-                      style={{
-                        fontWeight: 350,
-                        fontSize: "32px",
-                        lineHeight: 1.1,
-                        letterSpacing: "-0.02em",
-                      }}
-                    >
-                      94%
-                    </p>
-                    <p className="mt-2 text-[12px] text-[--color-forest-depths]/80 max-w-[180px]">
-                      người dùng báo cáo da ẩm hơn sau 14 ngày
-                    </p>
-                  </div>
-                </div>
-                <div
-                  className="aspect-square rounded-[32px] flex items-end p-6"
-                  style={{ backgroundColor: "#eeeee9" }}
-                >
-                  <div>
-                    <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-[--color-pewter]">
-                      Thành phần
-                    </p>
-                    <p
-                      className="mt-3 text-[--color-forest-depths]"
-                      style={{
-                        fontWeight: 350,
-                        fontSize: "32px",
-                        lineHeight: 1.1,
-                        letterSpacing: "-0.02em",
-                      }}
-                    >
-                      62
-                    </p>
-                    <p className="mt-2 text-[12px] text-[--color-pewter] max-w-[180px]">
-                      hoạt chất có nguồn gốc từ thực vật, được chuẩn hóa hàm
-                      lượng
-                    </p>
-                  </div>
-                </div>
-                <div
-                  className="aspect-square rounded-[32px] flex items-end p-6 col-span-2"
+                  className="relative aspect-square rounded-[32px] overflow-hidden flex items-end p-6 group shadow-lg"
                   style={{ backgroundColor: "#1c3a13", color: "#fcfcf7" }}
                 >
-                  <div className="text-[--color-snow-white]">
-                    <p className="text-[10px] font-medium uppercase tracking-[0.22em] opacity-70">
-                      Quy trình
-                    </p>
+                  <img
+                    src="/images/hydration-evidence.png"
+                    alt="Hiệu quả cấp ẩm 94%"
+                    className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
+                  />
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      background:
+                        "linear-gradient(to top, rgba(28,58,19,0.95) 0%, rgba(28,58,19,0.65) 50%, rgba(0,0,0,0.1) 85%)",
+                    }}
+                  />
+                  <div className="relative z-10 w-full text-[--color-snow-white]">
+                    <div className="flex items-center justify-between gap-4 flex-wrap mb-2">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-[10px] font-medium uppercase tracking-[0.22em] text-[--color-snow-white]">
+                        Bằng chứng
+                      </span>
+                    </div>
                     <p
-                      className="mt-3"
+                      className="mt-1 text-[--color-snow-white]"
                       style={{
                         fontWeight: 350,
-                        fontSize: "32px",
-                        lineHeight: 1.1,
+                        fontSize: "clamp(20px, 2.3vw, 28px)",
+                        lineHeight: 1.15,
                         letterSpacing: "-0.02em",
                       }}
                     >
-                      Ba bước · Sáng · Tối
+                      94% da ẩm mượt sau 14 ngày
                     </p>
-                    <p className="mt-2 text-[12px] opacity-70 max-w-md">
-                      Làm sạch nhẹ nhàng · Tinh chất định hướng · Kem dưỡng khóa
-                      ẩm — đan vào nhau như một hệ sinh thái.
+                    <p className="mt-2 text-[13px] sm:text-[14px] text-[--color-snow-white]/85 leading-relaxed">
+                      Người dùng báo cáo phục hồi độ ẩm tự nhiên rõ rệt
                     </p>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </section>
 
-        <section
-          className="px-6 sm:px-12 py-24 sm:py-32"
-          style={{ backgroundColor: "#eeeee9" }}
-        >
-          <div className="max-w-[1200px] mx-auto">
-            <div className="flex items-end justify-between gap-6 mb-12 flex-wrap">
-              <h2
-                className="leading-[1.1] text-[--color-forest-depths] max-w-xl"
-                style={{
-                  fontWeight: 350,
-                  fontSize: "clamp(32px, 4vw, 48px)",
-                  letterSpacing: "-0.02em",
-                }}
-              >
-                Thành phần được gọi tên.
-                <br />
-                <span className="text-[--color-sage-moss]">
-                  Không che giấu.
-                </span>
-              </h2>
-              <p className="text-[14px] text-[--color-pewter] max-w-sm">
-                Chúng tôi công bố đầy đủ hàm lượng hoạt chất trên mỗi nhãn — vì
-                làn da bạn xứng đáng được tôn trọng.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {INGREDIENTS.map((ing) => (
                 <div
-                  key={ing.name}
-                  className="rounded-[16px] p-6 flex flex-col gap-4 bg-[--color-snow-white]"
-                  style={{ border: "1.5px solid rgba(28,58,19,0.06)" }}
+                  className="relative aspect-square rounded-[32px] overflow-hidden flex items-end p-6 group shadow-lg"
+                  style={{ backgroundColor: "#1c3a13", color: "#fcfcf7" }}
                 >
-                  <span className="inline-flex w-fit items-center px-2.5 py-1 rounded-full border border-[--color-forest-depths] text-[10px] font-medium uppercase tracking-[0.18em] text-[--color-forest-depths]">
-                    {ing.code}
-                  </span>
-                  <h3
-                    className="text-[--color-forest-depths]"
+                  <img
+                    src="/images/aloe-ingredient.jpg"
+                    alt="Thành phần thực vật chuẩn hóa"
+                    className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
+                  />
+                  <div
+                    className="absolute inset-0"
                     style={{
-                      fontWeight: 350,
-                      fontSize: "24px",
-                      lineHeight: 1.15,
-                      letterSpacing: "-0.48px",
+                      background:
+                        "linear-gradient(to top, rgba(28,58,19,0.95) 0%, rgba(28,58,19,0.65) 50%, rgba(0,0,0,0.1) 85%)",
                     }}
-                  >
-                    {ing.name}
-                  </h3>
-                  <p className="text-[14px] leading-[1.55] text-[--color-pewter]">
-                    {ing.desc}
-                  </p>
-                  <div className="mt-auto pt-4 border-t border-[--color-warm-stone]">
-                    <p className="font-[var(--font-seed-sans-mono)] text-[12px] text-[--color-forest-depths]/70">
-                      {ing.spec}
+                  />
+                  <div className="relative z-10 w-full text-[--color-snow-white]">
+                    <div className="flex items-center justify-between gap-4 flex-wrap mb-2">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-[10px] font-medium uppercase tracking-[0.22em] text-[--color-snow-white]">
+                        Thành phần
+                      </span>
+                    </div>
+                    <p
+                      className="mt-1 text-[--color-snow-white]"
+                      style={{
+                        fontWeight: 350,
+                        fontSize: "clamp(20px, 2.3vw, 28px)",
+                        lineHeight: 1.15,
+                        letterSpacing: "-0.02em",
+                      }}
+                    >
+                      62 hoạt chất sinh học tự nhiên
+                    </p>
+                    <p className="mt-2 text-[13px] sm:text-[14px] text-[--color-snow-white]/85 leading-relaxed">
+                      Nha đam và thực vật chuẩn hóa hàm lượng y khoa
                     </p>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section
-          className="w-full"
-          style={{ backgroundColor: "#1c3a13", color: "#fcfcf7" }}
-        >
-          <div className="px-6 sm:px-12 py-24 sm:py-32 text-[--color-snow-white]">
-            <div className="max-w-[1200px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
-              <div className="lg:col-span-6 order-2 lg:order-1">
-                <div className="grid grid-cols-3 gap-3">
-                  {RITUAL.map((step) => (
-                    <div
-                      key={step.code}
-                      className="rounded-[16px] p-5 flex flex-col gap-3 h-full"
-                      style={{ backgroundColor: "rgba(252,252,247,0.06)" }}
-                    >
-                      <span className="font-[var(--font-seed-sans-mono)] text-[12px] opacity-70">
-                        {step.code}
+                <div
+                  className="relative col-span-2 rounded-[32px] overflow-hidden min-h-[280px] sm:min-h-[340px] aspect-[16/10] flex items-end p-6 sm:p-8 group shadow-lg"
+                  style={{ backgroundColor: "#1c3a13", color: "#fcfcf7" }}
+                >
+                  <img
+                    src="/images/skincare-routine.jpg"
+                    alt="Quy trình chăm sóc da 3 bước sáng tối"
+                    className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
+                  />
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      background:
+                        "linear-gradient(to top, rgba(28,58,19,0.92) 0%, rgba(28,58,19,0.55) 45%, rgba(0,0,0,0.15) 85%)",
+                    }}
+                  />
+                  <div className="relative z-10 w-full text-[--color-snow-white]">
+                    <div className="flex items-center justify-between gap-4 flex-wrap mb-2">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-[10px] font-medium uppercase tracking-[0.22em] text-[--color-snow-white]">
+                        Quy trình
                       </span>
-                      <p
-                        className="text-[--color-snow-white]"
-                        style={{
-                          fontWeight: 350,
-                          fontSize: "20px",
-                          lineHeight: 1.2,
-                          letterSpacing: "-0.48px",
-                        }}
-                      >
-                        {step.title}
-                      </p>
-                      <p className="text-[12px] opacity-70 leading-[1.55]">
-                        {step.desc}
-                      </p>
                     </div>
-                  ))}
+                    <p
+                      className="mt-1"
+                      style={{
+                        fontWeight: 350,
+                        fontSize: "clamp(24px, 2.5vw, 32px)",
+                        lineHeight: 1.15,
+                        letterSpacing: "-0.02em",
+                      }}
+                    >
+                      Ba bước tối giản cho làn da khỏe mạnh
+                    </p>
+                    <p className="mt-2 text-[13px] sm:text-[14px] text-[--color-snow-white]/85 max-w-lg leading-relaxed">
+                      Làm sạch nhẹ nhàng · Tinh chất phục hồi tái sinh · Kem
+                      dưỡng khóa ẩm
+                    </p>
+                  </div>
                 </div>
               </div>
-
-              <div className="lg:col-span-6 order-1 lg:order-2">
-                <p className="text-[10px] font-medium uppercase tracking-[0.24em] opacity-70">
-                  Nghi lễ hàng ngày
-                </p>
-                <h2
-                  className="mt-4 leading-[1.1]"
-                  style={{
-                    fontWeight: 350,
-                    fontSize: "clamp(32px, 4vw, 48px)",
-                    letterSpacing: "-0.02em",
-                  }}
-                >
-                  Một nghi lễ yên tĩnh,
-                  <br />
-                  <span style={{ color: "#d3fa99" }}>
-                    được khoa học hỗ trợ.
-                  </span>
-                </h2>
-                <p className="mt-6 text-[16px] leading-[1.7] opacity-80 max-w-md">
-                  Bắt đầu và kết thúc ngày với ba bước rõ ràng — được thiết kế
-                  để tương thích với nhau và với hệ vi sinh trên da bạn.
-                </p>
-                <Link
-                  to="/login"
-                  className="mt-10 inline-flex items-center justify-center rounded-full border-[1.5px] border-[--color-snow-white] text-[--color-snow-white] px-6 py-4 text-[14px] hover:bg-[--color-snow-white] hover:text-[--color-forest-depths] transition-colors"
-                >
-                  Bắt đầu nghi lễ →
-                </Link>
-              </div>
             </div>
           </div>
         </section>
+
+        
 
         {/* TESTIMONIALS — Snow White */}
         <section
@@ -624,62 +695,6 @@ const LandingPage = () => {
                   </figcaption>
                 </figure>
               ))}
-            </div>
-          </div>
-        </section>
-
-        {/* FINAL CTA */}
-        <section
-          className="w-full"
-          style={{ backgroundColor: "#1c3a13", color: "#fcfcf7" }}
-        >
-          <div className="px-6 sm:px-12 py-24 sm:py-32 text-center text-[--color-snow-white]">
-            <div className="max-w-2xl mx-auto">
-              <p className="text-[10px] font-medium uppercase tracking-[0.24em] opacity-70">
-                Sẵn sàng bắt đầu
-              </p>
-              <h2
-                className="mt-4 leading-[1.05]"
-                style={{
-                  fontWeight: 350,
-                  fontSize: "clamp(36px, 5vw, 56px)",
-                  letterSpacing: "-0.02em",
-                }}
-              >
-                Da bạn xứng đáng
-                <br />
-                <span style={{ color: "#d3fa99" }}>sự minh bạch.</span>
-              </h2>
-              <p className="mt-6 text-[16px] opacity-80 max-w-md mx-auto">
-                Đăng ký để nhận hướng dẫn chăm sóc da cá nhân hóa và quyền truy
-                cập sớm vào bộ sưu tập mới.
-              </p>
-
-              <form
-                className="mt-10 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-center max-w-md mx-auto"
-                onSubmit={(e) => e.preventDefault()}
-              >
-                <input
-                  type="email"
-                  required
-                  placeholder="email@example.com"
-                  className="flex-1 bg-transparent border-[1.5px] border-[--color-snow-white] rounded-lg text-[--color-snow-white] placeholder:text-[--color-snow-white]/50 px-5 py-4 text-[14px] focus:outline-none"
-                />
-                <button
-                  type="submit"
-                  className="rounded-full px-6 py-4 text-[14px] font-normal"
-                  style={{
-                    backgroundColor: "#fcfcf7",
-                    color: "#1c3a13",
-                  }}
-                >
-                  Tham gia
-                </button>
-              </form>
-
-              <p className="mt-4 text-[10px] uppercase tracking-[0.18em] opacity-60">
-                Miễn phí · Hủy bất kỳ lúc nào
-              </p>
             </div>
           </div>
         </section>
@@ -764,8 +779,21 @@ const Stat = ({ label, value }: { label: string; value: string }) => (
   </div>
 );
 
-const ScienceRow = ({ title, desc }: { title: string; desc: string }) => (
-  <div className="border-t border-[--color-warm-stone] pt-5">
+const ScienceRow = ({
+  title,
+  desc,
+  className = "",
+  style,
+}: {
+  title: string;
+  desc: string;
+  className?: string;
+  style?: React.CSSProperties;
+}) => (
+  <div
+    className={`border-t border-[--color-warm-stone] pt-5 ${className}`}
+    style={style}
+  >
     <p
       className="text-[--color-forest-depths]"
       style={{ fontWeight: 400, fontSize: "16px" }}
@@ -822,6 +850,63 @@ const PRODUCTS: ShopProduct[] = [
     name: "Kem phục hồi ban đêm",
     price: "720.000₫",
     accent: "#698e79",
+  },
+];
+
+interface BrandPartner {
+  name: string;
+  logo: string;
+  alt: string;
+  customClass?: string;
+}
+
+const BRAND_PARTNERS: BrandPartner[] = [
+  { name: "Dior", logo: "/brands/ideYgQUHAY_1791364561796.svg", alt: "Dior" },
+  { name: "Chanel", logo: "/brands/Symbol.svg", alt: "Chanel" },
+  {
+    name: "Yves Saint Laurent",
+    logo: "/brands/yves-saint-laurent-1.svg",
+    alt: "Yves Saint Laurent",
+  },
+  { name: "Gucci", logo: "/brands/Logo.svg", alt: "Gucci" },
+  {
+    name: "La Roche-Posay",
+    logo: "/brands/La_Roche_ide6aM5qWb_0.svg",
+    alt: "La Roche-Posay",
+  },
+  { name: "CeraVe", logo: "/brands/CeraVe_idRMvstMwe_0.svg", alt: "CeraVe" },
+  {
+    name: "Paula's Choice",
+    logo: "/brands/idGAguSOOH_1791364334568.svg",
+    alt: "Paula's Choice",
+  },
+  {
+    name: "The Ordinary",
+    logo: "/brands/idpxGYNMtA_logos.svg",
+    alt: "The Ordinary",
+  },
+  {
+    name: "Bioderma",
+    logo: "/brands/BIODERMA_idbLzc_RKB_0.svg",
+    alt: "Bioderma",
+  },
+  {
+    name: "3CE Stylenanda",
+    logo: "/brands/idG3Cm4CYM_logos.svg",
+    alt: "3CE Stylenanda",
+  },
+  { name: "Rom&nd", logo: "/brands/Romnd-Logo-SVG_001.svg", alt: "Rom&nd" },
+  {
+    name: "Obagi Medical",
+    logo: "/brands/idLW9FEAZq_logos.jpeg",
+    alt: "Obagi Medical",
+    customClass: "mix-blend-multiply",
+  },
+  {
+    name: "Judydoll",
+    logo: "/brands/idbIbmQMI3_logos.png",
+    alt: "Judydoll",
+    customClass: "brightness-0",
   },
 ];
 
@@ -931,23 +1016,6 @@ const INGREDIENTS = [
   },
 ];
 
-const RITUAL = [
-  {
-    code: "01 / Sáng",
-    title: "Làm sạch dịu nhẹ",
-    desc: "Sữa rửa mặt vi sinh giữ độ ẩm tự nhiên cho da.",
-  },
-  {
-    code: "02 / Sáng",
-    title: "Tinh chất định hướng",
-    desc: "Huyết thanh niacinamide cho một ngày rạng rỡ.",
-  },
-  {
-    code: "03 / Tối",
-    title: "Khóa ẩm phục hồi",
-    desc: "Kem ban đêm với peptide nuôi dưỡng chuyên sâu.",
-  },
-];
 
 const TESTIMONIALS = [
   {

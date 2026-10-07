@@ -82,3 +82,34 @@ body {
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: "ss05" on;
 }
+
+@keyframes brandMarquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-33.333333%);
+  }
+}
+
+@keyframes brandSineWave {
+  0%, 100% {
+    transform: translateY(-16px) rotate(-1.5deg);
+  }
+  50% {
+    transform: translateY(16px) rotate(1.5deg);
+  }
+}
+
+.animate-brand-marquee {
+  animation: brandMarquee 48s linear infinite;
+}
+
+.animate-brand-marquee:hover {
+  animation-play-state: paused;
+}
+
+.brand-sine-wave {
+  animation: brandSineWave 4.2s ease-in-out infinite;
+  will-change: transform;
+}
