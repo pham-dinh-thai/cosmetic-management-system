@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import Header from "../../components/Header";
+import Footer from "../../components/Footer";
 import {
   useCartStore,
   formatVND,
@@ -159,11 +160,7 @@ const CartPage = () => {
         )}
       </main>
       
-      <footer className="w-full bg-snow-white mt-auto border-t border-warm-stone">
-        <div className="max-w-[1200px] mx-auto px-6 sm:px-12 py-12 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] uppercase tracking-[0.18em] text-pewter">
-          <p>© 2026 Guardian Skincare Inc.</p>
-        </div>
-      </footer>
+      <Footer className="mt-auto" />
     </div>
   );
 };

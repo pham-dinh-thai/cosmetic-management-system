@@ -4,4 +4,5 @@ export interface IUpdateUserInformationRequest {
   firstName: string;
   lastName: string;
   gender: Gender;
+  email?: string;
 }

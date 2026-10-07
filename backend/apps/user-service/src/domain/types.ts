@@ -24,4 +24,5 @@ export type UpdateUserInformationProps = {
   firstName: string;
   lastName: string;
   gender: Gender;
+  email?: string;
 };

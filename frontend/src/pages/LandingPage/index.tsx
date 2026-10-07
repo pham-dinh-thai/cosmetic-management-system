@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import Header from "../../components/Header";
+import Footer from "../../components/Footer";
 import {
   fetchShopProducts,
   type ShopProduct,
@@ -790,59 +791,7 @@ const LandingPage = () => {
           </div>
         </section>
 
-        {/* FOOTER */}
-        <footer
-          className="w-full"
-          style={{ backgroundColor: "#fcfcf7" }}
-        >
-          <div className="max-w-[1200px] mx-auto px-6 sm:px-12 py-16 grid grid-cols-2 md:grid-cols-5 gap-10">
-            <div className="col-span-2 md:col-span-2">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[--color-forest-depths]" />
-                <span className="text-[18px] tracking-[0.18em] uppercase text-[--color-forest-depths]">
-                  Guardian
-                </span>
-              </div>
-              <p className="mt-4 text-[13px] leading-[1.6] text-[--color-pewter] max-w-xs">
-                Mỹ phẩm khoa học — được phát triển cho hệ vi sinh khỏe mạnh và
-                hành tinh bền vững.
-              </p>
-            </div>
-
-            <FooterCol
-              title="Sản phẩm"
-              items={["Sữa rửa mặt", "Tinh chất", "Kem dưỡng", "Bộ sưu tập"]}
-            />
-            <FooterCol
-              title="Thương hiệu"
-              items={["Câu chuyện", "Khoa học", "Bền vững", "Báo chí"]}
-            />
-            <FooterCol
-              title="Hỗ trợ"
-              items={["Liên hệ", "Vận chuyển", "Đổi trả", "Câu hỏi thường gặp"]}
-            />
-          </div>
-
-          <div
-            className="border-t border-[--color-warm-stone]"
-            style={{ backgroundColor: "#fcfcf7" }}
-          >
-            <div className="max-w-[1200px] mx-auto px-6 sm:px-12 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] uppercase tracking-[0.18em] text-[--color-pewter]">
-              <p>© 2026 Guardian Skincare Inc.</p>
-              <div className="flex items-center gap-6">
-                <a href="#" className="hover:text-[--color-forest-depths]">
-                  Điều khoản
-                </a>
-                <a href="#" className="hover:text-[--color-forest-depths]">
-                  Bảo mật
-                </a>
-                <a href="#" className="hover:text-[--color-forest-depths]">
-                  Cookie
-                </a>
-              </div>
-            </div>
-          </div>
-        </footer>
+        <Footer hasTopBorder={false} />
       </main>
     </div>
   );
@@ -894,25 +843,6 @@ const ScienceRow = ({
   </div>
 );
 
-const FooterCol = ({ title, items }: { title: string; items: string[] }) => (
-  <div>
-    <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[--color-forest-depths]">
-      {title}
-    </p>
-    <ul className="mt-4 space-y-2.5">
-      {items.map((it) => (
-        <li key={it}>
-          <a
-            href="#"
-            className="text-[13px] text-[--color-pewter] hover:text-[--color-forest-depths] transition-colors"
-          >
-            {it}
-          </a>
-        </li>
-      ))}
-    </ul>
-  </div>
-);
 
 const PRODUCTS: ShopProduct[] = [
   {

@@ -112,7 +112,7 @@ import {
     {
       provide: UpdateUserInformationUseCase,
       useFactory: updateUserInformationUseCaseFactory,
-      inject: [USERS_REPOSITORY],
+      inject: [USERS_REPOSITORY, UserUniquenessService],
     },
     {
       provide: DELETE_AUTH_USER_PORT,

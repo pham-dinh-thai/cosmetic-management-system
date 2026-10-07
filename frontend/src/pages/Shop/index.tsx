@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import Header from "../../components/Header";
+import Footer from "../../components/Footer";
 import {
   productsService,
   type CategorySummary,
@@ -1005,20 +1006,7 @@ const ShopPage: React.FC = () => {
         </div>
       )}
 
-      {/* Footer Minimal */}
-      <footer className="w-full bg-[#fcfcf7] border-t border-[#eeeee9] mt-20">
-        <div className="max-w-[1200px] mx-auto px-6 sm:px-12 py-12 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] uppercase tracking-[0.18em] text-[#666666]">
-          <p>© 2026 Guardian Skincare Inc. — Botanical Clinical Systems</p>
-          <div className="flex items-center gap-6">
-            <Link to="/" className="hover:text-[#1c3a13] transition-colors">
-              Về trang chủ
-            </Link>
-            <a href="#top" className="hover:text-[#1c3a13] transition-colors">
-              Lên đầu trang ↑
-            </a>
-          </div>
-        </div>
-      </footer>
+      <Footer className="mt-20" />
     </div>
   );
 };

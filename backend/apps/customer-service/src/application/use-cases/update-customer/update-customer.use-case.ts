@@ -24,6 +24,7 @@ export class UpdateCustomerUseCase {
         firstName: request.user.firstName,
         lastName: request.user.lastName,
         gender: request.user.gender,
+        email: request.user.email,
       });
     }
   }

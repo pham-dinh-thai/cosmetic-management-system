@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import Header from "../../components/Header";
+import Footer from "../../components/Footer";
 import {
   productsService,
   type CategorySummary,
@@ -204,16 +205,7 @@ const CategoryPage = () => {
         </div>
       </main>
 
-      <footer className="w-full bg-snow-white border-t border-warm-stone">
-        <div className="max-w-[1200px] mx-auto px-6 sm:px-12 py-12 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] uppercase tracking-[0.18em] text-pewter">
-          <p>© 2026 Guardian Skincare Inc.</p>
-          <div className="flex items-center gap-6">
-            <Link to="/" className="hover:text-forest-depths transition-colors">
-              Về trang chủ
-            </Link>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

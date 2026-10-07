@@ -120,15 +120,18 @@ export const customersService = {
     payload: {
       name?: string;
       gender?: string;
+      email?: string;
     },
   ): Promise<void> {
     const { firstName, lastName } = splitName(payload.name || "");
+    const email = payload.email?.trim();
 
     await api.put<void>(`/customers/${id}`, {
       user: {
         firstName,
         lastName,
         gender: payload.gender || "other",
+        ...(email ? { email } : {}),
       },
     });
   },

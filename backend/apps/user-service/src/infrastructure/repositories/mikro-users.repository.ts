@@ -45,6 +45,7 @@ export class MikroUsersRepository implements IUsersRepository {
         firstName: user.getFirstName(),
         lastName: user.getLastName(),
         gender: user.getGender(),
+        email: user.getEmail(),
         updatedAt: new Date(),
       },
     );

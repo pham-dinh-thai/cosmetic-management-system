@@ -2,6 +2,7 @@ export interface IUpdateUserInformationRequest {
   firstName: string;
   lastName: string;
   gender: string;
+  email?: string;
 }
 
 export interface IUpdateUserInformationPort {
