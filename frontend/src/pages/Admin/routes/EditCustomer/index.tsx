@@ -90,6 +90,7 @@ const EditCustomerPage: React.FC = () => {
       await customersService.updateCustomer(id, {
         name: `${formData.firstName.trim()} ${formData.lastName.trim()}`,
         gender: formData.gender || "other",
+        email: formData.email.trim(),
       });
 
       const current = await customersService.getCustomerById(id);
@@ -105,9 +106,14 @@ const EditCustomerPage: React.FC = () => {
 
       toast.success("Đã cập nhật khách hàng");
       navigate("/customers");
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      toast.error("Đã có lỗi xảy ra khi cập nhật khách hàng");
+      const message = error?.response?.data?.message;
+      toast.error(
+        Array.isArray(message)
+          ? message.join(", ")
+          : message || "Đã có lỗi xảy ra khi cập nhật khách hàng",
+      );
     } finally {
       setLoading(false);
     }
@@ -214,11 +220,12 @@ const EditCustomerPage: React.FC = () => {
           </div>
           <div className="flex flex-col gap-1.5">
             <label className="text-[12px] font-medium uppercase tracking-wider text-[#666666]">
-              Email
+              Email <span className="text-red-500">*</span>
             </label>
             <Input
               type="email"
               name="email"
+              required
               value={formData.email}
               onChange={handleChange}
               placeholder="Ví dụ: nguyenvana@gmail.com"

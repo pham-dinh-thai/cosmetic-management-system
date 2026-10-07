@@ -1,10 +1,14 @@
 import {
   BadRequestException,
+  HttpException,
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { IUpdateUserInformationPort } from '../../application/use-cases/update-customer/ports/update-user-information.port';
+import {
+  IUpdateUserInformationPort,
+  IUpdateUserInformationRequest,
+} from '../../application/use-cases/update-customer/ports/update-user-information.port';
 import {
   IFindUserInformationPort,
   UserInformation,
@@ -20,11 +24,7 @@ export class UpdateUserInformationAdapter implements IUpdateUserInformationPort 
 
   public async execute(
     id: string,
-    request: {
-      firstName: string;
-      lastName: string;
-      gender: string;
-    },
+    request: IUpdateUserInformationRequest,
   ): Promise<void> {
     const response = await fetch(`${this.url}/api/internal/users/${id}`, {
       method: 'PATCH',
@@ -39,13 +39,38 @@ export class UpdateUserInformationAdapter implements IUpdateUserInformationPort 
       );
 
       if (response.status >= 400 && response.status < 500) {
-        throw new BadRequestException('Failed to update user information');
+        throw new HttpException(
+          this.parseMessage(body) || 'Failed to update user information',
+          response.status,
+        );
       }
 
       throw new InternalServerErrorException(
         'Failed to update user information',
       );
     }
+  }
+
+  private parseMessage(body: string): string {
+    if (!body) {
+      return '';
+    }
+
+    try {
+      const parsed = JSON.parse(body) as { message?: unknown };
+
+      if (Array.isArray(parsed.message)) {
+        return parsed.message.filter((m) => typeof m === 'string').join(', ');
+      }
+
+      if (typeof parsed.message === 'string') {
+        return parsed.message;
+      }
+    } catch {
+      return '';
+    }
+
+    return '';
   }
 }
 

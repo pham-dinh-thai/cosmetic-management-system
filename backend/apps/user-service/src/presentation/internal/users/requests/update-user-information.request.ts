@@ -1,7 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IUpdateUserInformationRequest } from 'apps/user-service/src/application/use-cases/update-user-information/update-user-information.request';
 import { Gender } from 'apps/user-service/src/domain/enums/gender.enum';
-import { IsEnum, IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 
 export class UpdateUserInformationRequest implements IUpdateUserInformationRequest {
   @ApiProperty()
@@ -20,4 +27,10 @@ export class UpdateUserInformationRequest implements IUpdateUserInformationReque
   @IsEnum(Gender)
   @IsNotEmpty()
   gender!: Gender;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsEmail()
+  @MaxLength(255)
+  email?: string;
 }

@@ -48,6 +48,9 @@ export class User {
     this.firstName = props.firstName;
     this.lastName = props.lastName;
     this.gender = props.gender;
+    if (props.email !== undefined) {
+      this.email = props.email;
+    }
     this.updatedAt = new Date();
   }
 
