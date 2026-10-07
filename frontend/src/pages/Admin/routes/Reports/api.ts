@@ -51,6 +51,57 @@ interface RawOrderPage {
 
 const ORDERS_PAGE_SIZE = 100;
 
+// Nginx limit_req: 30r/s burst=50 (vượt thì 429). Trang báo cáo gọi chi tiết
+// từng đơn/từng sản phẩm (N+1, ~60-100 lời gọi) nên phải tự pacing phía client
+// bằng token bucket cùng thông số, nếu không các request bị 429 và
+// .catch(() => null) nuốt mất → lợi nhuận, top sản phẩm, số bán ra bị thiếu đơn.
+const RATE_PER_SECOND = 30;
+const RATE_BURST = 50;
+const DETAIL_CONCURRENCY = 10;
+
+let rateTokens = RATE_BURST;
+let rateLastRefill = Date.now();
+
+async function acquireRateToken(): Promise<void> {
+  for (;;) {
+    const now = Date.now();
+    rateTokens = Math.min(
+      RATE_BURST,
+      rateTokens + ((now - rateLastRefill) * RATE_PER_SECOND) / 1000,
+    );
+    rateLastRefill = now;
+    if (rateTokens >= 1) {
+      rateTokens -= 1;
+      return;
+    }
+    await new Promise((resolve) =>
+      setTimeout(
+        resolve,
+        Math.ceil((1 - rateTokens) * 1000) / RATE_PER_SECOND,
+      ),
+    );
+  }
+}
+
+async function mapWithConcurrency<T, R>(
+  items: readonly T[],
+  concurrency: number,
+  fn: (item: T) => Promise<R>,
+): Promise<R[]> {
+  const results: R[] = new Array<R>(items.length);
+  let next = 0;
+  const worker = async (): Promise<void> => {
+    while (next < items.length) {
+      const index = next++;
+      results[index] = await fn(items[index]);
+    }
+  };
+  await Promise.all(
+    Array.from({ length: Math.min(concurrency, items.length) }, worker),
+  );
+  return results;
+}
+
 // Báo cáo tổng hợp trên toàn bộ đơn nên phải gom hết các trang,
 // GET /orders chỉ trả tối đa 100 bản ghi mỗi trang.
 async function fetchAllOrders(): Promise<RawOrder[]> {
@@ -88,9 +139,14 @@ export const reportsApi = {
         customersService.getCustomers().catch(() => []),
       ]);
 
-    // 2. Fetch cosmetic details
-    const cosmeticDetails = await Promise.all(
-      cosmeticsListRes.map((c) => productsService.getCosmeticById(c.id).catch(() => null)),
+    // 2. Fetch cosmetic details (pacing để không vượt limit_req)
+    const cosmeticDetails = await mapWithConcurrency(
+      cosmeticsListRes,
+      DETAIL_CONCURRENCY,
+      async (c) => {
+        await acquireRateToken();
+        return productsService.getCosmeticById(c.id).catch(() => null);
+      },
     );
     const validCosmetics = cosmeticDetails.filter((c): c is CosmeticDetail => c !== null);
 
@@ -160,11 +216,18 @@ export const reportsApi = {
     );
     const cancelledOrdersList = filteredOrders.filter((o) => o.status === "cancelled");
 
-    // Fetch detail lines for completed orders
-    const completedDetails = await Promise.all(
-      completedOrdersList.map((o) =>
-        api.get<RawOrderDetail>(`/orders/${o.id}`).then((r) => r.data).catch(() => null),
-      ),
+    // Fetch detail lines for completed orders (pacing bằng token bucket:
+    // 30 ngày có ~59 đơn hoàn thành → bắn song song sẽ vượt burst=50 của nginx)
+    const completedDetails = await mapWithConcurrency(
+      completedOrdersList,
+      DETAIL_CONCURRENCY,
+      async (o) => {
+        await acquireRateToken();
+        return api
+          .get<RawOrderDetail>(`/orders/${o.id}`)
+          .then((r) => r.data)
+          .catch(() => null);
+      },
     );
     const validDetails = completedDetails.filter((d): d is RawOrderDetail => d !== null);
 
